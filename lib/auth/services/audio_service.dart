@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 /// Servicio para manejar todos los efectos de sonido y música del juego
 class AudioService with WidgetsBindingObserver {
@@ -14,33 +15,51 @@ class AudioService with WidgetsBindingObserver {
   final AudioPlayer _musicPlayer = AudioPlayer();
   final AudioPlayer _sfxPlayer = AudioPlayer();
   final AudioPlayer _glitchPlayer = AudioPlayer();
+  final AudioPlayer _hoverPlayer = AudioPlayer(); // Player dedicado para hover
 
   // Control de volumen
-  double _musicVolume = 0.2; // 20% para música de fondo
-  double _sfxVolume = 0.4; // 40% para efectos
-  double _glitchVolume = 0.35; // 35% para glitch
+  double _musicVolume = 0.25; // 25% para música de fondo (un poco más alto)
+  double _sfxVolume = 0.3; // 30% para efectos (más bajo para no interrumpir)
+  double _glitchVolume = 0.25; // 25% para glitch
 
   bool _isMusicPlaying = false;
 
   /// Inicializar el servicio de audio
   Future<void> initialize() async {
-    // Configurar modo de loop
-    await _musicPlayer.setReleaseMode(ReleaseMode.loop); // Loop para música
+    // Configurar modo de loop para música
+    await _musicPlayer.setReleaseMode(ReleaseMode.loop);
+    await _musicPlayer.setVolume(_musicVolume);
+    
+    // Configurar el glitch para NO interrumpir la música en Android
+    if (!kIsWeb) {
+      await _glitchPlayer.setAudioContext(
+        AudioContext(
+          android: AudioContextAndroid(
+            isSpeakerphoneOn: false,
+            stayAwake: false,
+            contentType: AndroidContentType.sonification,
+            usageType: AndroidUsageType.game,
+            audioFocus: AndroidAudioFocus.none, // NO tomar audio focus
+          ),
+        ),
+      );
+    }
+    
+    // Configurar release mode para efectos
     await _sfxPlayer.setReleaseMode(ReleaseMode.stop);
     await _glitchPlayer.setReleaseMode(ReleaseMode.stop);
+    await _hoverPlayer.setReleaseMode(ReleaseMode.stop);
   }
 
   /// Reproducir música de fondo del login
   Future<void> playLoginMusic() async {
-    if (!_isMusicPlaying) {
-      try {
-        await _musicPlayer.setVolume(_musicVolume);
-        await _musicPlayer.play(AssetSource('audio/music/login_ambient.mp3'));
-        _isMusicPlaying = true;
-      } catch (e) {
-        // Silenciar error si el navegador bloquea el audio
-        // Esto es normal y esperado en la primera carga
-      }
+    try {
+      await _musicPlayer.stop(); // Detener cualquier reproducción anterior
+      await _musicPlayer.setVolume(_musicVolume);
+      await _musicPlayer.play(AssetSource('audio/music/login_ambient.mp3'));
+      _isMusicPlaying = true;
+    } catch (e) {
+      // Silenciar error
     }
   }
 
@@ -62,21 +81,27 @@ class AudioService with WidgetsBindingObserver {
 
   /// Reproducir efecto de hover en botones
   Future<void> playButtonHover() async {
-    try {
-      await _sfxPlayer.setVolume(_sfxVolume * 0.6); // Más bajo para hover
-      await _sfxPlayer.play(AssetSource('audio/sfx/button_hover.mp3'));
-    } catch (e) {
-      // Silenciar error
+    // Solo reproducir en web, no en Android para evitar conflictos con música
+    if (kIsWeb) {
+      try {
+        await _hoverPlayer.setVolume(_sfxVolume * 0.6); // Más bajo para hover
+        await _hoverPlayer.play(AssetSource('audio/sfx/button_hover.mp3'));
+      } catch (e) {
+        // Silenciar error
+      }
     }
   }
 
   /// Reproducir efecto de click en botones
   Future<void> playButtonClick() async {
-    try {
-      await _sfxPlayer.setVolume(_sfxVolume);
-      await _sfxPlayer.play(AssetSource('audio/sfx/button_click.mp3'));
-    } catch (e) {
-      // Silenciar error
+    // Solo reproducir en web, no en Android para evitar conflictos con música
+    if (kIsWeb) {
+      try {
+        await _sfxPlayer.setVolume(_sfxVolume);
+        await _sfxPlayer.play(AssetSource('audio/sfx/button_click.mp3'));
+      } catch (e) {
+        // Silenciar error
+      }
     }
   }
 
@@ -107,24 +132,30 @@ class AudioService with WidgetsBindingObserver {
     await _musicPlayer.dispose();
     await _sfxPlayer.dispose();
     await _glitchPlayer.dispose();
+    await _hoverPlayer.dispose();
   }
 
-  /// Manejar cambios en el ciclo de vida de la app (pausar/reanudar audio)
+  /// Manejar cambios en el ciclo de vida de la app
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.paused:
-      case AppLifecycleState.inactive:
-        // App en segundo plano o inactiva - pausar música
+        // App completamente en segundo plano (usuario fue al home) - pausar música
         pauseMusic();
         break;
       case AppLifecycleState.resumed:
-        // App vuelve al frente - reanudar música
-        resumeMusic();
+        // App vuelve al frente - reanudar música si estaba sonando
+        if (_isMusicPlaying) {
+          resumeMusic();
+        }
+        break;
+      case AppLifecycleState.inactive:
+        // App temporalmente inactiva (panel de control, notificaciones, etc.)
+        // NO pausar la música, solo es temporal
         break;
       case AppLifecycleState.detached:
       case AppLifecycleState.hidden:
-        // App cerrada o oculta
+        // App cerrada
         break;
     }
   }

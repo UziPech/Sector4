@@ -16,6 +16,7 @@ import 'components/enemy_spawner.dart';
 import 'components/particle_effect.dart';
 import 'components/infinite_world.dart';
 import 'auth/screens/login_screen.dart';
+import 'narrative/screens/menu_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,10 +27,10 @@ void main() async {
     DeviceOrientation.landscapeRight,
   ]);
   
-  runApp(const ExpedienteKorinApp()); // Iniciar con login
+  runApp(const ExpedienteKorinApp()); // Iniciar con menú para testing
 }
 
-/// Aplicación principal - Inicia en login
+/// Aplicación principal - Inicia en menú (cambiar a LoginScreen para producción)
 class ExpedienteKorinApp extends StatelessWidget {
   const ExpedienteKorinApp({Key? key}) : super(key: key);
 
@@ -37,7 +38,7 @@ class ExpedienteKorinApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+      home: MenuScreen(), // Cambiar a LoginScreen() cuando el auth esté listo
     );
   }
 }

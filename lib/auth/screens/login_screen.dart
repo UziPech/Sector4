@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_fonts/google_fonts.dart';
 import '../services/audio_service.dart';
+import '../widgets/login_dialog.dart';
+import 'login_form_screen.dart';
 
 /// Pantalla de Login - Expediente Kōrin
 class LoginScreen extends StatefulWidget {
@@ -14,7 +16,20 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
+  
+  // Estados de expansión
+  bool _isLoginExpanded = false;
+  bool _isRegisterExpanded = false;
+  
+  // Controladores de formulario
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
+
   late AnimationController _rainController;
   late AnimationController _bloodController;
   late Timer _glitchTimer;
@@ -92,6 +107,10 @@ class _LoginScreenState extends State<LoginScreen>
     _bloodController.dispose();
     _glitchTimer.cancel();
     _audioService.stopLoginMusic();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _usernameController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -100,9 +119,10 @@ class _LoginScreenState extends State<LoginScreen>
     final size = MediaQuery.of(context).size;
     // Solo aplicar responsive en móviles (no en web)
     final isMobile = !kIsWeb && size.width < 600;
-    final titleFontSize = isMobile ? 24.0 : 52.0;
-    final buttonWidth = isMobile ? size.width * 0.6 : 300.0;
-    final padding = isMobile ? 10.0 : 40.0;
+    final titleFontSize = isMobile ? 9.0 : 52.0;
+    final buttonFontSize = isMobile ? 12.0 : 18.0;
+    final buttonWidth = isMobile ? size.width * 0.55 : 300.0;
+    final padding = isMobile ? 38.0 : 40.0;
     
     return Scaffold(
       body: Stack(
@@ -161,15 +181,19 @@ class _LoginScreenState extends State<LoginScreen>
           SafeArea(
             child: Padding(
               padding: EdgeInsets.all(padding),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.topLeft,
+                child: SizedBox(
+                  width: size.width - (padding * 2),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                     // Título del juego con efecto de sangre (arriba a la izquierda)
                     SizedBox(
-                      height: 50,
-                      width: size.width * 0.85,
+                      height: isMobile ? 10 : 150,
+                      width: isMobile ? size.width * 0.85 : 600,
                     child: Stack(
                       children: [
                         // Efecto de sangre goteando
@@ -272,70 +296,404 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ),
                   
-                    SizedBox(height: isMobile ? 10 : 120),
+                  const SizedBox(height: 8),
                   
-                  // Botones de login (izquierda, no centrados)
-                  _LoginButton(
-                    text: 'INICIAR SESIÓN',
-                    width: buttonWidth,
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Login - Próximamente'),
-                          duration: const Duration(seconds: 2),
-                          backgroundColor: Colors.red.withValues(alpha: 0.8),
-                        ),
-                      );
-                    },
+                  // Botones expandibles de login
+                  _buildExpandableLoginButton(
+                    isMobile: isMobile,
+                    buttonWidth: buttonWidth,
+                    buttonFontSize: buttonFontSize,
                   ),
-                    SizedBox(height: isMobile ? 6 : 16),
-                  _LoginButton(
-                    text: 'REGISTRARSE',
-                    width: buttonWidth,
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Registro - Próximamente'),
-                          duration: const Duration(seconds: 2),
-                          backgroundColor: Colors.red.withValues(alpha: 0.8),
-                        ),
-                      );
-                    },
+                  const SizedBox(height: 8),
+                  _buildExpandableRegisterButton(
+                    isMobile: isMobile,
+                    buttonWidth: buttonWidth,
+                    buttonFontSize: buttonFontSize,
                   ),
                   
-                  SizedBox(height: isMobile ? 8 : 40),
+                  const SizedBox(height: 8),
                   
                   // Versión (abajo a la izquierda)
                   Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isMobile ? 15 : 20,
-                      vertical: isMobile ? 6 : 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Colors.red.withValues(alpha: 0.3),
-                        width: 1,
-                      ),
-                    ),
-                    child: Text(
-                      'v0.1.0 - Login System',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: isMobile ? 10 : 12,
-                        fontFamily: 'monospace',
-                        letterSpacing: 1,
-                      ),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isMobile ? 8 : 20,
+                    vertical: isMobile ? 2 : 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Colors.red.withValues(alpha: 0.3),
+                      width: 1,
                     ),
                   ),
-                ],
+                  child: Text(
+                    'v0.1.0 - Login System',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: isMobile ? 10 : 12,
+                      fontFamily: 'monospace',
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  // Botón expandible de Login
+  Widget _buildExpandableLoginButton({
+    required bool isMobile,
+    required double buttonWidth,
+    required double buttonFontSize,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+      width: buttonWidth,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Botón principal
+          GestureDetector(
+            onTap: () {
+              // Siempre usar BottomSheet en móvil
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) => const LoginDialog(isRegister: false),
+              );
+            },
+            child: Container(
+              width: buttonWidth,
+              padding: EdgeInsets.symmetric(
+                vertical: isMobile ? 6 : 16,
+                horizontal: isMobile ? 10 : 24,
+              ),
+              decoration: BoxDecoration(
+                color: _isLoginExpanded 
+                    ? Colors.red.withValues(alpha: 0.3)
+                    : Colors.transparent,
+                border: Border.all(
+                  color: _isLoginExpanded ? Colors.red : Colors.white,
+                  width: 2,
+                ),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'INICIAR SESIÓN',
+                    style: TextStyle(
+                      color: _isLoginExpanded ? Colors.red : Colors.white,
+                      fontSize: buttonFontSize,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'monospace',
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  Icon(
+                    _isLoginExpanded ? Icons.expand_less : Icons.expand_more,
+                    color: _isLoginExpanded ? Colors.red : Colors.white,
+                    size: isMobile ? 20 : 24,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          // Formulario expandible
+          AnimatedCrossFade(
+            firstChild: const SizedBox.shrink(),
+            secondChild: Container(
+              margin: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.7),
+                border: Border.all(
+                  color: Colors.red.withValues(alpha: 0.5),
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildCompactTextField(
+                    controller: _emailController,
+                    label: 'EMAIL',
+                    hint: 'tu@email.com',
+                    icon: Icons.email_outlined,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildCompactTextField(
+                    controller: _passwordController,
+                    label: 'CONTRASEÑA',
+                    hint: '••••••••',
+                    icon: Icons.lock_outline,
+                    isPassword: true,
+                    isPasswordVisible: _isPasswordVisible,
+                    onTogglePassword: () {
+                      setState(() => _isPasswordVisible = !_isPasswordVisible);
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      // TODO: Implementar login
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red.withValues(alpha: 0.8),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text(
+                      'ENTRAR',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'monospace',
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            crossFadeState: _isLoginExpanded 
+                ? CrossFadeState.showSecond 
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 300),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Botón expandible de Registro
+  Widget _buildExpandableRegisterButton({
+    required bool isMobile,
+    required double buttonWidth,
+    required double buttonFontSize,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+      width: buttonWidth,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Botón principal
+          GestureDetector(
+            onTap: () {
+              // Siempre usar BottomSheet en móvil
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) => const LoginDialog(isRegister: true),
+              );
+            },
+            child: Container(
+              width: buttonWidth,
+              padding: EdgeInsets.symmetric(
+                vertical: isMobile ? 6 : 16,
+                horizontal: isMobile ? 10 : 24,
+              ),
+              decoration: BoxDecoration(
+                color: _isRegisterExpanded 
+                    ? Colors.red.withValues(alpha: 0.3)
+                    : Colors.transparent,
+                border: Border.all(
+                  color: _isRegisterExpanded ? Colors.red : Colors.white,
+                  width: 2,
+                ),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'REGISTRARSE',
+                    style: TextStyle(
+                      color: _isRegisterExpanded ? Colors.red : Colors.white,
+                      fontSize: buttonFontSize,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'monospace',
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  Icon(
+                    _isRegisterExpanded ? Icons.expand_less : Icons.expand_more,
+                    color: _isRegisterExpanded ? Colors.red : Colors.white,
+                    size: isMobile ? 20 : 24,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          // Formulario expandible
+          AnimatedCrossFade(
+            firstChild: const SizedBox.shrink(),
+            secondChild: Container(
+              margin: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.7),
+                border: Border.all(
+                  color: Colors.red.withValues(alpha: 0.5),
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildCompactTextField(
+                    controller: _usernameController,
+                    label: 'USUARIO',
+                    hint: 'tu_usuario',
+                    icon: Icons.person_outline,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildCompactTextField(
+                    controller: _emailController,
+                    label: 'EMAIL',
+                    hint: 'tu@email.com',
+                    icon: Icons.email_outlined,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildCompactTextField(
+                    controller: _passwordController,
+                    label: 'CONTRASEÑA',
+                    hint: '••••••••',
+                    icon: Icons.lock_outline,
+                    isPassword: true,
+                    isPasswordVisible: _isPasswordVisible,
+                    onTogglePassword: () {
+                      setState(() => _isPasswordVisible = !_isPasswordVisible);
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _buildCompactTextField(
+                    controller: _confirmPasswordController,
+                    label: 'CONFIRMAR',
+                    hint: '••••••••',
+                    icon: Icons.lock_outline,
+                    isPassword: true,
+                    isPasswordVisible: _isConfirmPasswordVisible,
+                    onTogglePassword: () {
+                      setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible);
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      // TODO: Implementar registro
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red.withValues(alpha: 0.8),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text(
+                      'CREAR CUENTA',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'monospace',
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            crossFadeState: _isRegisterExpanded 
+                ? CrossFadeState.showSecond 
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 300),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Campo de texto compacto
+  Widget _buildCompactTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    bool isPassword = false,
+    bool isPasswordVisible = false,
+    VoidCallback? onTogglePassword,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.red.withValues(alpha: 0.8),
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'monospace',
+          ),
+        ),
+        const SizedBox(height: 4),
+        TextField(
+          controller: controller,
+          obscureText: isPassword && !isPasswordVisible,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontFamily: 'monospace',
+          ),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(
+              color: Colors.white.withValues(alpha: 0.3),
+              fontSize: 12,
+            ),
+            prefixIcon: Icon(icon, color: Colors.red.withValues(alpha: 0.6), size: 16),
+            suffixIcon: isPassword
+                ? IconButton(
+                    icon: Icon(
+                      isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                      color: Colors.white.withValues(alpha: 0.5),
+                      size: 16,
+                    ),
+                    onPressed: onTogglePassword,
+                  )
+                : null,
+            filled: true,
+            fillColor: Colors.black.withValues(alpha: 0.5),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(4),
+              borderSide: BorderSide(color: Colors.red.withValues(alpha: 0.3)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(4),
+              borderSide: BorderSide(color: Colors.red.withValues(alpha: 0.3)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(4),
+              borderSide: BorderSide(color: Colors.red.withValues(alpha: 0.8), width: 2),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            isDense: true,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -345,11 +703,15 @@ class _LoginButton extends StatefulWidget {
   final String text;
   final VoidCallback? onPressed;
   final double width;
+  final bool isMobile;
+  final double fontSize;
 
   const _LoginButton({
     required this.text,
     required this.onPressed,
     this.width = 300,
+    this.isMobile = false,
+    this.fontSize = 18,
   });
 
   @override
@@ -365,19 +727,27 @@ class _LoginButtonState extends State<_LoginButton> {
     return MouseRegion(
       onEnter: (_) {
         setState(() => _isHovered = true);
-        _audioService.playButtonHover(); // Sonido al pasar mouse
+        // Solo reproducir sonido en web, no en Android
+        if (kIsWeb) {
+          _audioService.playButtonHover();
+        }
       },
       onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(
         onTap: () {
-          // Reproducir sonido de click
-          _audioService.playButtonClick();
+          // Solo reproducir sonido en web, no en Android
+          if (kIsWeb) {
+            _audioService.playButtonClick();
+          }
           widget.onPressed?.call();
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           width: widget.width,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+          padding: EdgeInsets.symmetric(
+            vertical: widget.isMobile ? 5 : 16,
+            horizontal: widget.isMobile ? 8 : 24,
+          ),
           decoration: BoxDecoration(
             color: _isHovered
                 ? Colors.red.withValues(alpha: 0.2)
@@ -402,7 +772,7 @@ class _LoginButtonState extends State<_LoginButton> {
             textAlign: TextAlign.center,
             style: TextStyle(
               color: _isHovered ? Colors.red : Colors.white,
-              fontSize: 18,
+              fontSize: widget.fontSize,
               fontWeight: FontWeight.bold,
               fontFamily: 'monospace',
               letterSpacing: 2,
