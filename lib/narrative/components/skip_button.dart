@@ -69,48 +69,93 @@ class _SkipButtonState extends State<SkipButton> {
   }
 
   Future<void> _showSkipDialog(BuildContext context) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.grey[900],
-        title: const Text(
-          'Skipear Capítulo',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: Text(
-          '¿Estás seguro de que quieres skipear este capítulo?\n\nPodrás volver a jugarlo desde el menú de Historia.',
-          style: const TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text(
-              'Skipear',
-              style: TextStyle(color: Colors.orange),
-            ),
-          ),
-        ],
-      ),
-    );
+    print('🔘 Skip button pressed - Chapter ${widget.chapterNumber}');
+    
+    // Asegurarse de que el contexto sea válido
+    if (!context.mounted) {
+      print('❌ Context not mounted');
+      return;
+    }
 
-    if (confirm == true && context.mounted) {
-      // Marcar como skipeado
-      await SaveSystem.markChapterSkipped(widget.chapterNumber);
-      
-      // Callback personalizado si existe
-      widget.onSkip?.call();
-      
-      // Volver al menú
-      if (context.mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) => const MenuScreen(),
+    try {
+      final confirm = await showDialog<bool>(
+        context: context,
+        barrierDismissible: true,
+        builder: (dialogContext) => AlertDialog(
+          backgroundColor: Colors.grey[900],
+          title: const Text(
+            'Skipear Capítulo',
+            style: TextStyle(color: Colors.white),
           ),
-          (route) => false,
+          content: const Text(
+            '¿Estás seguro de que quieres skipear este capítulo?\n\nPodrás volver a jugarlo desde el menú de Historia.',
+            style: TextStyle(color: Colors.white70),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                print('❌ Skip cancelled');
+                Navigator.of(dialogContext).pop(false);
+              },
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                print('✅ Skip confirmed');
+                Navigator.of(dialogContext).pop(true);
+              },
+              child: const Text(
+                'Skipear',
+                style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      );
+
+      print('Dialog result: $confirm');
+
+      if (confirm == true) {
+        if (!context.mounted) {
+          print('❌ Context not mounted after dialog');
+          return;
+        }
+
+        print('💾 Marking chapter ${widget.chapterNumber} as skipped');
+        
+        // Marcar como skipeado
+        await SaveSystem.markChapterSkipped(widget.chapterNumber);
+        
+        print('✅ Chapter marked as skipped');
+        
+        // Callback personalizado si existe
+        widget.onSkip?.call();
+        
+        // Volver al menú
+        if (context.mounted) {
+          print('🏠 Navigating to menu');
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => const MenuScreen(),
+            ),
+            (route) => false,
+          );
+        }
+      }
+    } catch (e, stackTrace) {
+      print('❌ Error in skip dialog: $e');
+      print('Stack trace: $stackTrace');
+      
+      // Mostrar error al usuario
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al skipear: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }

@@ -1,16 +1,54 @@
-# expedientekorin
+# Expediente Kōrin
 
-A new Flutter project.
+Juego narrativo de acción top-down desarrollado con Flutter + Flame.
 
-## Getting Started
+## 🎮 Controles
 
-This project is a starting point for a Flutter application.
+### Durante exploración (Casa de Dan):
+- **WASD / Flechas**: Mover a Dan
+- **E**: Interactuar con objetos
+- **ESC**: Saltar diálogo actual
 
-A few resources to get you started if this is your first Flutter project:
+### Durante combate:
+- **WASD / Flechas**: Mover
+- **Espacio / Click**: Disparar
+- **E**: Habilidad de Mel (curación)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## 🚀 Ejecutar el proyecto
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter pub get
+flutter run -d chrome
+```
+
+## 📁 Estructura del proyecto
+
+- `lib/narrative/` - Sistema narrativo (diálogos, escenas, habitaciones)
+- `lib/game/` - Motor de combate Flame (jugador, Mel, enemigos, mapas)
+- `assets/tiles/capitulo_X/` - Mapas Tiled por capítulo
+- `assets/avatars/` - Avatares para diálogos
+
+## 📖 Documentación
+
+- **`CURRENT_STATE.md`** - Estado actual del proyecto
+- **`REFACTOR_SUMMARY.md`** - Arquitectura técnica
+- **`DIALOGOS_CAPITULOS_1_2.md`** - Narrativa completa
+- **`LORE_Y_CONTEXTO.md`** - Historia y lore del juego
+- **`ROOM_SYSTEM_IMPLEMENTATION.md`** - Sistema de habitaciones
+- **`SKIP_DIALOGUE_IMPLEMENTATION.md`** - Sistema de skip
+
+## ✨ Características implementadas
+
+✅ Sistema de habitaciones con transiciones  
+✅ Skip de diálogos con ESC  
+✅ Exploración narrativa (Casa de Dan)  
+✅ Sistema de combate con Flame  
+✅ Mel como companion con habilidades  
+✅ HUD dinámico  
+
+## 🎯 Próximos pasos
+
+- Implementar interacción con el teléfono
+- Crear enemigos (Resonantes, Kijin)
+- Mapas Tiled para cada capítulo
+- Sistema de armas e inventario

@@ -63,14 +63,29 @@ class InteractableObject extends StatelessWidget {
           ),
           child: Stack(
             children: [
-              // Icono del objeto
-              Center(
-                child: Icon(
-                  _getIconForType(),
-                  color: Colors.white,
-                  size: 32,
+              // Sprite o icono del objeto
+              if (data.spritePath != null)
+                Center(
+                  child: Image.asset(
+                    data.spritePath!,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(
+                        _getIconForType(),
+                        color: Colors.white,
+                        size: 32,
+                      );
+                    },
+                  ),
+                )
+              else
+                Center(
+                  child: Icon(
+                    _getIconForType(),
+                    color: Colors.white,
+                    size: 32,
+                  ),
                 ),
-              ),
               // Indicador de interacción
               if (isInRange && !DialogueOverlay.isActive)
                 Positioned(

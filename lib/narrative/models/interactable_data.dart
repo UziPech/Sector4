@@ -12,6 +12,7 @@ class InteractableData {
   final VoidCallback? onInteract;
   final bool isOneTime; // Si solo se puede interactuar una vez
   final String? requiredItem; // Item requerido para interactuar (futuro)
+  final String? spritePath; // Ruta a la imagen del sprite (opcional)
   
   bool hasBeenInteracted = false;
 
@@ -25,6 +26,7 @@ class InteractableData {
     this.onInteract,
     this.isOneTime = false,
     this.requiredItem,
+    this.spritePath,
   });
 
   /// Verifica si el jugador está en rango de interacción
@@ -42,7 +44,10 @@ enum InteractableType {
   door, // Puerta (transición)
   furniture, // Mueble (ambiente)
   document, // Documento (lore)
+  desk, // Escritorio
   npc, // Personaje (futuro)
+  object, // Objeto general
+  character, // Personaje interactuable (Mel)
 }
 
 /// Clase simple para vectores 2D (compatible con Flame)
@@ -53,8 +58,16 @@ class Vector2 {
   const Vector2(this.x, this.y);
 
   Vector2 operator -(Vector2 other) => Vector2(x - other.x, y - other.y);
+  Vector2 operator *(double scalar) => Vector2(x * scalar, y * scalar);
   
   double get length => (x * x + y * y);
+  
+  Vector2 normalized() {
+    final len = length;
+    if (len == 0) return const Vector2(0, 0);
+    final magnitude = len.abs();
+    return Vector2(x / magnitude, y / magnitude);
+  }
   
   @override
   String toString() => 'Vector2($x, $y)';

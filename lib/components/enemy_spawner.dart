@@ -13,7 +13,7 @@ class EnemySpawner extends Component with HasGameReference<ExpedienteKorinGame> 
   double _spawnTimer = 0.0;
   double _spawnInterval = 3.0; // Segundos entre spawns
   int _maxEnemies = 10;
-  int _currentWave = 1;
+  int currentWave = 1; // Público para acceso desde UI
   
   // Dificultad progresiva
   double _difficultyTimer = 0.0;
@@ -77,7 +77,7 @@ class EnemySpawner extends Component with HasGameReference<ExpedienteKorinGame> 
   
   EnemyConfig _getEnemyConfig() {
     // Configuración base que aumenta con la dificultad
-    final speedMultiplier = 1.0 + (_currentWave - 1) * 0.1;
+    final speedMultiplier = 1.0 + (currentWave - 1) * 0.1;
     
     // 30% de probabilidad de spawn melee (zombie)
     final isMelee = _random.nextDouble() < 0.3;
@@ -86,10 +86,10 @@ class EnemySpawner extends Component with HasGameReference<ExpedienteKorinGame> 
       // Configuración para enemigo melee (zombie)
       return EnemyConfig(
         combatType: CombatType.melee,
-        detectionRadius: 250.0 + (_currentWave * 10), // Mayor detección
+        detectionRadius: 250.0 + (currentWave * 10), // Mayor detección
         walkingSpeed: 40.0 * speedMultiplier, // Más rápido
         chasingSpeed: 140.0 * speedMultiplier, // Mucho más rápido al perseguir
-        meleeDamage: 15.0 + (_currentWave * 2), // Daño aumenta con oleadas
+        meleeDamage: 15.0 + (currentWave * 2), // Daño aumenta con oleadas
         meleeAttackCooldown: 0.5,
         changeDirInterval: 2.0,
         patrolRadius: 150.0,
@@ -100,10 +100,10 @@ class EnemySpawner extends Component with HasGameReference<ExpedienteKorinGame> 
       // Configuración para enemigo ranged (normal)
       return EnemyConfig(
         combatType: CombatType.ranged,
-        detectionRadius: 200.0 + (_currentWave * 10),
+        detectionRadius: 200.0 + (currentWave * 10),
         walkingSpeed: 30.0 * speedMultiplier,
         chasingSpeed: 100.0 * speedMultiplier,
-        shootCooldown: max(0.5, 1.5 - (_currentWave * 0.1)),
+        shootCooldown: max(0.5, 1.5 - (currentWave * 0.1)),
         changeDirInterval: 2.0,
         patrolRadius: 150.0,
         stunnedDuration: 0.5,
@@ -113,7 +113,7 @@ class EnemySpawner extends Component with HasGameReference<ExpedienteKorinGame> 
   }
   
   void _increaseDifficulty() {
-    _currentWave++;
+    currentWave++;
     
     // Reducir intervalo de spawn (mínimo 1 segundo)
     _spawnInterval = max(1.0, _spawnInterval - 0.2);
@@ -121,16 +121,14 @@ class EnemySpawner extends Component with HasGameReference<ExpedienteKorinGame> 
     // Aumentar máximo de enemigos
     _maxEnemies = min(20, _maxEnemies + 2);
     
-    print('🔥 Oleada $_currentWave - Intervalo: $_spawnInterval - Max: $_maxEnemies');
+    print('🔥 Oleada $currentWave - Intervalo: $_spawnInterval - Max: $_maxEnemies');
   }
   
   void reset() {
     _spawnTimer = 0.0;
     _spawnInterval = 3.0;
     _maxEnemies = 10;
-    _currentWave = 1;
+    currentWave = 1;
     _difficultyTimer = 0.0;
   }
-  
-  int get currentWave => _currentWave;
 }

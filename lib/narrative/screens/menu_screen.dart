@@ -40,7 +40,7 @@ class MenuScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'El Legado del Ángel Caído',
+                  'Una Caida a los deseos Humanos',
                   style: TextStyle(
                     color: Colors.grey,
                     fontSize: 18,
