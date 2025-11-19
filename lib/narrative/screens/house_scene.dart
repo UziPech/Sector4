@@ -36,6 +36,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
   final Set<LogicalKeyboardKey> _pressedKeys = {};
   bool _isDialogueActive = false;
   bool _phoneCallCompleted = false;
+  bool _canInteract = false;
 
   // Sistema de habitaciones
   late RoomManager _roomManager;
@@ -268,11 +269,29 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           newPosition.y.clamp(padding, room.roomSize.height - padding),
         );
 
-        setState(() {
-          _playerPosition = newPosition;
-        });
+          setState(() {
+            _playerPosition = newPosition;
+          });
+        }
       }
-    }
+      
+      // Verificar si hay interactuables cerca para mostrar el botón
+      final room = _roomManager.currentRoom;
+      bool canInteract = false;
+      for (final interactable in room.interactables) {
+         if (interactable.isInRange(_playerPosition, 80.0)) {
+           if (!interactable.isOneTime || !interactable.hasBeenInteracted) {
+             canInteract = true;
+             break;
+           }
+         }
+      }
+      
+      if (_canInteract != canInteract) {
+         setState(() {
+           _canInteract = canInteract;
+         });
+      }
   }
 
   void _checkDoorCollisions() {
@@ -643,6 +662,41 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                 ),
               ),
             ],
+            
+            // Botón de interacción (Móvil)
+            if (_canInteract && !_isDialogueActive)
+              Positioned(
+                bottom: 80,
+                right: 40,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: _tryInteract,
+                    borderRadius: BorderRadius.circular(30),
+                    child: Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: Colors.yellow.withOpacity(0.8),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.5),
+                            blurRadius: 8,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.touch_app,
+                        color: Colors.black,
+                        size: 32,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
