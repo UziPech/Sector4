@@ -26,7 +26,7 @@ class BunkerRoomManager {
       id: 'exterior_large',
       name: 'Camino al Búnker',
       type: RoomType.exterior,
-      backgroundColor: const Color(0xFF1A1A1A),
+      backgroundColor: const Color(0xFF3A4A3A), // Verde oscuro (bosque/exterior)
       playerSpawnPosition: const Vector2(400, 1200),
       roomSize: const Size(2000, 1500),
       cameraMode: CameraMode.follow,
@@ -82,7 +82,7 @@ class BunkerRoomManager {
       id: 'exterior',
       name: 'Exterior',
       type: RoomType.exterior,
-      backgroundColor: const Color(0xFF2A2A2A),
+      backgroundColor: const Color(0xFF4A5A4A), // Verde grisáceo
       playerSpawnPosition: const Vector2(350, 400),
       roomSize: const Size(700, 500),
       interactables: [
@@ -137,7 +137,7 @@ class BunkerRoomManager {
       id: 'vestibule',
       name: 'Vestíbulo',
       type: RoomType.hallway,
-      backgroundColor: const Color(0xFF1A1A1A),
+      backgroundColor: const Color(0xFF3A3A4A),
       playerSpawnPosition: const Vector2(350, 400),
       roomSize: const Size(700, 500),
       interactables: [
@@ -199,7 +199,7 @@ class BunkerRoomManager {
       id: 'hallway',
       name: 'Pasillo Principal',
       type: RoomType.hallway,
-      backgroundColor: const Color(0xFF1C1C28),
+      backgroundColor: const Color(0xFF3A3A5A),
       playerSpawnPosition: const Vector2(350, 400),
       roomSize: const Size(700, 500),
       interactables: [
@@ -265,7 +265,7 @@ class BunkerRoomManager {
       id: 'armory',
       name: 'Armería',
       type: RoomType.armory,
-      backgroundColor: const Color(0xFF252525),
+      backgroundColor: const Color(0xFF4A4A3A),
       playerSpawnPosition: const Vector2(350, 400),
       roomSize: const Size(700, 500),
       interactables: [
@@ -320,7 +320,7 @@ class BunkerRoomManager {
       id: 'library',
       name: 'Archivo',
       type: RoomType.library,
-      backgroundColor: const Color(0xFF1A1A22),
+      backgroundColor: const Color(0xFF3A3A4A),
       playerSpawnPosition: const Vector2(600, 250),
       roomSize: const Size(700, 500),
       interactables: [
@@ -380,7 +380,7 @@ class BunkerRoomManager {
       id: 'laboratory',
       name: 'Laboratorio',
       type: RoomType.laboratory,
-      backgroundColor: const Color(0xFF1A2228),
+      backgroundColor: const Color(0xFF2A4A5A),
       playerSpawnPosition: const Vector2(100, 250),
       roomSize: const Size(700, 500),
       interactables: [
@@ -535,7 +535,7 @@ class BunkerRoomManager {
       id: 'command',
       name: 'Centro de Comando',
       type: RoomType.command,
-      backgroundColor: const Color(0xFF1C1C2A),
+      backgroundColor: const Color(0xFF3A3A5A),
       playerSpawnPosition: const Vector2(350, 400),
       roomSize: const Size(700, 500),
       interactables: [
@@ -610,7 +610,7 @@ class BunkerRoomManager {
       id: 'quarters',
       name: 'Cuartel',
       type: RoomType.bedroom,
-      backgroundColor: const Color(0xFF1A1A1A),
+      backgroundColor: const Color(0xFF3A3A4A),
       playerSpawnPosition: const Vector2(350, 400),
       roomSize: const Size(700, 500),
       interactables: [
@@ -648,7 +648,7 @@ class BunkerRoomManager {
       id: 'cafeteria',
       name: 'Comedor',
       type: RoomType.cafeteria,
-      backgroundColor: const Color(0xFF1C1C1C),
+      backgroundColor: const Color(0xFF4A4A3A),
       playerSpawnPosition: const Vector2(100, 250),
       roomSize: const Size(700, 500),
       interactables: [

@@ -65,27 +65,18 @@ class InteractableObject extends StatelessWidget {
             children: [
               // Sprite o icono del objeto
               if (data.spritePath != null)
-                Center(
+                Positioned.fill(
                   child: Image.asset(
                     data.spritePath!,
-                    fit: BoxFit.contain,
+                    fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      return Icon(
-                        _getIconForType(),
-                        color: Colors.white,
-                        size: 32,
-                      );
+                      // Fallback visual mejorado para personajes
+                      return _buildCharacterPlaceholder();
                     },
                   ),
                 )
               else
-                Center(
-                  child: Icon(
-                    _getIconForType(),
-                    color: Colors.white,
-                    size: 32,
-                  ),
-                ),
+                _buildCharacterPlaceholder(),
               // Indicador de interacción
               if (isInRange && !DialogueOverlay.isActive)
                 Positioned(
@@ -123,6 +114,65 @@ class InteractableObject extends StatelessWidget {
     );
   }
 
+  Widget _buildCharacterPlaceholder() {
+    if (data.type == InteractableType.character) {
+      // Placeholder especial para personajes (como Mel)
+      return Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.cyan.withOpacity(0.6),
+              Colors.purple.withOpacity(0.6),
+            ],
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.person_pin_circle,
+              color: Colors.white,
+              size: 48,
+              shadows: [
+                Shadow(
+                  color: Colors.black.withOpacity(0.5),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              data.name,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'monospace',
+                shadows: [
+                  Shadow(
+                    color: Colors.black,
+                    blurRadius: 2,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    
+    // Placeholder genérico para otros tipos
+    return Center(
+      child: Icon(
+        _getIconForType(),
+        color: Colors.white,
+        size: 48,
+      ),
+    );
+  }
+
   Color _getColorForType() {
     switch (data.type) {
       case InteractableType.phone:
@@ -137,6 +187,8 @@ class InteractableObject extends StatelessWidget {
         return Colors.orange.withOpacity(0.5);
       case InteractableType.npc:
         return Colors.purple.withOpacity(0.5);
+      case InteractableType.character:
+        return Colors.transparent; // El gradiente se maneja en el placeholder
       default:
         return Colors.white.withOpacity(0.3);
     }
@@ -156,6 +208,8 @@ class InteractableObject extends StatelessWidget {
         return Icons.description;
       case InteractableType.npc:
         return Icons.person;
+      case InteractableType.character:
+        return Icons.person_pin;
       default:
         return Icons.help_outline;
     }
