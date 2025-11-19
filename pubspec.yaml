@@ -66,8 +66,6 @@ flutter:
     - assets/avatars/dialogue_icons/
     - assets/avatars/full_body/
     - assets/avatars/dialogue_body/
-    - assets/tiles/capitulo_1/
-    - assets/tiles/capitulo_2/
     - assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see

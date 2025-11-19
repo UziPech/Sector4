@@ -387,7 +387,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     final room = _roomManager.currentRoom;
     
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
       backgroundColor: Colors.black,
       body: KeyboardListener(
         focusNode: _focusNode,
@@ -700,6 +702,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           ],
         ),
       ),
+    ),
     ),
   );
 }

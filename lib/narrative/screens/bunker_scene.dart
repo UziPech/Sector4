@@ -312,25 +312,33 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
       Positioned(
         left: _playerPosition.x - _playerSize / 2, 
         top: _playerPosition.y - _playerSize / 2,
-        child: Container(
+        child: SizedBox(
           width: _playerSize, 
           height: _playerSize,
-          decoration: BoxDecoration(
-            color: Colors.blue.withOpacity(0.8),
-            border: Border.all(color: Colors.white, width: 3),
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.blue.withOpacity(0.5),
-                blurRadius: 10,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: const Icon(
-            Icons.person, 
-            color: Colors.white, 
-            size: 28,
+          child: Image.asset(
+            'assets/avatars/full_body/dan_fullbody.png',
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.8),
+                  border: Border.all(color: Colors.white, width: 3),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blue.withOpacity(0.5),
+                      blurRadius: 10,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.person, 
+                  color: Colors.white, 
+                  size: 28,
+                ),
+              );
+            },
           ),
         ),
       ),
