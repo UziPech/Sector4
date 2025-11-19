@@ -56,35 +56,35 @@
 - **Peligrosidad**: Baja (carne de cañón)
 - **Emoción base**: Miedo primitivo, hambre
 
-#### **Sector 3: Resonantes (Obsesivos)**
-- **Características**: Fijación en un objeto, persona o idea
-- **Comportamiento**: 
-  - Protegen su "objeto obsesivo" a toda costa
-  - Son invulnerables hasta que se destruye el objeto
-  - Pueden resolver puzzles simples relacionados con su obsesión
-  - Forman "cultos" alrededor de su fijación
-- **Peligrosidad**: Media (requieren estrategia)
-- **Emoción base**: Pena, pérdida, nostalgia extrema
-- **Ejemplo**: Un Resonante obsesionado con una foto de familia no puede ser dañado hasta que la foto sea destruida
+#### **Categoría 1: Resonantes (Dificultad Media / Táctica)**
+- **Nombre en el Lore**: Los Resonantes (O Shūnen-tai / 執念体 - "Cuerpos de Obsesión").
+- **Nombre Clave (Organización)**: "Objetivos de Sector 3".
+- **Origen**: Surgen de una muerte violenta (especialmente suicidios) dominada por una emoción única y abrumadora: una profunda tristeza, una culpa insoportable o una obsesión.
+- **Racionalidad y Dificultad**:
+  - No son genios tácticos, pero su racionalidad es un bucle obsesivo. Están atados a un lugar, a un objeto o a una víctima.
+  - Su desafío no es la fuerza bruta, sino que actúan como un "rompecabezas de terror".
+- **Ejemplo de Jugabilidad**: No puedes matarlo directamente. Primero debes encontrar el objeto de su obsesión (ej. una nota de suicidio, una foto) y destruirlo para hacerlo vulnerable. Mientras tanto, te acechará, te pondrá trampas psicológicas o drenará tu cordura.
+- **Por qué encaja**: Son los "mutados de alto nivel" que el Sector 3 (Investigación) estudiaría. No son solo monstruos que matar, sino fenómenos que comprender para poder neutralizar.
 
-#### **Sector 4: Kijin (Cazadores Tácticos)**
-- **Características**: Inteligencia táctica, razonamiento estratégico
-- **Comportamiento**:
-  - Flanquean y coordinan ataques
-  - Priorizan objetivos (atacan primero a Mel si detectan que cura)
-  - Se alimentan de la ira y desesperación del enemigo
-  - Usan el entorno a su favor
-  - Se retiran si están en desventaja
-- **Peligrosidad**: Alta (requieren habilidad y táctica)
-- **Emoción base**: Ira, venganza, odio dirigido
-- **Estrategia**: Kiting (retroceder mientras disparas), uso de obstáculos, gestión de recursos
+#### **Categoría 2: Kijin (Dificultad Alta / Combate de Élite)**
+- **Nombre en el Lore**: Kijin (鬼人) - Literalmente "Humano-Oni" o "Demonio Humano".
+- **Nombre Clave (Organización)**: "Amenazas de Sector 4".
+- **Origen**: Surgen de muertes violentas (especialmente asesinatos brutales) dominadas por la ira, el odio o el deseo de venganza. A diferencia del Resonante, su conciencia no está atrapada en un bucle, sino liberada y corrompida.
+- **Racionalidad y Dificultad**:
+  - Son cazadores tácticos. Poseen la inteligencia de un humano, pero con la fuerza y malicia de un Oni.
+  - Usan el entorno, flanquean, se retiran para curarse y priorizan objetivos (como Mel, la sanadora).
+- **Ejemplo de Jugabilidad**: Este es el enemigo de élite del Sector 4 (Asalto). Exigen que el jugador (Dan) use todas sus habilidades de combate, gestione sus recursos y coordine con Mel. Serían los "mini-jefes" de las zonas.
+- **Por qué encaja**: Representan la fusión perfecta de un Yūrei vengativo con la fuerza de un Yōkai poderoso (Oni), justificando por qué se necesita a la élite (Dan) para detenerlos.
 
-#### **Sector 5: Singularidades (Fenómenos/Bosses)**
-- **Características**: Entidades únicas, casi divinas en poder
-- **Comportamiento**: Impredecible, cada uno tiene mecánicas únicas
-- **Peligrosidad**: Extrema (requieren preparación y equipo completo)
-- **Emoción base**: Desesperación absoluta, colapso existencial
-- **Nota**: No aparecen en la demo, son contenido post-lanzamiento
+#### **Categoría 3: Singularidades (Dificultad Jefe / Únicos)**
+- **Nombre en el Lore**: Las Singularidades (O Genshō / 現象 - "El Fenómeno").
+- **Nombre Clave (Organización)**: "Objetivos Kōrin" (Objetivos "Caídos") o "Desconocidos".
+- **Origen**: No surgen de una sola muerte, sino que son la confluencia de múltiples tragedias en un solo lugar (como un suicidio masivo o una masacre en la universidad). Son la encarnación física de un "evento" de desesperación.
+- **Racionalidad y Dificultad**:
+  - Su racionalidad es alienígena y superior. Son la "mente colmena" de un lugar. Piensan a gran escala.
+  - Son los Jefes de Nivel (Bosses). No solo tienen una fuerza inmensa, sino que controlan el entorno, invocan mutados menores (del Sector 2) y tienen múltiples fases de combate.
+- **Ejemplo de Jugabilidad**: Para vencer a una Singularidad, Dan no solo debe luchar, sino resolver el misterio de su origen. El combate podría requerir que Dan destruya "anclas" (los cuerpos originales) mientras Mel lo mantiene vivo de la ira del jefe.
+- **Por qué encaja**: Son los "mutados de rango desconocido" que teme el Sector 4. Se conectan directamente con el título del juego (Kōrin), representando una "Caída" o "Descenso" total de la humanidad en un horror concentrado.
 
 ---
 

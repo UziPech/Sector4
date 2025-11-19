@@ -3,12 +3,14 @@ import 'package:flame/collisions.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import '../../combat/weapon_system.dart';
+import '../../components/character_component.dart'; // Para compatibilidad si se requiere
 import '../expediente_game.dart';
 
 /// Dan - El jugador principal
 /// Representa la culpa, vulnerabilidad y determinación del protagonista
 class PlayerCharacter extends PositionComponent
-    with KeyboardHandler, HasGameReference<ExpedienteKorinGame>, CollisionCallbacks {
+    with KeyboardHandler, HasGameReference<ExpedienteKorinGame>, CollisionCallbacks, CharacterComponent {
   
   static final _paint = BasicPalette.green.paint()..style = PaintingStyle.fill;
   static const double _size = 32.0;
@@ -23,11 +25,10 @@ class PlayerCharacter extends PositionComponent
   final Vector2 _velocity = Vector2.zero();
   final Set<LogicalKeyboardKey> _pressedKeys = {};
   Vector2 _previousPosition = Vector2.zero();
+  Vector2 lastMoveDirection = Vector2(1, 0); // Dirección por defecto (derecha)
   
-  // Sistema de disparo
-  bool _canShoot = true;
-  static const double _shootCooldown = 0.25;
-  double _timeSinceLastShot = 0.0;
+  // Sistema de combate
+  late final WeaponInventory weaponInventory;
   
   // Invencibilidad temporal (al recibir daño)
   bool _isInvulnerable = false;
@@ -50,6 +51,27 @@ class PlayerCharacter extends PositionComponent
     add(RectangleHitbox()..collisionType = CollisionType.active);
     
     _previousPosition = position.clone();
+    
+    // Inicializar sistema de armas
+    weaponInventory = WeaponInventory();
+    add(weaponInventory);
+    
+    // Agregar armas iniciales
+    weaponInventory.addWeapon(MeleeWeapon(
+      name: 'Cuchillo del Diente Caótico',
+      damage: 100.0,
+      cooldown: 0.5,
+    ));
+    
+    weaponInventory.addWeapon(RangedWeapon(
+      name: 'Pistola Estándar',
+      damage: 20.0,
+      maxAmmo: 20,
+      cooldown: 0.25,
+    ));
+    
+    // Equipar cuchillo por defecto
+    weaponInventory.equipWeapon(0);
   }
   
   @override
@@ -63,15 +85,6 @@ class PlayerCharacter extends PositionComponent
       _invulnerabilityTimer -= dt;
       if (_invulnerabilityTimer <= 0) {
         _isInvulnerable = false;
-      }
-    }
-    
-    // Actualizar cooldown de disparo
-    if (!_canShoot) {
-      _timeSinceLastShot += dt;
-      if (_timeSinceLastShot >= _shootCooldown) {
-        _canShoot = true;
-        _timeSinceLastShot = 0.0;
       }
     }
     
@@ -103,6 +116,7 @@ class PlayerCharacter extends PositionComponent
     // Normalizar y aplicar velocidad
     if (_velocity.length > 0) {
       _velocity.normalize();
+      lastMoveDirection = _velocity.clone(); // Actualizar dirección de mirada
       _previousPosition = position.clone();
       position += _velocity * _speed * dt;
     }
@@ -113,9 +127,16 @@ class PlayerCharacter extends PositionComponent
     if (event is KeyDownEvent) {
       _pressedKeys.add(event.logicalKey);
       
-      // Disparar con Espacio
-      if (event.logicalKey == LogicalKeyboardKey.space && _canShoot) {
-        _shoot();
+      // Atacar con Espacio
+      if (event.logicalKey == LogicalKeyboardKey.space) {
+        _attack();
+      }
+      
+      // Cambiar arma con Q
+      if (event.logicalKey == LogicalKeyboardKey.keyQ) {
+        weaponInventory.nextWeapon();
+        // TODO: Mostrar UI de cambio de arma
+        print('Arma equipada: ${weaponInventory.currentWeapon?.name}');
       }
     } else if (event is KeyUpEvent) {
       _pressedKeys.remove(event.logicalKey);
@@ -124,10 +145,8 @@ class PlayerCharacter extends PositionComponent
     return true;
   }
   
-  void _shoot() {
-    // TODO: Implementar sistema de disparo
-    _canShoot = false;
-    _timeSinceLastShot = 0.0;
+  void _attack() {
+    weaponInventory.currentWeapon?.tryAttack(this, game);
   }
   
   /// Recibe daño

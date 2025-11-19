@@ -1,14 +1,15 @@
 import 'dart:math' as math;
 import 'dart:ui';
+import 'package:flutter/material.dart';
 
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/palette.dart';
 import 'package:flame/collisions.dart';
 
-import 'bullet.dart';
+import 'bullet.dart' show Bullet;
 import 'character_component.dart';
-import '../main.dart';
+import '../game/expediente_game.dart';
 
 /// IA simple para el "Resonante" (Shūnen-tai).
 /// Propósito: patrulla (WALKING) hasta que detecta al jugador (Dan) y pasa a CHASING.
@@ -98,7 +99,7 @@ class EnemyConfig {
 }
 
 class EnemyCharacter extends PositionComponent
-    with CharacterComponent, CollisionCallbacks, HasGameReference<ExpedienteKorinGame> {
+    with CharacterComponent, CollisionCallbacks, HasGameReference<ExpedienteKorinGame>, HasPaint {
   /// Referencia al objetivo (Dan). Se espera al menos un PositionComponent con `position`.
   PositionComponent? playerToTrack;
 
@@ -107,6 +108,20 @@ class EnemyCharacter extends PositionComponent
 
   /// Configuración del enemigo
   final EnemyConfig config;
+  
+  // -- Sistema de Escudo Regenerativo --
+  double shield = 0;
+  double maxShield = 0;
+  final double shieldRegenRate = 5.0; // Puntos por segundo
+  final double shieldCooldownDuration = 3.0; // Tiempo sin daño para empezar a regenerar
+  double _shieldCooldownTimer = 0.0;
+  
+  // -- Efectos Visuales de Daño --
+  final double _flashDuration = 0.1;
+  double _flashTimer = 0.0;
+  bool _isFlashing = false;
+  final Paint _originalTint = BasicPalette.white.paint(); // Placeholder, se usa colorFilter en render
+
 
   /// Última posición conocida del jugador
   Vector2? lastKnownPlayerPosition;
@@ -285,6 +300,32 @@ class EnemyCharacter extends PositionComponent
       amount *= 0.5; // 50% de reducción de daño
     }
 
+    // -- Lógica de Escudo --
+    if (shield > 0) {
+      if (shield >= amount) {
+        shield -= amount;
+        amount = 0;
+      } else {
+        amount -= shield;
+        shield = 0;
+      }
+      // Resetear cooldown de regeneración
+      _shieldCooldownTimer = shieldCooldownDuration;
+    } else {
+      // Si no hay escudo, el daño va a la vida y reseteamos el timer también
+      _shieldCooldownTimer = shieldCooldownDuration;
+    }
+    
+    // Si el daño fue absorbido completamente por el escudo, no "recibimos daño" en el sentido de CharacterComponent
+    // pero sí queremos efectos visuales.
+    
+    // Efecto visual de flash
+    _isFlashing = true;
+    _flashTimer = _flashDuration;
+    // TODO: Emitir partículas aquí
+
+    if (amount <= 0) return true; // Daño absorbido
+
     final bool damaged = super.receiveDamage(amount);
     if (damaged) {
       // Actualizar sistema defensivo
@@ -349,7 +390,7 @@ class EnemyCharacter extends PositionComponent
   @override
   void onDeath() {
     // Dar puntos al jugador
-    game.addScore(100);
+    // game.addScore(100); // TODO: Implement addScore in ExpedienteKorinGame
     super.onDeath();
   }
   
@@ -388,10 +429,34 @@ class EnemyCharacter extends PositionComponent
     
     // Renderizar barra de vida
     renderHealthBar(canvas);
+    
+    // Renderizar barra de escudo (Azul cian)
+    if (maxShield > 0) {
+      const double barWidth = 32.0;
+      const double barHeight = 4.0;
+      const double offsetY = -15.0; // Arriba de la vida
+      
+      // Fondo (gris oscuro)
+      canvas.drawRect(
+        const Rect.fromLTWH(-barWidth / 2, offsetY, barWidth, barHeight),
+        Paint()..color = const Color(0xFF404040),
+      );
+      
+      // Barra actual
+      final double shieldPercent = (shield / maxShield).clamp(0.0, 1.0);
+      canvas.drawRect(
+        Rect.fromLTWH(-barWidth / 2, offsetY, barWidth * shieldPercent, barHeight),
+        Paint()..color = const Color(0xFF00FFFF),
+      );
+    }
 
     // Seleccionar el color según el estado y tipo de combate
     Paint currentPaint;
     
+    // Efecto de Flash (Blanco)
+    if (_isFlashing) {
+      currentPaint = Paint()..color = Colors.white;
+    } else 
     // Enemigos melee son de color púrpura/morado
     if (config.combatType == CombatType.melee) {
       currentPaint = Paint()
@@ -603,6 +668,24 @@ class EnemyCharacter extends PositionComponent
 
     // Actualizar timers y estados
     _updateTimers(dt);
+    
+    // Actualizar timer de flash
+    if (_isFlashing) {
+      _flashTimer -= dt;
+      if (_flashTimer <= 0) {
+        _isFlashing = false;
+      }
+    }
+    
+    // Regeneración de escudo
+    if (maxShield > 0 && shield < maxShield) {
+      if (_shieldCooldownTimer > 0) {
+        _shieldCooldownTimer -= dt;
+      } else {
+        shield += shieldRegenRate * dt;
+        if (shield > maxShield) shield = maxShield;
+      }
+    }
 
     // Actualizar cooldown de disparo (solo para enemigos ranged)
     if (config.combatType == CombatType.ranged) {

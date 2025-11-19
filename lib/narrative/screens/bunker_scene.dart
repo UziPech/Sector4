@@ -149,7 +149,10 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
   void _transitionToCombat() async {
     await SaveSystem.markChapterCompleted(2);
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const MyApp()));
+    // Iniciar en modo Boss (Stalker)
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const MyApp(startInBossMode: true))
+    );
   }
 
   void _updatePlayerPosition() {

@@ -280,8 +280,13 @@ class BunkerRoomManager {
             dialogues: const [
               DialogueData(
                 speakerName: 'Dan',
-                text: 'Arsenal completo. Pistolas, rifles... todo lo necesario.',
+                text: 'Cuchillo del Diente Caótico y mi pistola estándar. Hora de trabajar.',
                 type: DialogueType.internal,
+              ),
+              DialogueData(
+                speakerName: 'Sistema',
+                text: 'ARMAS ADQUIRIDAS: Cuchillo (100 DMG) | Pistola (20 DMG)',
+                type: DialogueType.system,
               ),
             ],
           ),

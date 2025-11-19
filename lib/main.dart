@@ -37,13 +37,15 @@ class ExpedienteKorinApp extends StatelessWidget {
 
 /// Widget para el juego de combate (usado después de las escenas narrativas)
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final bool startInBossMode;
+  
+  const MyApp({Key? key, this.startInBossMode = false}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: GameWidget(
-        game: ExpedienteKorinGame(),
+        game: ExpedienteKorinGame(startInBossMode: startInBossMode),
         overlayBuilderMap: {
           'GameOver': (context, game) => GameOverOverlay(
             game: game as ExpedienteKorinGame,

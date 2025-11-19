@@ -2,9 +2,12 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../components/player.dart';
 import '../components/mel.dart';
+import '../../combat/weapon_system.dart';
+
+import '../expediente_game.dart';
 
 /// HUD del juego - Muestra información vital
-class GameHUD extends PositionComponent {
+class GameHUD extends PositionComponent with HasGameReference<ExpedienteKorinGame> {
   final PlayerCharacter player;
   final MelCharacter mel;
   
@@ -17,14 +20,14 @@ class GameHUD extends PositionComponent {
   void render(Canvas canvas) {
     super.render(canvas);
     
-    // Fondo del HUD
+    // Fondo del HUD (Stats)
     final hudRect = Rect.fromLTWH(10, 10, 300, 120);
     final bgPaint = Paint()
       ..color = Colors.black.withOpacity(0.7)
       ..style = PaintingStyle.fill;
     canvas.drawRect(hudRect, bgPaint);
     
-    // Borde
+    // Borde Stats
     final borderPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.stroke
@@ -32,62 +35,95 @@ class GameHUD extends PositionComponent {
     canvas.drawRect(hudRect, borderPaint);
     
     // Texto de vida de Dan
-    _drawText(
-      canvas,
-      'DAN',
-      20,
-      25,
-      Colors.white,
-      bold: true,
-    );
+    _drawText(canvas, 'DAN', 20, 25, Colors.white, bold: true);
     
     // Barra de vida de Dan
-    _drawHealthBar(
-      canvas,
-      20,
-      45,
-      250,
-      player.health,
-      player.maxHealth,
-      Colors.green,
-    );
+    _drawHealthBar(canvas, 20, 45, 250, player.health, player.maxHealth, Colors.green);
     
     // Texto de Mel
-    _drawText(
-      canvas,
-      'MEL - SOPORTE VITAL',
-      20,
-      75,
-      Colors.cyan,
-      bold: true,
-    );
+    _drawText(canvas, 'MEL - SOPORTE VITAL', 20, 75, Colors.cyan, bold: true);
     
     // Indicador de cooldown de Mel
     if (mel.canHeal) {
-      _drawText(
-        canvas,
-        'DISPONIBLE (E)',
-        20,
-        95,
-        Colors.yellow,
-      );
+      _drawText(canvas, 'DISPONIBLE (E)', 20, 95, Colors.yellow);
     } else {
       final progress = (mel.healCooldownProgress * 100).toInt();
-      _drawText(
-        canvas,
-        'RECARGANDO: $progress%',
-        20,
-        95,
-        Colors.orange,
-      );
+      _drawText(canvas, 'RECARGANDO: $progress%', 20, 95, Colors.orange);
+      _drawCooldownBar(canvas, 20, 110, 250, mel.healCooldownProgress);
+    }
+
+    // --- WEAPON HOTBAR ---
+    _drawWeaponHotbar(canvas);
+  }
+
+  void _drawWeaponHotbar(Canvas canvas) {
+    final inventory = player.weaponInventory;
+    if (inventory.weapons.isEmpty) return;
+
+    const double slotSize = 60.0;
+    const double spacing = 10.0;
+    final double totalWidth = (inventory.weapons.length * slotSize) + ((inventory.weapons.length - 1) * spacing);
+    final double startX = (game.size.x - totalWidth) / 2;
+    final double startY = game.size.y - slotSize - 20.0;
+
+    for (int i = 0; i < inventory.weapons.length; i++) {
+      final weapon = inventory.weapons[i];
+      final isSelected = inventory.currentWeapon == weapon;
+      final x = startX + (i * (slotSize + spacing));
       
-      // Barra de cooldown
-      _drawCooldownBar(
-        canvas,
-        20,
-        110,
-        250,
-        mel.healCooldownProgress,
+      // Slot Background
+      final slotRect = Rect.fromLTWH(x, startY, slotSize, slotSize);
+      final slotPaint = Paint()
+        ..color = isSelected ? Colors.white.withOpacity(0.3) : Colors.black.withOpacity(0.5)
+        ..style = PaintingStyle.fill;
+      canvas.drawRect(slotRect, slotPaint);
+      
+      // Slot Border
+      final slotBorderPaint = Paint()
+        ..color = isSelected ? Colors.yellow : Colors.white.withOpacity(0.5)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = isSelected ? 3 : 1;
+      canvas.drawRect(slotRect, slotBorderPaint);
+
+      // Weapon Name (Short)
+      String shortName = weapon.name.split(' ').first;
+      if (shortName.length > 4) shortName = shortName.substring(0, 4);
+      
+      _drawText(
+        canvas, 
+        shortName, 
+        x + 5, 
+        startY + 5, 
+        isSelected ? Colors.yellow : Colors.white, 
+        bold: isSelected
+      );
+
+      // Ammo Count (if Ranged)
+      if (weapon is RangedWeapon) {
+        _drawText(
+          canvas, 
+          '${weapon.currentAmmo}/${weapon.maxAmmo}', 
+          x + 5, 
+          startY + slotSize - 20, 
+          weapon.currentAmmo > 0 ? Colors.white : Colors.red
+        );
+      } else {
+         _drawText(
+          canvas, 
+          '∞', 
+          x + 5, 
+          startY + slotSize - 20, 
+          Colors.white
+        );
+      }
+      
+      // Key Hint (1, 2, etc - though we use Q to switch, let's show index+1)
+      _drawText(
+        canvas, 
+        '${i + 1}', 
+        x + slotSize - 15, 
+        startY + 5, 
+        Colors.grey
       );
     }
   }

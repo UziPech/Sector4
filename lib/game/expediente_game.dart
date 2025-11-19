@@ -8,6 +8,8 @@ import 'systems/map_loader.dart';
 import 'components/player.dart';
 import 'components/mel.dart';
 import 'ui/game_hud.dart';
+import 'ui/mission_notification.dart';
+import 'levels/bunker_boss_level.dart';
 
 /// Motor principal del juego Expediente Kōrin
 /// Gestiona el mundo, carga de mapas por capítulo y sistemas de juego
@@ -18,6 +20,7 @@ class ExpedienteKorinGame extends FlameGame
   late PlayerCharacter player;
   late MelCharacter mel;
   late GameHUD hud;
+  late MissionNotification notificationSystem;
   
   // Sistema de mapas
   final MapLoader mapLoader = MapLoader();
@@ -26,6 +29,9 @@ class ExpedienteKorinGame extends FlameGame
   // Estado del juego
   int currentChapter = 1;
   bool isGameOver = false;
+  final bool startInBossMode;
+  
+  ExpedienteKorinGame({this.startInBossMode = false});
   
   @override
   Future<void> onLoad() async {
@@ -34,17 +40,14 @@ class ExpedienteKorinGame extends FlameGame
     // Configurar cámara
     camera.viewfinder.anchor = Anchor.center;
     
-    // Cargar mapa del capítulo actual
-    await loadChapterMap(currentChapter);
-    
     // Crear jugador (Dan)
     player = PlayerCharacter();
-    player.position = mapLoader.getPlayerSpawnPosition(currentChapter);
+    // La posición se ajustará según el nivel
     await world.add(player);
     
     // Crear companion (Mel)
     mel = MelCharacter(
-      position: player.position + Vector2(50, 0),
+      position: Vector2.zero(), // Se ajustará
       player: player,
     );
     await world.add(mel);
@@ -55,6 +58,25 @@ class ExpedienteKorinGame extends FlameGame
     // Crear HUD
     hud = GameHUD(player: player, mel: mel);
     await add(hud);
+
+    notificationSystem = MissionNotification();
+    await add(notificationSystem);
+
+    if (startInBossMode) {
+      await loadBossLevel();
+    } else {
+      // Cargar mapa del capítulo actual
+      await loadChapterMap(currentChapter);
+      player.position = mapLoader.getPlayerSpawnPosition(currentChapter);
+      mel.position = player.position + Vector2(50, 0);
+    }
+  }
+  
+  Future<void> loadBossLevel() async {
+    // Importar dinámicamente para evitar ciclos si es posible, o mover imports arriba
+    // Asumimos import arriba
+    await world.add(BunkerBossLevel());
+    notificationSystem.show('ALERTA ROJA', 'Entidad Hostil Detectada: THE STALKER');
   }
   
   /// Carga el mapa del capítulo especificado
