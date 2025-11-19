@@ -390,19 +390,19 @@ class BunkerRoomManager {
           position: const Vector2(350, 250),
           size: const Vector2(100, 100),
           type: InteractableType.character,
-          spritePath: 'assets/avatars/full_body/Mel_Fullbody.png',
+          spritePath: 'assets/avatars/full_body/mel_fullbody.png',
           dialogue: DialogueSequence(
             id: 'mel_dialogue',
             dialogues: const [
               DialogueData(
                 speakerName: 'Dan',
                 text: '¿Mel? Keller.',
-                avatarPath: 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
+                avatarPath: 'assets/avatars/dialogue_icons/dan_dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Mel',
                 text: 'Lo sé. El ex-investigador que voló doce horas para convertirse en un padre desesperado.',
-                avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
+                avatarPath: 'assets/avatars/dialogue_icons/mel_dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Mel',
@@ -551,7 +551,7 @@ class BunkerRoomManager {
               DialogueData(
                 speakerName: 'Marcus',
                 text: 'Dan, aquí Marcus. ¿Me copias?',
-                avatarPath: 'assets/avatars/dialogue_icons/Marcus_Dialogue.png',
+                avatarPath: 'assets/avatars/dialogue_icons/marcus_dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Dan',

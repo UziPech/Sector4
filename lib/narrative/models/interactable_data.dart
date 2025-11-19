@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 import 'dialogue_data.dart';
 
 /// Modelo para objetos con los que el jugador puede interactuar
@@ -50,6 +51,8 @@ enum InteractableType {
   character, // Personaje interactuable (Mel)
 }
 
+
+
 /// Clase simple para vectores 2D (compatible con Flame)
 class Vector2 {
   final double x;
@@ -58,15 +61,17 @@ class Vector2 {
   const Vector2(this.x, this.y);
 
   Vector2 operator -(Vector2 other) => Vector2(x - other.x, y - other.y);
+  Vector2 operator +(Vector2 other) => Vector2(x + other.x, y + other.y);
   Vector2 operator *(double scalar) => Vector2(x * scalar, y * scalar);
+  Vector2 operator /(double scalar) => Vector2(x / scalar, y / scalar);
   
-  double get length => (x * x + y * y);
+  double get length => sqrt(x * x + y * y);
+  double get length2 => x * x + y * y;
   
   Vector2 normalized() {
     final len = length;
     if (len == 0) return const Vector2(0, 0);
-    final magnitude = len.abs();
-    return Vector2(x / magnitude, y / magnitude);
+    return Vector2(x / len, y / len);
   }
   
   @override

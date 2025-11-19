@@ -20,9 +20,17 @@ class HouseScene extends StatefulWidget {
 
 class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateMixin {
   // Posición del jugador
-  Vector2 _playerPosition = const Vector2(350, 250);
+  Vector2 _playerPosition = Vector2(350, 250);
   final double _playerSpeed = 5.0;
   final double _playerSize = 40.0;
+
+  // Joystick Virtual
+  Offset? _joystickOrigin;
+  Offset? _joystickPosition;
+  bool _isJoystickActive = false;
+  Vector2 _joystickInput = Vector2(0, 0);
+  static const double _joystickRadius = 60.0;
+  static const double _joystickKnobRadius = 25.0;
 
   // Control de movimiento
   final Set<LogicalKeyboardKey> _pressedKeys = {};
@@ -214,7 +222,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
 
     Vector2 velocity = const Vector2(0, 0);
 
-    // Detectar teclas presionadas
+    // Detectar teclas presionadas (Teclado)
     if (_pressedKeys.contains(LogicalKeyboardKey.keyW) ||
         _pressedKeys.contains(LogicalKeyboardKey.arrowUp)) {
       velocity = Vector2(velocity.x, velocity.y - 1);
@@ -230,6 +238,11 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
     if (_pressedKeys.contains(LogicalKeyboardKey.keyD) ||
         _pressedKeys.contains(LogicalKeyboardKey.arrowRight)) {
       velocity = Vector2(velocity.x + 1, velocity.y);
+    }
+
+    // Sumar input del joystick
+    if (_isJoystickActive) {
+      velocity = velocity + _joystickInput;
     }
 
     // Normalizar y aplicar velocidad
@@ -381,8 +394,53 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             _pressedKeys.remove(event.logicalKey);
           }
         },
-        child: Stack(
-          children: [
+        child: Listener(
+          onPointerDown: (event) {
+            // Solo activar en la mitad izquierda de la pantalla
+            final screenSize = MediaQuery.of(context).size;
+            if (event.position.dx < screenSize.width / 2) {
+              setState(() {
+                _isJoystickActive = true;
+                _joystickOrigin = event.position;
+                _joystickPosition = event.position;
+                _joystickInput = Vector2(0, 0);
+              });
+            }
+          },
+          onPointerMove: (event) {
+            if (_isJoystickActive && _joystickOrigin != null) {
+              setState(() {
+                final currentPos = event.position;
+                Vector2 delta = Vector2(
+                  currentPos.dx - _joystickOrigin!.dx,
+                  currentPos.dy - _joystickOrigin!.dy,
+                );
+                
+                // Limitar el movimiento del knob al radio
+                if (delta.length > _joystickRadius) {
+                  delta = delta.normalized() * _joystickRadius;
+                }
+                
+                _joystickPosition = Offset(
+                  _joystickOrigin!.dx + delta.x,
+                  _joystickOrigin!.dy + delta.y,
+                );
+                
+                // Calcular vector normalizado para el movimiento (0.0 a 1.0)
+                _joystickInput = delta / _joystickRadius;
+              });
+            }
+          },
+          onPointerUp: (event) {
+            setState(() {
+              _isJoystickActive = false;
+              _joystickOrigin = null;
+              _joystickPosition = null;
+              _joystickInput = Vector2(0, 0);
+            });
+          },
+          child: Stack(
+            children: [
             // Habitación actual con límites
             Center(
               child: Container(
@@ -443,18 +501,26 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                     Positioned(
                       left: _playerPosition.x - _playerSize / 2,
                       top: _playerPosition.y - _playerSize / 2,
-                      child: Container(
+                      child: SizedBox(
                         width: _playerSize,
                         height: _playerSize,
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          border: Border.all(color: Colors.white, width: 2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.person,
-                          color: Colors.white,
-                          size: 30,
+                        child: Image.asset(
+                          'assets/avatars/full_body/dan_fullbody.png',
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                border: Border.all(color: Colors.white, width: 2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.person,
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -540,9 +606,47 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                 ),
               ),
             ),
+            // Joystick UI
+            if (_isJoystickActive && _joystickOrigin != null && _joystickPosition != null) ...[
+              // Base del joystick
+              Positioned(
+                left: _joystickOrigin!.dx - _joystickRadius,
+                top: _joystickOrigin!.dy - _joystickRadius,
+                child: Container(
+                  width: _joystickRadius * 2,
+                  height: _joystickRadius * 2,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white.withOpacity(0.5), width: 2),
+                  ),
+                ),
+              ),
+              // Knob del joystick
+              Positioned(
+                left: _joystickPosition!.dx - _joystickKnobRadius,
+                top: _joystickPosition!.dy - _joystickKnobRadius,
+                child: Container(
+                  width: _joystickKnobRadius * 2,
+                  height: _joystickKnobRadius * 2,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 5,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

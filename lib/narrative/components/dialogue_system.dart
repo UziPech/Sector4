@@ -54,11 +54,11 @@ class _DialogueSystemState extends State<DialogueSystem> {
   String _getDialogueBodyPath(String avatarPath) {
     // Extraer el nombre del personaje (Dan, Mel, Marcus)
     if (avatarPath.contains('Dan')) {
-      return 'assets/avatars/DialogueBody/Dan_Dialogue_Complete.png';
+      return 'assets/avatars/dialogue_body/dan_dialogue_complete.png';
     } else if (avatarPath.contains('Mel')) {
-      return 'assets/avatars/DialogueBody/Mel_Dialogue_Complete.png';
+      return 'assets/avatars/dialogue_body/mel_dialogue_complete.png';
     } else if (avatarPath.contains('Marcus')) {
-      return 'assets/avatars/DialogueBody/Marcus_Dialogue_Complete.png';
+      return 'assets/avatars/dialogue_body/marcus_dialogue_complete.png';
     }
     // Fallback a la imagen original si no se encuentra
     return avatarPath;

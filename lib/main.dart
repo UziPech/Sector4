@@ -1,10 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flame/game.dart';
 
 import 'narrative/screens/menu_screen.dart';
 import 'game/expediente_game.dart';
 
-void main() {
+void main() async {
+  // Asegurar que Flutter esté inicializado
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Forzar orientación horizontal (landscape)
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
+  
+  // Ocultar la barra de estado para experiencia inmersiva
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  
   // Inicializa y corre la aplicación (empieza en el menú)
   runApp(const ExpedienteKorinApp());
 }

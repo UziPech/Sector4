@@ -196,12 +196,12 @@ class RoomManager {
               const DialogueData(
                 speakerName: 'Dan',
                 text: '¿Hola?',
-                avatarPath: 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
+                avatarPath: 'assets/avatars/dialogue_icons/dan_dialogue.png',
               ),
               const DialogueData(
                 speakerName: 'Marcus',
                 text: 'Dan. Soy Marcus.',
-                avatarPath: 'assets/avatars/dialogue_icons/Marcus_Dialogue.png',
+                avatarPath: 'assets/avatars/dialogue_icons/marcus_dialogue.png',
               ),
               const DialogueData(
                 speakerName: 'Dan',
