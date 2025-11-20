@@ -80,6 +80,13 @@ class StalkerEnemy extends EnemyCharacter {
   void update(double dt) {
     super.update(dt);
     
+    // CRÍTICO: Mantener invulnerabilidad si el objeto real no ha sido destruido
+    // Esto previene que updateInvincibility() desactive la invulnerabilidad
+    if (!realObjectDestroyed) {
+      isInvincible = true;
+      invincibilityElapsed = 0.0;
+    }
+    
     // Actualizar cooldown de dash
     if (_dashCooldownTimer > 0) {
       _dashCooldownTimer -= dt;
@@ -221,30 +228,41 @@ class StalkerEnemy extends EnemyCharacter {
   
   @override
   bool receiveDamage(double amount) {
-    // CRUCIAL: Si es invencible, NO recibe daño
-    if (isInvincible) {
-      // Mensaje cada vez que intentes dañarlo mientras es invencible
-      if (game.currentTime() % 2 < 0.1) { // Mensaje cada 2 segundos aprox
-        game.addMessage("¡INVENCIBLE! Destruye el objeto obsesivo primero");
-      }
+    // Si está en estado sleeping o dying, no recibe daño
+    if (stalkerState == StalkerState.sleeping || stalkerState == StalkerState.dying) {
       return false;
     }
     
-    if (stalkerState == StalkerState.sleeping || stalkerState == StalkerState.dying) {
-      return false; // No recibe daño en estos estados
+    // Si el objeto real ha sido destruido, el Stalker es VULNERABLE
+    // Puede recibir daño directo a la vida
+    if (realObjectDestroyed) {
+      // Daño normal a la vida (usando lógica base de CharacterComponent)
+      return super.receiveDamage(amount);
     }
     
-    // En fase activa, el daño reduce el escudo y luego la ESTABILIDAD, no la vida
-    bool damaged = false;
+    // Si el objeto real NO ha sido destruido:
+    // El daño reduce el escudo y luego la ESTABILIDAD, pero NO la vida
     
-    // 1. Daño al escudo (usando lógica base)
+    // 1. Daño al escudo primero
     if (shield > 0) {
-      // Llamamos a super para manejar escudo y efectos visuales
-      super.receiveDamage(amount);
+      final shieldDamage = amount.clamp(0.0, shield);
+      shield -= shieldDamage;
+      final remainingDamage = amount - shieldDamage;
+      
+      // Si queda daño después del escudo, afecta estabilidad
+      if (remainingDamage > 0) {
+        stability -= remainingDamage;
+        if (stability <= 0) {
+          fallAsleep();
+        }
+      }
+      
+      // Efecto visual de daño
+      super.receiveDamage(0); // Solo para trigger de efectos visuales
       return true;
     }
     
-    // 2. Daño a la estabilidad
+    // 2. Si no hay escudo, daño directo a la estabilidad
     stability -= amount;
     // Efecto visual de daño
     super.receiveDamage(0); // Solo para trigger de efectos visuales

@@ -7,9 +7,11 @@ import 'package:flame_tiled/flame_tiled.dart';
 import 'systems/map_loader.dart';
 import 'components/player.dart';
 import 'components/mel.dart';
+import 'models/player_role.dart';
 import 'ui/game_hud.dart';
 import 'ui/mission_notification.dart';
 import 'levels/bunker_boss_level.dart';
+import 'levels/exterior_map_level.dart';
 
 /// Motor principal del juego Expediente Kōrin
 /// Gestiona el mundo, carga de mapas por capítulo y sistemas de juego
@@ -30,8 +32,14 @@ class ExpedienteKorinGame extends FlameGame
   int currentChapter = 1;
   bool isGameOver = false;
   final bool startInBossMode;
+  final bool startInExteriorMap;
+  final PlayerRole? selectedRole;
   
-  ExpedienteKorinGame({this.startInBossMode = false});
+  ExpedienteKorinGame({
+    this.startInBossMode = false,
+    this.startInExteriorMap = false,
+    this.selectedRole,
+  });
   
   @override
   Future<void> onLoad() async {
@@ -40,8 +48,8 @@ class ExpedienteKorinGame extends FlameGame
     // Configurar cámara
     camera.viewfinder.anchor = Anchor.center;
     
-    // Crear jugador (Dan)
-    player = PlayerCharacter();
+    // Crear jugador (Dan o Mel según selección)
+    player = PlayerCharacter(selectedRole: selectedRole);
     // La posición se ajustará según el nivel
     await world.add(player);
     
@@ -64,6 +72,8 @@ class ExpedienteKorinGame extends FlameGame
 
     if (startInBossMode) {
       await loadBossLevel();
+    } else if (startInExteriorMap) {
+      await loadExteriorMap();
     } else {
       // Cargar mapa del capítulo actual
       await loadChapterMap(currentChapter);
@@ -77,6 +87,11 @@ class ExpedienteKorinGame extends FlameGame
     // Asumimos import arriba
     await world.add(BunkerBossLevel());
     notificationSystem.show('ALERTA ROJA', 'Entidad Hostil Detectada: THE STALKER');
+  }
+  
+  Future<void> loadExteriorMap() async {
+    await world.add(ExteriorMapLevel());
+    notificationSystem.show('ALERTA', 'Múltiples contactos hostiles detectados');
   }
   
   /// Carga el mapa del capítulo especificado

@@ -2,6 +2,8 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../components/player.dart';
 import '../components/mel.dart';
+import '../models/player_role.dart';
+import '../systems/resurrection_system.dart';
 import '../../combat/weapon_system.dart';
 
 import '../expediente_game.dart';
@@ -10,10 +12,12 @@ import '../expediente_game.dart';
 class GameHUD extends PositionComponent with HasGameReference<ExpedienteKorinGame> {
   final PlayerCharacter player;
   final MelCharacter mel;
+  ResurrectionManager? resurrectionManager;
   
   GameHUD({
     required this.player,
     required this.mel,
+    this.resurrectionManager,
   }) : super(priority: 100); // Alto priority para renderizar encima
   
   @override
@@ -34,22 +38,29 @@ class GameHUD extends PositionComponent with HasGameReference<ExpedienteKorinGam
       ..strokeWidth = 2;
     canvas.drawRect(hudRect, borderPaint);
     
-    // Texto de vida de Dan
-    _drawText(canvas, 'DAN', 20, 25, Colors.white, bold: true);
+    // Texto del jugador (Dan o Mel)
+    final playerName = player.playerRole == PlayerRole.dan ? 'DAN' : 'MEL';
+    final playerColor = player.playerRole == PlayerRole.dan ? Colors.green : Colors.cyan;
+    _drawText(canvas, playerName, 20, 25, Colors.white, bold: true);
     
-    // Barra de vida de Dan
-    _drawHealthBar(canvas, 20, 45, 250, player.health, player.maxHealth, Colors.green);
+    // Barra de vida del jugador
+    _drawHealthBar(canvas, 20, 45, 250, player.health, player.maxHealth, playerColor);
     
-    // Texto de Mel
-    _drawText(canvas, 'MEL - SOPORTE VITAL', 20, 75, Colors.cyan, bold: true);
-    
-    // Indicador de cooldown de Mel
-    if (mel.canHeal) {
-      _drawText(canvas, 'DISPONIBLE (E)', 20, 95, Colors.yellow);
+    // Si el jugador es Mel, mostrar contador de resurrecciones
+    if (player.playerRole == PlayerRole.mel && resurrectionManager != null) {
+      _drawResurrectionCounter(canvas, 20, 75);
     } else {
-      final progress = (mel.healCooldownProgress * 100).toInt();
-      _drawText(canvas, 'RECARGANDO: $progress%', 20, 95, Colors.orange);
-      _drawCooldownBar(canvas, 20, 110, 250, mel.healCooldownProgress);
+      // Si el jugador es Dan, mostrar info de Mel companion
+      _drawText(canvas, 'MEL - SOPORTE VITAL', 20, 75, Colors.cyan, bold: true);
+      
+      // Indicador de cooldown de Mel
+      if (mel.canHeal) {
+        _drawText(canvas, 'DISPONIBLE (E)', 20, 95, Colors.yellow);
+      } else {
+        final progress = (mel.healCooldownProgress * 100).toInt();
+        _drawText(canvas, 'RECARGANDO: $progress%', 20, 95, Colors.orange);
+        _drawCooldownBar(canvas, 20, 110, 250, mel.healCooldownProgress);
+      }
     }
 
     // --- WEAPON HOTBAR ---
@@ -243,5 +254,65 @@ class GameHUD extends PositionComponent with HasGameReference<ExpedienteKorinGam
       Rect.fromLTWH(x, y, width, 10),
       borderPaint,
     );
+  }
+  
+  void _drawResurrectionCounter(Canvas canvas, double x, double y) {
+    _drawText(canvas, 'RESURRECCIONES', x, y, Colors.purple, bold: true);
+    
+    if (resurrectionManager == null) return;
+    
+    final remaining = resurrectionManager!.resurrectionsRemaining;
+    final max = resurrectionManager!.maxResurrections;
+    
+    // Dibujar orbes de resurrección
+    const double orbSize = 15.0;
+    const double orbSpacing = 25.0;
+    final double orbY = y + 25;
+    
+    for (int i = 0; i < max; i++) {
+      final orbX = x + (i * orbSpacing);
+      final isAvailable = i < remaining;
+      
+      // Orbe
+      final orbPaint = Paint()
+        ..color = isAvailable 
+            ? Colors.purple.withOpacity(0.8) 
+            : Colors.grey.withOpacity(0.3)
+        ..style = PaintingStyle.fill;
+      
+      canvas.drawCircle(
+        Offset(orbX + orbSize / 2, orbY + orbSize / 2),
+        orbSize / 2,
+        orbPaint,
+      );
+      
+      // Borde del orbe
+      final orbBorderPaint = Paint()
+        ..color = isAvailable ? Colors.white : Colors.grey
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2;
+      
+      canvas.drawCircle(
+        Offset(orbX + orbSize / 2, orbY + orbSize / 2),
+        orbSize / 2,
+        orbBorderPaint,
+      );
+      
+      // Efecto de brillo si está disponible
+      if (isAvailable) {
+        final glowPaint = Paint()
+          ..color = Colors.purple.withOpacity(0.3)
+          ..style = PaintingStyle.fill;
+        
+        canvas.drawCircle(
+          Offset(orbX + orbSize / 2, orbY + orbSize / 2),
+          orbSize / 2 + 3,
+          glowPaint,
+        );
+      }
+    }
+    
+    // Texto de contador
+    _drawText(canvas, '$remaining/$max', x + (max * orbSpacing) + 10, orbY, Colors.white);
   }
 }
