@@ -9,6 +9,8 @@ import 'enemy_character.dart';
 import 'character_component.dart';
 import 'particle_effect.dart';
 import '../game/components/player.dart';
+import 'obsession_object.dart';
+import 'destructible_object.dart';
 
 class Bullet extends PositionComponent with CollisionCallbacks, HasGameReference<ExpedienteKorinGame> {
   Vector2 direction;
@@ -43,9 +45,8 @@ class Bullet extends PositionComponent with CollisionCallbacks, HasGameReference
          ..color = isPlayerBullet ? const Color.fromARGB(255, 255, 220, 0) : const Color.fromARGB(255, 255, 50, 50)
          ..style = PaintingStyle.fill,
        _glowPaint = Paint()
-         ..color = (isPlayerBullet ? const Color.fromARGB(100, 255, 220, 0) : const Color.fromARGB(100, 255, 50, 50))
          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
-       super(position: position.clone(), size: Vector2.all(16.0), anchor: Anchor.center);
+       super(position: position.clone(), size: Vector2.all(16.0), anchor: Anchor.center, priority: 20);
 
   @override
   void update(double dt) {
@@ -68,7 +69,7 @@ class Bullet extends PositionComponent with CollisionCallbacks, HasGameReference
     
     position.add(direction * speed * dt);
 
-    if (position.length > 1000) {
+    if (position.length > 3000) {
       removeFromParent();
     }
   }
@@ -190,6 +191,28 @@ class Bullet extends PositionComponent with CollisionCallbacks, HasGameReference
     } 
     else if (other is PlayerCharacter) {
       if (!isPlayerBullet) {
+        try {
+          other.takeDamage(damage);
+          _createImpactEffect();
+          removeFromParent();
+        } catch (e) {
+          // Error
+        }
+      }
+    }
+    else if (other is ObsessionObject) {
+      if (isPlayerBullet) {
+        try {
+          other.takeDamage(damage);
+          _createImpactEffect();
+          removeFromParent();
+        } catch (e) {
+          // Error
+        }
+      }
+    }
+    else if (other is DestructibleObject) {
+      if (isPlayerBullet) {
         try {
           other.takeDamage(damage);
           _createImpactEffect();

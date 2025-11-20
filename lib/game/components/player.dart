@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../combat/weapon_system.dart';
 import '../../components/character_component.dart'; // Para compatibilidad si se requiere
 import '../expediente_game.dart';
+import 'tiled_wall.dart'; // Import shared TiledWall
 
 /// Dan - El jugador principal
 /// Representa la culpa, vulnerabilidad y determinación del protagonista
@@ -212,5 +213,3 @@ class PlayerCharacter extends PositionComponent
   }
 }
 
-// Importar TiledWall para las colisiones
-class TiledWall extends PositionComponent {}

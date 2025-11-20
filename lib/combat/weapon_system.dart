@@ -1,5 +1,7 @@
+import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
 import '../game/expediente_game.dart';
 import '../game/components/player.dart';
 import '../components/bullet.dart';
@@ -54,23 +56,63 @@ class MeleeWeapon extends Weapon {
     // Lógica de hitbox melee
     // Buscamos enemigos cercanos en la dirección que mira el jugador
     final ownerPos = (owner as PositionComponent).position;
-    // Asumimos que el owner tiene una dirección o usamos el joystick/mouse
-    // Por simplicidad, usaremos un radio alrededor del jugador por ahora,
-    // o idealmente, un cono frente a él.
     
-    // TODO: Obtener dirección real del jugador. Por ahora, radio simple.
+    // Obtener dirección de ataque
+    Vector2 attackDirection = Vector2(1, 0);
+    if (owner is PlayerCharacter) {
+      attackDirection = owner.lastMoveDirection;
+    }
+    
+    // Crear efecto visual de slash
+    final slashEffect = MeleeSlashEffect(
+      position: ownerPos + attackDirection * 30,
+      direction: attackDirection,
+      range: range,
+    );
+    game.world.add(slashEffect);
+    
     bool hitSomething = false;
     
+    // Dañar enemigos (EnemyCharacter)
     game.world.children.query<EnemyCharacter>().forEach((enemy) {
       final distance = enemy.position.distanceTo(ownerPos);
       if (distance <= range) {
-        // Aplicar daño
+        // Aplicar daño completo a enemigos
         enemy.receiveDamage(damage);
         hitSomething = true;
-        // Efecto visual de golpe
-        // game.add(ParticleEffect(...));
       }
     });
+    
+    // Dañar objetos destructibles (ObsessionObject y DestructibleObject)
+    // El cuchillo hace 50% del daño a objetos (tarda el doble)
+    final objectDamage = damage * 0.5;
+    
+    for (final child in game.world.children) {
+      if (child is PositionComponent) {
+        final distance = child.position.distanceTo(ownerPos);
+        
+        if (distance <= range) {
+          // Intentar dañar ObsessionObject
+          if (child.runtimeType.toString().contains('ObsessionObject')) {
+            try {
+              (child as dynamic).takeDamage(objectDamage);
+              hitSomething = true;
+            } catch (e) {
+              // Error al dañar objeto
+            }
+          }
+          // Intentar dañar DestructibleObject
+          else if (child.runtimeType.toString().contains('DestructibleObject')) {
+            try {
+              (child as dynamic).takeDamage(objectDamage);
+              hitSomething = true;
+            } catch (e) {
+              // Error al  dañar objeto
+            }
+          }
+        }
+      }
+    }
 
     return hitSomething;
   }
@@ -159,5 +201,85 @@ class WeaponInventory extends Component {
     for (final weapon in weapons) {
       weapon.update(dt);
     }
+  }
+}
+
+/// Efecto visual de slash para ataques cuerpo a cuerpo
+class MeleeSlashEffect extends PositionComponent {
+  final Vector2 direction;
+  final double range;
+  double _lifetime = 0.0;
+  static const double _duration = 0.15; // Duración del efecto
+  
+  MeleeSlashEffect({
+    required Vector2 position,
+    required this.direction,
+    required this.range,
+  }) : super(position: position, size: Vector2.all(range * 1.5)) {
+    anchor = Anchor.center;
+  }
+  
+  @override
+  void update(double dt) {
+    super.update(dt);
+    _lifetime += dt;
+    
+    if (_lifetime >= _duration) {
+      removeFromParent();
+    }
+  }
+  
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+    
+    // Calcular opacidad basada en el tiempo de vida
+    final opacity = (1.0 - (_lifetime / _duration)).clamp(0.0, 1.0);
+    
+    // Calcular ángulo de la dirección
+    final angle = direction.angleToSigned(Vector2(1, 0));
+    
+    canvas.save();
+    canvas.rotate(-angle);
+    
+    // Dibujar arco de slash
+    final paint = Paint()
+      ..color = Colors.cyan.withOpacity(opacity * 0.7)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.0;
+    
+    final rect = Rect.fromCenter(
+      center: Offset.zero,
+      width: range * 2,
+      height: range * 2,
+    );
+    
+    // Arco de 120 grados
+    canvas.drawArc(
+      rect,
+      -1.0, // Ángulo inicial
+      2.0,  // Ángulo de barrido
+      false,
+      paint,
+    );
+    
+    // Líneas de efecto adicionales
+    final linePaint = Paint()
+      ..color = Colors.white.withOpacity(opacity * 0.5)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+    
+    canvas.drawLine(
+      const Offset(0, 0),
+      Offset(range * 0.8, -range * 0.3),
+      linePaint,
+    );
+    canvas.drawLine(
+      const Offset(0, 0),
+      Offset(range * 0.8, range * 0.3),
+      linePaint,
+    );
+    
+    canvas.restore();
   }
 }

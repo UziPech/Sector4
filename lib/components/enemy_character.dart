@@ -10,6 +10,12 @@ import 'package:flame/collisions.dart';
 import 'bullet.dart' show Bullet;
 import 'character_component.dart';
 import '../game/expediente_game.dart';
+import '../game/components/tiled_wall.dart';
+import '../game/components/tiled_wall.dart'; // Import shared TiledWall
+
+// ... (rest of imports)
+
+
 
 /// IA simple para el "Resonante" (Shūnen-tai).
 /// Propósito: patrulla (WALKING) hasta que detecta al jugador (Dan) y pasa a CHASING.
@@ -211,7 +217,7 @@ class EnemyCharacter extends PositionComponent
   Vector2? patrolCenter;
 
   EnemyCharacter({this.playerToTrack, this.patrolCenter, EnemyConfig? config})
-    : config = config ?? const EnemyConfig();
+    : config = config ?? const EnemyConfig(), super(priority: 5);
 
   /// Llamar para asignar objetivo dinámicamente.
   void setPlayerToTrack(PositionComponent player) {
@@ -290,6 +296,182 @@ class EnemyCharacter extends PositionComponent
     _walkDirection = Vector2(math.cos(angle), math.sin(angle))..normalize();
     // Alterna la dirección de flanqueo
     _flankingDirection *= -1;
+  }
+
+  // Track last valid position for collision resolution
+  Vector2 _lastPosition = Vector2.zero();
+
+
+
+  @override
+  void update(double dt) {
+    _lastPosition = position.clone();
+    super.update(dt);
+
+    // Actualizar sistema de invencibilidad
+    updateInvincibility(dt);
+
+    // Actualizar timer de efectos
+    _effectTimer += dt;
+
+    // Actualizar timers y estados
+    _updateTimers(dt);
+    
+    // Actualizar timer de flash
+    if (_isFlashing) {
+      _flashTimer -= dt;
+      if (_flashTimer <= 0) {
+        _isFlashing = false;
+      }
+    }
+    
+    // Regeneración de escudo
+    if (maxShield > 0 && shield < maxShield) {
+      if (_shieldCooldownTimer > 0) {
+        _shieldCooldownTimer -= dt;
+      } else {
+        shield += shieldRegenRate * dt;
+        if (shield > maxShield) shield = maxShield;
+      }
+    }
+
+    // Actualizar cooldown de disparo (solo para enemigos ranged)
+    if (config.combatType == CombatType.ranged) {
+      if (!_canShoot) {
+        _timeSinceLastShot += dt;
+        if (_timeSinceLastShot >= config.shootCooldown) {
+          _canShoot = true;
+          _timeSinceLastShot = 0.0;
+        }
+      }
+
+      // Procesar disparos pendientes de ráfaga
+      if (_burstShotsRemaining > 0 && _canShoot) {
+        tryShoot();
+      }
+    }
+    
+    // Actualizar cooldown de ataque melee (solo para enemigos melee)
+    if (config.combatType == CombatType.melee) {
+      if (!_canMeleeAttack) {
+        _timeSinceLastMeleeAttack += dt;
+        if (_timeSinceLastMeleeAttack >= config.meleeAttackCooldown) {
+          _canMeleeAttack = true;
+          _timeSinceLastMeleeAttack = 0.0;
+        }
+      }
+    }
+
+    // Actualizar estado stunned si está activo
+    if (movementType == EnemyMovementType.stunned) {
+      _stunnedTimeRemaining -= dt;
+      if (_stunnedTimeRemaining <= 0) {
+        _stunnedTimeRemaining = 0;
+        movementType = EnemyMovementType.walking;
+      }
+      return; // No hacer nada más mientras esté stunned
+    }
+
+    // Actualizar daño reciente para sistema defensivo
+    if (_damageResetTimer <= 0) {
+      _recentDamage = 0;
+    }
+
+    // Actualizar tracking del jugador
+    _updatePlayerTracking(dt);
+
+    // --- Paso A: Evaluación de amenaza y memoria ---
+    final bool canSeePlayer = isPlayerNearAndVisible();
+
+    if (canSeePlayer) {
+      _timeWithoutVisibility = 0.0;
+      lastKnownPlayerPosition = playerToTrack!.position.clone();
+    } else {
+      _timeWithoutVisibility += dt;
+      if (_timeWithoutVisibility >= config.memoryDuration) {
+        lastKnownPlayerPosition = null;
+      }
+    }
+
+    if (health <= maxHealth * config.healthThresholdToRetreat && canSeePlayer) {
+      movementType = EnemyMovementType.retreating;
+    } else if (canSeePlayer) {
+      movementType = EnemyMovementType.chasing;
+      // Intentar disparar considerando la predicción
+      if (playerToTrack != null) {
+        final predictedPos = _getPredictedPlayerPosition();
+        if (predictedPos != null) {
+          final toPredict = predictedPos - position;
+          if (toPredict.length <= config.detectionRadius * 1.2) {
+            tryShoot();
+          }
+        } else {
+          tryShoot(); // Fallback al comportamiento normal
+        }
+      }
+    } else {
+      if (lastKnownPlayerPosition != null &&
+          movementType == EnemyMovementType.chasing) {
+        // Si llegamos cerca de la última posición conocida, volver a patrulla
+        if ((position - lastKnownPlayerPosition!).length < 10) {
+          lastKnownPlayerPosition = null;
+          movementType = EnemyMovementType.walking;
+        }
+      } else {
+        movementType = EnemyMovementType.walking;
+      }
+    }
+
+    // --- Paso B: Ejecución del comportamiento por estado ---
+    switch (movementType) {
+      case EnemyMovementType.walking:
+        _elapsedSinceDirChange += dt;
+        if (_elapsedSinceDirChange >= config.changeDirInterval) {
+          _elapsedSinceDirChange = 0.0;
+          changeDirection();
+        }
+
+        // Moverse según dirección de patrulla
+        final movement = _walkDirection * config.walkingSpeed * dt;
+        position.add(movement);
+
+        // En caso de tener un área de patrulla, mantener dentro del radio
+        if (patrolCenter != null) {
+          final offset = position - patrolCenter!;
+          if (offset.length > config.patrolRadius) {
+            // Empuja de vuelta hacia el centro
+            final Vector2 toCenter = (patrolCenter! - position).normalized();
+            position.add(toCenter * config.walkingSpeed * dt);
+          }
+        }
+      case EnemyMovementType.chasing:
+        final target = lastKnownPlayerPosition ?? playerToTrack?.position;
+        if (target != null) {
+          final toTarget = target - position;
+          if (toTarget.length > 10) {
+             position.add(toTarget.normalized() * config.chasingSpeed * dt);
+          }
+        }
+      case EnemyMovementType.retreating:
+        if (playerToTrack != null) {
+          final toPlayer = playerToTrack!.position - position;
+          // Moverse en dirección opuesta al jugador
+          position.add(-toPlayer.normalized() * config.chasingSpeed * dt);
+        }
+      case EnemyMovementType.stunned:
+        // No movement
+        break;
+      case EnemyMovementType.charging:
+        if (_dashDirection != null) {
+           position.add(_dashDirection! * config.dashSpeed * dt);
+        }
+      case EnemyMovementType.circling:
+         final moveDir = _getCirclingDirection();
+         position.add(moveDir * config.walkingSpeed * dt);
+      case EnemyMovementType.defending:
+         // No movement or slow movement
+         break;
+    }
   }
 
   /// Se llama cuando la entidad recibe daño
@@ -405,6 +587,16 @@ class EnemyCharacter extends PositionComponent
     if (config.combatType == CombatType.melee &&
         other.runtimeType.toString().contains('PlayerCharacter')) {
       _tryMeleeAttack(other);
+    }
+  }
+
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollision(intersectionPoints, other);
+    
+    // Simple collision resolution for walls
+    if (other is TiledWall) {
+      position = _lastPosition.clone();
     }
   }
   
@@ -654,200 +846,5 @@ class EnemyCharacter extends PositionComponent
     );
 
     game.world.add(bullet);
-  }
-
-  @override
-  void update(double dt) {
-    super.update(dt);
-
-    // Actualizar sistema de invencibilidad
-    updateInvincibility(dt);
-
-    // Actualizar timer de efectos
-    _effectTimer += dt;
-
-    // Actualizar timers y estados
-    _updateTimers(dt);
-    
-    // Actualizar timer de flash
-    if (_isFlashing) {
-      _flashTimer -= dt;
-      if (_flashTimer <= 0) {
-        _isFlashing = false;
-      }
-    }
-    
-    // Regeneración de escudo
-    if (maxShield > 0 && shield < maxShield) {
-      if (_shieldCooldownTimer > 0) {
-        _shieldCooldownTimer -= dt;
-      } else {
-        shield += shieldRegenRate * dt;
-        if (shield > maxShield) shield = maxShield;
-      }
-    }
-
-    // Actualizar cooldown de disparo (solo para enemigos ranged)
-    if (config.combatType == CombatType.ranged) {
-      if (!_canShoot) {
-        _timeSinceLastShot += dt;
-        if (_timeSinceLastShot >= config.shootCooldown) {
-          _canShoot = true;
-          _timeSinceLastShot = 0.0;
-        }
-      }
-
-      // Procesar disparos pendientes de ráfaga
-      if (_burstShotsRemaining > 0 && _canShoot) {
-        tryShoot();
-      }
-    }
-    
-    // Actualizar cooldown de ataque melee (solo para enemigos melee)
-    if (config.combatType == CombatType.melee) {
-      if (!_canMeleeAttack) {
-        _timeSinceLastMeleeAttack += dt;
-        if (_timeSinceLastMeleeAttack >= config.meleeAttackCooldown) {
-          _canMeleeAttack = true;
-          _timeSinceLastMeleeAttack = 0.0;
-        }
-      }
-    }
-
-    // Actualizar estado stunned si está activo
-    if (movementType == EnemyMovementType.stunned) {
-      _stunnedTimeRemaining -= dt;
-      if (_stunnedTimeRemaining <= 0) {
-        _stunnedTimeRemaining = 0;
-        movementType = EnemyMovementType.walking;
-      }
-      return; // No hacer nada más mientras esté stunned
-    }
-
-    // Actualizar daño reciente para sistema defensivo
-    if (_damageResetTimer <= 0) {
-      _recentDamage = 0;
-    }
-
-    // Actualizar tracking del jugador
-    _updatePlayerTracking(dt);
-
-    // --- Paso A: Evaluación de amenaza y memoria ---
-    final bool canSeePlayer = isPlayerNearAndVisible();
-
-    if (canSeePlayer) {
-      _timeWithoutVisibility = 0.0;
-      lastKnownPlayerPosition = playerToTrack!.position.clone();
-    } else {
-      _timeWithoutVisibility += dt;
-      if (_timeWithoutVisibility >= config.memoryDuration) {
-        lastKnownPlayerPosition = null;
-      }
-    }
-
-    if (health <= maxHealth * config.healthThresholdToRetreat && canSeePlayer) {
-      movementType = EnemyMovementType.retreating;
-    } else if (canSeePlayer) {
-      movementType = EnemyMovementType.chasing;
-      // Intentar disparar considerando la predicción
-      if (playerToTrack != null) {
-        final predictedPos = _getPredictedPlayerPosition();
-        if (predictedPos != null) {
-          final toPredict = predictedPos - position;
-          if (toPredict.length <= config.detectionRadius * 1.2) {
-            tryShoot();
-          }
-        } else {
-          tryShoot(); // Fallback al comportamiento normal
-        }
-      }
-    } else {
-      if (lastKnownPlayerPosition != null &&
-          movementType == EnemyMovementType.chasing) {
-        // Si llegamos cerca de la última posición conocida, volver a patrulla
-        if ((position - lastKnownPlayerPosition!).length < 10) {
-          lastKnownPlayerPosition = null;
-          movementType = EnemyMovementType.walking;
-        }
-      } else {
-        movementType = EnemyMovementType.walking;
-      }
-    }
-
-    // --- Paso B: Ejecución del comportamiento por estado ---
-    switch (movementType) {
-      case EnemyMovementType.walking:
-        _elapsedSinceDirChange += dt;
-        if (_elapsedSinceDirChange >= config.changeDirInterval) {
-          _elapsedSinceDirChange = 0.0;
-          changeDirection();
-        }
-
-        // Moverse según dirección de patrulla
-        final movement = _walkDirection * config.walkingSpeed * dt;
-        position.add(movement);
-
-        // En caso de tener un área de patrulla, mantener dentro del radio
-        if (patrolCenter != null) {
-          final offset = position - patrolCenter!;
-          if (offset.length > config.patrolRadius) {
-            // Empuja de vuelta hacia el centro
-            final Vector2 toCenter = (patrolCenter! - position).normalized();
-            position.add(toCenter * config.walkingSpeed * dt);
-          }
-        }
-      case EnemyMovementType.chasing:
-        final target = lastKnownPlayerPosition ?? playerToTrack?.position;
-        if (target != null) {
-          final Vector2 toTarget = target - position;
-
-          // Verificar si podemos realizar un dash
-          if (_dashCooldown <= 0 &&
-              toTarget.length <= config.detectionRadius * 0.5) {
-            _startDash();
-          }
-
-          // Obtener posición de movimiento
-          Vector2 moveTarget;
-          
-          // Enemigos melee van directo al jugador (comportamiento zombie)
-          if (config.combatType == CombatType.melee) {
-            moveTarget = target; // Siempre directo
-          } else {
-            // Enemigos ranged usan flanqueo
-            if (isPlayerNearAndVisible() && health > maxHealth * 0.7) {
-              moveTarget = _getFlankingPosition();
-            } else {
-              moveTarget = target;
-            }
-          }
-
-          final Vector2 moveDirection = (moveTarget - position);
-          if (moveDirection.length > 1e-3) {
-            final Vector2 dir = moveDirection.normalized();
-            position.add(dir * config.chasingSpeed * dt);
-          }
-        }
-      case EnemyMovementType.retreating:
-        if (playerToTrack != null) {
-          // Alejarse del jugador
-          final Vector2 awayFromPlayer = position - playerToTrack!.position;
-          if (awayFromPlayer.length > 1e-3) {
-            final Vector2 dir = awayFromPlayer.normalized();
-            position.add(dir * config.chasingSpeed * dt);
-          }
-        }
-      case EnemyMovementType.charging:
-        if (_dashDirection != null) {
-          position.add(_dashDirection! * config.dashSpeed * dt);
-        }
-      case EnemyMovementType.circling:
-        final circleDir = _getCirclingDirection();
-        position.add(circleDir * config.walkingSpeed * dt);
-      case EnemyMovementType.defending:
-      // En modo defensivo no nos movemos
-      case EnemyMovementType.stunned:
-      // No hacer nada, ya manejado arriba
-    }
   }
 }

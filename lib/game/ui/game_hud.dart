@@ -100,12 +100,21 @@ class GameHUD extends PositionComponent with HasGameReference<ExpedienteKorinGam
 
       // Ammo Count (if Ranged)
       if (weapon is RangedWeapon) {
+        Color ammoColor = Colors.white;
+        if (weapon.currentAmmo == 0) {
+          ammoColor = Colors.red;
+          _drawText(canvas, 'RELOAD (R)', x + 5, startY + slotSize + 5, Colors.red, bold: true);
+        } else if (weapon.currentAmmo < weapon.maxAmmo * 0.3) {
+          ammoColor = Colors.yellow;
+          _drawText(canvas, 'RELOAD (R)', x + 5, startY + slotSize + 5, Colors.yellow, bold: true);
+        }
+        
         _drawText(
           canvas, 
           '${weapon.currentAmmo}/${weapon.maxAmmo}', 
           x + 5, 
           startY + slotSize - 20, 
-          weapon.currentAmmo > 0 ? Colors.white : Colors.red
+          ammoColor
         );
       } else {
          _drawText(

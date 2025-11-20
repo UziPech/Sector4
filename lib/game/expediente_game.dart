@@ -57,10 +57,10 @@ class ExpedienteKorinGame extends FlameGame
     
     // Crear HUD
     hud = GameHUD(player: player, mel: mel);
-    await add(hud);
+    camera.viewport.add(hud);
 
     notificationSystem = MissionNotification();
-    await add(notificationSystem);
+    camera.viewport.add(notificationSystem);
 
     if (startInBossMode) {
       await loadBossLevel();
@@ -129,5 +129,16 @@ class ExpedienteKorinGame extends FlameGame
     // Reiniciar Mel
     mel.reset();
     mel.position = player.position + Vector2(50, 0);
+    
+    // Recargar nivel
+    if (startInBossMode) {
+      // Limpiar mundo (enemigos, balas, etc)
+      world.removeAll(world.children);
+      world.add(player);
+      world.add(mel);
+      loadBossLevel();
+    } else {
+      loadChapterMap(currentChapter);
+    }
   }
 }

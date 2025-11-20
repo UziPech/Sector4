@@ -4,6 +4,7 @@ import 'package:flame/game.dart';
 
 import 'narrative/screens/menu_screen.dart';
 import 'game/expediente_game.dart';
+import 'game/ui/game_over_with_advice.dart'; // Nuevo import
 
 void main() async {
   // Asegurar que Flutter esté inicializado
@@ -47,7 +48,7 @@ class MyApp extends StatelessWidget {
       body: GameWidget(
         game: ExpedienteKorinGame(startInBossMode: startInBossMode),
         overlayBuilderMap: {
-          'GameOver': (context, game) => GameOverOverlay(
+          'GameOver': (context, game) => GameOverWithAdvice(
             game: game as ExpedienteKorinGame,
           ),
         },
