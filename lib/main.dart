@@ -5,6 +5,7 @@ import 'package:flame/game.dart';
 import 'narrative/screens/menu_screen.dart';
 import 'game/expediente_game.dart';
 import 'game/ui/game_over_with_advice.dart'; // Nuevo import
+import 'narrative/components/dialogue_system.dart'; // Importar sistema de diálogos
 
 void main() async {
   // Asegurar que Flutter esté inicializado
@@ -51,6 +52,15 @@ class MyApp extends StatelessWidget {
           'GameOver': (context, game) => GameOverWithAdvice(
             game: game as ExpedienteKorinGame,
           ),
+          'DialogueOverlay': (context, game) {
+            final korinGame = game as ExpedienteKorinGame;
+            if (korinGame.currentDialogue == null) return const SizedBox.shrink();
+            
+            return DialogueSystem(
+              sequence: korinGame.currentDialogue!,
+              onSequenceComplete: korinGame.onDialogueComplete,
+            );
+          },
         },
       ),
     );

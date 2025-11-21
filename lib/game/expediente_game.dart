@@ -12,6 +12,8 @@ import 'ui/game_hud.dart';
 import 'ui/mission_notification.dart';
 import 'levels/bunker_boss_level.dart';
 import 'levels/exterior_map_level.dart';
+import 'components/enemies/yurei_kohaa.dart'; // Para reset de HP
+import '../narrative/models/dialogue_data.dart'; // Para sistema de diálogos
 
 /// Motor principal del juego Expediente Kōrin
 /// Gestiona el mundo, carga de mapas por capítulo y sistemas de juego
@@ -34,6 +36,13 @@ class ExpedienteKorinGame extends FlameGame
   final bool startInBossMode;
   final bool startInExteriorMap;
   final PlayerRole? selectedRole;
+  
+  // SISTEMA DE VIDAS
+  int remainingLives = 3;
+  static const int maxLives = 3;
+  
+  // SISTEMA DE DIÁLOGOS
+  DialogueSequence? currentDialogue;
   
   ExpedienteKorinGame({
     this.startInBossMode = false,
@@ -125,35 +134,185 @@ class ExpedienteKorinGame extends FlameGame
   /// Maneja el Game Over
   void gameOver() {
     if (!isGameOver) {
-      isGameOver = true;
-      overlays.add('GameOver');
-      pauseEngine();
+      remainingLives--;
+      
+      if (remainingLives > 0) {
+        // AÚN HAY VIDAS - Mostrar diálogo del compañero
+        _showCompanionReviveDialogue();
+      } else {
+        // SIN VIDAS - Game Over real
+        _showRealGameOver();
+      }
     }
   }
   
+  void _showCompanionReviveDialogue() {
+    isGameOver = true;
+    pauseEngine();
+    
+    final isDan = player.role == PlayerRole.dan;
+    final companionName = isDan ? 'Mel' : 'Dan';
+    final livesLeft = remainingLives;
+    
+    String message;
+    if (livesLeft == 2) {
+      // Primera muerte - Urgente pero optimista
+      final messages = isDan ? [
+        '¡Dan! Levántate, no podemos rendirnos ahora. Aún tienes 2 oportunidades más.',
+        '¡Oye oye! No eres inmortal, ten cuidado. Quedan 2 vidas.',
+        'Dan, concéntrate. Esto no es entrenamiento. Aún tienes 2 intentos.',
+      ] : [
+        'Mel, no es momento de caer. Quedan 2 intentos. ¡Vamos!',
+        '¡Cuidado, Mel! No puedes morir así. Tienes 2 oportunidades más.',
+        'Mel, respira. Aún podemos hacerlo. 2 vidas restantes.',
+      ];
+      message = (messages..shuffle()).first;
+    } else if (livesLeft == 1) {
+      // Segunda muerte - Preocupado y serio
+      final messages = isDan ? [
+        'Dan... esta es nuestra última oportunidad. Por favor, ten cuidado.',
+        'Dan, por favor... solo queda UN intento. No podemos fallar.',
+        '¡Dan! Esta es la última vez. Si caes de nuevo... todo habrá terminado.',
+      ] : [
+        'Mel... solo queda un intento. No podemos fallar.',
+        'Mel, escucha... esta es la última oportunidad. Ten mucho cuidado.',
+        'Por favor, Mel... un intento más. Eso es todo lo que tenemos.',
+      ];
+      message = (messages..shuffle()).first;
+    } else {
+      message = '¡Levántate, aún hay esperanza!';
+    }
+    
+    print('💔 $companionName: $message');
+    print('❤️ Vidas restantes: $livesLeft/$maxLives');
+    
+    // Auto-restart después de 2 segundos
+    // Future.delayed(const Duration(seconds: 2), () {
+    //   restart();
+    // });
+    
+    // Mostrar diálogo visual
+    final dialogueSequence = DialogueSequence(
+      id: 'revive_dialogue_$livesLeft',
+      dialogues: [
+        DialogueData(
+          speakerName: companionName,
+          text: message,
+          avatarPath: isDan 
+              ? 'assets/avatars/small/mel_avatar_small.png' 
+              : 'assets/avatars/small/dan_avatar_small.png',
+          type: DialogueType.normal,
+          canSkip: false,
+          autoAdvanceDelay: const Duration(seconds: 3),
+        ),
+      ],
+      onComplete: () {
+        // Reiniciar cuando termine el diálogo
+        restart();
+      },
+    );
+    
+    showDialogue(dialogueSequence);
+  }
+  
+  void _showRealGameOver() {
+    isGameOver = true;
+    overlays.add('GameOver');
+    pauseEngine();
+    
+    final isDan = player.role == PlayerRole.dan;
+    final companionName = isDan ? 'Mel' : 'Dan';
+    
+    print('☠️ GAME OVER - Sin vidas restantes');
+    print('💔 $companionName: No... no pudimos lograrlo...');
+  }
+  
   /// Reinicia el juego
-  void restart() {
+  void restart() async {
+    print('🔄 Reiniciando juego... Vidas actuales: $remainingLives');
+    
+    // Detectar si es un REINICIO COMPLETO (sin vidas) o PARCIAL (con vidas)
+    final isFullRestart = remainingLives <= 0;
+    
+    if (isFullRestart) {
+      print('💀 REINICIO COMPLETO - Sin vidas, recargando nivel desde el inicio');
+      
+      // Resetear vidas
+      remainingLives = maxLives;
+      
+      // Remover TODOS los enemigos, tumbas y objetos del mundo
+      final enemiesToRemove = world.children.whereType<PositionComponent>().where((child) {
+        final typeName = child.runtimeType.toString();
+        return typeName.contains('Enemy') || 
+               typeName.contains('Tomb') || 
+               typeName.contains('Kohaa') ||
+               typeName.contains('Stalker') ||
+               typeName.contains('Nurse') ||
+               typeName.contains('Allied');
+      }).toList();
+      
+      for (final enemy in enemiesToRemove) {
+        enemy.removeFromParent();
+      }
+      
+      // Recargar nivel completo según el modo actual
+      if (startInBossMode) {
+        print('🔄 Recargando Boss Level...');
+        await loadBossLevel();
+      } else if (startInExteriorMap) {
+        print('🔄 Recargando Exterior Map...');
+        await loadExteriorMap();
+      } else {
+        print('🔄 Recargando Capítulo $currentChapter...');
+        await loadChapterMap(currentChapter);
+      }
+      
+      // Reposicionar jugador al spawn inicial
+      player.resetHealth();
+      player.position = mapLoader.getPlayerSpawnPosition(currentChapter);
+      
+      // Reiniciar Mel
+      mel.reset();
+      mel.position = player.position + Vector2(50, 0);
+      
+      print('✅ Nivel completamente reiniciado. Vidas: $remainingLives/$maxLives');
+      
+    } else {
+      print('💚 RESPAWN - Aún quedan $remainingLives vidas, respawneando en posición actual');
+      
+      // Respawn simple (con vidas restantes)
+      player.resetHealth();
+      player.position = mapLoader.getPlayerSpawnPosition(currentChapter);
+      
+      // Reiniciar Mel
+      mel.reset();
+      mel.position = player.position + Vector2(50, 0);
+      
+      // RECUPERAR HP DE KOHAA si existe (solo en respawn parcial)
+      final kohaas = world.children.query<YureiKohaa>();
+      for (final kohaa in kohaas) {
+        if (!kohaa.isDead) {
+          kohaa.recoverHealthOnRetry(100.0);
+        }
+      }
+    }
+    
     isGameOver = false;
     overlays.remove('GameOver');
     resumeEngine();
-    
-    // Reiniciar estado del jugador
-    player.resetHealth();
-    player.position = mapLoader.getPlayerSpawnPosition(currentChapter);
-    
-    // Reiniciar Mel
-    mel.reset();
-    mel.position = player.position + Vector2(50, 0);
-    
-    // Recargar nivel
-    if (startInBossMode) {
-      // Limpiar mundo (enemigos, balas, etc)
-      world.removeAll(world.children);
-      world.add(player);
-      world.add(mel);
-      loadBossLevel();
-    } else {
-      loadChapterMap(currentChapter);
-    }
+  }
+  
+  /// Muestra una secuencia de diálogo
+  void showDialogue(DialogueSequence sequence) {
+    currentDialogue = sequence;
+    pauseEngine();
+    overlays.add('DialogueOverlay');
+  }
+  
+  /// Llamado cuando termina un diálogo
+  void onDialogueComplete() {
+    currentDialogue = null;
+    overlays.remove('DialogueOverlay');
+    resumeEngine();
   }
 }

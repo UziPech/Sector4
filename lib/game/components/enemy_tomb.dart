@@ -55,6 +55,9 @@ class EnemyTomb extends PositionComponent
     _isPlayerNearby = distanceToPlayer < _interactionRange;
   }
   
+  /// Determina si esta tumba es de un Kijin
+  bool get isKijin => enemyType.contains('kijin');
+  
   @override
   void render(Canvas canvas) {
     super.render(canvas);
@@ -65,9 +68,13 @@ class EnemyTomb extends PositionComponent
     // Efecto de pulso
     final pulseScale = 1.0 + sin(_pulseTimer) * 0.1;
     
+    // Color según tipo de enemigo
+    final tombColor = isKijin ? Colors.red : Colors.purple;
+    final promptColor = isKijin ? Colors.red : Colors.green;
+    
     // Círculo base (tumba)
     final basePaint = Paint()
-      ..color = Colors.purple.withOpacity(0.3 * opacity)
+      ..color = tombColor.withOpacity(0.3 * opacity)
       ..style = PaintingStyle.fill;
     
     canvas.drawCircle(
@@ -78,9 +85,9 @@ class EnemyTomb extends PositionComponent
     
     // Borde luminoso
     final borderPaint = Paint()
-      ..color = Colors.purple.withOpacity(0.8 * opacity)
+      ..color = tombColor.withOpacity(0.8 * opacity)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
+      ..strokeWidth = isKijin ? 3 : 2;
     
     canvas.drawCircle(
       (size / 2).toOffset(),
@@ -92,7 +99,7 @@ class EnemyTomb extends PositionComponent
     final symbolPaint = Paint()
       ..color = Colors.white.withOpacity(0.9 * opacity)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
+      ..strokeWidth = isKijin ? 3 : 2;
     
     final center = (size / 2).toOffset();
     final symbolSize = _tombRadius * 0.5;
@@ -111,12 +118,14 @@ class EnemyTomb extends PositionComponent
     
     // Indicador de interacción si el jugador está cerca
     if (_isPlayerNearby) {
+      final promptText = isKijin ? 'E - Revivir (2 slots)' : 'E - Revivir';
+      
       final textPainter = TextPainter(
         text: TextSpan(
-          text: 'E - Revivir',
+          text: promptText,
           style: TextStyle(
-            color: Colors.green.withOpacity(opacity),
-            fontSize: 12,
+            color: promptColor.withOpacity(opacity),
+            fontSize: isKijin ? 11 : 12,
             fontWeight: FontWeight.bold,
             fontFamily: 'monospace',
           ),

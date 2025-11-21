@@ -11,6 +11,8 @@ import 'particle_effect.dart';
 import '../game/components/player.dart';
 import 'obsession_object.dart';
 import 'destructible_object.dart';
+import '../game/components/enemies/irracional.dart';
+import '../game/components/enemies/yurei_kohaa.dart'; // Para atacar al boss Kijin
 
 class Bullet extends PositionComponent with CollisionCallbacks, HasGameReference<ExpedienteKorinGame> {
   Vector2 direction;
@@ -100,6 +102,18 @@ class Bullet extends PositionComponent with CollisionCallbacks, HasGameReference
     
     for (final child in game.world.children) {
       if (child is EnemyCharacter) {
+        final distance = (child.position - position).length;
+        if (distance < nearestDistance && distance < homingRange) {
+          nearestDistance = distance;
+          nearest = child;
+        }
+      } else if (child is IrrationalEnemy) {
+        final distance = (child.position - position).length;
+        if (distance < nearestDistance && distance < homingRange) {
+          nearestDistance = distance;
+          nearest = child;
+        }
+      } else if (child is YureiKohaa) {
         final distance = (child.position - position).length;
         if (distance < nearestDistance && distance < homingRange) {
           nearestDistance = distance;
@@ -195,6 +209,29 @@ class Bullet extends PositionComponent with CollisionCallbacks, HasGameReference
           other.takeDamage(damage);
           _createImpactEffect();
           removeFromParent();
+        } catch (e) {
+          // Error
+        }
+      }
+    }
+    else if (other is IrrationalEnemy) {
+      if (isPlayerBullet) {
+        try {
+          other.takeDamage(damage);
+          _createImpactEffect();
+          removeFromParent();
+        } catch (e) {
+          // Error
+        }
+      }
+    }
+    else if (other is YureiKohaa) {
+      if (isPlayerBullet) {
+        try {
+          other.takeDamage(damage);
+          _createImpactEffect();
+          removeFromParent();
+          print('🔫 Bala golpeó a KOHAA: $damage daño');
         } catch (e) {
           // Error
         }

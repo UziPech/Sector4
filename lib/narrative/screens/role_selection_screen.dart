@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import '../../game/models/player_role.dart';
 import '../../game/expediente_game.dart';
+import '../../game/ui/game_over_with_advice.dart';
 import '../models/dialogue_data.dart';
 import '../components/dialogue_system.dart';
 
@@ -215,6 +216,20 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
             selectedRole: _selectedRole,
             startInExteriorMap: true,
           ),
+          overlayBuilderMap: {
+            'GameOver': (context, game) => GameOverWithAdvice(
+              game: game as ExpedienteKorinGame,
+            ),
+            'DialogueOverlay': (context, game) {
+              final korinGame = game as ExpedienteKorinGame;
+              if (korinGame.currentDialogue == null) return const SizedBox.shrink();
+              
+              return DialogueSystem(
+                sequence: korinGame.currentDialogue!,
+                onSequenceComplete: korinGame.onDialogueComplete,
+              );
+            },
+          },
         ),
       ),
     );

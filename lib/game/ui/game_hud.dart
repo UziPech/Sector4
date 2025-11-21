@@ -63,6 +63,9 @@ class GameHUD extends PositionComponent with HasGameReference<ExpedienteKorinGam
       }
     }
 
+    // --- VIDAS RESTANTES ---
+    _drawLivesCounter(canvas);
+    
     // --- WEAPON HOTBAR ---
     _drawWeaponHotbar(canvas);
   }
@@ -145,6 +148,70 @@ class GameHUD extends PositionComponent with HasGameReference<ExpedienteKorinGam
         startY + 5, 
         Colors.grey
       );
+    }
+  }
+  
+  void _drawLivesCounter(Canvas canvas) {
+    final lives = game.remainingLives;
+    final maxLives = ExpedienteKorinGame.maxLives;
+    
+    // Posición en la esquina superior derecha
+    const double startX = 320.0; // Junto al HUD de stats
+    const double startY = 10.0;
+    const double heartSize = 30.0;
+    const double spacing = 35.0;
+    
+    // Fondo
+    final bgRect = Rect.fromLTWH(startX, startY, (heartSize * maxLives) + (spacing * (maxLives - 1)) + 20, 50);
+    final bgPaint = Paint()
+      ..color = Colors.black.withOpacity(0.7)
+      ..style = PaintingStyle.fill;
+    canvas.drawRect(bgRect, bgPaint);
+    
+    // Borde
+    final borderPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    canvas.drawRect(bgRect, borderPaint);
+    
+    // Título
+    _drawText(canvas, 'VIDAS', startX + 10, startY + 5, Colors.white, bold: true);
+    
+    // Dibujar corazones
+    for (int i = 0; i < maxLives; i++) {
+      final x = startX + 10 + (i * spacing);
+      final y = startY + 25;
+      final isAlive = i < lives;
+      
+      // Corazón (símbolo)
+      final heartPaint = Paint()
+        ..color = isAlive ? Colors.red : Colors.grey
+        ..style = PaintingStyle.fill;
+      
+      // Dibujar un corazón simple como dos círculos y un triángulo
+      final heartPath = Path();
+      final cx = x + heartSize / 2;
+      final cy = y + heartSize / 2;
+      
+      // Forma aproximada de corazón
+      heartPath.moveTo(cx, cy - heartSize / 4);
+      heartPath.quadraticBezierTo(cx - heartSize / 2, cy - heartSize / 2, cx - heartSize / 2, cy);
+      heartPath.quadraticBezierTo(cx - heartSize / 2, cy + heartSize / 4, cx, cy + heartSize / 2);
+      heartPath.quadraticBezierTo(cx + heartSize / 2, cy + heartSize / 4, cx + heartSize / 2, cy);
+      heartPath.quadraticBezierTo(cx + heartSize / 2, cy - heartSize / 2, cx, cy - heartSize / 4);
+      heartPath.close();
+      
+      canvas.drawPath(heartPath, heartPaint);
+      
+      // Brillo si está vivo
+      if (isAlive) {
+        final glowPaint = Paint()
+          ..color = Colors.red.withOpacity(0.5)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2;
+        canvas.drawPath(heartPath, glowPaint);
+      }
     }
   }
   
@@ -257,12 +324,12 @@ class GameHUD extends PositionComponent with HasGameReference<ExpedienteKorinGam
   }
   
   void _drawResurrectionCounter(Canvas canvas, double x, double y) {
-    _drawText(canvas, 'RESURRECCIONES', x, y, Colors.purple, bold: true);
+    _drawText(canvas, 'SLOTS ALIADOS', x, y, Colors.purple, bold: true);
     
     if (resurrectionManager == null) return;
     
     final remaining = resurrectionManager!.resurrectionsRemaining;
-    final max = resurrectionManager!.maxResurrections;
+    final max = resurrectionManager!.maxActiveAllies;
     
     // Dibujar orbes de resurrección
     const double orbSize = 15.0;

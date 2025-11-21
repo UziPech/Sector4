@@ -22,13 +22,13 @@ class _StoryScreenState extends State<StoryScreen> {
     ChapterInfo(
       number: 1,
       title: 'Capítulo 1: El Despertar',
-      description: 'Dan despierta en su casa, sin recordar nada de la noche anterior...',
+      description: 'El sufrimiento de un padre...',
       sceneBuilder: HouseScene.new,
     ),
     ChapterInfo(
       number: 2,
       title: 'Capítulo 2: El Búnker',
-      description: 'Dan descubre un búnker secreto bajo su casa...',
+      description: 'Debemos preocuparnos...',
       sceneBuilder: BunkerScene.new,
     ),
     // Agregar más capítulos aquí en el futuro

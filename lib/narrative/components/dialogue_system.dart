@@ -52,13 +52,15 @@ class _DialogueSystemState extends State<DialogueSystem> {
 
   /// Convierte la ruta del avatar pequeño a la ruta de DialogueBody
   String _getDialogueBodyPath(String avatarPath) {
-    // Extraer el nombre del personaje (Dan, Mel, Marcus)
+    // Extraer el nombre del personaje (Dan, Mel, Marcus, Kohaa)
     if (avatarPath.contains('Dan')) {
       return 'assets/avatars/dialogue_body/dan_dialogue_complete.png';
     } else if (avatarPath.contains('Mel')) {
       return 'assets/avatars/dialogue_body/mel_dialogue_complete.png';
     } else if (avatarPath.contains('Marcus')) {
       return 'assets/avatars/dialogue_body/marcus_dialogue_complete.png';
+    } else if (avatarPath.contains('kohaa') || avatarPath.contains('Kohaa')) {
+      return 'assets/avatars/dialogue_body/kohaa_dialogue_complete.png';
     }
     // Fallback a la imagen original si no se encuentra
     return avatarPath;

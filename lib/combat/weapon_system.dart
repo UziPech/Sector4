@@ -3,6 +3,8 @@ import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import '../game/expediente_game.dart';
+import '../game/components/enemies/irracional.dart';
+import '../game/components/enemies/yurei_kohaa.dart'; // Para atacar al boss Kijin
 import '../game/components/player.dart';
 import '../components/bullet.dart';
 import '../components/character_component.dart';
@@ -80,6 +82,24 @@ class MeleeWeapon extends Weapon {
         // Aplicar daño completo a enemigos
         enemy.receiveDamage(damage);
         hitSomething = true;
+      }
+    });
+
+    game.world.children.query<IrrationalEnemy>().forEach((enemy) {
+      final distance = enemy.position.distanceTo(ownerPos);
+      if (distance <= range) {
+        enemy.takeDamage(damage);
+        hitSomething = true;
+      }
+    });
+    
+    // Dañar bosses (YureiKohaa)
+    game.world.children.query<YureiKohaa>().forEach((boss) {
+      final distance = boss.position.distanceTo(ownerPos);
+      if (distance <= range) {
+        boss.takeDamage(damage);
+        hitSomething = true;
+        print('⚔️ Cuchillo golpeó a KOHAA: $damage daño');
       }
     });
     

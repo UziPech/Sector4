@@ -6,6 +6,7 @@ import '../components/character_component.dart';
 import '../game/expediente_game.dart';
 import '../game/components/player.dart';
 import '../game/components/enemies/irracional.dart';
+import '../game/components/enemies/yurei_kohaa.dart'; // Para atacar a Kohaa
 
 /// Mano Mutante - Arma especial de Mel
 /// Ataque cuerpo a cuerpo con drenaje de vida
@@ -50,12 +51,15 @@ class MutantHandWeapon extends Weapon {
   
   @override
   void attack(PlayerCharacter player, ExpedienteKorinGame game) {
-    // Buscar enemigos en rango
-    final enemies = game.world.children.query<IrrationalEnemy>();
+    // Buscar TODOS los enemigos en rango (Irracionales Y Kohaa)
+    final irrationals = game.world.children.query<IrrationalEnemy>();
+    final bosses = game.world.children.query<YureiKohaa>();
+    
     bool hitAnyEnemy = false;
     double totalDamageDealt = 0.0;
     
-    for (final enemy in enemies) {
+    // Atacar irracionales
+    for (final enemy in irrationals) {
       if (enemy.isDead) continue;
       
       final distance = player.position.distanceTo(enemy.position);
@@ -64,9 +68,27 @@ class MutantHandWeapon extends Weapon {
         enemy.takeDamage(damage);
         totalDamageDealt += damage;
         hitAnyEnemy = true;
+        print('🖐️ Mano Mutante golpeó Irracional: $damage daño');
         
         // Crear efecto visual en la posición del enemigo
         _createHitEffect(game, enemy.position);
+      }
+    }
+    
+    // Atacar bosses (Kohaa)
+    for (final boss in bosses) {
+      if (boss.isDead) continue;
+      
+      final distance = player.position.distanceTo(boss.position);
+      if (distance <= attackRadius) {
+        // Aplicar daño al boss
+        boss.takeDamage(damage);
+        totalDamageDealt += damage;
+        hitAnyEnemy = true;
+        print('🖐️ Mano Mutante golpeó KOHAA: $damage daño + DRENAJE');
+        
+        // Crear efecto visual en la posición del boss
+        _createHitEffect(game, boss.position);
       }
     }
     

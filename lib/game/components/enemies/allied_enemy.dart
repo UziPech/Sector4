@@ -3,19 +3,22 @@ import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flutter/material.dart';
 import '../../expediente_game.dart';
+import '../../systems/resurrection_system.dart';
+import '../enemy_tomb.dart';
 import 'irracional.dart';
+import 'yurei_kohaa.dart';
 
 /// Enemigo aliado temporal - Resucitado por Mel
 /// Ataca a otros enemigos durante un tiempo limitado
 class AlliedEnemy extends PositionComponent
     with HasGameReference<ExpedienteKorinGame>, CollisionCallbacks {
   
-  final double _maxHealth = 50.0;
-  double _health = 50.0;
-  final double _speed = 120.0;
-  final double _damage = 15.0;
-  final double _attackRange = 40.0;
-  final double _attackCooldown = 1.0;
+  late final double _maxHealth;
+  late double _health;
+  late final double _speed;
+  late final double _damage;
+  late final double _attackRange;
+  late final double _attackCooldown;
   double _attackTimer = 0.0;
   
   // Duración del aliado
@@ -23,15 +26,65 @@ class AlliedEnemy extends PositionComponent
   double _lifetimeTimer = 0.0;
   
   bool _isDead = false;
-  IrrationalEnemy? _currentTarget;
+  PositionComponent? _currentTarget; // Cambiado para aceptar cualquier enemigo
+  
+  // Referencia al manager de resurrecciones
+  final ResurrectionManager? resurrectionManager;
+  
+  // Tipo de enemigo resucitado
+  final String enemyType;
   
   static const double _size = 28.0;
   
   AlliedEnemy({
     required Vector2 position,
-    double lifetime = 20.0, // 20 segundos por defecto
+    double lifetime = 45.0, // 45 segundos por defecto
+    this.resurrectionManager,
+    this.enemyType = 'irracional',
   })  : _lifetime = lifetime,
-        super(position: position);
+        super(position: position) {
+    // Configurar estadísticas según el tipo de enemigo
+    _configureStats();
+  }
+  
+  /// Configura las estadísticas según el tipo de enemigo
+  void _configureStats() {
+    switch (enemyType) {
+      case 'irracional':
+      case 'allied':
+        _maxHealth = 60.0;
+        _health = 60.0;
+        _speed = 130.0;
+        _damage = 18.0;
+        _attackRange = 45.0;
+        _attackCooldown = 0.9;
+        break;
+      // Preparado para futuros mutados de mayor rango
+      case 'mutado_rango_medio':
+        _maxHealth = 100.0;
+        _health = 100.0;
+        _speed = 150.0;
+        _damage = 25.0;
+        _attackRange = 50.0;
+        _attackCooldown = 0.8;
+        break;
+      case 'mutado_rango_alto':
+        _maxHealth = 150.0;
+        _health = 150.0;
+        _speed = 170.0;
+        _damage = 35.0;
+        _attackRange = 60.0;
+        _attackCooldown = 0.7;
+        break;
+      default:
+        _maxHealth = 60.0;
+        _health = 60.0;
+        _speed = 130.0;
+        _damage = 18.0;
+        _attackRange = 45.0;
+        _attackCooldown = 0.9;
+    }
+  }
   
   @override
   Future<void> onLoad() async {
@@ -69,13 +122,13 @@ class AlliedEnemy extends PositionComponent
   }
   
   void _findAndAttackEnemies(double dt) {
-    // Si no tiene objetivo o el objetivo murió, buscar nuevo
-    if (_currentTarget == null || _currentTarget!.isDead) {
+    // Si no tiene objetivo, buscar nuevo
+    if (_currentTarget == null || !_isTargetValid()) {
       _findNearestEnemy();
     }
     
     // Si tiene objetivo, perseguirlo y atacar
-    if (_currentTarget != null && !_currentTarget!.isDead) {
+    if (_currentTarget != null && _isTargetValid()) {
       final distanceToTarget = position.distanceTo(_currentTarget!.position);
       
       // Acercarse si está lejos
@@ -89,17 +142,45 @@ class AlliedEnemy extends PositionComponent
     }
   }
   
+  bool _isTargetValid() {
+    if (_currentTarget == null) return false;
+    
+    // Verificar si el objetivo sigue vivo según su tipo
+    if (_currentTarget is IrrationalEnemy) {
+      return !(_currentTarget as IrrationalEnemy).isDead;
+    } else if (_currentTarget is YureiKohaa) {
+      return !(_currentTarget as YureiKohaa).isDead;
+    }
+    
+    return false;
+  }
+  
   void _findNearestEnemy() {
-    final enemies = game.world.children.query<IrrationalEnemy>();
-    IrrationalEnemy? nearest;
+    // Buscar todos los tipos de enemigos
+    final irrationals = game.world.children.query<IrrationalEnemy>();
+    final bosses = game.world.children.query<YureiKohaa>();
+    
+    PositionComponent? nearest;
     double nearestDistance = double.infinity;
     
-    for (final enemy in enemies) {
+    // Buscar entre irracionales
+    for (final enemy in irrationals) {
       if (enemy.isDead) continue;
       
       final distance = position.distanceTo(enemy.position);
       if (distance < nearestDistance) {
         nearest = enemy;
+        nearestDistance = distance;
+      }
+    }
+    
+    // Buscar entre bosses
+    for (final boss in bosses) {
+      if (boss.isDead) continue;
+      
+      final distance = position.distanceTo(boss.position);
+      if (distance < nearestDistance) {
+        nearest = boss;
         nearestDistance = distance;
       }
     }
@@ -110,7 +191,15 @@ class AlliedEnemy extends PositionComponent
   void _tryAttack() {
     if (_attackTimer > 0 || _currentTarget == null) return;
     
-    _currentTarget!.takeDamage(_damage);
+    // Atacar según el tipo de enemigo
+    if (_currentTarget is IrrationalEnemy) {
+      (_currentTarget as IrrationalEnemy).takeDamage(_damage);
+      print('⚔️ Aliado atacó Irracional: $_damage daño');
+    } else if (_currentTarget is YureiKohaa) {
+      (_currentTarget as YureiKohaa).takeDamage(_damage);
+      print('⚔️ Aliado atacó Kohaa: $_damage daño');
+    }
+    
     _attackTimer = _attackCooldown;
   }
   
@@ -129,6 +218,9 @@ class AlliedEnemy extends PositionComponent
   /// Muerte del aliado
   void _die() {
     _isDead = true;
+    _createTombOnDeath();
+    // Liberar slot en el manager
+    resurrectionManager?.unregisterAlly();
     removeFromParent();
   }
   
@@ -137,11 +229,24 @@ class AlliedEnemy extends PositionComponent
     _isDead = true;
     // Crear efecto de desvanecimiento
     _createExpireEffect();
+    _createTombOnDeath();
+    // Liberar slot en el manager
+    resurrectionManager?.unregisterAlly();
     removeFromParent();
   }
   
   void _createExpireEffect() {
     // TODO: Agregar efecto visual de desvanecimiento
+  }
+  
+  /// Crea una tumba cuando el aliado muere o expira
+  void _createTombOnDeath() {
+    final tomb = EnemyTomb(
+      position: position.clone(),
+      enemyType: 'allied',
+      lifetime: 8.0, // Las tumbas de aliados duran más tiempo
+    );
+    game.world.add(tomb);
   }
   
   @override
