@@ -199,8 +199,8 @@ class ExpedienteKorinGame extends FlameGame
           speakerName: companionName,
           text: message,
           avatarPath: isDan 
-              ? 'assets/avatars/small/mel_avatar_small.png' 
-              : 'assets/avatars/small/dan_avatar_small.png',
+              ? 'assets/avatars/dialogue_icons/Mel_Dialogue.png' 
+              : 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
           type: DialogueType.normal,
           canSkip: false,
           autoAdvanceDelay: const Duration(seconds: 3),

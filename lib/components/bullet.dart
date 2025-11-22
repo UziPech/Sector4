@@ -13,6 +13,9 @@ import 'obsession_object.dart';
 import 'destructible_object.dart';
 import '../game/components/enemies/irracional.dart';
 import '../game/components/enemies/yurei_kohaa.dart'; // Para atacar al boss Kijin
+import '../game/components/bosses/on_oyabun_boss.dart'; // Para atacar a On-Oyabun
+import '../game/components/enemies/minions/yakuza_ghost.dart';
+import '../game/components/enemies/minions/floating_katana.dart';
 
 class Bullet extends PositionComponent with CollisionCallbacks, HasGameReference<ExpedienteKorinGame> {
   Vector2 direction;
@@ -114,6 +117,24 @@ class Bullet extends PositionComponent with CollisionCallbacks, HasGameReference
           nearest = child;
         }
       } else if (child is YureiKohaa) {
+        final distance = (child.position - position).length;
+        if (distance < nearestDistance && distance < homingRange) {
+          nearestDistance = distance;
+          nearest = child;
+        }
+      } else if (child is OnOyabunBoss) {
+        final distance = (child.position - position).length;
+        if (distance < nearestDistance && distance < homingRange) {
+          nearestDistance = distance;
+          nearest = child;
+        }
+      } else if (child is YakuzaGhost) {
+        final distance = (child.position - position).length;
+        if (distance < nearestDistance && distance < homingRange) {
+          nearestDistance = distance;
+          nearest = child;
+        }
+      } else if (child is FloatingKatana) {
         final distance = (child.position - position).length;
         if (distance < nearestDistance && distance < homingRange) {
           nearestDistance = distance;
@@ -237,6 +258,18 @@ class Bullet extends PositionComponent with CollisionCallbacks, HasGameReference
         }
       }
     }
+    else if (other is OnOyabunBoss) {
+      if (isPlayerBullet) {
+        try {
+          other.takeDamage(damage);
+          _createImpactEffect();
+          removeFromParent();
+          print('🔫 Bala golpeó a ON-OYABUN: $damage daño');
+        } catch (e) {
+          // Error
+        }
+      }
+    }
     else if (other is ObsessionObject) {
       if (isPlayerBullet) {
         try {
@@ -249,6 +282,28 @@ class Bullet extends PositionComponent with CollisionCallbacks, HasGameReference
       }
     }
     else if (other is DestructibleObject) {
+      if (isPlayerBullet) {
+        try {
+          other.takeDamage(damage);
+          _createImpactEffect();
+          removeFromParent();
+        } catch (e) {
+          // Error
+        }
+      }
+    }
+    else if (other is YakuzaGhost) {
+      if (isPlayerBullet) {
+        try {
+          other.takeDamage(damage);
+          _createImpactEffect();
+          removeFromParent();
+        } catch (e) {
+          // Error
+        }
+      }
+    }
+    else if (other is FloatingKatana) {
       if (isPlayerBullet) {
         try {
           other.takeDamage(damage);

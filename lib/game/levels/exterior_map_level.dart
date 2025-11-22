@@ -6,6 +6,8 @@ import '../expediente_game.dart';
 import '../components/player.dart';
 import '../components/enemies/yurei_kohaa.dart';
 import '../components/enemies/irracional.dart';
+import '../components/bosses/on_oyabun_boss.dart';
+import '../components/effects/summoning_circle.dart';
 import '../systems/resurrection_system.dart';
 import '../systems/enemy_spawner.dart';
 import '../models/player_role.dart';
@@ -14,6 +16,7 @@ import '../../narrative/models/dialogue_data.dart';
 
 /// Nivel del mapa exterior post-resonante
 /// Mapa simple sin Tiled, generado proceduralmente
+/// INCLUYE: Sistema de invocación de On-Oyabun post-Kohaa
 class ExteriorMapLevel extends Component with HasGameReference<ExpedienteKorinGame> {
   late ResurrectionManager resurrectionManager;
   
@@ -22,6 +25,14 @@ class ExteriorMapLevel extends Component with HasGameReference<ExpedienteKorinGa
   bool _initialEnemiesCleared = false;
   int _initialEnemyCount = 5;
   YureiKohaa? _kohaa;
+  
+  // Control de On-Oyabun (aparece después de Kohaa)
+  bool _kohaaDefeated = false;
+  bool _oyabunSpawned = false;
+  bool _summoningInProgress = false;
+  double _postKohaaDelay = 5.0; // Segundos antes de invocar
+  double _postKohaaTimer = 0.0;
+  OnOyabunBoss? _oyabun;
   
   // Dimensiones del mapa
   static const double mapWidth = 1600.0;
@@ -89,6 +100,22 @@ class ExteriorMapLevel extends Component with HasGameReference<ExpedienteKorinGa
         Future.delayed(const Duration(milliseconds: 1000), () {
           _showKohaaIntro();
         });
+      }
+    }
+    
+    // Verificar si Kohaa fue derrotada
+    if (_kohaaSpawned && !_kohaaDefeated && _kohaa?.isDead == true) {
+      _kohaaDefeated = true;
+      _postKohaaTimer = 0.0;
+      debugPrint('💀 Yurei Kohaa ha sido derrotada!');
+      debugPrint('⏳ On-Oyabun será invocado en $_postKohaaDelay segundos...');
+    }
+    
+    // Timer post-Kohaa para invocar a On-Oyabun
+    if (_kohaaDefeated && !_summoningInProgress && !_oyabunSpawned) {
+      _postKohaaTimer += dt;
+      if (_postKohaaTimer >= _postKohaaDelay) {
+        _startOyabunSummoning();
       }
     }
   }
@@ -172,6 +199,130 @@ class ExteriorMapLevel extends Component with HasGameReference<ExpedienteKorinGa
     game.world.add(_kohaa!);
     debugPrint('✨ Yurei Kohaa ha aparecido!');
   }
+  
+  // ==================== ON-OYABUN SUMMONING LOGIC ====================
+  
+  /// Inicia el ritual de invocación de On-Oyabun
+  void _startOyabunSummoning() {
+    if (_summoningInProgress || _oyabunSpawned) return;
+    
+    _summoningInProgress = true;
+    debugPrint('🔴 INICIANDO RITUAL DE INVOCACIÓN DE ON-OYABUN...');
+    
+    // Posición central del mapa para el ritual
+    final summoningPosition = Vector2(mapWidth / 2, mapHeight / 2);
+    
+    // Crear círculo de invocación
+    final circle = SummoningCircle(
+      position: summoningPosition,
+      onSummoningComplete: () {
+        _summoningInProgress = false;
+        _spawnOyabun();
+      },
+    );
+    game.world.add(circle);
+    
+    // Crear las 28 katanas formando un círculo
+    _create28KatanaCircle(summoningPosition);
+    
+    // Mostrar diálogo de invocación
+    Future.delayed(const Duration(milliseconds: 500), () {
+      _showOyabunIntro();
+    });
+  }
+  
+  /// Crea un círculo de 28 katanas en el suelo
+  void _create28KatanaCircle(Vector2 center) {
+    const int katanaCount = 28;
+    const double radiusCircle = 180.0;
+    
+    for (int i = 0; i < katanaCount; i++) {
+      final angle = (i / katanaCount) * 2 * pi;
+      final x = center.x + cos(angle) * radiusCircle;
+      final y = center.y + sin(angle) * radiusCircle;
+      
+      // Crear katana clavada en el suelo
+      final katana = _GroundKatana(
+        position: Vector2(x, y),
+        angle: angle + pi / 2, // Apuntando hacia el centro
+      );
+      game.world.add(katana);
+    }
+    
+    debugPrint('⚔️ 28 katanas han emergido del suelo...');
+  }
+  
+  /// Diálogo de introducción de On-Oyabun
+  void _showOyabunIntro() {
+    if (game.buildContext == null || _oyabunSpawned) return;
+    
+    game.pauseEngine();
+    
+    final isDan = game.player.role == PlayerRole.dan;
+    
+    final introSequence = DialogueSequence(
+      id: 'oyabun_intro',
+      dialogues: [
+        const DialogueData(
+          speakerName: 'Sistema',
+          text: 'ALERTA: Las almas liberadas han despertado algo más profundo...',
+          type: DialogueType.system,
+        ),
+        DialogueData(
+          speakerName: isDan ? 'Mel' : 'Dan',
+          text: isDan
+              ? 'Dan... las katanas están emergiendo del suelo. Esta presencia...'
+              : 'Mel, ¿lo sientes? No es solo un Kijin. Es algo peor.',
+          avatarPath: isDan
+              ? 'assets/avatars/dialogue_icons/Mel_Dialogue.png'
+              : 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
+        ),
+        const DialogueData(
+          speakerName: '???',
+          text: '...Veintitrés almas. Cinco guerreros. Todos cayeron ante mi filo.',
+        ),
+        const DialogueData(
+          speakerName: '???',
+          text: 'Y ahora... ahora ellos viven en mí. Y yo vivo en ellos.',
+        ),
+        const DialogueData(
+          speakerName: 'On-Oyabun',
+          text: 'Kohaa ha caído. Su dolor resonó con el mío. Ahora... es mi turno.',
+        ),
+        DialogueData(
+          speakerName: isDan ? 'Dan' : 'Mel',
+          text: isDan
+              ? 'Esto es diferente. Es... más antiguo. Más poderoso.'
+              : 'Una Singularidad. Una fusión de víctima y verdugo. Cuidado, Dan.',
+          avatarPath: isDan
+              ? 'assets/avatars/dialogue_icons/Dan_Dialogue.png'
+              : 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
+        ),
+      ],
+      onComplete: () {
+        game.resumeEngine();
+      },
+    );
+    
+    DialogueOverlay.show(game.buildContext!, introSequence);
+  }
+  
+  /// Spawn del jefe On-Oyabun
+  void _spawnOyabun() {
+    if (_oyabunSpawned) return;
+    
+    _oyabunSpawned = true;
+    
+    // Spawn en el centro del mapa
+    _oyabun = OnOyabunBoss(
+      position: Vector2(mapWidth / 2, mapHeight / 2),
+    );
+    game.world.add(_oyabun!);
+    
+    debugPrint('⚔️💀 怨親分 ON-OYABUN HA SIDO INVOCADO!');
+  }
+  
+  // ==================== ORIGINAL METHODS ====================
   
   Future<void> _setupEnemySpawner() async {
     final spawner = EnemySpawner(
@@ -362,4 +513,62 @@ class _SimpleWall extends PositionComponent {
       );
     }
   }
+}
+
+/// Katana clavada en el suelo (para el círculo de invocación de Oyabun)
+class _GroundKatana extends PositionComponent {
+  final double katanaAngle;
+  
+  _GroundKatana({
+    required Vector2 position,
+    double? angle,
+  })  : katanaAngle = angle ?? 0.0,
+        super(position: position, anchor: Anchor.center);
+  
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    size = Vector2(4, 30); // Katana delgada y larga
+    this.angle = katanaAngle;
+  }
+  
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+    
+    // Hoja de la katana (plateada)
+    final bladePaint = Paint()
+      ..color = const Color(0xFFC0C0C0)
+      ..style = PaintingStyle.fill;
+    
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, size.x, size.y * 0.8),
+      bladePaint,
+    );
+    
+    // Empuñadura (negra/roja)
+    final handlePaint = Paint()
+      ..color = const Color(0xFF8B0000)
+      ..style = PaintingStyle.fill;
+    
+    canvas.drawRect(
+      Rect.fromLTWH(0, size.y * 0.8, size.x, size.y * 0.2),
+      handlePaint,
+    );
+    
+    // Borde brillante
+    final edgePaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    
+    canvas.drawLine(
+      const Offset(0, 0),
+      Offset(0, size.y * 0.8),
+      edgePaint,
+    );
+  }
+  
+  @override
+  int get priority => -10; // Dibujadas en el suelo pero por encima del fondo
 }

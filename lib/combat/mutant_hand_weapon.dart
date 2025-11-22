@@ -7,6 +7,9 @@ import '../game/expediente_game.dart';
 import '../game/components/player.dart';
 import '../game/components/enemies/irracional.dart';
 import '../game/components/enemies/yurei_kohaa.dart'; // Para atacar a Kohaa
+import '../game/components/bosses/on_oyabun_boss.dart'; // Para atacar a On-Oyabun
+import '../game/components/enemies/minions/yakuza_ghost.dart';
+import '../game/components/enemies/minions/floating_katana.dart';
 
 /// Mano Mutante - Arma especial de Mel
 /// Ataque cuerpo a cuerpo con drenaje de vida
@@ -49,11 +52,11 @@ class MutantHandWeapon extends Weapon {
     return false;
   }
   
-  @override
   void attack(PlayerCharacter player, ExpedienteKorinGame game) {
     // Buscar TODOS los enemigos en rango (Irracionales Y Kohaa)
     final irrationals = game.world.children.query<IrrationalEnemy>();
     final bosses = game.world.children.query<YureiKohaa>();
+    final oyabuns = game.world.children.query<OnOyabunBoss>();
     
     bool hitAnyEnemy = false;
     double totalDamageDealt = 0.0;
@@ -89,6 +92,51 @@ class MutantHandWeapon extends Weapon {
         
         // Crear efecto visual en la posición del boss
         _createHitEffect(game, boss.position);
+      }
+    }
+
+    // Atacar bosses (On-Oyabun)
+    for (final boss in oyabuns) {
+      if (boss.isDead) continue;
+      
+      final distance = player.position.distanceTo(boss.position);
+      if (distance <= attackRadius) {
+        // Aplicar daño al boss
+        boss.takeDamage(damage);
+        totalDamageDealt += damage;
+        hitAnyEnemy = true;
+        print('🖐️ Mano Mutante golpeó ON-OYABUN: $damage daño + DRENAJE');
+        
+        // Crear efecto visual en la posición del boss
+        _createHitEffect(game, boss.position);
+      }
+    }
+
+    // Atacar minions (YakuzaGhost)
+    final ghosts = game.world.children.query<YakuzaGhost>();
+    for (final ghost in ghosts) {
+      if (ghost.isDead) continue;
+      
+      final distance = player.position.distanceTo(ghost.position);
+      if (distance <= attackRadius) {
+        ghost.takeDamage(damage);
+        totalDamageDealt += damage;
+        hitAnyEnemy = true;
+        _createHitEffect(game, ghost.position);
+      }
+    }
+
+    // Atacar minions (FloatingKatana)
+    final katanas = game.world.children.query<FloatingKatana>();
+    for (final katana in katanas) {
+      if (katana.isDead) continue;
+      
+      final distance = player.position.distanceTo(katana.position);
+      if (distance <= attackRadius) {
+        katana.takeDamage(damage);
+        totalDamageDealt += damage;
+        hitAnyEnemy = true;
+        _createHitEffect(game, katana.position);
       }
     }
     

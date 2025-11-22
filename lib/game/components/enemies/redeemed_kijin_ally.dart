@@ -8,6 +8,7 @@ import '../enemy_tomb.dart';
 import 'irracional.dart';
 import 'allied_enemy.dart';
 import 'yurei_kohaa.dart'; // Añadido para poder atacar a Kohaa
+import '../bosses/on_oyabun_boss.dart'; // Para atacar a On-Oyabun
 
 /// Kijin Redimido - Aliado resucitado de categoría Kijin
 /// NO expira por tiempo, solo por muerte
@@ -201,6 +202,16 @@ class RedeemedKijinAlly extends PositionComponent
         print('⚡ Dash golpeó a KOHAA: $dashDamage daño');
       }
     }
+
+    final oyabuns = game.world.children.query<OnOyabunBoss>();
+    for (final boss in oyabuns) {
+      if (boss.isDead) continue;
+      final distance = position.distanceTo(boss.position);
+      if (distance <= dashRadius) {
+        boss.takeDamage(dashDamage);
+        print('⚡ Dash golpeó a ON-OYABUN: $dashDamage daño');
+      }
+    }
   }
   
   bool _isTargetValid() {
@@ -211,6 +222,8 @@ class RedeemedKijinAlly extends PositionComponent
       return !(_currentTarget as IrrationalEnemy).isDead;
     } else if (_currentTarget is YureiKohaa) {
       return !(_currentTarget as YureiKohaa).isDead;
+    } else if (_currentTarget is OnOyabunBoss) {
+      return !(_currentTarget as OnOyabunBoss).isDead;
     }
     
     return false;
@@ -270,8 +283,19 @@ class RedeemedKijinAlly extends PositionComponent
       }
     }
     
-    // Buscar entre bosses
+    // Buscar entre bosses (Kohaa y OnOyabun)
     for (final boss in bosses) {
+      if (boss.isDead) continue;
+      
+      final distance = position.distanceTo(boss.position);
+      if (distance < nearestDistance) {
+        nearest = boss;
+        nearestDistance = distance;
+      }
+    }
+
+    final oyabuns = game.world.children.query<OnOyabunBoss>();
+    for (final boss in oyabuns) {
       if (boss.isDead) continue;
       
       final distance = position.distanceTo(boss.position);
@@ -294,6 +318,9 @@ class RedeemedKijinAlly extends PositionComponent
     } else if (_currentTarget is YureiKohaa) {
       (_currentTarget as YureiKohaa).takeDamage(_damage);
       print('⚔️ Kijin Redimido atacó Kohaa: $_damage daño');
+    } else if (_currentTarget is OnOyabunBoss) {
+      (_currentTarget as OnOyabunBoss).takeDamage(_damage);
+      print('⚔️ Kijin Redimido atacó ON-OYABUN: $_damage daño');
     }
     
     _attackTimer = _attackCooldown;

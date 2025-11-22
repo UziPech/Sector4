@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import '../game/expediente_game.dart';
 import '../game/components/enemies/irracional.dart';
 import '../game/components/enemies/yurei_kohaa.dart'; // Para atacar al boss Kijin
+import '../game/components/bosses/on_oyabun_boss.dart';
+import '../game/components/enemies/minions/yakuza_ghost.dart';
+import '../game/components/enemies/minions/floating_katana.dart'; // Para atacar a On-Oyabun
 import '../game/components/player.dart';
 import '../components/bullet.dart';
 import '../components/character_component.dart';
@@ -93,13 +96,39 @@ class MeleeWeapon extends Weapon {
       }
     });
     
-    // Dañar bosses (YureiKohaa)
+    // Dañar bosses (YureiKohaa y OnOyabunBoss)
     game.world.children.query<YureiKohaa>().forEach((boss) {
       final distance = boss.position.distanceTo(ownerPos);
       if (distance <= range) {
         boss.takeDamage(damage);
         hitSomething = true;
         print('⚔️ Cuchillo golpeó a KOHAA: $damage daño');
+      }
+    });
+
+    game.world.children.query<OnOyabunBoss>().forEach((boss) {
+      final distance = boss.position.distanceTo(ownerPos);
+      if (distance <= range) {
+        boss.takeDamage(damage);
+        hitSomething = true;
+        print('⚔️ Cuchillo golpeó a ON-OYABUN: $damage daño');
+      }
+    });
+    
+    // Dañar minions del jefe
+    game.world.children.query<YakuzaGhost>().forEach((minion) {
+      final distance = minion.position.distanceTo(ownerPos);
+      if (distance <= range) {
+        minion.takeDamage(damage);
+        hitSomething = true;
+      }
+    });
+
+    game.world.children.query<FloatingKatana>().forEach((minion) {
+      final distance = minion.position.distanceTo(ownerPos);
+      if (distance <= range) {
+        minion.takeDamage(damage);
+        hitSomething = true;
       }
     });
     

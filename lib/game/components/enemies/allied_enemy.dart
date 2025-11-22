@@ -7,6 +7,7 @@ import '../../systems/resurrection_system.dart';
 import '../enemy_tomb.dart';
 import 'irracional.dart';
 import 'yurei_kohaa.dart';
+import '../bosses/on_oyabun_boss.dart'; // Para atacar a On-Oyabun
 
 /// Enemigo aliado temporal - Resucitado por Mel
 /// Ataca a otros enemigos durante un tiempo limitado
@@ -150,6 +151,8 @@ class AlliedEnemy extends PositionComponent
       return !(_currentTarget as IrrationalEnemy).isDead;
     } else if (_currentTarget is YureiKohaa) {
       return !(_currentTarget as YureiKohaa).isDead;
+    } else if (_currentTarget is OnOyabunBoss) {
+      return !(_currentTarget as OnOyabunBoss).isDead;
     }
     
     return false;
@@ -174,8 +177,19 @@ class AlliedEnemy extends PositionComponent
       }
     }
     
-    // Buscar entre bosses
+    // Buscar entre bosses (Kohaa y OnOyabun)
     for (final boss in bosses) {
+      if (boss.isDead) continue;
+      
+      final distance = position.distanceTo(boss.position);
+      if (distance < nearestDistance) {
+        nearest = boss;
+        nearestDistance = distance;
+      }
+    }
+
+    final oyabuns = game.world.children.query<OnOyabunBoss>();
+    for (final boss in oyabuns) {
       if (boss.isDead) continue;
       
       final distance = position.distanceTo(boss.position);
@@ -198,6 +212,9 @@ class AlliedEnemy extends PositionComponent
     } else if (_currentTarget is YureiKohaa) {
       (_currentTarget as YureiKohaa).takeDamage(_damage);
       print('⚔️ Aliado atacó Kohaa: $_damage daño');
+    } else if (_currentTarget is OnOyabunBoss) {
+      (_currentTarget as OnOyabunBoss).takeDamage(_damage);
+      print('⚔️ Aliado atacó ON-OYABUN: $_damage daño');
     }
     
     _attackTimer = _attackCooldown;
