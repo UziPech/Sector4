@@ -3,6 +3,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../expediente_game.dart';
 import '../player.dart';
+import '../enemies/yurei_kohaa.dart';
 
 /// Proyectil de katana que cae del cielo
 /// Usado en el ataque "Lluvia de Acero" de On-Oyabun
@@ -44,22 +45,44 @@ class FallingKatana extends PositionComponent
   }
   
   void _checkPlayerHit() {
-    final player = game.player;
-    final distance = position.distanceTo(player.position);
+    if (hasHit) return;
     
-    if (distance <= 30 && !hasHit) {
-      hasHit = true;
-      player.takeDamage(damage);
-      debugPrint('💥 Katana cayendo impacta: $damage daño');
-      
-      // Efecto visual de impacto
-      // TODO: Agregar partículas
-      
-      // Remover después del impacto
-      Future.delayed(const Duration(milliseconds: 100), () {
-        removeFromParent();
-      });
+    final player = game.player;
+    
+    // Verificar impacto con jugador
+    if (!player.isDead) {
+      final distanceToPlayer = position.distanceTo(player.position);
+      if (distanceToPlayer <= 30) {
+        hasHit = true;
+        player.takeDamage(damage);
+        debugPrint('💥 Katana cayendo impacta al jugador: $damage daño');
+        _removeAfterImpact();
+        return;
+      }
     }
+    
+    // Verificar impacto con Kohaa
+    game.world.children.query<YureiKohaa>().forEach((kohaa) {
+      if (!kohaa.isDead && !hasHit) {
+        final distanceToKohaa = position.distanceTo(kohaa.position);
+        if (distanceToKohaa <= 30) {
+          hasHit = true;
+          kohaa.takeDamage(damage);
+          debugPrint('💥 Katana cayendo impacta a Kohaa: $damage daño');
+          _removeAfterImpact();
+        }
+      }
+    });
+  }
+  
+  void _removeAfterImpact() {
+    // Efecto visual de impacto
+    // TODO: Agregar partículas
+    
+    // Remover después del impacto
+    Future.delayed(const Duration(milliseconds: 100), () {
+      removeFromParent();
+    });
   }
   
   @override

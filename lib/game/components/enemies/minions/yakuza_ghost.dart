@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import '../../../expediente_game.dart';
 import '../../player.dart';
 import '../yurei_kohaa.dart'; // Para atacar a Kohaa
+import '../redeemed_kijin_ally.dart'; // Para atacar a Kohaa aliada
+import '../allied_enemy.dart'; // Para atacar enfermeros
 
 /// Fantasma Yakuza - Minion de On-Oyabun
 /// Aparecen a 80% HP en Fase 1
@@ -57,11 +59,33 @@ class YakuzaGhost extends PositionComponent
   void _updateAI(double dt) {
     final player = game.player;
     
-    // Buscar objetivo más cercano (Jugador o Kohaa)
+    // Buscar objetivo más cercano (Prioridad: Enfermeros > Kohaa > Jugador)
     PositionComponent? target = player.isDead ? null : player;
     double minDistance = player.isDead ? double.infinity : position.distanceTo(player.position);
     
-    // Verificar si Kohaa está cerca
+    // PRIORIDAD 1: Enfermeros (fáciles de matar)
+    game.world.children.query<AlliedEnemy>().forEach((nurse) {
+      if (!nurse.isDead) {
+        final dist = position.distanceTo(nurse.position);
+        if (dist < minDistance) {
+          minDistance = dist;
+          target = nurse;
+        }
+      }
+    });
+    
+    // PRIORIDAD 2: Kohaa ALIADA
+    game.world.children.query<RedeemedKijinAlly>().forEach((kohaa) {
+      if (!kohaa.isDead && kohaa.kijinType == 'kohaa') {
+        final dist = position.distanceTo(kohaa.position);
+        if (dist < minDistance) {
+          minDistance = dist;
+          target = kohaa;
+        }
+      }
+    });
+    
+    // PRIORIDAD 3: Kohaa enemiga (por si acaso)
     game.world.children.query<YureiKohaa>().forEach((kohaa) {
       if (!kohaa.isDead) {
         final dist = position.distanceTo(kohaa.position);
@@ -113,9 +137,15 @@ class YakuzaGhost extends PositionComponent
     final distance = position.distanceTo(_currentTarget!.position);
     
     if (distance <= _attackRange) {
-      if (_currentTarget is PlayerCharacter) {
+      if (_currentTarget is AlliedEnemy) {
+        (_currentTarget as AlliedEnemy).takeDamage(_damage);
+        debugPrint('👻 Fantasma Yakuza ataca ENFERMERO: $_damage daño');
+      } else if (_currentTarget is PlayerCharacter) {
         (_currentTarget as PlayerCharacter).takeDamage(_damage);
         debugPrint('👻 Fantasma Yakuza ataca Jugador: $_damage daño');
+      } else if (_currentTarget is RedeemedKijinAlly) {
+        (_currentTarget as RedeemedKijinAlly).takeDamage(_damage);
+        debugPrint('👻 Fantasma Yakuza ataca Kohaa ALIADA: $_damage daño');
       } else if (_currentTarget is YureiKohaa) {
         (_currentTarget as YureiKohaa).takeDamage(_damage);
         debugPrint('👻 Fantasma Yakuza ataca Kohaa: $_damage daño');

@@ -8,6 +8,7 @@ import '../enemy_tomb.dart';
 import 'allied_enemy.dart';
 import 'redeemed_kijin_ally.dart';
 import 'irracional.dart';
+import '../bosses/on_oyabun_boss.dart';
 
 /// Yurei Kohaa - Jefe Kijin (Categoría 2)
 /// La Novia Escarlata - Un enemigo táctico y peligroso
@@ -44,6 +45,24 @@ class YureiKohaa extends PositionComponent
   bool _canRegenerate = true;
   double _regenerationCooldown = 15.0;
   double _regenerationTimer = 0.0;
+  
+  // Sistema de huida cuando tiene poca vida
+  bool _isFleeing = false;
+  final double _fleeHealthThreshold = 0.15; // 15% HP (solo huye en emergencia)
+  final double _fleeDistance = 300.0; // Distancia de huida
+  double _fleeTimer = 0.0; // Timer para evitar huir indefinidamente
+  final double _maxFleeTime = 4.0; // Máximo 4s huyendo antes de volver
+  Vector2? _fleeTargetPosition; // Posición objetivo al huir
+  int _fleeCount = 0; // Contador de veces que ha huido
+  final int _maxFleeCount = 2; // Máximo 2 huidas por combate
+  
+  // Sistema de curación cuando está segura
+  double _healingTimer = 0.0;
+  final double _healingInterval = 3.0; // Curar cada 3s (más lento)
+  final double _healingAmount = 30.0; // 30 HP por tick (reducido)
+  final double _safeDistance = 250.0; // Distancia segura del peligro
+  double _totalHealingReceived = 0.0; // Total curado
+  final double _maxTotalHealing = 300.0; // Máximo 300 HP de curación total
   
   // Spawn de enfermeros (a 50% HP)
   bool _hasSpawnedNurses = false;
@@ -108,7 +127,16 @@ class YureiKohaa extends PositionComponent
         _dashTime = 0.0;
       } else {
         // Moverse en la dirección del dash
-        position += _dashDirection * _dashSpeed * dt;
+        final newPos = position + (_dashDirection * _dashSpeed * dt);
+        
+        // Aplicar límites estrictos durante dash
+        const double worldMinX = 150.0;
+        const double worldMaxX = 2850.0;
+        const double worldMinY = 150.0;
+        const double worldMaxY = 2850.0;
+        
+        position.x = newPos.x.clamp(worldMinX, worldMaxX);
+        position.y = newPos.y.clamp(worldMinY, worldMaxY);
         return; // No hacer IA normal durante el dash
       }
     }
@@ -118,7 +146,10 @@ class YureiKohaa extends PositionComponent
       _regenerationTimer -= dt;
     }
     
-    // IA: Decidir objetivo y atacar
+    // Sistema de curación cuando está segura
+    _updateHealing(dt);
+    
+    // IA: Decidir objetivo y atacar (o huir)
     _updateAI(dt);
   }
   
@@ -131,7 +162,51 @@ class YureiKohaa extends PositionComponent
     if (_currentTarget == null) return;
     
     final distanceToTarget = position.distanceTo(_currentTarget!.position);
+    final healthPercent = _health / _maxHealth;
     
+    // COMPORTAMIENTO DE HUIDA cuando tiene poca vida
+    // EXCEPTO si está luchando contra el boss final O si ya huyó muchas veces
+    if (healthPercent <= _fleeHealthThreshold && !_isFleeing) {
+      // NO huir si el objetivo es el boss final
+      if (_currentTarget is OnOyabunBoss) {
+        print('⚔️ Kohaa está baja de vida pero NO huye del boss (${(healthPercent * 100).toInt()}% HP)');
+      }
+      // NO huir si ya alcanzó el límite de huidas
+      else if (_fleeCount >= _maxFleeCount) {
+        print('🚫 Kohaa NO puede huir más ($_fleeCount/$_maxFleeCount huidas usadas) - ${(healthPercent * 100).toInt()}% HP');
+      }
+      // Huir solo si aún tiene huidas disponibles
+      else {
+        _isFleeing = true;
+        _fleeTimer = 0.0;
+        _fleeCount++;
+        _fleeTargetPosition = null; // Resetear posición objetivo
+        print('🏃 ¡Kohaa está huyendo! ($_fleeCount/$_maxFleeCount huidas) (${(healthPercent * 100).toInt()}% HP)');
+      }
+    }
+    
+    // Dejar de huir cuando se recupera O cuando pasa mucho tiempo
+    if (_isFleeing) {
+      _fleeTimer += dt;
+      
+      // Condiciones para dejar de huir:
+      // 1. Se recuperó suficiente HP
+      // 2. Pasó el tiempo máximo de huida
+      if (healthPercent > _fleeHealthThreshold + 0.15 || _fleeTimer >= _maxFleeTime) {
+        _isFleeing = false;
+        _fleeTargetPosition = null;
+        _fleeTimer = 0.0;
+        print('⚔️ Kohaa vuelve al combate (${(healthPercent * 100).toInt()}% HP) - Huidas restantes: ${_maxFleeCount - _fleeCount}');
+      }
+    }
+    
+    // Si está huyendo, usar lógica inteligente
+    if (_isFleeing) {
+      _updateFleeingBehavior(dt, distanceToTarget);
+      return;
+    }
+    
+    // COMPORTAMIENTO NORMAL: Atacar
     // Intentar dash si está listo (RANGO MÁS AMPLIO)
     if (_dashTimer <= 0 && distanceToTarget > 80 && distanceToTarget < 400) {
       _executeDash();
@@ -141,18 +216,162 @@ class YureiKohaa extends PositionComponent
     // Moverse hacia el objetivo
     if (distanceToTarget > _attackRange) {
       final direction = (_currentTarget!.position - position).normalized();
-      position += direction * _speed * dt;
+      final newPos = position + (direction * _speed * dt);
+      
+      // Aplicar límites estrictos
+      const double worldMinX = 150.0;
+      const double worldMaxX = 2850.0;
+      const double worldMinY = 150.0;
+      const double worldMaxY = 2850.0;
+      
+      position.x = newPos.x.clamp(worldMinX, worldMaxX);
+      position.y = newPos.y.clamp(worldMinY, worldMaxY);
     } else {
       // Atacar si está en rango
       _tryAttack();
     }
   }
   
+  /// Comportamiento inteligente de huida (evita esquinas, busca posiciones seguras)
+  void _updateFleeingBehavior(double dt, double distanceToTarget) {
+    if (_currentTarget == null) return;
+    
+    // DESHABILITAR HUIDA si está luchando contra el boss final
+    // Esto la hace mortal y evita que sea invencible
+    if (_currentTarget is OnOyabunBoss) {
+      _isFleeing = false;
+      _fleeTimer = 0.0;
+      print('⚠️ Kohaa NO puede huir del boss final - ¡Lucha hasta la muerte!');
+      return;
+    }
+    
+    // Si no tenemos posición objetivo o estamos cerca de ella, calcular nueva
+    if (_fleeTargetPosition == null || position.distanceTo(_fleeTargetPosition!) < 50) {
+      _fleeTargetPosition = _calculateSafeFleePosition();
+    }
+    
+    // Si estamos lo suficientemente lejos, quedarnos quietos y curar
+    if (distanceToTarget >= _fleeDistance) {
+      // Quieta, curándose
+      _constrainToWorldBounds(); // Asegurar que está dentro de límites
+      return;
+    }
+    
+    // Moverse hacia la posición segura
+    if (_fleeTargetPosition != null) {
+      final direction = (_fleeTargetPosition! - position).normalized();
+      final newPos = position + (direction * _speed * dt * 1.3); // 30% más rápido al huir
+      
+      // Aplicar límites ANTES de mover
+      const double worldMinX = 150.0;
+      const double worldMaxX = 2850.0;
+      const double worldMinY = 150.0;
+      const double worldMaxY = 2850.0;
+      
+      position.x = newPos.x.clamp(worldMinX, worldMaxX);
+      position.y = newPos.y.clamp(worldMinY, worldMaxY);
+    }
+  }
+  
+  /// Calcula una posición segura para huir (evita esquinas y bordes)
+  Vector2 _calculateSafeFleePosition() {
+    if (_currentTarget == null) return position.clone();
+    
+    // Centro del mapa (posición más segura)
+    const double centerX = 1500.0;
+    const double centerY = 1500.0;
+    final mapCenter = Vector2(centerX, centerY);
+    
+    // Vector desde el peligro hacia nosotros
+    final awayFromThreat = (position - _currentTarget!.position).normalized();
+    
+    // Posición ideal: lejos del peligro pero cerca del centro
+    final idealPosition = _currentTarget!.position + (awayFromThreat * _fleeDistance);
+    
+    // Interpolar entre posición ideal y centro del mapa
+    // Esto evita que se vaya a las esquinas
+    final safePosition = idealPosition * 0.6 + mapCenter * 0.4;
+    
+    // Asegurar que está dentro de límites
+    return Vector2(
+      safePosition.x.clamp(200.0, 2800.0),
+      safePosition.y.clamp(200.0, 2800.0),
+    );
+  }
+  
+  /// Sistema de curación cuando está segura (con límite total)
+  void _updateHealing(double dt) {
+    if (_isDead) return;
+    
+    // Solo curar si está huyendo o lejos del peligro
+    bool isSafe = false;
+    
+    if (_isFleeing && _currentTarget != null) {
+      final distanceToThreat = position.distanceTo(_currentTarget!.position);
+      isSafe = distanceToThreat >= _safeDistance;
+    }
+    
+    if (isSafe) {
+      _healingTimer += dt;
+      
+      if (_healingTimer >= _healingInterval) {
+        // Verificar si aún puede curarse (límite total)
+        if (_totalHealingReceived >= _maxTotalHealing) {
+          print('🚫 Kohaa alcanzó el límite de curación (${_totalHealingReceived.toInt()}/${_maxTotalHealing.toInt()} HP)');
+          _healingTimer = 0.0;
+          return;
+        }
+        
+        final oldHealth = _health;
+        final healAmount = _healingAmount.clamp(0.0, _maxTotalHealing - _totalHealingReceived);
+        _health = (_health + healAmount).clamp(0.0, _maxHealth);
+        final healed = _health - oldHealth;
+        
+        if (healed > 0) {
+          _totalHealingReceived += healed;
+          final remaining = _maxTotalHealing - _totalHealingReceived;
+          print('💚 Kohaa se cura ${healed.toStringAsFixed(0)} HP (${_health.toStringAsFixed(0)}/${_maxHealth}) - Curación restante: ${remaining.toInt()} HP');
+        }
+        
+        _healingTimer = 0.0;
+      }
+    } else {
+      _healingTimer = 0.0; // Resetear timer si no está segura
+    }
+  }
+  
+  /// Restringe la posición a los límites del mundo (con deslizamiento)
+  void _constrainToWorldBounds() {
+    const double worldMinX = 150.0; // Ajustado para coincidir con paredes
+    const double worldMaxX = 2850.0;
+    const double worldMinY = 150.0; // Ajustado para coincidir con paredes
+    const double worldMaxY = 2850.0;
+    
+    // Solo aplicar límites, sin modificar velocidad (permite deslizamiento natural)
+    position.x = position.x.clamp(worldMinX, worldMaxX);
+    position.y = position.y.clamp(worldMinY, worldMaxY);
+  }
+  
   void _findTarget() {
-    // 60% perseguir a Dan, 40% a aliados
     final player = game.player;
     final random = Random();
     
+    // Buscar al boss final
+    OnOyabunBoss? boss;
+    game.world.children.query<OnOyabunBoss>().forEach((b) {
+      if (!b.isDead) boss = b;
+    });
+    
+    // Si existe el boss final, PRIORIDAD MÁXIMA (90% chance - más agresiva)
+    if (boss != null && !boss!.isDead && random.nextDouble() < 0.9) {
+      _currentTarget = boss;
+      if (_currentTarget != boss) { // Solo imprimir cuando cambia de objetivo
+        print('🔥 Kohaa ha detectado al boss final - OBJETIVO PRIORITARIO');
+      }
+      return;
+    }
+    
+    // 60% perseguir a Dan, 40% a aliados
     if (random.nextDouble() < 0.6) {
       // Perseguir a Dan
       _currentTarget = player;
@@ -178,6 +397,8 @@ class YureiKohaa extends PositionComponent
       return (_currentTarget as AlliedEnemy).isDead;
     } else if (_currentTarget is RedeemedKijinAlly) {
       return (_currentTarget as RedeemedKijinAlly).isDead;
+    } else if (_currentTarget is OnOyabunBoss) {
+      return (_currentTarget as OnOyabunBoss).isDead;
     }
     return true;
   }
@@ -193,6 +414,40 @@ class YureiKohaa extends PositionComponent
     _dashDirection = (_currentTarget!.position - position).normalized();
     
     print('🛡️ ¡Kohaa se vuelve INVULNERABLE y prepara su embestida!');
+  }
+  
+  @override
+  void onCollisionStart(
+    Set<Vector2> intersectionPoints,
+    PositionComponent other,
+  ) {
+    super.onCollisionStart(intersectionPoints, other);
+    
+    // Solo hacer daño durante el dash
+    if (!_isDashing) return;
+    
+    const double dashDamage = 50.0; // Daño del dash
+    
+    // Colisión con jugador
+    if (other is PlayerCharacter) {
+      other.takeDamage(dashDamage);
+      print('💥 ¡Dash de Kohaa impactó al jugador! $dashDamage daño');
+    }
+    // Colisión con aliados normales
+    else if (other is AlliedEnemy) {
+      other.takeDamage(dashDamage);
+      print('💥 ¡Dash de Kohaa impactó a aliado! $dashDamage daño');
+    }
+    // Colisión con aliados Kijin
+    else if (other is RedeemedKijinAlly) {
+      other.takeDamage(dashDamage);
+      print('💥 ¡Dash de Kohaa impactó a Kijin aliado! $dashDamage daño');
+    }
+    // Colisión con el boss final
+    else if (other is OnOyabunBoss) {
+      other.takeDamage(dashDamage);
+      print('🔥💥 ¡DASH DE KOHAA IMPACTÓ AL BOSS FINAL! $dashDamage daño');
+    }
   }
   
   void _tryAttack() {
@@ -215,6 +470,9 @@ class YureiKohaa extends PositionComponent
     } else if (target is RedeemedKijinAlly) {
       target.takeDamage(_damage);
       print('⚔️ Kohaa atacó a Kijin aliado: $_damage daño');
+    } else if (target is OnOyabunBoss) {
+      target.takeDamage(_damage);
+      print('🔥⚔️🔥 ¡KOHAA ATACÓ AL BOSS FINAL! ($_damage daño)');
     }
   }
   
@@ -442,6 +700,54 @@ class YureiKohaa extends PositionComponent
       _size / 2,
       borderPaint,
     );
+    
+    // Indicador de HUIDA (verde pulsante)
+    if (_isFleeing) {
+      final fleePaint = Paint()
+        ..color = Colors.green
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3;
+      
+      canvas.drawCircle(
+        (size / 2).toOffset(),
+        _size / 2 + 10,
+        fleePaint,
+      );
+      
+      // Determinar texto según estado
+      final healthPercent = _health / _maxHealth;
+      String statusText;
+      Color statusColor;
+      
+      if (healthPercent > _fleeHealthThreshold + 0.05) {
+        statusText = '💚 CURÁNDOSE';
+        statusColor = Colors.lightGreen;
+      } else {
+        statusText = '🏃 HUYENDO';
+        statusColor = Colors.green;
+      }
+      
+      // Texto de estado
+      final fleeText = TextPainter(
+        text: TextSpan(
+          text: statusText,
+          style: TextStyle(
+            color: statusColor,
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      fleeText.layout();
+      fleeText.paint(
+        canvas,
+        Offset(
+          (size.x - fleeText.width) / 2,
+          -50,
+        ),
+      );
+    }
     
     // Indicador de preparación (INVULNERABLE - dorado brillante)
     if (_isPreparingDash) {

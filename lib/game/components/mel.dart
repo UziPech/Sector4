@@ -72,8 +72,33 @@ class MelCharacter extends PositionComponent
     // Si está muy lejos, acercarse
     if (distanceToPlayer > _followDistance) {
       final direction = (player.position - position).normalized();
-      position += direction * _speed * dt;
+      final newPos = position + direction * _speed * dt;
+      position = _constrainToWorldBounds(newPos); // Aplicar límites
     }
+  }
+  
+  /// Limita la posición a los bordes del mundo (dinámico según tamaño del mapa)
+  Vector2 _constrainToWorldBounds(Vector2 pos) {
+    final worldSize = game.camera.visibleWorldRect;
+    
+    // Boss level (1600x1200)
+    double worldMinX = 100.0;
+    double worldMaxX = 1500.0;
+    double worldMinY = 100.0;
+    double worldMaxY = 1100.0;
+    
+    // Mapa grande (3000x3000)
+    if (worldSize.width > 2000) {
+      worldMinX = 250.0;
+      worldMaxX = 2750.0;
+      worldMinY = 250.0;
+      worldMaxY = 2750.0;
+    }
+    
+    return Vector2(
+      pos.x.clamp(worldMinX, worldMaxX),
+      pos.y.clamp(worldMinY, worldMaxY),
+    );
   }
   
   @override

@@ -6,8 +6,10 @@ import '../../expediente_game.dart';
 import '../../systems/resurrection_system.dart';
 import '../enemy_tomb.dart';
 import 'irracional.dart';
-import 'yurei_kohaa.dart';
+import 'yurei_kohaa.dart'; // Añadido para poder atacar a Kohaa
 import '../bosses/on_oyabun_boss.dart'; // Para atacar a On-Oyabun
+import 'minions/yakuza_ghost.dart'; // Para atacar minions del boss
+import 'minions/floating_katana.dart'; // Para atacar minions del boss
 
 /// Enemigo aliado temporal - Resucitado por Mel
 /// Ataca a otros enemigos durante un tiempo limitado
@@ -161,29 +163,62 @@ class AlliedEnemy extends PositionComponent
   void _findNearestEnemy() {
     // Buscar todos los tipos de enemigos
     final irrationals = game.world.children.query<IrrationalEnemy>();
-    final bosses = game.world.children.query<YureiKohaa>();
+    final yureiKohaas = game.world.children.query<YureiKohaa>();
+    final ghosts = game.world.children.query<YakuzaGhost>();
+    final katanas = game.world.children.query<FloatingKatana>();
     
     PositionComponent? nearest;
     double nearestDistance = double.infinity;
     
-    // Buscar entre irracionales
+    // PRIORIDAD 0: YUREI KOHAA (enemiga principal) - SIEMPRE priorizar
+    for (final kohaa in yureiKohaas) {
+      if (kohaa.isDead) continue;
+      
+      final distance = position.distanceTo(kohaa.position);
+      // Si Yurei Kohaa está a menos de 300 unidades, SIEMPRE targetearla
+      if (distance < 300.0) {
+        nearest = kohaa;
+        nearestDistance = distance;
+        print('🎯 Aliado priorizando YUREI KOHAA (${distance.toInt()}u)');
+        break; // Prioridad absoluta
+      } else if (distance < nearestDistance) {
+        nearest = kohaa;
+        nearestDistance = distance;
+      }
+    }
+    
+    // Si ya encontramos a Yurei Kohaa cerca, no buscar más
+    if (nearest is YureiKohaa && nearestDistance < 300.0) {
+      _currentTarget = nearest;
+      return;
+    }
+    
+    // PRIORIDAD 1: Atacar minions del boss (más fáciles)
+    for (final ghost in ghosts) {
+      if (ghost.isDead) continue;
+      final distance = position.distanceTo(ghost.position);
+      if (distance < nearestDistance) {
+        nearest = ghost;
+        nearestDistance = distance;
+      }
+    }
+    
+    for (final katana in katanas) {
+      if (katana.isDead) continue;
+      final distance = position.distanceTo(katana.position);
+      if (distance < nearestDistance) {
+        nearest = katana;
+        nearestDistance = distance;
+      }
+    }
+    
+    // PRIORIDAD 2: Buscar entre irracionales
     for (final enemy in irrationals) {
       if (enemy.isDead) continue;
       
       final distance = position.distanceTo(enemy.position);
       if (distance < nearestDistance) {
         nearest = enemy;
-        nearestDistance = distance;
-      }
-    }
-    
-    // Buscar entre bosses (Kohaa y OnOyabun)
-    for (final boss in bosses) {
-      if (boss.isDead) continue;
-      
-      final distance = position.distanceTo(boss.position);
-      if (distance < nearestDistance) {
-        nearest = boss;
         nearestDistance = distance;
       }
     }
@@ -206,7 +241,13 @@ class AlliedEnemy extends PositionComponent
     if (_attackTimer > 0 || _currentTarget == null) return;
     
     // Atacar según el tipo de enemigo
-    if (_currentTarget is IrrationalEnemy) {
+    if (_currentTarget is YakuzaGhost) {
+      (_currentTarget as YakuzaGhost).takeDamage(_damage);
+      print('⚔️ Enfermero atacó Fantasma Yakuza: $_damage daño');
+    } else if (_currentTarget is FloatingKatana) {
+      (_currentTarget as FloatingKatana).takeDamage(_damage);
+      print('⚔️ Enfermero atacó Katana Flotante: $_damage daño');
+    } else if (_currentTarget is IrrationalEnemy) {
       (_currentTarget as IrrationalEnemy).takeDamage(_damage);
       print('⚔️ Aliado atacó Irracional: $_damage daño');
     } else if (_currentTarget is YureiKohaa) {

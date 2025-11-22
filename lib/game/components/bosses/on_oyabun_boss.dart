@@ -5,11 +5,14 @@ import 'package:flutter/material.dart';
 import '../../expediente_game.dart';
 import '../player.dart';
 import '../enemies/yurei_kohaa.dart';
+import '../enemies/redeemed_kijin_ally.dart';
+import '../enemies/allied_enemy.dart';
 import '../enemies/minions/yakuza_ghost.dart';
 import '../enemies/minions/floating_katana.dart';
-import '../enemies/minions/falling_katana.dart';
+import '../projectiles/falling_katana.dart';
 import '../../../narrative/components/dialogue_system.dart';
 import '../effects/screen_flash.dart';
+import '../effects/teleport_effect.dart';
 import '../../../narrative/models/dialogue_data.dart';
 import '../../models/player_role.dart';
 /// 怨親分 ON-OYABUN - "El Padrino de la Venganza"
@@ -22,8 +25,8 @@ class OnOyabunBoss extends PositionComponent
     with CollisionCallbacks, HasGameReference<ExpedienteKorinGame> {
   
   // ==================== STATS BASE ====================
-  final double maxHealth = 8000.0;
-  double health = 8000.0;
+  final double maxHealth = 10000.0;
+  double health = 10000.0;
   
   final double baseSpeed = 120.0;
   double currentSpeed = 120.0;
@@ -71,33 +74,60 @@ class OnOyabunBoss extends PositionComponent
   double comboTimer = 0.0;
   String currentCombo = '';
   
-  // Cooldowns de combos especiales
+  // Cooldowns de combos especiales (reducidos para más acción)
   double tsukiCooldown = 0.0;
   double tsubameCooldown = 0.0;
-  final double tsukiCooldownDuration = 8.0;
-  final double tsubameCooldownDuration = 6.0;
+  final double tsukiCooldownDuration = 5.0; // Reducido de 8s a 5s
+  final double tsubameCooldownDuration = 4.0; // Reducido de 6s a 4s
   
   // Duel Stance (mecánica especial)
   bool inDuelStanceCharge = false;
   double duelStanceTimer = 0.0;
-  final double duelStanceChargeDuration = 2.8; // Preparación
-  final double duelStanceParryWindow = 0.2; // Ventana de parry
+  final double duelStanceChargeDuration = 2.0; // Reducido de 2.8s a 2.0s
+  final double duelStanceParryWindow = 0.25; // Aumentado de 0.2s a 0.25s (más justo)
   bool duelStanceParryWindowActive = false;
   double duelStanceCooldown = 0.0;
-  final double duelStanceCooldownDuration = 15.0;
+  final double duelStanceCooldownDuration = 10.0; // Reducido de 15s a 10s
   
   // Fantasmas Yakuza (spawn a 80% HP)
   bool hasSpawnedYakuzaGhosts = false;
   
-  // Ataques especiales Fase 2
+  // Ataques especiales Fase 2 (reducidos para más acción)
   double cadenaCulpaCooldown = 0.0;
-  final double cadenaCulpaCooldownDuration = 12.0;
+  final double cadenaCulpaCooldownDuration = 8.0; // Reducido de 12s a 8s
   double lluviaAceroCooldown = 0.0;
-  final double lluviaAceroCooldownDuration = 15.0;
+  final double lluviaAceroCooldownDuration = 10.0; // Reducido de 15s a 10s
+  
+  // Onda de Curación (nueva habilidad)
+  double healingWaveCooldown = 0.0;
+  final double healingWaveCooldownDuration = 20.0; // Cada 20 segundos
+  final double healingWaveAmount = 300.0; // Se cura 300 HP
+  final double healingWaveDamage = 60.0; // Daña 60 HP
+  final double healingWaveRadius = 250.0; // Radio de 250 unidades
+  final double healingWavePushForce = 200.0; // Empuje de 200 unidades
+  
+  // Grito de Guerra (habilidad épica)
+  double warCryCooldown = 0.0;
+  final double warCryCooldownDuration = 35.0; // Cada 35 segundos
+  final int warCryGhostCount = 4; // Spawn 4 fantasmas
+  bool hasUsedWarCry = false;
   
   // Spawns adicionales Fase 2
   bool hasSpawnedVictimas = false; // 50% HP
   bool hasSpawnedKatanas = false;  // 40% HP
+  
+  // ==================== SISTEMA DE TELETRANSPORTACIÓN INTELIGENTE ====================
+  // Detecta cuando el jugador huye y se teletransporta
+  double _previousDistanceToTarget = 0.0;
+  int _consecutiveDistanceIncreases = 0;
+  final int _fleeingThreshold = 4; // 4 actualizaciones consecutivas alejándose
+  double _teleportCooldown = 0.0;
+  final double _teleportCooldownDuration = 12.0; // Cooldown de 12s
+  bool _canTeleport = true;
+  
+  // Historial de posiciones del objetivo para predecir movimiento
+  final List<Vector2> _targetPositionHistory = [];
+  final int _maxHistorySize = 5;
   
   // ==================== ESTADO GENERAL ====================
   bool isDead = false;
@@ -141,7 +171,11 @@ class OnOyabunBoss extends PositionComponent
       weaponCooldowns[weaponName] = 0.0;
     }
     
+    // Inicializar target al jugador
+    target = game.player;
+    
     debugPrint('⚔️ On-Oyabun ha sido invocado! HP: $maxHealth');
+    debugPrint('🎯 Target inicial: ${game.player.role == PlayerRole.mel ? "Mel" : "Dan"}');
   }
   
   /// Recibe daño de cualquier fuente
@@ -164,6 +198,16 @@ class OnOyabunBoss extends PositionComponent
     if (duelStanceCooldown > 0) duelStanceCooldown -= dt;
     if (cadenaCulpaCooldown > 0) cadenaCulpaCooldown -= dt;
     if (lluviaAceroCooldown > 0) lluviaAceroCooldown -= dt;
+    if (healingWaveCooldown > 0) healingWaveCooldown -= dt;
+    if (warCryCooldown > 0) warCryCooldown -= dt;
+    
+    // Actualizar cooldown de teletransportación
+    if (_teleportCooldown > 0) {
+      _teleportCooldown -= dt;
+      if (_teleportCooldown <= 0) {
+        _canTeleport = true;
+      }
+    }
     
     // Actualizar invulnerabilidad temporal
     if (isInvulnerable) {
@@ -213,10 +257,12 @@ class OnOyabunBoss extends PositionComponent
       return; // No ejecutar IA normal durante combo
     }
     
-    // IA del jefe (según la fase)
+    // IA del jefe (según la fase) - Más agresiva
     if (!inDuelStance && !isKneeling) {
       aiTimer += dt;
-      if (aiTimer >= aiUpdateInterval) {
+      // Actualizar IA más frecuentemente para ser más reactivo
+      final aiSpeed = currentPhase == BossPhase.phase1 ? 0.3 : 0.2;
+      if (aiTimer >= aiSpeed) {
         _updateAI();
         aiTimer = 0.0;
       }
@@ -224,6 +270,9 @@ class OnOyabunBoss extends PositionComponent
     
     // Actualizar posición basada en velocidad
     position += velocity * dt;
+    
+    // Aplicar límites del mundo
+    position = _constrainPositionToWorldBounds(position);
     
     // Reducir velocidad gradualmente (fricción)
     velocity *= 0.95;
@@ -435,41 +484,6 @@ class OnOyabunBoss extends PositionComponent
     debugPrint('   El jugador tiene 30 segundos para decidir...');
     
     // TODO: Iniciar timer de 30 segundos
-    // Fase 2: Agresivo con 3 armas simultáneas + ataques especiales
-    
-    // Prioridad 1: Lluvia de Acero si está disponible (15% chance)
-    if (lluviaAceroCooldown <= 0 && Random().nextDouble() < 0.15) {
-      _ejecutarLluviaAcero();
-      return;
-    }
-    
-    // Prioridad 2: Cadena de Culpa si jugador está lejos (20% chance)
-    if (distance > 150 && distance < 300 && cadenaCulpaCooldown <= 0 && Random().nextDouble() < 0.20) {
-      _ejecutarCadenaCulpa();
-      return;
-    }
-    
-    // Comportamiento normal por distancia
-    if (distance > 150) {
-      // Sprint hacia el jugador
-      final direction = (player.position - position).normalized();
-      velocity = direction * currentSpeed;
-    } else if (distance > 80) {
-      // Rango medio: Usar wakizashi o cadenas
-      velocity = Vector2.zero();
-      final weapon = Random().nextBool() ? 'wakizashi' : 'cadenas';
-      _attemptAttack(weapon);
-    } else {
-      // Rango corto: Combos de 2-3 armas
-      velocity = Vector2.zero();
-      if (Random().nextDouble() < 0.6) {
-        _executePhase2Combo();
-      } else {
-        // Ataque simple aleatorio
-        final weapon = activeWeapons[Random().nextInt(activeWeapons.length)];
-        _attemptAttack(weapon);
-      }
-    }
   }
   
   // ==================== IA Y COMBATE ====================
@@ -477,6 +491,9 @@ class OnOyabunBoss extends PositionComponent
     _updateTarget();
     
     final dist = target != null ? position.distanceTo(target!.position) : double.infinity;
+    
+    // Sistema de detección de huida y teletransportación
+    _checkForFleeingAndTeleport(dist);
     
     // IA básica según fase
     switch (currentPhase) {
@@ -494,93 +511,322 @@ class OnOyabunBoss extends PositionComponent
   
   void _updateTarget() {
     final player = game.player;
+    final previousTarget = target;
     
-    // Buscar Kohaa
-    YureiKohaa? kohaa;
-    game.world.children.query<YureiKohaa>().forEach((k) {
-      if (!k.isDead) kohaa = k;
-    });
+    // Buscar Kohaa ALIADA (RedeemedKijinAlly) con debug
+    RedeemedKijinAlly? kohaa;
+    final kohaaList = game.world.children.query<RedeemedKijinAlly>().toList();
     
-    // Decidir objetivo basado en distancia
+    if (kohaaList.isEmpty) {
+      // DEBUG: Kohaa aliada no existe en el mundo
+      if (previousTarget != null && previousTarget is! PlayerCharacter) {
+        debugPrint('⚠️ KOHAA ALIADA NO ENCONTRADA en el mundo - Solo targetear jugador');
+      }
+    } else {
+      // Buscar específicamente a Kohaa (kijinType == 'kohaa')
+      for (final k in kohaaList) {
+        if (!k.isDead && k.kijinType == 'kohaa') {
+          kohaa = k;
+          // Debug solo cuando cambia de target (no cada frame)
+          break;
+        }
+      }
+    }
+    
+    // Decidir objetivo basado en distancia y estado
     if (kohaa != null && !kohaa!.isDead) {
       final distToPlayer = player.isDead ? double.infinity : position.distanceTo(player.position);
       final distToKohaa = position.distanceTo(kohaa!.position);
       
-      if (distToKohaa < distToPlayer) {
+      // Si Kohaa está huyendo, cambiar temporalmente al jugador
+      if (kohaa!.isRetreating) {
+        target = player.isDead ? kohaa : player;
+        if (previousTarget != target && target == player) {
+          debugPrint('🎯 Boss cambió objetivo → JUGADOR (Kohaa está huyendo)');
+        }
+      }
+      // Priorizar a Kohaa si está cerca (dentro de 200 unidades) y NO está huyendo
+      else if (distToKohaa < distToPlayer || distToKohaa < 200) {
         target = kohaa;
+        if (previousTarget != kohaa) {
+          debugPrint('🎯 Boss cambió objetivo → KOHAA ALIADA (${distToKohaa.toInt()}u vs Jugador ${distToPlayer.toInt()}u)');
+        }
       } else {
         target = player.isDead ? kohaa : player;
+        if (previousTarget != target && target == player) {
+          debugPrint('🎯 Boss cambió objetivo → JUGADOR (${distToPlayer.toInt()}u vs Kohaa ${distToKohaa.toInt()}u)');
+        }
       }
     } else {
       target = player.isDead ? null : player;
     }
+    
+    // Actualizar historial de posiciones del objetivo
+    if (target != null) {
+      _targetPositionHistory.add(target!.position.clone());
+      if (_targetPositionHistory.length > _maxHistorySize) {
+        _targetPositionHistory.removeAt(0);
+      }
+    }
+  }
+  
+  /// Detecta si el objetivo está huyendo y ejecuta teletransportación táctica
+  void _checkForFleeingAndTeleport(double currentDistance) {
+    if (target == null || !_canTeleport || isKneeling) return;
+    
+    // CONDICIÓN ESPECIAL: Kohaa aliada está huyendo para recuperarse
+    if (target is RedeemedKijinAlly) {
+      final kohaa = target as RedeemedKijinAlly;
+      if (kohaa.isRetreating) {
+        debugPrint('🌀⚡ ¡Kohaa está HUYENDO! Boss se teletransporta para perseguirla');
+        _executeTeleport();
+        _consecutiveDistanceIncreases = 0;
+        return;
+      }
+    }
+    
+    // CONDICIÓN 1: Objetivo muy lejos (kiting extremo)
+    if (currentDistance > 400) {
+      debugPrint('⚠️ Objetivo demasiado lejos (${currentDistance.toInt()}u) - Teletransportación forzada');
+      _executeTeleport();
+      _consecutiveDistanceIncreases = 0;
+      return;
+    }
+    
+    // CONDICIÓN 2: Detectar huida consistente
+    if (currentDistance >= 200) {
+      // Detectar si la distancia está aumentando consistentemente
+      if (currentDistance > _previousDistanceToTarget + 10) { // Margen de 10 unidades
+        _consecutiveDistanceIncreases++;
+      } else {
+        _consecutiveDistanceIncreases = 0;
+      }
+      
+      _previousDistanceToTarget = currentDistance;
+      
+      // Si detectamos huida consistente, teletransportar
+      if (_consecutiveDistanceIncreases >= _fleeingThreshold) {
+        debugPrint('⚠️ Objetivo huyendo consistentemente - Teletransportación táctica');
+        _executeTeleport();
+        _consecutiveDistanceIncreases = 0;
+      }
+    } else {
+      _consecutiveDistanceIncreases = 0;
+      _previousDistanceToTarget = currentDistance;
+    }
+  }
+  
+  /// Ejecuta la teletransportación táctica
+  void _executeTeleport() {
+    if (target == null) return;
+    
+    debugPrint('🌀 ON-OYABUN: ¡TELETRANSPORTACIÓN TÁCTICA!');
+    
+    // Predecir posición futura del objetivo basado en historial
+    Vector2 predictedPosition = target!.position.clone();
+    
+    if (_targetPositionHistory.length >= 3) {
+      // Calcular vector de movimiento promedio
+      final recentMovement = _targetPositionHistory.last - _targetPositionHistory[_targetPositionHistory.length - 3];
+      // Predecir 0.5 segundos adelante
+      predictedPosition = target!.position + (recentMovement * 0.5);
+    }
+    
+    // Calcular posición de teletransportación (cerca pero no encima)
+    final directionToTarget = (predictedPosition - position).normalized();
+    final teleportDistance = 100.0; // Aparecer a 100 unidades del objetivo
+    Vector2 teleportPosition = predictedPosition - (directionToTarget * teleportDistance);
+    
+    // APLICAR LÍMITES DEL MUNDO a la posición de teletransportación
+    teleportPosition = _constrainPositionToWorldBounds(teleportPosition);
+    
+    // Efecto visual ANTES de teletransportar
+    _createTeleportEffect(position.clone(), isFadeOut: true);
+    
+    // Teletransportar
+    position = teleportPosition;
+    velocity = Vector2.zero(); // Resetear velocidad
+    
+    // Efecto visual DESPUÉS de teletransportar
+    Future.delayed(const Duration(milliseconds: 100), () {
+      _createTeleportEffect(position.clone(), isFadeOut: false);
+    });
+    
+    // Activar cooldown (más corto en fases avanzadas)
+    _canTeleport = false;
+    double cooldownTime = _teleportCooldownDuration;
+    
+    // Reducir cooldown según la fase
+    switch (currentPhase) {
+      case BossPhase.phase1:
+        cooldownTime = _teleportCooldownDuration; // 12s
+        break;
+      case BossPhase.phase2:
+        cooldownTime = _teleportCooldownDuration * 0.75; // 9s
+        break;
+      case BossPhase.phase3:
+        cooldownTime = _teleportCooldownDuration * 0.5; // 6s (muy agresivo)
+        break;
+    }
+    
+    _teleportCooldown = cooldownTime;
+    
+    // Mensaje de advertencia
+    final targetName = target is PlayerCharacter ? 'jugador' : 'Kohaa';
+    debugPrint('   ⚡ Teletransportado cerca de $targetName en posición predicha');
+    debugPrint('   ⏱️ Cooldown de teletransportación: ${cooldownTime.toStringAsFixed(1)}s');
+  }
+  
+  /// Restringe una posición a los límites del mundo (dinámico según tamaño del mapa)
+  Vector2 _constrainPositionToWorldBounds(Vector2 pos) {
+    final worldSize = game.camera.visibleWorldRect;
+    
+    // Boss level (1600x1200)
+    double worldMinX = 100.0;
+    double worldMaxX = 1500.0;
+    double worldMinY = 100.0;
+    double worldMaxY = 1100.0;
+    
+    // Mapa grande (3000x3000)
+    if (worldSize.width > 2000) {
+      worldMinX = 250.0;
+      worldMaxX = 2750.0;
+      worldMinY = 250.0;
+      worldMaxY = 2750.0;
+    }
+    
+    return Vector2(
+      pos.x.clamp(worldMinX, worldMaxX),
+      pos.y.clamp(worldMinY, worldMaxY),
+    );
+  }
+  
+  /// Crea efecto visual de teletransportación
+  void _createTeleportEffect(Vector2 effectPosition, {required bool isFadeOut}) {
+    // Flash negro/rojo en la posición
+    final flashColor = isFadeOut 
+        ? Colors.black.withOpacity(0.8) 
+        : Colors.red.withOpacity(0.6);
+    
+    _createScreenFlash(color: flashColor);
+    
+    // Agregar efecto visual de círculo de sombras
+    final teleportEffect = TeleportEffect(
+      position: effectPosition,
+      isFadeOut: isFadeOut,
+      duration: 0.3,
+    );
+    game.world.add(teleportEffect);
+    
+    // TODO: Agregar sonido de teletransportación
   }
   
   void _aiPhase1(double distance) {
-    if (target == null) return;
+    if (target == null) {
+      debugPrint('⚠️ Boss AI: No target');
+      return;
+    }
     
-    // Fase 1: Caminar lentamente hacia el objetivo y usar combos
-    if (distance > weapons['katana']!.range + 30) {
-      // Acercarse lentamente
+    // Fase 1: IA SIMPLE Y DIRECTA (estilo Hades/Isaac)
+    const attackDistance = 100.0;
+    
+    if (distance > attackDistance) {
+      // PERSEGUIR: Moverse directamente hacia el objetivo
       final direction = (target!.position - position).normalized();
       velocity = direction * currentSpeed;
+      currentAction = 'moving';
+      
+      // Debug cada 2 segundos
+      if ((aiTimer * 10).toInt() % 20 == 0) {
+        final targetName = target is RedeemedKijinAlly ? 'Kohaa' : 'Player';
+        debugPrint('🏃 Boss persiguiendo $targetName (${distance.toInt()}u) - Vel: ${velocity.length.toInt()}');
+      }
     } else {
-      // En rango: decidir qué combo/mecánica usar
+      // EN RANGO: Detenerse y atacar
       velocity = Vector2.zero();
+      currentAction = 'attacking';
+      _tryBasicAttack();
+    }
+  }
+  
+  /// Ataque básico con la katana
+  void _tryBasicAttack() {
+    if (target == null) return;
+    
+    // Verificar cooldown de katana
+    if (weaponCooldowns['katana']! > 0) return;
+    
+    final distance = position.distanceTo(target!.position);
+    final katanaRange = weapons['katana']!.range;
+    
+    if (distance <= katanaRange) {
+      // Atacar con katana
+      final damage = weapons['katana']!.damage;
       
-      // Prioridad de mecánicas según cooldowns y distancia
-      final random = Random().nextDouble();
+      if (target is PlayerCharacter) {
+        (target as PlayerCharacter).takeDamage(damage);
+        debugPrint('⚔️ Boss atacó a ${(target as PlayerCharacter).role == PlayerRole.mel ? "Mel" : "Dan"}: $damage daño');
+      } else if (target is RedeemedKijinAlly) {
+        (target as RedeemedKijinAlly).takeDamage(damage);
+        debugPrint('⚔️ Boss atacó a Kohaa aliada: $damage daño');
+      }
       
-      // 20% chance: Duel Stance (si está disponible)
-      if (duelStanceCooldown <= 0 && random < 0.20) {
-        _startDuelStance();
-      }
-      // 30% chance: Tsuki (estocada) si está a media distancia
-      else if (distance > 60 && tsukiCooldown <= 0 && random < 0.50) {
-        _startCombo('tsuki');
-      }
-      // 25% chance: Tsubame (AOE) si está cerca
-      else if (distance <= 100 && tsubameCooldown <= 0 && random < 0.75) {
-        _startCombo('tsubame');
-      }
-      // Por defecto: San-Dan Giri (combo triple)
-      else {
-        _startCombo('sandangiri');
-      }
+      // Cooldown
+      weaponCooldowns['katana'] = weapons['katana']!.cooldown;
     }
   }
   
   void _aiPhase2(double distance) {
     if (target == null) return;
     
-    // Fase 2: Agresivo con 3 armas simultáneas + ataques especiales
+    // Fase 2: MUY agresivo con 3 armas simultáneas + ataques especiales
     
-    // Prioridad 1: Lluvia de Acero si está disponible (15% chance)
-    if (lluviaAceroCooldown <= 0 && Random().nextDouble() < 0.15) {
+    final healthPercent = health / maxHealth;
+    
+    // Prioridad -1: Grito de Guerra si HP < 50% (solo una vez)
+    if (healthPercent < 0.5 && !hasUsedWarCry && warCryCooldown <= 0) {
+      _executeWarCry();
+      return;
+    }
+    
+    // Prioridad 0: Onda de Curación si HP < 40% y está disponible
+    if (healthPercent < 0.4 && healingWaveCooldown <= 0 && Random().nextDouble() < 0.5) {
+      _executeHealingWave();
+      return;
+    }
+    
+    // Prioridad 1: Lluvia de Acero si está disponible (20% chance, más frecuente)
+    if (lluviaAceroCooldown <= 0 && Random().nextDouble() < 0.20) {
       _ejecutarLluviaAcero();
       return;
     }
     
-    // Prioridad 2: Cadena de Culpa si objetivo está lejos (20% chance)
-    if (distance > 150 && distance < 300 && cadenaCulpaCooldown <= 0 && Random().nextDouble() < 0.20) {
+    // Prioridad 2: Cadena de Culpa si objetivo está lejos (30% chance, más frecuente)
+    if (distance > 150 && distance < 300 && cadenaCulpaCooldown <= 0 && Random().nextDouble() < 0.30) {
       _ejecutarCadenaCulpa();
       return;
     }
     
     // Comportamiento normal por distancia
-    if (distance > 150) {
-      // Sprint hacia el objetivo
+    if (distance > 80) {
+      // Sprint agresivo hacia el objetivo
       final direction = (target!.position - position).normalized();
-      velocity = direction * currentSpeed;
-    } else if (distance > 80) {
-      // Rango medio: Usar wakizashi o cadenas
+      velocity = direction * currentSpeed * 1.6; // 60% más rápido en fase 2
+      
+      // Debug
+      if (distance > 120) {
+        final targetName = target is RedeemedKijinAlly ? 'KOHAA ALIADA' : 'JUGADOR';
+        debugPrint('🏃🏃 Boss SPRINT hacia $targetName (${distance.toInt()}u)');
+      }
+    } else if (distance > 50) {
+      // Rango medio: Usar wakizashi o cadenas más frecuentemente
       velocity = Vector2.zero();
       final weapon = Random().nextBool() ? 'wakizashi' : 'cadenas';
       _attemptAttack(weapon);
     } else {
-      // Rango corto: Combos de 2-3 armas
+      // Rango corto: Combos de 2-3 armas (más frecuentes)
       velocity = Vector2.zero();
-      if (Random().nextDouble() < 0.6) {
+      if (Random().nextDouble() < 0.75) { // 75% chance de combo
         _executePhase2Combo();
       } else {
         // Ataque simple aleatorio
@@ -629,13 +875,22 @@ class OnOyabunBoss extends PositionComponent
   }
   
   void _aiPhase3(PlayerCharacter player, double distance) {
-    // Fase 3: Berserker mode, combos aleatorios
-    if (distance > 100) {
-      // Acercarse rápido
-      final direction = (player.position - position).normalized();
-      velocity = direction * currentSpeed;
+    if (target == null) return;
+    
+    // Fase 3: BERSERKER total, extremadamente agresivo
+    if (distance > 70) {
+      // Acercarse MUY rápido
+      final direction = (target!.position - position).normalized();
+      velocity = direction * currentSpeed * 2.0; // 100% más rápido en fase 3
+      
+      // Debug
+      if (distance > 100) {
+        final targetName = target is RedeemedKijinAlly ? 'KOHAA ALIADA' : 'JUGADOR';
+        debugPrint('🔥🏃🔥 Boss BERSERKER hacia $targetName (${distance.toInt()}u)');
+      }
     } else {
-      // Combos de múltiples armas
+      // Combos constantes de múltiples armas
+      velocity = Vector2.zero();
       _executeRandomCombo();
     }
   }
@@ -643,10 +898,10 @@ class OnOyabunBoss extends PositionComponent
   void _attemptAttack(String weaponName) {
     if (!weapons.containsKey(weaponName)) return;
     if (weaponCooldowns[weaponName]! > 0) return; // En cooldown
+    if (target == null) return; // Sin objetivo
     
     final weapon = weapons[weaponName]!;
-    final player = game.player;
-    final distance = position.distanceTo(player.position);
+    final distance = position.distanceTo(target!.position);
     
     if (distance <= weapon.range) {
       _executeAttack(weaponName);
@@ -656,15 +911,25 @@ class OnOyabunBoss extends PositionComponent
   
   void _executeAttack(String weaponName) {
     final weapon = weapons[weaponName]!;
-    final player = game.player;
+    if (target == null) return;
     
     debugPrint('⚔️ On-Oyabun ataca con $weaponName (${weapon.damage} daño)');
     
     // TODO: Implementar cada tipo de ataque específico
     // Por ahora, daño simple
-    final distance = position.distanceTo(player.position);
+    final distance = position.distanceTo(target!.position);
     if (distance <= weapon.range) {
-      player.takeDamage(weapon.damage);
+      _dealDamageToTarget(target!, weapon.damage);
+    }
+  }
+  
+  /// Helper para aplicar daño al objetivo actual (jugador o Kohaa)
+  void _dealDamageToTarget(PositionComponent target, double damage) {
+    if (target is PlayerCharacter) {
+      target.takeDamage(damage);
+    } else if (target is RedeemedKijinAlly) {
+      target.takeDamage(damage);
+      debugPrint('💥 Boss dañó a Kohaa aliada: $damage daño');
     }
   }
   
@@ -770,7 +1035,10 @@ class OnOyabunBoss extends PositionComponent
   // Daño: 100 + knockback
   
   void _updateTsuki() {
-    final player = game.player;
+    if (target == null) {
+      _endCombo();
+      return;
+    }
     
     switch (comboStep) {
       case 0: // Inicialización - Entrar en postura de carga
@@ -784,7 +1052,7 @@ class OnOyabunBoss extends PositionComponent
       case 1: // Preparación (1.2s)
         if (comboTimer >= 1.2) {
           // Telegraph completado, ejecutar estocada
-          final direction = (player.position - position).normalized();
+          final direction = (target!.position - position).normalized();
           velocity = direction * 300; // Ultra-rápido
           
           debugPrint('   ⚡ Tsuki: ¡ESTOCADA!');
@@ -795,12 +1063,12 @@ class OnOyabunBoss extends PositionComponent
         
       case 2: // Estocada (0.2s)
         // Verificar impacto durante el dash
-        final distance = position.distanceTo(player.position);
+        final distance = position.distanceTo(target!.position);
         if (distance <= 60) {
-          player.takeDamage(100);
+          _dealDamageToTarget(target!, 100);
           // Knockback
-          final knockbackDir = (player.position - position).normalized();
-          player.position += knockbackDir * 80;
+          final knockbackDir = (target!.position - position).normalized();
+          target!.position += knockbackDir * 80;
           debugPrint('   💥 Tsuki conecta! +Knockback');
         }
         
@@ -825,7 +1093,10 @@ class OnOyabunBoss extends PositionComponent
   // Daño: 80 AOE (100 unidades)
   
   void _updateTsubame() {
-    final player = game.player;
+    if (target == null) {
+      _endCombo();
+      return;
+    }
     
     switch (comboStep) {
       case 0: // Inicialización - Telegraph
@@ -836,15 +1107,30 @@ class OnOyabunBoss extends PositionComponent
         
       case 1: // Giro (1.0s)
         if (comboTimer >= 1.0) {
-          // AOE damage al completar el giro
-          final distance = position.distanceTo(player.position);
-          if (distance <= 100) {
-            player.takeDamage(80);
-            // Pequeño knockback
-            final knockbackDir = (player.position - position).normalized();
-            player.position += knockbackDir * 40;
-            debugPrint('   🌀 Tsubame Gaeshi conecta!');
+          // AOE damage al completar el giro - puede golpear a múltiples objetivos
+          final player = game.player;
+          if (!player.isDead) {
+            final distPlayer = position.distanceTo(player.position);
+            if (distPlayer <= 100) {
+              player.takeDamage(80);
+              final knockbackDir = (player.position - position).normalized();
+              player.position += knockbackDir * 40;
+              debugPrint('   🌀 Tsubame Gaeshi golpea al jugador!');
+            }
           }
+          
+          // También golpear a Kohaa ALIADA si está en rango
+          game.world.children.query<RedeemedKijinAlly>().forEach((kohaa) {
+            if (!kohaa.isDead && kohaa.kijinType == 'kohaa') {
+              final distKohaa = position.distanceTo(kohaa.position);
+              if (distKohaa <= 100) {
+                kohaa.takeDamage(80);
+                final knockbackDir = (kohaa.position - position).normalized();
+                kohaa.position += knockbackDir * 40;
+                debugPrint('   🌀 Tsubame Gaeshi golpea a Kohaa!');
+              }
+            }
+          });
           
           tsubameCooldown = tsubameCooldownDuration;
           _endCombo();
@@ -853,16 +1139,37 @@ class OnOyabunBoss extends PositionComponent
     }
   }
   
-  /// Ejecuta un slash/corte en dirección al jugador
+  /// Ejecuta un slash/corte en dirección al objetivo (AOE)
   void _performSlash(double damage, double range, String direction) {
-    final player = game.player;
-    final distance = position.distanceTo(player.position);
+    debugPrint('   ⚔️ Ejecutando corte $direction (AOE: ${range}u)');
     
-    if (distance <= range) {
-      player.takeDamage(damage);
-      debugPrint('   ⚔️ Corte $direction conecta ($damage daño)');
-    } else {
-      debugPrint('   ⚔️ Corte $direction falla (jugador fuera de rango)');
+    bool hitSomething = false;
+    
+    // Dañar al jugador si está en rango
+    final player = game.player;
+    if (!player.isDead) {
+      final distPlayer = position.distanceTo(player.position);
+      if (distPlayer <= range) {
+        player.takeDamage(damage);
+        hitSomething = true;
+        debugPrint('   💥 Corte $direction golpea al jugador!');
+      }
+    }
+    
+    // Dañar a Kohaa ALIADA si está en rango
+    game.world.children.query<RedeemedKijinAlly>().forEach((kohaa) {
+      if (!kohaa.isDead && kohaa.kijinType == 'kohaa') {
+        final distKohaa = position.distanceTo(kohaa.position);
+        if (distKohaa <= range) {
+          kohaa.takeDamage(damage);
+          hitSomething = true;
+          debugPrint('   💥 Corte $direction golpea a Kohaa!');
+        }
+      }
+    });
+    
+    if (!hitSomething) {
+      debugPrint('   ⚔️ Corte $direction no golpea a nadie');
     }
   }
   
@@ -884,25 +1191,25 @@ class OnOyabunBoss extends PositionComponent
     isInvulnerable = true;
     invulnerabilityTimer = duelStanceChargeDuration;
     
-    debugPrint('⚔️ DUEL STANCE INICIADO - 2.8s de carga');
+    debugPrint('⚔️ DUEL STANCE INICIADO - 2.0s de carga');
   }
   
   /// Actualiza el estado de Duel Stance
   void _updateDuelStance(double dt) {
     duelStanceTimer += dt;
     
-    // Fase de carga (2.8s)
+    // Fase de carga (2.0s)
     if (duelStanceTimer < duelStanceChargeDuration) {
       // Telegraph visual - el jefe está preparando
       // TODO: Agregar efecto visual de carga
       return;
     }
     
-    // Ventana de parry (2.8s a 3.0s)
+    // Ventana de parry (2.0s a 2.25s)
     if (duelStanceTimer < duelStanceChargeDuration + duelStanceParryWindow) {
       if (!duelStanceParryWindowActive) {
         duelStanceParryWindowActive = true;
-        debugPrint('   ⚡ VENTANA DE PARRY ACTIVA (0.2s)!');
+        debugPrint('   ⚡ VENTANA DE PARRY ACTIVA (0.25s)!');
         // TODO: Efecto visual de ventana de parry
       }
       return;
@@ -915,16 +1222,39 @@ class OnOyabunBoss extends PositionComponent
     }
   }
   
-  /// Ejecuta el golpe del Duel Stance
+  /// Ejecuta el golpe del Duel Stance (AOE devastador)
   void _executeDuelStanceStrike() {
-    final player = game.player;
-    final distance = position.distanceTo(player.position);
+    debugPrint('   💀 DUEL STANCE: ¡GOLPE MORTAL! (AOE 100u)');
     
-    if (distance <= 100) {
-      player.takeDamage(200); // Golpe devastador
-      debugPrint('   💀 DUEL STANCE: Golpe mortal conecta (200 daño)!');
-    } else {
-      debugPrint('   ⚔️ DUEL STANCE: Golpe falla (jugador lejos)');
+    bool hitSomething = false;
+    const double strikeRange = 100.0;
+    const double strikeDamage = 200.0;
+    
+    // Dañar al jugador si está en rango
+    final player = game.player;
+    if (!player.isDead) {
+      final distPlayer = position.distanceTo(player.position);
+      if (distPlayer <= strikeRange) {
+        player.takeDamage(strikeDamage);
+        hitSomething = true;
+        debugPrint('   💀💥 DUEL STANCE golpea al jugador! ($strikeDamage daño)');
+      }
+    }
+    
+    // Dañar a Kohaa ALIADA si está en rango
+    game.world.children.query<RedeemedKijinAlly>().forEach((kohaa) {
+      if (!kohaa.isDead && kohaa.kijinType == 'kohaa') {
+        final distKohaa = position.distanceTo(kohaa.position);
+        if (distKohaa <= strikeRange) {
+          kohaa.takeDamage(strikeDamage);
+          hitSomething = true;
+          debugPrint('   💀💥 DUEL STANCE golpea a Kohaa! ($strikeDamage daño)');
+        }
+      }
+    });
+    
+    if (!hitSomething) {
+      debugPrint('   ⚔️ DUEL STANCE falla (nadie en rango)');
     }
   }
   
@@ -934,7 +1264,7 @@ class OnOyabunBoss extends PositionComponent
     duelStanceParryWindowActive = false;
     duelStanceTimer = 0.0;
     duelStanceCooldown = duelStanceCooldownDuration;
-    debugPrint('   Duel Stance finalizado. Cooldown: 15s');
+    debugPrint('   Duel Stance finalizado. Cooldown: 10s');
   }
   
   /// Intenta interrumpir el Duel Stance (llamado cuando el jugador ataca)
@@ -983,13 +1313,13 @@ class OnOyabunBoss extends PositionComponent
   
   // ==================== ATAQUES ESPECIALES FASE 2 ====================
   
-  /// CADENA DE CULPA - Arrastra al jugador hacia el jefe
+  /// CADENA DE CULPA - Arrastra al objetivo hacia el jefe
   void _ejecutarCadenaCulpa() {
     if (cadenaCulpaCooldown > 0) return;
     if (currentPhase != BossPhase.phase2) return;
+    if (target == null) return;
     
-    final player = game.player;
-    final distance = position.distanceTo(player.position);
+    final distance = position.distanceTo(target!.position);
     
     if (distance > 300) return; // Fuera de rango
     
@@ -998,20 +1328,22 @@ class OnOyabunBoss extends PositionComponent
     debugPrint('🔗 CADENA DE CULPA!');
     
     // Daño inicial
-    player.takeDamage(20);
+    _dealDamageToTarget(target!, 20);
     
-    // Arrastrar al jugador hacia el jefe
-    final direction = (position - player.position).normalized();
+    // Arrastrar al objetivo hacia el jefe
+    final direction = (position - target!.position).normalized();
     final pullDistance = 150.0;
     
     // Aplicar pull gradualmente
     for (int i = 0; i < 10; i++) {
       Future.delayed(Duration(milliseconds: i * 50), () {
-        player.position += direction * (pullDistance / 10);
+        if (target != null) {
+          target!.position += direction * (pullDistance / 10);
+        }
       });
     }
     
-    debugPrint('   ↪️ Jugador arrastrado hacia el jefe');
+    debugPrint('   ↪️ Objetivo arrastrado hacia el jefe');
     
     // TODO: Efecto visual de cadenas
   }
@@ -1104,6 +1436,152 @@ class OnOyabunBoss extends PositionComponent
     }
   }
   
+  /// ONDA DE CURACIÓN - Boss se cura y daña/empuja a todos los enemigos cercanos
+  void _executeHealingWave() {
+    if (healingWaveCooldown > 0) return;
+    
+    debugPrint('🌊💚 ¡ON-OYABUN USA ONDA DE CURACIÓN!');
+    debugPrint('   💚 Boss se cura ${healingWaveAmount.toInt()} HP');
+    
+    // Curarse
+    final oldHealth = health;
+    health = (health + healingWaveAmount).clamp(0.0, maxHealth);
+    final healed = health - oldHealth;
+    debugPrint('   ✨ Boss curado: ${healed.toInt()} HP (${health.toInt()}/${maxHealth.toInt()})');
+    
+    // Flash verde
+    _createScreenFlash(color: Colors.green.withOpacity(0.7));
+    
+    // Dañar y empujar al jugador
+    final player = game.player;
+    if (!player.isDead) {
+      final distToPlayer = position.distanceTo(player.position);
+      if (distToPlayer <= healingWaveRadius) {
+        player.takeDamage(healingWaveDamage);
+        
+        // Empujar fuertemente
+        final pushDir = (player.position - position).normalized();
+        player.position += pushDir * healingWavePushForce;
+        
+        debugPrint('   🌊 Onda golpea al JUGADOR: ${healingWaveDamage.toInt()} daño + EMPUJE');
+      }
+    }
+    
+    // Dañar y empujar a Kohaa aliada
+    game.world.children.query<RedeemedKijinAlly>().forEach((kohaa) {
+      if (!kohaa.isDead && kohaa.kijinType == 'kohaa') {
+        final distToKohaa = position.distanceTo(kohaa.position);
+        if (distToKohaa <= healingWaveRadius) {
+          kohaa.takeDamage(healingWaveDamage);
+          
+          // Empujar
+          final pushDir = (kohaa.position - position).normalized();
+          kohaa.position += pushDir * healingWavePushForce;
+          
+          debugPrint('   🌊 Onda golpea a KOHAA ALIADA: ${healingWaveDamage.toInt()} daño + EMPUJE');
+        }
+      }
+    });
+    
+    // Dañar y empujar a enfermeros
+    game.world.children.query<AlliedEnemy>().forEach((nurse) {
+      if (!nurse.isDead) {
+        final distToNurse = position.distanceTo(nurse.position);
+        if (distToNurse <= healingWaveRadius) {
+          nurse.takeDamage(healingWaveDamage);
+          
+          // Empujar
+          final pushDir = (nurse.position - position).normalized();
+          nurse.position += pushDir * healingWavePushForce;
+          
+          debugPrint('   🌊 Onda golpea a ENFERMERO: ${healingWaveDamage.toInt()} daño + EMPUJE');
+        }
+      }
+    });
+    
+    // Cooldown
+    healingWaveCooldown = healingWaveCooldownDuration;
+    debugPrint('   ⏱️ Cooldown: ${healingWaveCooldownDuration.toInt()}s');
+  }
+  
+  /// GRITO DE GUERRA - Boss invoca fantasmas y maldice a los aliados
+  void _executeWarCry() {
+    hasUsedWarCry = true;
+    warCryCooldown = warCryCooldownDuration;
+    
+    debugPrint('⚔️👻💀 ¡ON-OYABUN USA GRITO DE GUERRA!');
+    
+    // Detener movimiento
+    velocity = Vector2.zero();
+    
+    // Flash rojo oscuro
+    _createScreenFlash(color: Colors.red.withOpacity(0.9));
+    
+    // Diálogo del boss maldiciendo
+    Future.delayed(const Duration(milliseconds: 300), () {
+      _showWarCryDialogue();
+    });
+    
+    // Spawn fantasmas después del diálogo
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      _spawnWarCryGhosts();
+    });
+  }
+  
+  /// Muestra el diálogo de maldición del boss
+  void _showWarCryDialogue() {
+    final dialogue = DialogueSequence(
+      id: 'oyabun_war_cry',
+      dialogues: [
+        const DialogueData(
+          speakerName: 'On-Oyabun',
+          text: '¡MALDITOS SEAN! ¡MIS HERMANOS CAÍDOS VENGARÁN MI HONOR!',
+          type: DialogueType.normal,
+        ),
+        const DialogueData(
+          speakerName: 'On-Oyabun',
+          text: '¡QUE SUS ESPÍRITUS DEVOREN A TUS ALIADOS!',
+          type: DialogueType.normal,
+        ),
+        const DialogueData(
+          speakerName: 'On-Oyabun',
+          text: '¡NADIE ESCAPA DE LA VENGANZA DEL CLAN!',
+          type: DialogueType.normal,
+        ),
+      ],
+      onComplete: () {
+        debugPrint('💀 Boss completó su maldición');
+      },
+    );
+    
+    DialogueOverlay.show(game.buildContext!, dialogue);
+  }
+  
+  /// Spawn fantasmas del grito de guerra
+  void _spawnWarCryGhosts() {
+    debugPrint('👻💀 ¡FANTASMAS DE LA VENGANZA APARECEN!');
+    
+    // Flash negro
+    _createScreenFlash(color: Colors.black.withOpacity(0.8));
+    
+    // Spawn fantasmas en círculo alrededor del boss
+    for (int i = 0; i < warCryGhostCount; i++) {
+      Future.delayed(Duration(milliseconds: i * 200), () {
+        final angle = (i / warCryGhostCount) * 2 * pi;
+        final distance = 180.0;
+        final x = position.x + cos(angle) * distance;
+        final y = position.y + sin(angle) * distance;
+        
+        final ghost = YakuzaGhost(position: Vector2(x, y));
+        game.world.add(ghost);
+        debugPrint('   👻 Fantasma de venganza spawneado en ($x, $y)');
+      });
+    }
+    
+    debugPrint('   💀 ${warCryGhostCount} fantasmas invocados para destruir aliados');
+    debugPrint('   ⏱️ Cooldown: ${warCryCooldownDuration.toInt()}s');
+  }
+  
   // ==================== DAÑO Y MUERTE ====================
   void takeDamage(double damage) {
     if (isDead || isInvulnerable) return;
@@ -1125,13 +1603,66 @@ class OnOyabunBoss extends PositionComponent
   
   void onDeath() {
     isDead = true;
-    debugPrint('💀 On-Oyabun ha sido derrotado!');
+    debugPrint(' On-Oyabun ha sido derrotado!');
     
     // TODO: Animación de muerte
     // TODO: Drops
     // TODO: Tumba (dorada si fue honorable, normal si no)
     
     removeFromParent();
+  }
+  
+  /// Reinicia el boss cuando el jugador reintenta después de morir
+  void resetBoss() {
+    debugPrint('🔄 Reiniciando On-Oyabun Boss...');
+    
+    // Reiniciar HP
+    health = maxHealth;
+    isDead = false;
+    
+    // Reiniciar fase
+    currentPhase = BossPhase.phase1;
+    hasTransitionedToPhase2 = false;
+    hasTransitionedToPhase3 = false;
+    honorableDeathAvailable = false;
+    isKneeling = false;
+    
+    // Reiniciar armas
+    activeWeapons = ['katana'];
+    weaponCooldowns.forEach((key, value) {
+      weaponCooldowns[key] = 0.0;
+    });
+    
+    // Reiniciar cooldowns
+    tsukiCooldown = 0.0;
+    tsubameCooldown = 0.0;
+    duelStanceCooldown = 0.0;
+    cadenaCulpaCooldown = 0.0;
+    lluviaAceroCooldown = 0.0;
+    healingWaveCooldown = 0.0;
+    warCryCooldown = 0.0;
+    
+    // Reiniciar flags
+    hasSpawnedYakuzaGhosts = false;
+    hasSpawnedVictimas = false;
+    hasSpawnedKatanas = false;
+    hasUsedWarCry = false;
+    
+    // Reiniciar velocidad
+    currentSpeed = 150.0;
+    velocity = Vector2.zero();
+    
+    // Reiniciar teletransportación
+    _canTeleport = true;
+    _teleportCooldown = 0.0;
+    _consecutiveDistanceIncreases = 0;
+    _previousDistanceToTarget = 0.0;
+    _targetPositionHistory.clear();
+    
+    // Reiniciar posición (centro del mapa)
+    position = Vector2(1500, 1500);
+    
+    debugPrint('✅ Boss reiniciado completamente');
   }
   
   // ==================== COLISIONES ====================
@@ -1145,6 +1676,11 @@ class OnOyabunBoss extends PositionComponent
     // Colisión con jugador (daño de contacto)
     if (other is PlayerCharacter) {
       other.takeDamage(baseDamage * 0.5); // 50% daño de contacto
+    }
+    // Colisión con Kohaa ALIADA (daño de contacto)
+    else if (other is RedeemedKijinAlly && other.kijinType == 'kohaa') {
+      other.takeDamage(baseDamage * 0.5); // 50% daño de contacto
+      debugPrint('💥 Boss colisionó con Kohaa aliada: ${baseDamage * 0.5} daño');
     }
   }
   

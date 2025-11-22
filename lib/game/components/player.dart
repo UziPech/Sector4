@@ -174,7 +174,8 @@ class PlayerCharacter extends PositionComponent
         _isDashing = false;
         _dashTime = 0.0;
       } else {
-        position += _dashDirection * _dashSpeed * dt;
+        final newPosition = position + (_dashDirection * _dashSpeed * dt);
+        position = _constrainToWorldBounds(newPosition); // Aplicar límites durante dash
         return; // No movimiento normal durante dash
       }
     }
@@ -209,8 +210,59 @@ class PlayerCharacter extends PositionComponent
       _velocity.normalize();
       lastMoveDirection = _velocity.clone(); // Actualizar dirección de mirada
       _previousPosition = position.clone();
-      position += _velocity * stats.speed * dt;
+      
+      // Calcular nueva posición
+      final newPosition = position + (_velocity * stats.speed * dt);
+      
+      // Aplicar límites del mundo con deslizamiento
+      position = _constrainToWorldBounds(newPosition);
     }
+  }
+  
+  /// Restringe la posición del jugador a los límites del mundo (con deslizamiento)
+  Vector2 _constrainToWorldBounds(Vector2 newPos) {
+    // Límites dinámicos según el tamaño del mundo
+    // Obtener tamaño del mundo desde la cámara o usar valores por defecto
+    final worldSize = game.camera.visibleWorldRect;
+    
+    // Si no hay worldSize, usar límites por defecto (mapa grande)
+    double worldMinX = 100.0;
+    double worldMaxX = 1500.0; // Default para boss level (1600 de ancho)
+    double worldMinY = 100.0;
+    double worldMaxY = 1100.0; // Default para boss level (1200 de alto)
+    
+    // Ajustar según el tamaño real del mundo si está disponible
+    if (worldSize.width > 2000) {
+      // Mapa grande (3000x3000)
+      worldMinX = 250.0;
+      worldMaxX = 2750.0;
+      worldMinY = 250.0;
+      worldMaxY = 2750.0;
+    }
+    
+    // Crear copia de la nueva posición
+    final constrainedPos = newPos.clone();
+    
+    // Aplicar límites con deslizamiento
+    // Si golpeas un borde en X, puedes seguir moviendo en Y
+    if (newPos.x < worldMinX) {
+      constrainedPos.x = worldMinX;
+      // Mantener movimiento en Y
+    } else if (newPos.x > worldMaxX) {
+      constrainedPos.x = worldMaxX;
+      // Mantener movimiento en Y
+    }
+    
+    // Si golpeas un borde en Y, puedes seguir moviendo en X
+    if (newPos.y < worldMinY) {
+      constrainedPos.y = worldMinY;
+      // Mantener movimiento en X
+    } else if (newPos.y > worldMaxY) {
+      constrainedPos.y = worldMaxY;
+      // Mantener movimiento en X
+    }
+    
+    return constrainedPos;
   }
   
   @override

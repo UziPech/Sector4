@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../expediente_game.dart';
 import '../player.dart';
 import '../enemy_tomb.dart';
+import 'yurei_kohaa.dart';
 
 /// Irracional - Enemigo mutado de bajo nivel
 /// Ataca cuerpo a cuerpo y puede ser resucitado por Mel
@@ -23,6 +24,9 @@ class IrrationalEnemy extends PositionComponent
   bool _isStunned = false;
   double _stunTimer = 0.0;
   static const double _stunDuration = 2.0;
+  
+  // Objetivo actual (puede ser jugador o Kohaa)
+  PositionComponent? _currentTarget;
   
   static const double _size = 28.0;
   
@@ -70,39 +74,82 @@ class IrrationalEnemy extends PositionComponent
       _attackTimer -= dt;
     }
     
-    // IA: Perseguir al jugador
-    _chasePlayer(dt);
+    // IA: Actualizar objetivo y perseguir
+    _updateTarget();
+    _chaseTarget(dt);
     
     // Intentar atacar si está en rango
     _tryAttack();
   }
   
-  void _chasePlayer(double dt) {
+  /// Actualiza el objetivo (jugador o Kohaa, el más cercano)
+  void _updateTarget() {
     final player = game.player;
-    final distanceToPlayer = position.distanceTo(player.position);
+    
+    // Buscar Kohaa
+    YureiKohaa? kohaa;
+    game.world.children.query<YureiKohaa>().forEach((k) {
+      if (!k.isDead) kohaa = k;
+    });
+    
+    // Si no hay Kohaa, atacar al jugador
+    if (kohaa == null || kohaa!.isDead) {
+      _currentTarget = player;
+      return;
+    }
+    
+    // Si hay Kohaa, atacar al más cercano
+    final distToPlayer = player.isDead ? double.infinity : position.distanceTo(player.position);
+    final distToKohaa = position.distanceTo(kohaa!.position);
+    
+    _currentTarget = distToKohaa < distToPlayer ? kohaa : player;
+  }
+  
+  void _chaseTarget(double dt) {
+    if (_currentTarget == null) return;
+    
+    final distanceToTarget = position.distanceTo(_currentTarget!.position);
     
     // Si está lejos, acercarse
-    if (distanceToPlayer > _attackRange) {
-      final direction = (player.position - position).normalized();
+    if (distanceToTarget > _attackRange) {
+      final direction = (_currentTarget!.position - position).normalized();
       position += direction * _speed * dt;
+      _constrainToWorldBounds();
     }
   }
   
-  void _tryAttack() {
-    if (_attackTimer > 0) return;
+  /// Restringe la posición a los límites del mundo (con deslizamiento)
+  void _constrainToWorldBounds() {
+    const double worldMinX = 150.0; // Ajustado para coincidir con paredes
+    const double worldMaxX = 2850.0;
+    const double worldMinY = 150.0; // Ajustado para coincidir con paredes
+    const double worldMaxY = 2850.0;
     
-    final player = game.player;
-    final distanceToPlayer = position.distanceTo(player.position);
+    // Solo aplicar límites, sin modificar velocidad (permite deslizamiento natural)
+    position.x = position.x.clamp(worldMinX, worldMaxX);
+    position.y = position.y.clamp(worldMinY, worldMaxY);
+  }
+  
+  void _tryAttack() {
+    if (_attackTimer > 0 || _currentTarget == null) return;
+    
+    final distanceToTarget = position.distanceTo(_currentTarget!.position);
     
     // Si está en rango, atacar
-    if (distanceToPlayer <= _attackRange) {
-      _attack(player);
+    if (distanceToTarget <= _attackRange) {
+      _attack(_currentTarget!);
       _attackTimer = _attackCooldown;
     }
   }
   
-  void _attack(PlayerCharacter player) {
-    player.takeDamage(_damage);
+  void _attack(PositionComponent target) {
+    if (target is PlayerCharacter) {
+      target.takeDamage(_damage);
+      print('⚜️ Irracional atacó al jugador: $_damage daño');
+    } else if (target is YureiKohaa) {
+      target.takeDamage(_damage);
+      print('⚜️ Irracional atacó a Kohaa: $_damage daño');
+    }
   }
   
   /// Recibe daño

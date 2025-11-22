@@ -13,6 +13,8 @@ import 'ui/mission_notification.dart';
 import 'levels/bunker_boss_level.dart';
 import 'levels/exterior_map_level.dart';
 import 'components/enemies/yurei_kohaa.dart'; // Para reset de HP
+import 'components/enemies/redeemed_kijin_ally.dart'; // Para reset de Kohaa aliada
+import 'components/bosses/on_oyabun_boss.dart'; // Para reset del boss
 import '../narrative/models/dialogue_data.dart'; // Para sistema de diálogos
 
 /// Motor principal del juego Expediente Kōrin
@@ -256,9 +258,23 @@ class ExpedienteKorinGame extends FlameGame
       }
       
       // Recargar nivel completo según el modo actual
-      if (startInBossMode) {
-        print('🔄 Recargando Boss Level...');
+      // DETECTAR si estamos en boss level buscando al boss
+      final bosses = world.children.query<OnOyabunBoss>();
+      final isInBossLevel = bosses.isNotEmpty;
+      
+      if (isInBossLevel || startInBossMode) {
+        print('🔄 Recargando Boss Level (Boss detectado: ${bosses.isNotEmpty})...');
+        
+        // RESETEAR BOSS si existe
+        for (final boss in bosses) {
+          boss.resetBoss();
+          print('🔄 Boss reseteado: HP ${boss.health.toInt()}/${boss.maxHealth.toInt()}');
+        }
+        
+        // RECARGAR el nivel del boss
         await loadBossLevel();
+        print('✅ Boss Level recargado completamente');
+        
       } else if (startInExteriorMap) {
         print('🔄 Recargando Exterior Map...');
         await loadExteriorMap();

@@ -9,6 +9,8 @@ import 'irracional.dart';
 import 'allied_enemy.dart';
 import 'yurei_kohaa.dart'; // Añadido para poder atacar a Kohaa
 import '../bosses/on_oyabun_boss.dart'; // Para atacar a On-Oyabun
+import 'minions/yakuza_ghost.dart'; // Para el llanto de Kohaa
+import 'minions/floating_katana.dart'; // Para el llanto de Kohaa
 
 /// Kijin Redimido - Aliado resucitado de categoría Kijin
 /// NO expira por tiempo, solo por muerte
@@ -42,6 +44,35 @@ class RedeemedKijinAlly extends PositionComponent
   bool _isDead = false;
   PositionComponent? _currentTarget; // Cambiado para aceptar cualquier enemigo
   
+  // Sistema táctico para Kohaa aliada
+  double _tacticalTimer = 0.0;
+  final double _tacticalInterval = 2.0; // Reevaluar estrategia cada 2s
+  String _currentTactic = 'attack_minions'; // 'attack_minions', 'distract_boss', 'retreat'
+  bool _isRetreating = false;
+  double _retreatTimer = 0.0;
+  final double _retreatDuration = 8.0; // Retirarse por 8s para recuperarse
+  final double _retreatHealthThreshold = 0.5; // Retirarse si HP < 50%
+  double _retreatCooldown = 0.0;
+  final double _retreatCooldownDuration = 30.0; // Cooldown de 30s entre huidas
+  
+  // Sistema de curación durante huida
+  double _healingDuringRetreat = 0.0;
+  final double _healingPerSecond = 15.0; // 15 HP/s durante huida
+  final double _maxHealingDuringRetreat = 150.0; // Máximo 150 HP por huida
+  
+  // Explosión táctica (habilidad especial)
+  double _tacticalExplosionCooldown = 15.0;
+  double _tacticalExplosionTimer = 0.0;
+  final double _tacticalExplosionDamage = 100.0; // Daño significativo al boss
+  final double _tacticalExplosionRadius = 150.0;
+  
+  // Llanto de Kohaa (ondas de dolor)
+  double _cryingWaveCooldown = 0.0;
+  final double _cryingWaveCooldownDuration = 20.0; // Cada 20 segundos
+  final double _cryingWaveDamage = 100.0; // 100 daño
+  final double _cryingWaveRadius = 200.0; // Radio de 200 unidades
+  final double _cryingWaveHealthThreshold = 0.25; // Solo si HP < 25%
+  
   // Referencia al manager de resurrecciones
   final ResurrectionManager? resurrectionManager;
   
@@ -63,18 +94,21 @@ class RedeemedKijinAlly extends PositionComponent
   
   /// Configura las estadísticas según el tipo de Kijin
   void _configureStats() {
-    switch (kijinType) {
-      case 'kohaa':
-        _maxHealth = 120.0; // Mucho más resistente
-        _health = 120.0;
-        _speed = 160.0; // Más rápida
-        _damage = 30.0; // Más daño
-        _attackRange = 55.0;
-        _attackCooldown = 0.8;
-        break;
-      default:
-        _maxHealth = 100.0;
-        _health = 100.0;
+    // Configuración según tipo
+    if (kijinType == 'kohaa') {
+      _maxHealth = 2000.0; // Kohaa aliada SUPER resistente para duelo épico
+      _health = _maxHealth;
+      _speed = 160.0; // Rápida
+      _attackRange = 80.0;
+      _attackCooldown = 1.2;
+      _damage = 30.0; // Daño aumentado para duelo épico
+    } else {
+      _maxHealth = 100.0;
+      _health = 100.0;
+      _speed = 150.0;
+      _damage = 25.0;
+      _attackRange = 50.0;
+      _attackCooldown = 0.9;
         _speed = 150.0;
         _damage = 25.0;
         _attackRange = 50.0;
@@ -104,6 +138,10 @@ class RedeemedKijinAlly extends PositionComponent
     // Actualizar timers
     if (_attackTimer > 0) _attackTimer -= dt;
     if (_dashTimer > 0) _dashTimer -= dt;
+    if (_tacticalExplosionTimer > 0) _tacticalExplosionTimer -= dt;
+    if (_retreatTimer > 0) _retreatTimer -= dt;
+    if (_retreatCooldown > 0) _retreatCooldown -= dt;
+    if (_cryingWaveCooldown > 0) _cryingWaveCooldown -= dt;
     
     // Lógica de preparación del dash (INVULNERABLE)
     if (_isPreparingDash) {
@@ -124,7 +162,8 @@ class RedeemedKijinAlly extends PositionComponent
         _isDashing = false;
         _dashTime = 0.0;
       } else {
-        position += _dashDirection * _dashSpeed * dt;
+        final newPos = position + _dashDirection * _dashSpeed * dt;
+        position = _constrainToWorldBounds(newPos); // Aplicar límites durante dash
         _damageEnemiesInPath();
         return;
       }
@@ -135,13 +174,22 @@ class RedeemedKijinAlly extends PositionComponent
   }
   
   void _findAndAttackEnemies(double dt) {
-    // Si no tiene objetivo, buscar nuevo
+    // TÁCTICA INTELIGENTE para Kohaa aliada
+    if (kijinType == 'kohaa') {
+      _smartKohaaTactics(dt);
+      return;
+    }
+    
+    // Comportamiento normal para otros Kijin
     if (_currentTarget == null || !_isTargetValid()) {
       _findNearestEnemy();
     }
     
-    // Si tiene objetivo, perseguirlo y atacar
-    if (_currentTarget != null && _isTargetValid()) {
+    if (!_isTargetValid()) {
+      _findNearestEnemy();
+    }
+    
+    if (_currentTarget != null) {
       final distanceToTarget = position.distanceTo(_currentTarget!.position);
       
       // Intentar dash si está listo
@@ -153,14 +201,149 @@ class RedeemedKijinAlly extends PositionComponent
       // Acercarse si está lejos
       if (distanceToTarget > _attackRange) {
         Vector2 direction = (_currentTarget!.position - position).normalized();
-        
-        // NUEVA IA: Aplicar separación con otros aliados
         direction = _applySeparation(direction);
-        
-        position += direction * _speed * dt;
+        final newPos = position + direction * _speed * dt;
+        position = _constrainToWorldBounds(newPos); // Aplicar límites
       } else {
-        // Atacar si está en rango
         _tryAttack();
+      }
+    }
+  }
+  
+  /// IA táctica inteligente para Kohaa aliada
+  void _smartKohaaTactics(double dt) {
+    final healthPercent = _health / _maxHealth;
+    
+    // PRIORIDAD 0: Llanto de Kohaa si HP crítico
+    if (healthPercent < _cryingWaveHealthThreshold && _cryingWaveCooldown <= 0) {
+      _executeCryingWave();
+    }
+    
+    // PRIORIDAD 1: Retirarse si HP bajo y cooldown disponible
+    if (healthPercent < _retreatHealthThreshold && _retreatTimer <= 0 && _retreatCooldown <= 0) {
+      _isRetreating = true;
+      _retreatTimer = _retreatDuration;
+      _retreatCooldown = _retreatCooldownDuration;
+      _healingDuringRetreat = 0.0; // Reset healing counter
+      print('🏃💨💚 ¡Kohaa aliada HUYE del combate para recuperarse! (HP: ${(_health).toInt()}/${_maxHealth.toInt()})');
+    }
+    
+    // Ejecutar retirada con curación
+    if (_isRetreating && _retreatTimer > 0) {
+      _executeRetreatWithHealing(dt);
+      return;
+    } else if (_retreatTimer <= 0 && _isRetreating) {
+      _isRetreating = false;
+      print('✅ Kohaa aliada regresa al combate (HP: ${(_health).toInt()}/${_maxHealth.toInt()})');
+    }
+    
+    // PRIORIDAD 2: Buscar objetivo
+    if (_currentTarget == null || !_isTargetValid()) {
+      _findNearestEnemy();
+    }
+    
+    if (_currentTarget == null) return;
+    
+    final distanceToTarget = position.distanceTo(_currentTarget!.position);
+    
+    // PRIORIDAD 3: Explosión táctica si el boss está cerca
+    if (_tacticalExplosionTimer <= 0) {
+      _tryTacticalExplosion();
+    }
+    
+    // PRIORIDAD 4: IA SIMPLE Y DIRECTA (estilo roguelike)
+    if (_currentTarget is OnOyabunBoss) {
+      const attackDistance = 80.0;
+      
+      if (distanceToTarget > attackDistance) {
+        // PERSEGUIR: Moverse hacia el boss
+        final direction = (_currentTarget!.position - position).normalized();
+        final newPos = position + direction * _speed * dt;
+        position = _constrainToWorldBounds(newPos);
+      } else {
+        // EN RANGO: Atacar
+        _tryAttack();
+        
+        // Retroceder un poco después de atacar
+        if (_attackTimer <= 0) {
+          final awayDirection = (position - _currentTarget!.position).normalized();
+          final stepBack = position + awayDirection * 30.0;
+          position = _constrainToWorldBounds(stepBack);
+        }
+      }
+    } else {
+      // Contra minions, comportamiento normal pero agresivo
+      if (distanceToTarget > _attackRange) {
+        Vector2 direction = (_currentTarget!.position - position).normalized();
+        direction = _applySeparation(direction);
+        final newPos = position + direction * _speed * dt;
+        position = _constrainToWorldBounds(newPos); // Aplicar límites
+      } else {
+        _tryAttack();
+      }
+    }
+  }
+  
+  /// Ejecuta la retirada táctica con curación
+  void _executeRetreatWithHealing(double dt) {
+    // Buscar el boss para alejarse de él
+    final bosses = game.world.children.query<OnOyabunBoss>();
+    Vector2 retreatDirection = Vector2.zero();
+    
+    for (final boss in bosses) {
+      if (!boss.isDead) {
+        // Alejarse del boss
+        retreatDirection = (position - boss.position).normalized();
+        break;
+      }
+    }
+    
+    // Si no hay boss, moverse hacia el centro (zona segura)
+    if (retreatDirection == Vector2.zero()) {
+      final center = Vector2(1500, 1500);
+      retreatDirection = (center - position).normalized(); // Hacia el centro, no alejarse
+    }
+    
+    // Verificar si está cerca de los bordes y FORZAR hacia el centro
+    const double safeMargin = 400.0; // Margen más grande
+    const double dangerMargin = 300.0; // Zona de peligro
+    final center = Vector2(1500, 1500);
+    
+    // Si está en zona de peligro, ir directamente al centro
+    if (position.x < 250 + dangerMargin || position.x > 2750 - dangerMargin ||
+        position.y < 250 + dangerMargin || position.y > 2750 - dangerMargin) {
+      retreatDirection = (center - position).normalized();
+      print('⚠️ Kohaa cerca del borde, huyendo al CENTRO');
+    } else {
+      // Si está cerca pero no en peligro, ajustar dirección
+      if (position.x < 250 + safeMargin) {
+        retreatDirection.x = retreatDirection.x.abs(); // Forzar hacia la derecha
+      } else if (position.x > 2750 - safeMargin) {
+        retreatDirection.x = -retreatDirection.x.abs(); // Forzar hacia la izquierda
+      }
+      
+      if (position.y < 250 + safeMargin) {
+        retreatDirection.y = retreatDirection.y.abs(); // Forzar hacia abajo
+      } else if (position.y > 2750 - safeMargin) {
+        retreatDirection.y = -retreatDirection.y.abs(); // Forzar hacia arriba
+      }
+    }
+    
+    // Moverse rápido en dirección de huida (controlada)
+    final newPos = position + retreatDirection.normalized() * _speed * dt * 1.3; // Reducido de 1.5 a 1.3
+    position = _constrainToWorldBounds(newPos); // Respetar límites del mundo
+    
+    // CURARSE mientras huye
+    if (_healingDuringRetreat < _maxHealingDuringRetreat) {
+      final healAmount = _healingPerSecond * dt;
+      final actualHeal = min(healAmount, _maxHealingDuringRetreat - _healingDuringRetreat);
+      
+      _health = min(_health + actualHeal, _maxHealth);
+      _healingDuringRetreat += actualHeal;
+      
+      // Debug cada segundo
+      if (_retreatTimer.toInt() != (_retreatTimer + dt).toInt()) {
+        print('💚 Kohaa curándose: +${actualHeal.toInt()} HP (${_health.toInt()}/${_maxHealth.toInt()})');
       }
     }
   }
@@ -265,7 +448,13 @@ class RedeemedKijinAlly extends PositionComponent
   }
   
   void _findNearestEnemy() {
-    // Buscar todos los tipos de enemigos
+    // ESTRATEGIA TÁCTICA para Kohaa aliada
+    if (kijinType == 'kohaa') {
+      _findTacticalTarget();
+      return;
+    }
+    
+    // Comportamiento normal para otros Kijin
     final irrationals = game.world.children.query<IrrationalEnemy>();
     final bosses = game.world.children.query<YureiKohaa>();
     
@@ -308,6 +497,75 @@ class RedeemedKijinAlly extends PositionComponent
     _currentTarget = nearest;
   }
   
+  /// Sistema táctico para Kohaa aliada - Prioriza minions sobre boss
+  void _findTacticalTarget() {
+    // Buscar minions del boss (Yakuza Ghosts y Floating Katanas)
+    final minions = <PositionComponent>[];
+    
+    // Importar y buscar minions
+    try {
+      final ghosts = game.world.children.query<PositionComponent>().where((c) => 
+        c.runtimeType.toString().contains('YakuzaGhost') && 
+        c is! RedeemedKijinAlly
+      );
+      final katanas = game.world.children.query<PositionComponent>().where((c) => 
+        c.runtimeType.toString().contains('FloatingKatana')
+      );
+      
+      minions.addAll(ghosts);
+      minions.addAll(katanas);
+    } catch (e) {
+      // Si falla, usar targeting normal
+    }
+    
+    // PRIORIDAD 1: Atacar minions si existen
+    if (minions.isNotEmpty) {
+      PositionComponent? nearestMinion;
+      double nearestDistance = double.infinity;
+      
+      for (final minion in minions) {
+        final distance = position.distanceTo(minion.position);
+        if (distance < nearestDistance) {
+          nearestMinion = minion;
+          nearestDistance = distance;
+        }
+      }
+      
+      if (nearestMinion != null) {
+        _currentTarget = nearestMinion;
+        _currentTactic = 'attack_minions';
+        return;
+      }
+    }
+    
+    // PRIORIDAD 2: Si no hay minions, distraer al boss (pero con poco daño)
+    final oyabuns = game.world.children.query<OnOyabunBoss>();
+    for (final boss in oyabuns) {
+      if (!boss.isDead) {
+        _currentTarget = boss;
+        _currentTactic = 'distract_boss';
+        print('🎯 Kohaa aliada: Distrayendo al boss');
+        return;
+      }
+    }
+    
+    // PRIORIDAD 3: Atacar irracionales si no hay nada más
+    final irrationals = game.world.children.query<IrrationalEnemy>();
+    PositionComponent? nearest;
+    double nearestDistance = double.infinity;
+    
+    for (final enemy in irrationals) {
+      if (enemy.isDead) continue;
+      final distance = position.distanceTo(enemy.position);
+      if (distance < nearestDistance) {
+        nearest = enemy;
+        nearestDistance = distance;
+      }
+    }
+    
+    _currentTarget = nearest;
+  }
+  
   void _tryAttack() {
     if (_attackTimer > 0 || _currentTarget == null) return;
     
@@ -324,6 +582,102 @@ class RedeemedKijinAlly extends PositionComponent
     }
     
     _attackTimer = _attackCooldown;
+  }
+  
+  /// Explosión táctica - Habilidad especial de Kohaa aliada
+  void _tryTacticalExplosion() {
+    // Buscar al boss
+    final bosses = game.world.children.query<OnOyabunBoss>();
+    
+    for (final boss in bosses) {
+      if (boss.isDead) continue;
+      
+      final distanceToBoss = position.distanceTo(boss.position);
+      
+      // Solo explotar si el boss está cerca
+      if (distanceToBoss <= _tacticalExplosionRadius) {
+        _executeTacticalExplosion(boss);
+        break;
+      }
+    }
+  }
+  
+  /// Ejecuta la explosión táctica
+  void _executeTacticalExplosion(OnOyabunBoss boss) {
+    print('💥🔥 ¡KOHAA ALIADA USA EXPLOSIÓN TÁCTICA!');
+    
+    // Daño al boss
+    boss.takeDamage(_tacticalExplosionDamage);
+    print('   💥 Boss recibe ${_tacticalExplosionDamage.toInt()} daño de la explosión!');
+    
+    // Empujar al boss ligeramente
+    final pushDirection = (boss.position - position).normalized();
+    boss.position += pushDirection * 50; // Pequeño empuje
+    
+    // Cooldown
+    _tacticalExplosionTimer = _tacticalExplosionCooldown;
+    
+    print('   🌟 Onda expansiva de ${_tacticalExplosionRadius.toInt()} unidades');
+    print('   ⏱️ Cooldown: ${_tacticalExplosionCooldown.toInt()}s');
+  }
+  
+  /// LLANTO DE KOHAA - Ondas de dolor que dañan a todos los enemigos
+  void _executeCryingWave() {
+    print('😭💔🌊 ¡LLANTO DE KOHAA! Ondas de dolor devastadoras');
+    print('   💔 Kohaa llora por su dolor (HP: ${_health.toInt()}/${_maxHealth.toInt()})');
+    
+    int enemiesHit = 0;
+    
+    // Dañar al boss
+    game.world.children.query<OnOyabunBoss>().forEach((boss) {
+      if (!boss.isDead) {
+        final distance = position.distanceTo(boss.position);
+        if (distance <= _cryingWaveRadius) {
+          boss.takeDamage(_cryingWaveDamage);
+          enemiesHit++;
+          print('   🌊 Onda golpea a ON-OYABUN: ${_cryingWaveDamage.toInt()} daño');
+        }
+      }
+    });
+    
+    // Dañar a Yakuza Ghosts
+    game.world.children.query<YakuzaGhost>().forEach((ghost) {
+      if (!ghost.isDead) {
+        final distance = position.distanceTo(ghost.position);
+        if (distance <= _cryingWaveRadius) {
+          ghost.takeDamage(_cryingWaveDamage);
+          enemiesHit++;
+        }
+      }
+    });
+    
+    // Dañar a Floating Katanas
+    game.world.children.query<FloatingKatana>().forEach((katana) {
+      if (!katana.isDead) {
+        final distance = position.distanceTo(katana.position);
+        if (distance <= _cryingWaveRadius) {
+          katana.takeDamage(_cryingWaveDamage);
+          enemiesHit++;
+        }
+      }
+    });
+    
+    // Dañar a Irracionales
+    game.world.children.query<IrrationalEnemy>().forEach((enemy) {
+      if (!enemy.isDead) {
+        final distance = position.distanceTo(enemy.position);
+        if (distance <= _cryingWaveRadius) {
+          enemy.takeDamage(_cryingWaveDamage);
+          enemiesHit++;
+        }
+      }
+    });
+    
+    print('   💥 ${enemiesHit} enemigos golpeados por las ondas');
+    print('   ⏱️ Cooldown: ${_cryingWaveCooldownDuration.toInt()}s');
+    
+    // Cooldown
+    _cryingWaveCooldown = _cryingWaveCooldownDuration;
   }
   
   /// Recibe daño (puede ser atacado por otros enemigos)
@@ -532,7 +886,45 @@ class RedeemedKijinAlly extends PositionComponent
     );
   }
   
+  /// Limita la posición a los bordes del mundo (dinámico según tamaño del mapa)
+  Vector2 _constrainToWorldBounds(Vector2 pos) {
+    final worldSize = game.camera.visibleWorldRect;
+    
+    // Boss level (1600x1200)
+    double worldMinX = 100.0;
+    double worldMaxX = 1500.0;
+    double worldMinY = 100.0;
+    double worldMaxY = 1100.0;
+    
+    // Mapa grande (3000x3000)
+    if (worldSize.width > 2000) {
+      worldMinX = 250.0;
+      worldMaxX = 2750.0;
+      worldMinY = 250.0;
+      worldMaxY = 2750.0;
+    }
+    
+    final clampedPos = Vector2(
+      pos.x.clamp(worldMinX, worldMaxX),
+      pos.y.clamp(worldMinY, worldMaxY),
+    );
+    
+    // Debug si se está saliendo
+    if (pos.x != clampedPos.x || pos.y != clampedPos.y) {
+      print('⚠️ Kohaa corregida: (${pos.x.toInt()}, ${pos.y.toInt()}) → (${clampedPos.x.toInt()}, ${clampedPos.y.toInt()})');
+      
+      // Si está MUY cerca del borde, detener movimiento completamente
+      if (pos.x < worldMinX + 50 || pos.x > worldMaxX - 50 ||
+          pos.y < worldMinY + 50 || pos.y > worldMaxY - 50) {
+        print('🛑 Kohaa DETENIDA en el borde');
+      }
+    }
+    
+    return clampedPos;
+  }
+  
   /// Getters
   bool get isDead => _isDead;
+  bool get isRetreating => _isRetreating; // Para que el boss sepa si está huyendo
   double get health => _health;
 }
