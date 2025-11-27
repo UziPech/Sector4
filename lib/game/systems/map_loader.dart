@@ -40,11 +40,19 @@ class MapLoader {
   // Muros manuales para corregir errores de colisión en los mapas (Chapter -> List<Rect>)
   static final Map<int, List<Rect>> _manualWalls = {
     1: [
-      // Parche para Habitación de Emma (Valores estimados, ajustar con debug)
-      // Muro vertical izquierdo inferior
-      const Rect.fromLTWH(176, 350, 16, 100), 
-      // Muro horizontal inferior
-      const Rect.fromLTWH(176, 450, 200, 16),
+      // === SALA DE ESTAR - Parches de colisión ===
+      
+      // Pared vertical IZQUIERDA superior (verde izquierda)
+      const Rect.fromLTWH(268, 190, 16, 120),
+      
+      // Esquina izquierda sobre sofá (verde pequeño izquierda)
+      const Rect.fromLTWH(268, 285, 35, 25),
+      
+      // Pared HORIZONTAL sobre el sofá - COMPLETA (verde horizontal)
+      const Rect.fromLTWH(303, 285, 408, 25),
+      
+      // Pared vertical DERECHA superior (verde derecha)  
+      const Rect.fromLTWH(711, 190, 16, 120),
     ],
   };
 
@@ -66,6 +74,7 @@ class MapLoader {
     // Cargar muros manuales
     final manualWalls = _manualWalls[chapter];
     if (manualWalls != null) {
+      print('🧱 Cargando ${manualWalls.length} muros manuales para capítulo $chapter');
       for (final rect in manualWalls) {
         final wall = TiledWall(
           position: Vector2(rect.left, rect.top),
@@ -75,7 +84,10 @@ class MapLoader {
           )..collisionType = CollisionType.passive,
         );
         await world.add(wall);
+        print('  ✅ Muro agregado: Pos(${rect.left}, ${rect.top}) Size(${rect.width}x${rect.height})');
       }
+    } else {
+      print('⚠️ No hay muros manuales definidos para capítulo $chapter');
     }
   }
   

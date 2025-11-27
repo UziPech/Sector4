@@ -63,7 +63,7 @@ class ExpedienteKorinGame extends FlameGame
   
   @override
   Future<void> onLoad() async {
-    // debugMode = true; // Desactivado para producción
+    // debugMode = true; // Desactivado - colisiones corregidas
     await super.onLoad();
     
     // Configurar cámara

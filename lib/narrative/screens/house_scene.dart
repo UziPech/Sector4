@@ -421,39 +421,102 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
     
     // Colisiones para habitaciones en forma de U
     if (room.shape == RoomShape.uShape) {
-      final towerWidth = room.roomSize.width * 0.17; // 120px de 700px
-      final towerHeight = room.roomSize.height * 0.2; // 120px de 600px
+      final towerWidth = room.roomSize.width * 0.17; 
+      final towerHeight = room.roomSize.height * 0.2; 
       
-      // Bloquear el hueco central superior (entre las dos torres)
-      if (pos.y < towerHeight + padding && 
-          pos.x > towerWidth + padding && 
-          pos.x < room.roomSize.width - towerWidth - padding) {
-        return false;
+      // 1. Pared Central (Detrás del sofá)
+      // Bloquear el área entre las dos torres en la parte superior
+      // ELIMINADO EL PADDING para evitar huecos entre la torre y la pared central
+      if (pos.x > towerWidth && pos.x < room.roomSize.width - towerWidth) {
+         // Ajuste fino para la pared central:
+         // Bajamos un poco el límite Y para que el jugador no "entre" en la pared visual
+         // Y también consideramos el sofá.
+         if (pos.y < towerHeight + 10) { // +10 para dar solidez
+           return false;
+         }
+      }
+      
+      // 2. Paredes Laterales Superiores (Torres)
+      // Torre Izquierda: X < towerWidth, Y < padding (solo pared norte)
+      // Torre Derecha: X > width - towerWidth, Y < padding
+      // Las paredes verticales internas de las torres ya están cubiertas por los límites generales o lógica específica si fuera necesario.
+      
+      // Excepción para puertas:
+      // Si hay una puerta en la pared norte de las torres, permitir paso.
+      // Pero aquí estamos definiendo PAREDES SÓLIDAS.
+      
+      // Pared superior de torre izquierda
+      if (pos.x < towerWidth && pos.y < padding) {
+         // Verificar si hay puerta aquí antes de bloquear?
+         // Simplificación: Bloquear pared norte siempre, las puertas suelen tener su propia lógica o estar desplazadas.
+         // Pero si la puerta está en (x, 0), necesitamos permitir paso.
+         bool isDoorHere = false;
+         for (final door in room.doors) {
+            if (door.position.dy < 50 && door.position.dx < towerWidth) {
+               if ((pos.x - door.position.dx).abs() < 40) isDoorHere = true;
+            }
+         }
+         if (!isDoorHere) return false;
+      }
+      
+      // Pared superior de torre derecha
+      if (pos.x > room.roomSize.width - towerWidth && pos.y < padding) {
+         bool isDoorHere = false;
+         for (final door in room.doors) {
+            if (door.position.dy < 50 && door.position.dx > room.roomSize.width - towerWidth) {
+               if ((pos.x - door.position.dx).abs() < 40) isDoorHere = true;
+            }
+         }
+         if (!isDoorHere) return false;
       }
     }
     
-    // Colisiones con muebles (furniture)
+    // Colisiones con MUEBLES (Interactables tipo furniture)
     for (final interactable in room.interactables) {
       if (interactable.type == InteractableType.furniture) {
-        // Área de colisión reducida para permitir acercarse (85px funcionó bien)
-        final collisionPadding = 85.0;
+        // Hitbox del mueble
+        final furnitureRect = Rect.fromLTWH(
+          interactable.position.dx,
+          interactable.position.dy,
+          interactable.size.x,
+          interactable.size.y,
+        );
         
-        final objLeft = interactable.position.x + collisionPadding;
-        final objRight = interactable.position.x + interactable.size.x - collisionPadding;
-        final objTop = interactable.position.y + collisionPadding;
-        final objBottom = interactable.position.y + interactable.size.y - collisionPadding;
-        
-        // Solo verificar colisión si el área resultante es válida
-        if (objRight > objLeft && objBottom > objTop) {
-          // Verificar si el jugador colisiona con el mueble
-          if (pos.x + padding > objLeft && pos.x - padding < objRight &&
-              pos.y + padding > objTop && pos.y - padding < objBottom) {
-            return false;
-          }
+        // Hitbox del jugador (pies)
+        final playerRect = Rect.fromLTWH(
+          pos.x - _playerSize / 4,
+          pos.y - _playerSize / 4,
+          _playerSize / 2,
+          _playerSize / 2,
+        );
+
+        // Lógica específica para el SOFÁ
+        if (interactable.id == 'sofa') {
+           // Crear una hitbox más pequeña para el sofá para permitir acercarse más
+           // Recortamos los lados y la parte superior (respaldo)
+           final sofaHitbox = Rect.fromLTWH(
+             interactable.position.dx + 40, // +40 margen izq (AÚN MÁS estrecho)
+             interactable.position.dy + 60, // +60 margen sup (respaldo MUY permisivo)
+             interactable.size.x - 80,  // -80 ancho total (40 por lado)
+             interactable.size.y - 90, // -90 alto total (dejando mucho espacio abajo)
+           );
+           
+           if (sofaHitbox.overlaps(playerRect)) {
+             return false;
+           }
+        } else {
+           // Muebles genéricos
+           // Reducir un poco la hitbox del mueble para ser permisivos
+           final collisionPadding = 30.0; 
+           final paddedRect = furnitureRect.deflate(collisionPadding);
+           
+           if (paddedRect.overlaps(playerRect)) {
+             return false;
+           }
         }
       }
     }
-    
+
     return true;
   }
 
@@ -532,27 +595,6 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
     }
     
     debugPrint('No interactable in range');
-  }
-
-  void _checkDoorCollisions() {
-    // Este método solo verifica si hay una puerta cerca para mostrar el indicador
-    // La transición real se hace en _tryInteract() cuando se presiona E
-    final room = _roomManager.currentRoom;
-    bool nearDoor = false;
-    
-    for (final door in room.doors) {
-      if (door.isPlayerInRange(_playerPosition, _playerSize)) {
-        nearDoor = true;
-        break;
-      }
-    }
-    
-    // Actualizar el estado de _canInteract si cambió
-    if (_canInteract != nearDoor) {
-      setState(() {
-        _canInteract = nearDoor;
-      });
-    }
   }
 
   Widget buildPipe({double? width, double? height, bool isVertical = false}) {
@@ -1521,8 +1563,6 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
     ];
   }
 
-
-
   List<Widget> _buildUShapeWalls(RoomData room) {
     const wallHeight = 60.0;
     const wallThickness = 20.0;
@@ -1767,6 +1807,24 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
     ];
   }
 
+  void _checkDoorCollisions() {
+    final room = _roomManager.currentRoom;
+    bool nearDoor = false;
+    
+    for (final door in room.doors) {
+      if (door.isPlayerInRange(_playerPosition, _playerSize)) {
+        nearDoor = true;
+        break;
+      }
+    }
+    
+    if (_canInteract != nearDoor) {
+      setState(() {
+        _canInteract = nearDoor;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final room = _roomManager.currentRoom;
@@ -1774,435 +1832,429 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
     return PopScope(
       canPop: false,
       child: Scaffold(
-      backgroundColor: Colors.black,
-      body: KeyboardListener(
-        focusNode: _focusNode,
-        autofocus: true,
-        onKeyEvent: (event) {
-          if (event is KeyDownEvent) {
-            if (event.logicalKey == LogicalKeyboardKey.escape && _isDialogueActive) {
-              debugPrint('ESC pressed - skipping dialogue');
-              DialogueOverlay.skipCurrent();
-              return;
+        backgroundColor: Colors.black,
+        body: KeyboardListener(
+          focusNode: _focusNode,
+          autofocus: true,
+          onKeyEvent: (event) {
+            if (event is KeyDownEvent) {
+              if (event.logicalKey == LogicalKeyboardKey.escape && _isDialogueActive) {
+                debugPrint('ESC pressed - skipping dialogue');
+                DialogueOverlay.skipCurrent();
+                return;
+              }
+              
+              if (event.logicalKey == LogicalKeyboardKey.keyE && !_isDialogueActive) {
+                _tryInteract();
+                return;
+              }
+              
+              _pressedKeys.add(event.logicalKey);
+            } else if (event is KeyUpEvent) {
+              _pressedKeys.remove(event.logicalKey);
             }
-            
-            if (event.logicalKey == LogicalKeyboardKey.keyE && !_isDialogueActive) {
-              _tryInteract();
-              return;
-            }
-            
-            _pressedKeys.add(event.logicalKey);
-          } else if (event is KeyUpEvent) {
-            _pressedKeys.remove(event.logicalKey);
-          }
-        },
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onPanStart: (details) {
-            final screenSize = MediaQuery.of(context).size;
-            if (details.globalPosition.dx < screenSize.width / 2) {
+          },
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onPanStart: (details) {
+              final screenSize = MediaQuery.of(context).size;
+              if (details.globalPosition.dx < screenSize.width / 2) {
+                setState(() {
+                  _isJoystickActive = true;
+                  _joystickOrigin = details.globalPosition;
+                  _joystickPosition = details.globalPosition;
+                  _joystickInput = Vector2(0, 0);
+                });
+              }
+            },
+            onPanUpdate: (details) {
+              if (_isJoystickActive && _joystickOrigin != null) {
+                setState(() {
+                  final currentPos = details.globalPosition;
+                  Vector2 delta = Vector2(
+                    currentPos.dx - _joystickOrigin!.dx,
+                    currentPos.dy - _joystickOrigin!.dy,
+                  );
+                  
+                  if (delta.length > _joystickRadius) {
+                    delta = delta.normalized() * _joystickRadius;
+                  }
+                  
+                  _joystickPosition = Offset(
+                    _joystickOrigin!.dx + delta.x,
+                    _joystickOrigin!.dy + delta.y,
+                  );
+                  
+                  _joystickInput = delta / _joystickRadius;
+                });
+              }
+            },
+            onPanEnd: (details) {
               setState(() {
-                _isJoystickActive = true;
-                _joystickOrigin = details.globalPosition;
-                _joystickPosition = details.globalPosition;
+                _isJoystickActive = false;
+                _joystickOrigin = null;
+                _joystickPosition = null;
                 _joystickInput = Vector2(0, 0);
               });
-            }
-          },
-          onPanUpdate: (details) {
-            if (_isJoystickActive && _joystickOrigin != null) {
-              setState(() {
-                final currentPos = details.globalPosition;
-                Vector2 delta = Vector2(
-                  currentPos.dx - _joystickOrigin!.dx,
-                  currentPos.dy - _joystickOrigin!.dy,
-                );
+            },
+            child: Stack(
+              children: [
+                Center(
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: SizedBox(
+                      width: room.roomSize.width,
+                      height: room.roomSize.height,
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          ClipPath(
+                            clipper: RoomShapeClipper(shape: room.shape),
+                            child: Container(
+                              width: room.roomSize.width,
+                              height: room.roomSize.height,
+                              decoration: BoxDecoration(
+                                color: room.backgroundColor,
+                                image: const DecorationImage(
+                                  image: AssetImage('assets/images/wood_floor.jpg'),
+                                  repeat: ImageRepeat.repeat,
+                                  scale: 4.0, 
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          if (room.shape == RoomShape.cutCorners)
+                            ..._buildCutCornersWalls(room)
+                          else if (room.shape == RoomShape.hexagon)
+                            ..._buildHexagonWalls(room)
+                          else if (room.shape == RoomShape.lShape)
+                            ..._buildLShapeWalls(room)
+                          else if (room.shape == RoomShape.uShape)
+                            ..._buildUShapeWalls(room)
+                          else
+                            ..._buildRectangularWalls(room),
+
+                          ...room.doors.map((door) {
+                            final dist = _playerPosition.distanceTo(Vector2(
+                              door.position.dx + door.size.x / 2,
+                              door.position.dy + door.size.y / 2,
+                            ));
+                            final isOpen = dist < 80.0;
+                            
+                            // LÓGICA ESPECIAL PARA SALA DE ESTAR
+                            final isLivingRoom = room.id == 'living_room';
+                            final isHorizontal = door.size.x > door.size.y;
+                              
+                            if (isHorizontal && _doorSprite != null) {
+                              final visualWidth = door.size.x * 1.2;
+                              // Altura ajustada para que la puerta quepa sin salirse del mapa
+                              final visualHeight = door.size.y * 4.5; 
+                              
+                              final isNorth = door.position.dy < room.roomSize.height / 2;
+                              final isSouth = door.position.dy > room.roomSize.height / 2;
+                              
+                              double topPos;
+                              
+                              if (isNorth) {
+                                // Lógica específica para sala en U
+                                if (isLivingRoom && door.position.dy > 50) {
+                                  // Puerta central (Hallway) - La pared está más abajo (y=120)
+                                  topPos = 120.0 + 60.0 - visualHeight + door.size.y;
+                                } else if (door.position.dy < 100) {
+                                  // Puertas norte estándar
+                                  topPos = 60.0 - visualHeight + door.size.y;
+                                } else {
+                                  topPos = door.position.dy - visualHeight + door.size.y;
+                                }
+                              } else if (isSouth) {
+                                // Puerta en pared sur (abajo)
+                                topPos = room.roomSize.height - visualHeight + 5; 
+                              } else {
+                                // Puertas en paredes internas
+                                topPos = door.position.dy - visualHeight + door.size.y;
+                                
+                                if (room.shape == RoomShape.cutCorners && door.position.dy > 100 && door.position.dy < room.roomSize.height / 2) {
+                                   topPos -= 10.0; 
+                                }
+                              }
+
+                              return Positioned(
+                                left: door.position.x - (visualWidth - door.size.x) / 2, // Centrar horizontalmente
+                                top: topPos, 
+                                child: SizedBox(
+                                  width: visualWidth,
+                                  height: visualHeight,
+                                  child: AnimatedSpriteWidget(
+                                    sprite: _doorSprite!,
+                                    direction: 'DOOR',
+                                    frameIndex: isOpen ? 1 : 0,
+                                    size: visualWidth,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              // Puertas verticales (izquierda/derecha)
+                              if (_doorSprite != null) {
+                                // Para puertas verticales, intercambiamos dimensiones porque rotaremos 90°
+                                final spriteWidth = door.size.y * 4.5; // Aumentado para que la puerta sea alta
+                                final spriteHeight = door.size.x * 1.2; // El ancho del sprite (después de rotar)
+                                
+                                final isWest = door.position.dx < room.roomSize.width / 2;
+                                final isEast = door.position.dx > room.roomSize.width / 2;
+                                
+                                double leftPos;
+                                
+                                if (isWest && door.position.dx < 100) {
+                                  // Puerta en pared oeste (izquierda) - pegada a la pared
+                                  leftPos = 20.0 - spriteHeight + door.size.x; 
+                                } else if (isEast) {
+                                  // Puerta en pared este (derecha) - PEGADA A LA PARED
+                                  leftPos = room.roomSize.width - 20.0 - spriteHeight + door.size.x;
+                                } else {
+                                  // Puertas internas
+                                  leftPos = door.position.x - (spriteHeight - door.size.x) / 2;
+                                }
+                                
+                                return Positioned(
+                                  left: leftPos,
+                                  top: door.position.y - (spriteWidth - door.size.y) / 2, // Centrar verticalmente
+                                  child: SizedBox(
+                                    width: spriteHeight, // Ancho del contenedor (antes de rotar)
+                                    height: spriteWidth, // Alto del contenedor (antes de rotar)
+                                    child: Transform.rotate(
+                                      angle: 1.5708, // 90 grados en radianes (π/2)
+                                      child: AnimatedSpriteWidget(
+                                        sprite: _doorSprite!,
+                                        direction: 'DOOR',
+                                        frameIndex: isOpen ? 1 : 0,
+                                        size: spriteWidth,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                // Fallback si no hay sprite
+                                return Positioned(
+                                  left: door.position.x,
+                                  top: door.position.y,
+                                  child: Container(
+                                    width: door.size.x,
+                                    height: door.size.y,
+                                    decoration: BoxDecoration(
+                                      color: isOpen ? Colors.black : Colors.brown[800],
+                                      border: Border.all(color: Colors.brown[900]!, width: 2),
+                                    ),
+                                  ),
+                                );
+                              }
+                            }
+                          }),
+
+                          ...room.interactables.map((interactable) {
+                            return InteractableObject(
+                              data: interactable,
+                              playerPosition: _playerPosition,
+                              interactionRadius: 80,
+                              onInteractionComplete: () {
+                                setState(() {
+                                  _isDialogueActive = false;
+                                  if (interactable.id == 'phone') {
+                                    _phoneCallCompleted = true;
+                                    Future.delayed(const Duration(seconds: 2), () {
+                                      _transitionToCombat();
+                                    });
+                                  }
+                                });
+                              },
+                            );
+                          }),
+
+                          Positioned(
+                            left: _playerPosition.x - _playerSize / 2,
+                            top: _playerPosition.y - _playerSize / 2,
+                            child: _danSprite != null
+                                ? AnimatedSpriteWidget(
+                                    sprite: _danSprite!,
+                                    direction: _currentDirection,
+                                    frameIndex: _currentFrame,
+                                    size: _playerSize,
+                                  )
+                                : SizedBox(
+                                    width: _playerSize,
+                                    height: _playerSize,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue,
+                                        border: Border.all(color: Colors.white, width: 2),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.person,
+                                        color: Colors.white,
+                                        size: 30,
+                                      ),
+                                    ),
+                                  ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
                 
-                if (delta.length > _joystickRadius) {
-                  delta = delta.normalized() * _joystickRadius;
-                }
+                if (_isTransitioning)
+                  AnimatedBuilder(
+                    animation: _fadeAnimation,
+                    builder: (context, child) {
+                      return Container(
+                        color: Colors.black.withOpacity(_fadeAnimation.value),
+                      );
+                    },
+                  ),
+                  
+                Positioned(
+                  top: 16,
+                  left: 16,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.7),
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'CAPÍTULO 1: EL LLAMADO',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          room.name,
+                          style: TextStyle(
+                            color: Colors.cyan[300],
+                            fontSize: 12,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _phoneCallCompleted
+                              ? 'Objetivo: Ir a Japón'
+                              : 'Objetivo: Explorar la casa',
+                          style: TextStyle(
+                            color: Colors.yellow[700],
+                            fontSize: 12,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 
-                _joystickPosition = Offset(
-                  _joystickOrigin!.dx + delta.x,
-                  _joystickOrigin!.dy + delta.y,
-                );
+                if (kIsWeb || (defaultTargetPlatform != TargetPlatform.android && defaultTargetPlatform != TargetPlatform.iOS))
+                  Positioned(
+                    bottom: 16,
+                    right: 16,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.7),
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: Text(
+                        _isDialogueActive
+                            ? 'ESC: Saltar diálogo'
+                            : 'WASD/Flechas: Mover\nE: Interactuar',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontFamily: 'monospace',
+                        ),
+                      ),
+                    ),
+                  ),
+                  
+                if (_isJoystickActive && _joystickOrigin != null && _joystickPosition != null) ...[
+                  Positioned(
+                    left: _joystickOrigin!.dx - _joystickRadius,
+                    top: _joystickOrigin!.dy - _joystickRadius,
+                    child: Container(
+                      width: _joystickRadius * 2,
+                      height: _joystickRadius * 2,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white.withOpacity(0.5), width: 2),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: _joystickPosition!.dx - _joystickKnobRadius,
+                    top: _joystickPosition!.dy - _joystickKnobRadius,
+                    child: Container(
+                      width: _joystickKnobRadius * 2,
+                      height: _joystickKnobRadius * 2,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.8),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 5,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
                 
-                _joystickInput = delta / _joystickRadius;
-              });
-            }
-          },
-          onPanEnd: (details) {
-            setState(() {
-              _isJoystickActive = false;
-              _joystickOrigin = null;
-              _joystickPosition = null;
-              _joystickInput = Vector2(0, 0);
-            });
-          },
-          child: Stack(
-            children: [
-            Center(
-              child: FittedBox(
-                fit: BoxFit.contain,
-                child: SizedBox(
-                  width: room.roomSize.width,
-                  height: room.roomSize.height,
-                  child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    ClipPath(
-                      clipper: RoomShapeClipper(shape: room.shape),
-                      child: Container(
-                        width: room.roomSize.width,
-                        height: room.roomSize.height,
-                        decoration: BoxDecoration(
-                          color: room.backgroundColor,
-                          image: const DecorationImage(
-                            image: AssetImage('assets/images/wood_floor.jpg'),
-                            repeat: ImageRepeat.repeat,
-                            scale: 4.0, 
+                if (_canInteract && !_isDialogueActive)
+                  Positioned(
+                    bottom: 80,
+                    right: 40,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: _tryInteract,
+                        borderRadius: BorderRadius.circular(30),
+                        child: Container(
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            color: Colors.yellow.withOpacity(0.8),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 3),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.5),
+                                blurRadius: 8,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.touch_app,
+                            color: Colors.black,
+                            size: 32,
                           ),
                         ),
                       ),
                     ),
-
-                    if (room.shape == RoomShape.cutCorners)
-                      ..._buildCutCornersWalls(room)
-                    else if (room.shape == RoomShape.hexagon)
-                      ..._buildHexagonWalls(room)
-                    else if (room.shape == RoomShape.lShape)
-                      ..._buildLShapeWalls(room)
-                    else if (room.shape == RoomShape.uShape)
-                      ..._buildUShapeWalls(room)
-                    else
-                      ..._buildRectangularWalls(room),
-
-                    ...room.doors.map((door) {
-                      final dist = _playerPosition.distanceTo(Vector2(
-                        door.position.dx + door.size.x / 2,
-                        door.position.dy + door.size.y / 2,
-                      ));
-                      final isOpen = dist < 80.0;
-                      
-                      // LÓGICA ESPECIAL PARA SALA DE ESTAR
-                      final isLivingRoom = room.id == 'living_room';
-                        
-                        final isHorizontal = door.size.x > door.size.y;
-                        
-                        if (isHorizontal && _doorSprite != null) {
-                          final visualWidth = door.size.x * 1.2;
-                          // Altura ajustada para que la puerta quepa sin salirse del mapa
-                          final visualHeight = door.size.y * 4.5; 
-                          
-                          final isNorth = door.position.dy < room.roomSize.height / 2;
-                          final isSouth = door.position.dy > room.roomSize.height / 2;
-                          
-                          double topPos;
-                          
-                          if (isNorth) {
-                            // Lógica específica para sala en U
-                            if (isLivingRoom && door.position.dy > 50) {
-                              // Puerta central (Hallway) - La pared está más abajo (y=120)
-                              // Wall bottom is at 120 (towerHeight) + 60 (wallHeight) = 180
-                              // Pero visualmente queremos que parezca incrustada en la pared de fondo del hueco
-                              topPos = 120.0 + 60.0 - visualHeight + door.size.y;
-                            } else if (door.position.dy < 100) {
-                              // Puertas norte estándar (Study, Emma) - Pared en y=0, bottom en y=60
-                              topPos = 60.0 - visualHeight + door.size.y;
-                            } else {
-                              topPos = door.position.dy - visualHeight + door.size.y;
-                            }
-                          } else if (isSouth) {
-                            // Puerta en pared sur (abajo)
-                            
-                            // Si es la habitación de Emma o el Estudio, mostrar ESCALERAS BAJANDO
-                            // El usuario pidió quitar la puerta y que las escaleras "rompan" la pared.
-                            // Para lograr esto visualmente, dibujamos las escaleras ENCIMA del muro.
-
-                            
-                            // Puerta normal para otras habitaciones
-                            topPos = room.roomSize.height - visualHeight + 5; 
-                          } else {
-                            // Puertas en paredes internas
-                            topPos = door.position.dy - visualHeight + door.size.y;
-                            
-                            if (room.shape == RoomShape.cutCorners && door.position.dy > 100 && door.position.dy < room.roomSize.height / 2) {
-                               topPos -= 10.0; 
-                            }
-                          }
-
-                        return Positioned(
-                          left: door.position.x - (visualWidth - door.size.x) / 2, // Centrar horizontalmente
-                          top: topPos, 
-                          child: SizedBox(
-                            width: visualWidth,
-                            height: visualHeight,
-                            child: AnimatedSpriteWidget(
-                              sprite: _doorSprite!,
-                              direction: 'DOOR',
-                              frameIndex: isOpen ? 1 : 0,
-                              size: visualWidth,
-                            ),
-                          ),
-                        );
-                      } else {
-                        // Puertas verticales (izquierda/derecha)
-                        if (_doorSprite != null) {
-                          // Para puertas verticales, intercambiamos dimensiones porque rotaremos 90°
-                          // spriteWidth se convierte en la ALTURA después de rotar
-                          final spriteWidth = door.size.y * 4.5; // Aumentado para que la puerta sea alta
-                          final spriteHeight = door.size.x * 1.2; // El ancho del sprite (después de rotar)
-                          
-                          final isWest = door.position.dx < room.roomSize.width / 2;
-                          final isEast = door.position.dx > room.roomSize.width / 2;
-                          
-                          double leftPos;
-                          
-                          if (isWest && door.position.dx < 100) {
-                            // Puerta en pared oeste (izquierda) - pegada a la pared
-                            leftPos = 20.0 - spriteHeight + door.size.x; // Pegada a la pared izquierda
-                          } else if (isEast) {
-                            // Puerta en pared este (derecha) - PEGADA A LA PARED
-                            // El sprite debe extenderse desde la pared hacia la izquierda
-                            leftPos = room.roomSize.width - 20.0 - spriteHeight + door.size.x;
-                          } else {
-                            // Puertas internas
-                            leftPos = door.position.x - (spriteHeight - door.size.x) / 2;
-                          }
-                          
-                          return Positioned(
-                            left: leftPos,
-                            top: door.position.y - (spriteWidth - door.size.y) / 2, // Centrar verticalmente
-                            child: SizedBox(
-                              width: spriteHeight, // Ancho del contenedor (antes de rotar)
-                              height: spriteWidth, // Alto del contenedor (antes de rotar)
-                              child: Transform.rotate(
-                                angle: 1.5708, // 90 grados en radianes (π/2)
-                                child: AnimatedSpriteWidget(
-                                  sprite: _doorSprite!,
-                                  direction: 'DOOR',
-                                  frameIndex: isOpen ? 1 : 0,
-                                  size: spriteWidth,
-                                ),
-                              ),
-                            ),
-                          );
-                        } else {
-                          // Fallback si no hay sprite
-                          return Positioned(
-                            left: door.position.x,
-                            top: door.position.y,
-                            child: Container(
-                              width: door.size.x,
-                              height: door.size.y,
-                              decoration: BoxDecoration(
-                                color: isOpen ? Colors.black : Colors.brown[800],
-                                border: Border.all(color: Colors.brown[900]!, width: 2),
-                              ),
-                            ),
-                          );
-                        }
-                      }
-                    }),
-                    ...room.interactables.map((interactable) {
-                      return InteractableObject(
-                        data: interactable,
-                        playerPosition: _playerPosition,
-                        interactionRadius: 80,
-                        onInteractionComplete: () {
-                          setState(() {
-                            _isDialogueActive = false;
-                            if (interactable.id == 'phone') {
-                              _phoneCallCompleted = true;
-                              Future.delayed(const Duration(seconds: 2), () {
-                                _transitionToCombat();
-                              });
-                            }
-                          });
-                        },
-                      );
-                    }),
-                    Positioned(
-                      left: _playerPosition.x - _playerSize / 2,
-                      top: _playerPosition.y - _playerSize / 2,
-                      child: _danSprite != null
-                          ? AnimatedSpriteWidget(
-                              sprite: _danSprite!,
-                              direction: _currentDirection,
-                              frameIndex: _currentFrame,
-                              size: _playerSize,
-                            )
-                          : SizedBox(
-                              width: _playerSize,
-                              height: _playerSize,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.blue,
-                                  border: Border.all(color: Colors.white, width: 2),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.person,
-                                  color: Colors.white,
-                                  size: 30,
-                                ),
-                              ),
-                            ),
-                    ),
-                  ],
-                ),
-              ),
+                  ),
+              ],
             ),
           ),
-            if (_isTransitioning)
-              AnimatedBuilder(
-                animation: _fadeAnimation,
-                builder: (context, child) {
-                  return Container(
-                    color: Colors.black.withOpacity(_fadeAnimation.value),
-                  );
-                },
-              ),
-            Positioned(
-              top: 16,
-              left: 16,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
-                  border: Border.all(color: Colors.white, width: 2),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'CAPÍTULO 1: EL LLAMADO',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'monospace',
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      room.name,
-                      style: TextStyle(
-                        color: Colors.cyan[300],
-                        fontSize: 12,
-                        fontFamily: 'monospace',
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _phoneCallCompleted
-                          ? 'Objetivo: Ir a Japón'
-                          : 'Objetivo: Explorar la casa',
-                      style: TextStyle(
-                        color: Colors.yellow[700],
-                        fontSize: 12,
-                        fontFamily: 'monospace',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            if (kIsWeb || (defaultTargetPlatform != TargetPlatform.android && defaultTargetPlatform != TargetPlatform.iOS))
-            Positioned(
-              bottom: 16,
-              right: 16,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
-                  border: Border.all(color: Colors.white, width: 2),
-                ),
-                child: Text(
-                  _isDialogueActive
-                      ? 'ESC: Saltar diálogo'
-                      : 'WASD/Flechas: Mover\nE: Interactuar',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontFamily: 'monospace',
-                  ),
-                ),
-              ),
-            ),
-            if (_isJoystickActive && _joystickOrigin != null && _joystickPosition != null) ...[
-              Positioned(
-                left: _joystickOrigin!.dx - _joystickRadius,
-                top: _joystickOrigin!.dy - _joystickRadius,
-                child: Container(
-                  width: _joystickRadius * 2,
-                  height: _joystickRadius * 2,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withOpacity(0.5), width: 2),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: _joystickPosition!.dx - _joystickKnobRadius,
-                top: _joystickPosition!.dy - _joystickKnobRadius,
-                child: Container(
-                  width: _joystickKnobRadius * 2,
-                  height: _joystickKnobRadius * 2,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.8),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 5,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-            
-            if (_canInteract && !_isDialogueActive)
-              Positioned(
-                bottom: 80,
-                right: 40,
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: _tryInteract,
-                    borderRadius: BorderRadius.circular(30),
-                    child: Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: Colors.yellow.withOpacity(0.8),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 3),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.5),
-                            blurRadius: 8,
-                            spreadRadius: 2,
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.touch_app,
-                        color: Colors.black,
-                        size: 32,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
         ),
       ),
-    ),
-    ),
-  );
-}
+    );
+  }
 }
