@@ -370,12 +370,14 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
       
       // Bloquear SOLO las esquinas cortadas, NO el pasillo lateral
       // Esquina superior izquierda (arriba del pasillo)
-      if (pos.x < hallwayWidth + padding && pos.y < hallwayY - padding) {
+      // Ajuste visual: incluir la altura de la pared (aprox 50-60px) para no caminar sobre ella
+      if (pos.x < hallwayWidth + padding && pos.y < hallwayY + 50) {
         return false;
       }
       
       // Esquina inferior izquierda (abajo del pasillo)
-      if (pos.x < hallwayWidth + padding && pos.y > hallwayY + hallwayHeight + padding) {
+      // ELIMINADO padding vertical para permitir paso fluido al pasillo
+      if (pos.x < hallwayWidth + padding && pos.y > hallwayY + hallwayHeight) {
         return false;
       }
     }
@@ -425,13 +427,29 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
       final towerHeight = room.roomSize.height * 0.2; 
       
       // 1. Pared Central (Detrás del sofá)
-      // Bloquear el área entre las dos torres en la parte superior
-      // ELIMINADO EL PADDING para evitar huecos entre la torre y la pared central
       if (pos.x > towerWidth && pos.x < room.roomSize.width - towerWidth) {
-         // Ajuste fino para la pared central:
-         // Bajamos un poco el límite Y para que el jugador no "entre" en la pared visual
-         // Y también consideramos el sofá.
-         if (pos.y < towerHeight + 10) { // +10 para dar solidez
+         // Ajuste visual: La pared tiene 60px de alto. El límite debe estar cerca de eso.
+         double wallLimitY = towerHeight + 55; 
+         
+         // Verificar si hay una puerta en esta sección para permitir el paso
+         bool isNearDoor = false;
+         for (final door in room.doors) {
+            // Si la puerta está en la pared norte (o cerca de la pared central)
+            if (door.position.dy < towerHeight + 50) {
+               // Si estamos alineados horizontalmente con la puerta
+               if ((pos.x - (door.position.dx + door.size.x/2)).abs() < door.size.x / 2) {
+                  isNearDoor = true;
+                  break;
+               }
+            }
+         }
+         
+         // Si hay puerta, permitimos subir más (el límite es la puerta misma, no la pared)
+         if (isNearDoor) {
+            wallLimitY = towerHeight - 20; // Permitir entrar al pasillo de la puerta
+         }
+
+         if (pos.y < wallLimitY) {
            return false;
          }
       }
@@ -446,7 +464,8 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
       // Pero aquí estamos definiendo PAREDES SÓLIDAS.
       
       // Pared superior de torre izquierda
-      if (pos.x < towerWidth && pos.y < padding) {
+      // Ajuste visual: pared de 60px de alto
+      if (pos.x < towerWidth && pos.y < 55) {
          // Verificar si hay puerta aquí antes de bloquear?
          // Simplificación: Bloquear pared norte siempre, las puertas suelen tener su propia lógica o estar desplazadas.
          // Pero si la puerta está en (x, 0), necesitamos permitir paso.
@@ -460,7 +479,8 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
       }
       
       // Pared superior de torre derecha
-      if (pos.x > room.roomSize.width - towerWidth && pos.y < padding) {
+      // Ajuste visual: pared de 60px de alto
+      if (pos.x > room.roomSize.width - towerWidth && pos.y < 55) {
          bool isDoorHere = false;
          for (final door in room.doors) {
             if (door.position.dy < 50 && door.position.dx > room.roomSize.width - towerWidth) {
@@ -492,13 +512,12 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
 
         // Lógica específica para el SOFÁ
         if (interactable.id == 'sofa') {
-           // Crear una hitbox más pequeña para el sofá para permitir acercarse más
-           // Recortamos los lados y la parte superior (respaldo)
+           // Crear una hitbox MUY ajustada al centro visual del sofá
            final sofaHitbox = Rect.fromLTWH(
-             interactable.position.dx + 40, // +40 margen izq (AÚN MÁS estrecho)
-             interactable.position.dy + 60, // +60 margen sup (respaldo MUY permisivo)
-             interactable.size.x - 80,  // -80 ancho total (40 por lado)
-             interactable.size.y - 90, // -90 alto total (dejando mucho espacio abajo)
+             interactable.position.dx + 50, // +50 margen izq
+             interactable.position.dy + 90, // +90 margen sup (casi todo el respaldo libre)
+             interactable.size.x - 100,  // -100 ancho total
+             interactable.size.y - 130, // -130 alto total (muy delgado, solo el asiento)
            );
            
            if (sofaHitbox.overlaps(playerRect)) {
