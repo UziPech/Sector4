@@ -2,6 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flame_tiled/flame_tiled.dart';
 
 import 'systems/map_loader.dart';
@@ -48,6 +49,11 @@ class ExpedienteKorinGame extends FlameGame
 
   // INPUT TÁCTIL (Joystick Virtual)
   Vector2 joystickInput = Vector2.zero();
+
+  // UI STATE NOTIFIERS
+  final ValueNotifier<String> chapterNameNotifier = ValueNotifier<String>('CAPÍTULO 1: EL LLAMADO');
+  final ValueNotifier<String> locationNotifier = ValueNotifier<String>('Habitación de Emma');
+  final ValueNotifier<String> objectiveNotifier = ValueNotifier<String>('Explorar la casa');
   
   ExpedienteKorinGame({
     this.startInBossMode = false,
@@ -57,6 +63,7 @@ class ExpedienteKorinGame extends FlameGame
   
   @override
   Future<void> onLoad() async {
+    // debugMode = true; // Desactivado para producción
     await super.onLoad();
     
     // Configurar cámara
@@ -97,13 +104,21 @@ class ExpedienteKorinGame extends FlameGame
   }
   
   Future<void> loadBossLevel() async {
-    // Importar dinámicamente para evitar ciclos si es posible, o mover imports arriba
-    // Asumimos import arriba
+    // Actualizar UI para Boss Level
+    chapterNameNotifier.value = 'MODO BOSS: THE STALKER';
+    locationNotifier.value = 'Búnker Subterráneo';
+    objectiveNotifier.value = 'Eliminar la amenaza';
+    
     await world.add(BunkerBossLevel());
     notificationSystem.show('ALERTA ROJA', 'Entidad Hostil Detectada: THE STALKER');
   }
   
   Future<void> loadExteriorMap() async {
+    // Actualizar UI para Exterior Map
+    chapterNameNotifier.value = 'ZONA EXTERIOR';
+    locationNotifier.value = 'Perímetro del Búnker';
+    objectiveNotifier.value = 'Sobrevivir a la horda';
+    
     await world.add(ExteriorMapLevel());
     notificationSystem.show('ALERTA', 'Múltiples contactos hostiles detectados');
   }
@@ -120,15 +135,25 @@ class ExpedienteKorinGame extends FlameGame
     await world.add(currentMap!);
     
     // Cargar colisiones del mapa
-    await mapLoader.loadCollisions(currentMap!, world);
+    await mapLoader.loadCollisions(currentMap!, world, currentChapter);
     
     // Cargar entidades del mapa (enemigos, triggers, etc.)
     await mapLoader.loadEntities(currentMap!, world, this);
   }
   
+  // Nombres de capítulos
+  static const Map<int, String> _chapterNames = {
+    1: 'CAPÍTULO 1: EL LLAMADO',
+    2: 'CAPÍTULO 2: EL BÚNKER', // Nombre asumido, editable
+  };
+
   /// Transición a otro capítulo
   Future<void> transitionToChapter(int chapter) async {
     currentChapter = chapter;
+    
+    // Actualizar UI
+    chapterNameNotifier.value = _chapterNames[chapter] ?? 'CAPÍTULO $chapter';
+    
     await loadChapterMap(chapter);
     
     // Reposicionar jugador
@@ -245,41 +270,19 @@ class ExpedienteKorinGame extends FlameGame
     final isFullRestart = remainingLives <= 0;
     
     if (isFullRestart) {
-      print('💀 REINICIO COMPLETO - Sin vidas, recargando nivel desde el inicio');
-      
       // Resetear vidas
       remainingLives = maxLives;
       
-      // Remover TODOS los enemigos, tumbas y objetos del mundo
-      final enemiesToRemove = world.children.whereType<PositionComponent>().where((child) {
-        final typeName = child.runtimeType.toString();
-        return typeName.contains('Enemy') || 
-               typeName.contains('Tomb') || 
-               typeName.contains('Kohaa') ||
-               typeName.contains('Stalker') ||
-               typeName.contains('Nurse') ||
-               typeName.contains('Allied');
-      }).toList();
-      
-      for (final enemy in enemiesToRemove) {
-        enemy.removeFromParent();
+      // Remover TODOS los componentes del mundo excepto Jugador y Mel
+      // Esto evita duplicación de bosses, enemigos, y otros elementos
+      final childrenToRemove = world.children.where((child) => child != player && child != mel).toList();
+      for (final child in childrenToRemove) {
+        child.removeFromParent();
       }
       
       // Recargar nivel completo según el modo actual
-      // DETECTAR si estamos en boss level buscando al boss
-      final bosses = world.children.query<OnOyabunBoss>();
-      final isInBossLevel = bosses.isNotEmpty;
-      
-      if (isInBossLevel || startInBossMode) {
-        print('🔄 Recargando Boss Level (Boss detectado: ${bosses.isNotEmpty})...');
-        
-        // RESETEAR BOSS si existe
-        for (final boss in bosses) {
-          boss.resetBoss();
-          print('🔄 Boss reseteado: HP ${boss.health.toInt()}/${boss.maxHealth.toInt()}');
-        }
-        
-        // RECARGAR el nivel del boss
+      if (startInBossMode) {
+        print('🔄 Recargando Boss Level...');
         await loadBossLevel();
         print('✅ Boss Level recargado completamente');
         

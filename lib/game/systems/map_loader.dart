@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
 import 'package:tiled/tiled.dart' as tiled;
@@ -36,16 +37,43 @@ class MapLoader {
     return _playerSpawns[chapter] ?? Vector2(200, 300);
   }
   
+  // Muros manuales para corregir errores de colisión en los mapas (Chapter -> List<Rect>)
+  static final Map<int, List<Rect>> _manualWalls = {
+    1: [
+      // Parche para Habitación de Emma (Valores estimados, ajustar con debug)
+      // Muro vertical izquierdo inferior
+      const Rect.fromLTWH(176, 350, 16, 100), 
+      // Muro horizontal inferior
+      const Rect.fromLTWH(176, 450, 200, 16),
+    ],
+  };
+
   /// Carga las colisiones del mapa
   Future<void> loadCollisions(
     TiledComponent map,
     World world,
+    int chapter, // Nuevo parámetro
   ) async {
     final collisionLayer = map.tileMap.getLayer<tiled.ObjectGroup>('collisions');
     
     if (collisionLayer != null) {
       for (final obj in collisionLayer.objects) {
         final wall = TiledWall.fromTiledObject(obj);
+        await world.add(wall);
+      }
+    }
+    
+    // Cargar muros manuales
+    final manualWalls = _manualWalls[chapter];
+    if (manualWalls != null) {
+      for (final rect in manualWalls) {
+        final wall = TiledWall(
+          position: Vector2(rect.left, rect.top),
+          size: Vector2(rect.width, rect.height),
+          hitboxShape: RectangleHitbox(
+            size: Vector2(rect.width, rect.height),
+          )..collisionType = CollisionType.passive,
+        );
         await world.add(wall);
       }
     }

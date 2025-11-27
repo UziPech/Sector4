@@ -8,6 +8,8 @@ import 'narrative/screens/menu_screen.dart';
 import 'game/expediente_game.dart';
 import 'game/ui/game_over_with_advice.dart'; // Nuevo import
 import 'narrative/components/dialogue_system.dart'; // Importar sistema de diálogos
+import 'game/ui/game_ui.dart'; // Importar nueva UI
+
 
 void main() async {
   // Asegurar que Flutter esté inicializado
@@ -136,7 +138,9 @@ class _MyAppState extends State<MyApp> {
                     onSequenceComplete: korinGame.onDialogueComplete,
                   );
                 },
+                'GameUI': (context, game) => GameUI(game: game as ExpedienteKorinGame),
               },
+              initialActiveOverlays: const ['GameUI'],
             ),
             
             // 2. JOYSTICK UI (Superpuesto)
