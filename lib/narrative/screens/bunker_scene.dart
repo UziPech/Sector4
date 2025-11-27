@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import '../models/dialogue_data.dart';
 import '../models/interactable_data.dart';
 import '../models/room_data.dart';
 import '../systems/bunker_room_manager.dart';
 import '../components/interactable_object.dart';
 import '../components/dialogue_system.dart';
+import '../components/animated_sprite.dart';
 import '../services/save_system.dart';
 import '../../main.dart';
 
@@ -21,7 +23,7 @@ class BunkerScene extends StatefulWidget {
 class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStateMixin {
   late final BunkerRoomManager _roomManager;
   Vector2 _playerPosition = const Vector2(350, 400);
-  final double _playerSize = 40.0;
+  final double _playerSize = 80.0; // Aumentado a 80 para mejor visibilidad
   final double _playerSpeed = 3.0;
   final Set<LogicalKeyboardKey> _pressedKeys = {};
   bool _isDialogueActive = false;
@@ -43,6 +45,13 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
   bool _canInteract = false;
 
   Timer? _updateTimer;
+  
+  // Animación de sprite
+  AnimatedSprite? _danSprite;
+  String _currentDirection = 'SOUTH';
+  int _currentFrame = 0;
+  double _animationTimer = 0.0;
+  static const double _frameRate = 0.15; // 6.67 FPS
 
   @override
   void initState() {
@@ -59,7 +68,20 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
       _checkDoorCollisions();
       _updateCooldown();
     });
+    
+    // Cargar sprite sheet de Dan
+    _loadDanSprite();
+    
     _showArrivalMonologue();
+  }
+  
+  Future<void> _loadDanSprite() async {
+    final sprite = await AnimatedSprite.load('assets/sprites/dan_spritesheet.png');
+    if (mounted) {
+      setState(() {
+        _danSprite = sprite;
+      });
+    }
   }
 
   @override
@@ -100,18 +122,18 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
       final doorRect = Rect.fromLTWH(door.position.x, door.position.y, door.size.x, door.size.y);
       final playerRect = Rect.fromCenter(center: Offset(_playerPosition.x, _playerPosition.y), width: _playerSize, height: _playerSize);
       if (doorRect.overlaps(playerRect)) {
-        _transitionToRoom(door.targetRoomId);
+        _transitionToRoom(door.targetRoomId, spawnPosition: door.targetSpawnPosition);
         return;
       }
     }
   }
 
-  void _transitionToRoom(String targetRoomId) async {
+  void _transitionToRoom(String targetRoomId, {Vector2? spawnPosition}) async {
     setState(() { _isTransitioning = true; });
     await _transitionController.forward();
     setState(() {
       _roomManager.changeRoom(targetRoomId);
-      _playerPosition = _roomManager.currentRoom.playerSpawnPosition;
+      _playerPosition = spawnPosition ?? _roomManager.currentRoom.playerSpawnPosition;
     });
     await _transitionController.reverse();
     setState(() {
@@ -196,7 +218,16 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
         final room = _roomManager.currentRoom;
         final newX = (_playerPosition.x + velocity.x).clamp(_playerSize / 2, room.roomSize.width - _playerSize / 2);
         final newY = (_playerPosition.y + velocity.y).clamp(_playerSize / 2, room.roomSize.height - _playerSize / 2);
-        setState(() { _playerPosition = Vector2(newX, newY); });
+        setState(() { 
+          _playerPosition = Vector2(newX, newY);
+          
+          // Actualizar solo la dirección, sin animar frames
+          _currentDirection = AnimatedSprite.calculateDirection(velocity.x, velocity.y);
+          _currentFrame = 0; // Siempre usar el primer frame (sin animación)
+          
+          // Debug: imprimir dirección
+          print('Velocity: (${velocity.x.toStringAsFixed(2)}, ${velocity.y.toStringAsFixed(2)}) -> Direction: $_currentDirection');
+        });
       }
     }
     
@@ -258,11 +289,14 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
     } else {
       // Cámara fija
       return Center(
-        child: Container(
-          width: room.roomSize.width,
-          height: room.roomSize.height,
+        child: FittedBox(
+          fit: BoxFit.contain,
+          child: Container(
+            width: room.roomSize.width,
+            height: room.roomSize.height,
           decoration: BoxDecoration(color: room.backgroundColor, border: Border.all(color: Colors.white.withOpacity(0.3), width: 2)),
           child: Stack(children: _buildRoomContent(room)),
+          ),
         ),
       );
     }
@@ -311,39 +345,40 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
         interactionRadius: 80,
         onInteractionComplete: () { setState(() { _isDialogueActive = false; }); },
       )),
-      // Jugador (Dan)
+      // Jugador (Dan - Sprite Animado)
       Positioned(
         left: _playerPosition.x - _playerSize / 2, 
         top: _playerPosition.y - _playerSize / 2,
-        child: SizedBox(
-          width: _playerSize, 
-          height: _playerSize,
-          child: Image.asset(
-            'assets/avatars/full_body/dan_fullbody.png',
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.8),
-                  border: Border.all(color: Colors.white, width: 3),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.blue.withOpacity(0.5),
-                      blurRadius: 10,
-                      spreadRadius: 2,
-                    ),
-                  ],
+        child: _danSprite != null
+            ? AnimatedSpriteWidget(
+                sprite: _danSprite!,
+                direction: _currentDirection,
+                frameIndex: _currentFrame,
+                size: _playerSize,
+              )
+            : SizedBox(
+                width: _playerSize,
+                height: _playerSize,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.8),
+                    border: Border.all(color: Colors.white, width: 3),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blue.withOpacity(0.5),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.person, 
+                    color: Colors.white, 
+                    size: 28,
+                  ),
                 ),
-                child: const Icon(
-                  Icons.person, 
-                  color: Colors.white, 
-                  size: 28,
-                ),
-              );
-            },
-          ),
-        ),
+              ),
       ),
     ];
   }
@@ -376,6 +411,7 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
           }
         },
         child: Listener(
+          behavior: HitTestBehavior.opaque,
           onPointerDown: (event) {
             final screenSize = MediaQuery.of(context).size;
             if (event.position.dx < screenSize.width / 2) {
@@ -441,8 +477,12 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
                 ),
               ),
             ),
+            
+            // Controles (Solo Web/Desktop)
+            if (kIsWeb || (defaultTargetPlatform != TargetPlatform.android && defaultTargetPlatform != TargetPlatform.iOS))
             Positioned(
-              bottom: 16, left: 16,
+              bottom: 16,
+              left: 16,
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(color: Colors.black.withOpacity(0.7), border: Border.all(color: Colors.white, width: 2)),

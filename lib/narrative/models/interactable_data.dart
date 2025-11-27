@@ -14,6 +14,7 @@ class InteractableData {
   final bool isOneTime; // Si solo se puede interactuar una vez
   final String? requiredItem; // Item requerido para interactuar (futuro)
   final String? spritePath; // Ruta a la imagen del sprite (opcional)
+  final Rect? sourceRect; // Área de la imagen a renderizar (para sprite sheets)
   
   bool hasBeenInteracted = false;
 
@@ -28,6 +29,7 @@ class InteractableData {
     this.isOneTime = false,
     this.requiredItem,
     this.spritePath,
+    this.sourceRect,
   });
 
   /// Verifica si el jugador está en rango de interacción
@@ -74,6 +76,15 @@ class Vector2 {
     return Vector2(x / len, y / len);
   }
   
+  double get dx => x;
+  double get dy => y;
+
+  double distanceTo(Vector2 other) {
+    final dx = x - other.x;
+    final dy = y - other.y;
+    return sqrt(dx * dx + dy * dy);
+  }
+
   @override
   String toString() => 'Vector2($x, $y)';
 }

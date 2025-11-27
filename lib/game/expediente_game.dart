@@ -45,6 +45,9 @@ class ExpedienteKorinGame extends FlameGame
   
   // SISTEMA DE DIÁLOGOS
   DialogueSequence? currentDialogue;
+
+  // INPUT TÁCTIL (Joystick Virtual)
+  Vector2 joystickInput = Vector2.zero();
   
   ExpedienteKorinGame({
     this.startInBossMode = false,
@@ -146,6 +149,11 @@ class ExpedienteKorinGame extends FlameGame
         _showRealGameOver();
       }
     }
+  }
+
+  /// Actualiza el input del joystick virtual desde la UI
+  void updateJoystickInput(Vector2 input) {
+    joystickInput = input;
   }
   
   void _showCompanionReviveDialogue() {

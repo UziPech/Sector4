@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'interactable_data.dart';
+import '../components/room_shape_clipper.dart';
 
 /// Tipos de habitación
 enum RoomType {
@@ -33,6 +34,7 @@ class RoomData {
   final Vector2 playerSpawnPosition;
   final Size roomSize;
   final CameraMode cameraMode;
+  final RoomShape shape; // Forma de la habitación
 
   const RoomData({
     required this.id,
@@ -44,6 +46,7 @@ class RoomData {
     required this.playerSpawnPosition,
     this.roomSize = const Size(700, 500),
     this.cameraMode = CameraMode.fixed, // Por defecto cámara fija
+    this.shape = RoomShape.rectangle, // Por defecto rectangular
   });
 }
 
@@ -54,6 +57,7 @@ class DoorData {
   final Vector2 size;
   final String targetRoomId;
   final String label;
+  final Vector2? targetSpawnPosition;
 
   const DoorData({
     required this.id,
@@ -61,6 +65,7 @@ class DoorData {
     required this.size,
     required this.targetRoomId,
     required this.label,
+    this.targetSpawnPosition,
   });
 
   /// Verifica si el jugador está en el área de la puerta

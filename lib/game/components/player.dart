@@ -180,59 +180,72 @@ class PlayerCharacter extends PositionComponent
       }
     }
     
-    // Movimiento
+    // Movimiento normal
     _updateMovement(dt);
   }
   
   void _updateMovement(double dt) {
-    _velocity.setZero();
+    Vector2 inputVelocity = Vector2.zero();
     
-    // Procesar teclas presionadas
-    if (_pressedKeys.contains(LogicalKeyboardKey.keyW) ||
+    // 1. Teclado
+    if (_pressedKeys.contains(LogicalKeyboardKey.keyW) || 
         _pressedKeys.contains(LogicalKeyboardKey.arrowUp)) {
-      _velocity.y -= 1;
+      inputVelocity.y -= 1;
     }
-    if (_pressedKeys.contains(LogicalKeyboardKey.keyS) ||
+    if (_pressedKeys.contains(LogicalKeyboardKey.keyS) || 
         _pressedKeys.contains(LogicalKeyboardKey.arrowDown)) {
-      _velocity.y += 1;
+      inputVelocity.y += 1;
     }
-    if (_pressedKeys.contains(LogicalKeyboardKey.keyA) ||
+    if (_pressedKeys.contains(LogicalKeyboardKey.keyA) || 
         _pressedKeys.contains(LogicalKeyboardKey.arrowLeft)) {
-      _velocity.x -= 1;
+      inputVelocity.x -= 1;
     }
-    if (_pressedKeys.contains(LogicalKeyboardKey.keyD) ||
+    if (_pressedKeys.contains(LogicalKeyboardKey.keyD) || 
         _pressedKeys.contains(LogicalKeyboardKey.arrowRight)) {
-      _velocity.x += 1;
+      inputVelocity.x += 1;
     }
     
-    // Normalizar y aplicar velocidad
+    // 2. Joystick (Prioridad o Suma)
+    if (game.joystickInput != Vector2.zero()) {
+      if (inputVelocity == Vector2.zero()) {
+        inputVelocity = game.joystickInput;
+      } else {
+        inputVelocity = (inputVelocity + game.joystickInput).normalized();
+      }
+    } else if (inputVelocity != Vector2.zero()) {
+      inputVelocity.normalize();
+    }
+    
+    // Aplicar velocidad
+    _velocity.setFrom(inputVelocity * stats.speed);
+    
+    // Actualizar dirección de mirada
     if (_velocity.length > 0) {
-      _velocity.normalize();
-      lastMoveDirection = _velocity.clone(); // Actualizar dirección de mirada
+      lastMoveDirection = _velocity.normalized();
       _previousPosition = position.clone();
       
       // Calcular nueva posición
-      final newPosition = position + (_velocity * stats.speed * dt);
+      final newPosition = position + (_velocity * dt);
       
       // Aplicar límites del mundo con deslizamiento
       position = _constrainToWorldBounds(newPosition);
     }
   }
-  
-  /// Restringe la posición del jugador a los límites del mundo (con deslizamiento)
+
   Vector2 _constrainToWorldBounds(Vector2 newPos) {
     // Límites dinámicos según el tamaño del mundo
     // Obtener tamaño del mundo desde la cámara o usar valores por defecto
     final worldSize = game.camera.visibleWorldRect;
     
     // Si no hay worldSize, usar límites por defecto (mapa grande)
-    double worldMinX = 100.0;
-    double worldMaxX = 1500.0; // Default para boss level (1600 de ancho)
-    double worldMinY = 100.0;
-    double worldMaxY = 1100.0; // Default para boss level (1200 de alto)
+    // Ajustado para el mapa del Búnker (Min X: -700, Max X: 2100, Min Y: 0, Max Y: 2000)
+    double worldMinX = -1000.0;
+    double worldMaxX = 2500.0; 
+    double worldMinY = -100.0;
+    double worldMaxY = 2500.0;
     
     // Ajustar según el tamaño real del mundo si está disponible
-    if (worldSize.width > 2000) {
+    if (worldSize.width > 3000) {
       // Mapa grande (3000x3000)
       worldMinX = 250.0;
       worldMaxX = 2750.0;
@@ -626,7 +639,7 @@ class PlayerCharacter extends PositionComponent
       );
     }
   }
-}
+} // CIERRE DE LA CLASE PlayerCharacter
 
 /// Efecto visual de resurrección
 class _ResurrectionEffect extends PositionComponent {

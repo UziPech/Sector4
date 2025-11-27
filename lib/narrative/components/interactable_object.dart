@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:ui' as ui;
 import '../models/interactable_data.dart';
 import '../models/dialogue_data.dart';
 import 'dialogue_system.dart';
@@ -46,6 +48,10 @@ class InteractableObject extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Para muebles decorativos, no mostrar borde a menos que esté en rango
+    final isFurniture = data.type == InteractableType.furniture;
+    final showBorder = !isFurniture || isInRange;
+    
     return Positioned(
       left: data.position.x,
       top: data.position.y,
@@ -55,25 +61,39 @@ class InteractableObject extends StatelessWidget {
           width: data.size.x,
           height: data.size.y,
           decoration: BoxDecoration(
-            color: _getColorForType(),
-            border: Border.all(
+            color: showBorder ? _getColorForType() : Colors.transparent,
+            border: showBorder ? Border.all(
               color: isInRange ? Colors.yellow : Colors.white.withOpacity(0.3),
               width: isInRange ? 3 : 1,
-            ),
+            ) : null,
           ),
           child: Stack(
             children: [
               // Sprite o icono del objeto
               if (data.spritePath != null)
                 Positioned.fill(
-                  child: Image.asset(
-                    data.spritePath!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      // Fallback visual mejorado para personajes
-                      return _buildCharacterPlaceholder();
-                    },
-                  ),
+                  child: data.sourceRect != null
+                      ? FutureBuilder<ui.Image>(
+                          future: _loadImage(data.spritePath!),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return CustomPaint(
+                                painter: _SpritePainter(
+                                  image: snapshot.data!,
+                                  sourceRect: data.sourceRect!,
+                                ),
+                              );
+                            }
+                            return _buildCharacterPlaceholder();
+                          },
+                        )
+                      : Image.asset(
+                          data.spritePath!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return _buildCharacterPlaceholder();
+                          },
+                        ),
                 )
               else
                 _buildCharacterPlaceholder(),
@@ -213,6 +233,37 @@ class InteractableObject extends StatelessWidget {
       default:
         return Icons.help_outline;
     }
+  }
+}
+
+/// Helper function to load image from assets
+Future<ui.Image> _loadImage(String assetPath) async {
+  final data = await rootBundle.load(assetPath);
+  final bytes = data.buffer.asUint8List();
+  final codec = await ui.instantiateImageCodec(bytes);
+  final frame = await codec.getNextFrame();
+  return frame.image;
+}
+
+/// Custom painter to render a specific region of a sprite sheet
+class _SpritePainter extends CustomPainter {
+  final ui.Image image;
+  final Rect sourceRect;
+
+  _SpritePainter({
+    required this.image,
+    required this.sourceRect,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final destRect = Rect.fromLTWH(0, 0, size.width, size.height);
+    canvas.drawImageRect(image, sourceRect, destRect, Paint());
+  }
+
+  @override
+  bool shouldRepaint(_SpritePainter oldDelegate) {
+    return oldDelegate.image != image || oldDelegate.sourceRect != sourceRect;
   }
 }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/room_data.dart';
 import '../models/interactable_data.dart';
 import '../models/dialogue_data.dart';
+import '../components/room_shape_clipper.dart';
 
 /// Gestor de habitaciones para el Capítulo 1
 class RoomManager {
@@ -24,95 +25,60 @@ class RoomManager {
 
   /// Inicializar todas las habitaciones de la casa de Dan
   void _initializeRooms() {
-    // SALA DE ESTAR (habitación inicial)
+    // SALA DE ESTAR (forma de U con 2 puertas norte)
     _rooms['living_room'] = RoomData(
       id: 'living_room',
       name: 'Sala de Estar',
       type: RoomType.livingRoom,
       backgroundColor: const Color(0xFF2C1810),
-      playerSpawnPosition: const Vector2(350, 250),
-      roomSize: const Size(700, 500),
+      playerSpawnPosition: const Vector2(350, 350),
+      roomSize: const Size(700, 600),
+      shape: RoomShape.uShape, // Forma de U
       interactables: [
-        // Foto de la esposa
+        // Reloj de Abuelo (Grandfather Clock) - Esquina inferior derecha
         InteractableData(
-          id: 'photo_wife',
-          name: 'Foto de familia',
-          position: const Vector2(150, 200),
-          size: const Vector2(60, 60),
-          type: InteractableType.photo,
-          dialogue: DialogueSequence(
-            id: 'photo_wife_dialogue',
-            dialogues: [
-              const DialogueData(
-                speakerName: 'Dan',
-                text: 'Sarah...',
-                type: DialogueType.internal,
-              ),
-              const DialogueData(
-                speakerName: 'Dan',
-                text: 'Tres años. Tres años desde que el cáncer te arrebató de mí. Y aún duele como si fuera ayer.',
-                type: DialogueType.internal,
-              ),
-              const DialogueData(
-                speakerName: 'Dan',
-                text: 'Eras mi ancla, mi brújula moral en un mundo de grises. Sabías exactamente qué decir, cómo calmar mis demonios.',
-                type: DialogueType.internal,
-              ),
-              const DialogueData(
-                speakerName: 'Dan',
-                text: 'Si estuvieras aquí ahora, sabrías qué hacer. Sabrías cómo proteger a Emma sin asfixiarla.',
-                type: DialogueType.internal,
-              ),
-              const DialogueData(
-                speakerName: 'Dan',
-                text: 'Pero no estás. Y yo... yo solo soy un cascarón vacío tratando de recordar cómo ser humano.',
-                type: DialogueType.internal,
-              ),
-            ],
-          ),
+          id: 'grandfather_clock',
+          name: 'Reloj de Abuelo',
+          type: InteractableType.furniture,
+          position: const Vector2(630, 480),
+          size: const Vector2(50, 100),
+          spritePath: 'assets/images/grandfather_clock.png',
+        ),
+        
+        // Sofá - Zona norte de la sala (al lado de puerta central)
+        InteractableData(
+          id: 'sofa',
+          name: 'Sofá',
+          type: InteractableType.furniture,
+          position: const Vector2(100, 130),
+          size: const Vector2(200, 100),
+          spritePath: 'assets/images/sofa.png',
         ),
       ],
       doors: [
         const DoorData(
-          id: 'door_to_hallway',
-          position: Vector2(650, 200),
-          size: Vector2(50, 100),
-          targetRoomId: 'hallway',
-          label: 'Pasillo',
+          id: 'door_to_study',
+          position: Vector2(45, 0), // Torre izquierda - ajustado al punto medio (45)
+          size: Vector2(46, 18),
+          targetRoomId: 'study',
+          label: 'Estudio',
+          targetSpawnPosition: Vector2(300, 250), // Dentro del nuevo estudio (altura 320)
         ),
-      ],
-    );
-
-    // PASILLO (conecta las habitaciones)
-    _rooms['hallway'] = RoomData(
-      id: 'hallway',
-      name: 'Pasillo',
-      type: RoomType.hallway,
-      backgroundColor: const Color(0xFF1A1410),
-      playerSpawnPosition: const Vector2(100, 250),
-      roomSize: const Size(700, 500),
-      interactables: [],
-      doors: [
         const DoorData(
-          id: 'door_to_living',
-          position: Vector2(50, 200),
-          size: Vector2(50, 100),
-          targetRoomId: 'living_room',
-          label: 'Sala',
+          id: 'door_center',
+          position: Vector2(327, 102), // Centro - pared del fondo del hueco en U
+          size: Vector2(46, 18),
+          targetRoomId: 'emma_room',
+          label: 'Habitación Emma',
+          targetSpawnPosition: Vector2(300, 100),
         ),
         const DoorData(
           id: 'door_to_emma',
-          position: Vector2(350, 50),
-          size: Vector2(100, 50),
+          position: Vector2(605, 0), // Torre derecha
+          size: Vector2(46, 18),
           targetRoomId: 'emma_room',
           label: 'Habitación Emma',
-        ),
-        const DoorData(
-          id: 'door_to_study',
-          position: Vector2(350, 450),
-          size: Vector2(100, 50),
-          targetRoomId: 'study',
-          label: 'Estudio',
+          targetSpawnPosition: Vector2(300, 750), // Spawn cerca de la puerta sur
         ),
       ],
     );
@@ -123,15 +89,16 @@ class RoomManager {
       name: 'Habitación de Emma',
       type: RoomType.emmaRoom,
       backgroundColor: const Color(0xFF2C2C3E),
-      playerSpawnPosition: const Vector2(350, 450),
-      roomSize: const Size(700, 500),
+      playerSpawnPosition: const Vector2(300, 400),
+      roomSize: const Size(600, 800),
+      shape: RoomShape.cutCorners,
       interactables: [
         InteractableData(
           id: 'emma_desk',
           name: 'Escritorio de Emma',
+          type: InteractableType.desk,
           position: const Vector2(200, 200),
           size: const Vector2(80, 60),
-          type: InteractableType.desk,
           dialogue: DialogueSequence(
             id: 'emma_desk_dialogue',
             dialogues: [
@@ -140,56 +107,53 @@ class RoomManager {
                 text: 'Su escritorio. Tan ordenado, tan meticuloso.',
                 type: DialogueType.internal,
               ),
-              const DialogueData(
-                speakerName: 'Dan',
-                text: 'Libros de biología molecular, notas en japonés que apenas puedo leer.',
-                type: DialogueType.internal,
-              ),
-              const DialogueData(
-                speakerName: 'Dan',
-                text: 'Es brillante. Mucho más de lo que yo jamás fui.',
-                type: DialogueType.internal,
-              ),
-              const DialogueData(
-                speakerName: 'Dan',
-                text: 'Kioto la está esperando. Un futuro que yo nunca podría darle aquí.',
-                type: DialogueType.internal,
-              ),
             ],
           ),
+        ),
+        
+        // Sofá - Zona norte de la habitación
+        InteractableData(
+          id: 'emma_sofa',
+          name: 'Sofá',
+          type: InteractableType.furniture,
+          position: const Vector2(300, 30),
+          size: const Vector2(200, 100),
+          spritePath: 'assets/images/sofa.png',
         ),
       ],
       doors: [
         const DoorData(
-          id: 'door_to_hallway_from_emma',
-          position: Vector2(350, 450),
-          size: Vector2(100, 50),
-          targetRoomId: 'hallway',
-          label: 'Pasillo',
+          id: 'door_to_living',
+          position: Vector2(277, 782), // Pared Sur (800 - 18)
+          size: Vector2(46, 18),
+          targetRoomId: 'living_room',
+          label: 'Sala de Estar',
+          targetSpawnPosition: Vector2(617, 150),
         ),
       ],
     );
 
-    // ESTUDIO (donde está el teléfono)
+    // ESTUDIO
     _rooms['study'] = RoomData(
       id: 'study',
       name: 'Estudio',
       type: RoomType.study,
       backgroundColor: const Color(0xFF1C1C28),
-      playerSpawnPosition: const Vector2(350, 100),
-      roomSize: const Size(700, 500),
+      playerSpawnPosition: const Vector2(325, 200), // Ajustado para nueva altura
+      roomSize: const Size(650, 320), // Reducido a rectángulo (sin la extensión L)
+      shape: RoomShape.rectangle, // Cambiado a rectángulo
       interactables: [
         InteractableData(
           id: 'phone',
           name: 'Teléfono',
-          position: const Vector2(400, 300),
-          size: const Vector2(60, 60),
           type: InteractableType.phone,
+          position: const Vector2(350, 200),
+          size: const Vector2(60, 60),
           dialogue: DialogueSequence(
             id: 'phone_dialogue',
             dialogues: [
               const DialogueData(
-                speakerName: 'Sistema',
+                speakerName: 'System',
                 text: '*Ring Ring*',
                 type: DialogueType.system,
               ),
@@ -203,47 +167,28 @@ class RoomManager {
                 text: 'Dan. Soy Marcus.',
                 avatarPath: 'assets/avatars/dialogue_icons/marcus_dialogue.png',
               ),
-              const DialogueData(
-                speakerName: 'Dan',
-                text: 'Marcus. Hace tiempo.',
-                avatarPath: 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
-              ),
-              const DialogueData(
-                speakerName: 'Marcus',
-                text: 'Necesito que escuches con atención. Tu hija, Emma.',
-                avatarPath: 'assets/avatars/dialogue_icons/Marcus_Dialogue.png',
-              ),
-              const DialogueData(
-                speakerName: 'Dan',
-                text: '¿Qué pasa con Emma?',
-                avatarPath: 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
-              ),
-              const DialogueData(
-                speakerName: 'Marcus',
-                text: 'Está en Kioto. En la universidad. Hay una situación.',
-                avatarPath: 'assets/avatars/dialogue_icons/Marcus_Dialogue.png',
-              ),
-              const DialogueData(
-                speakerName: 'Marcus',
-                text: 'Sector 4. Amenazas activas.',
-                avatarPath: 'assets/avatars/dialogue_icons/Marcus_Dialogue.png',
-              ),
-              const DialogueData(
-                speakerName: 'Dan',
-                text: 'Voy para allá.',
-                avatarPath: 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
-              ),
             ],
           ),
+        ),
+        
+        // Sofá - Zona norte del estudio
+        InteractableData(
+          id: 'study_sofa',
+          name: 'Sofá',
+          type: InteractableType.furniture,
+          position: const Vector2(250, 30),
+          size: const Vector2(200, 100),
+          spritePath: 'assets/images/sofa.png',
         ),
       ],
       doors: [
         const DoorData(
-          id: 'door_to_hallway_from_study',
-          position: Vector2(350, 50),
-          size: Vector2(100, 50),
-          targetRoomId: 'hallway',
-          label: 'Pasillo',
+          id: 'door_to_living',
+          position: Vector2(277, 302),
+          size: Vector2(46, 18),
+          targetRoomId: 'living_room',
+          label: 'Sala de Estar',
+          targetSpawnPosition: Vector2(60, 150),
         ),
       ],
     );

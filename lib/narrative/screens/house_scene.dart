@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import '../models/dialogue_data.dart';
 import '../models/interactable_data.dart';
 import '../models/room_data.dart';
 import '../systems/room_manager.dart';
 import '../components/interactable_object.dart';
 import '../components/dialogue_system.dart';
+import '../components/animated_sprite.dart';
+import '../components/room_shape_clipper.dart';
 import '../services/save_system.dart';
 import 'bunker_scene.dart';
 
@@ -21,8 +24,8 @@ class HouseScene extends StatefulWidget {
 class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateMixin {
   // Posición del jugador
   Vector2 _playerPosition = Vector2(350, 250);
-  final double _playerSpeed = 5.0;
-  final double _playerSize = 40.0;
+  final double _playerSpeed = 3.0;
+  final double _playerSize = 80.0;
 
   // Joystick Virtual
   Offset? _joystickOrigin;
@@ -42,7 +45,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
   late RoomManager _roomManager;
   bool _isTransitioning = false;
   double _transitionCooldown = 0.0;
-  static const double _cooldownDuration = 0.5; // Medio segundo de cooldown
+  static const double _cooldownDuration = 0.5;
   
   // Animación de transición
   late AnimationController _transitionController;
@@ -51,6 +54,17 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
   // Focus y timer para movimiento
   late FocusNode _focusNode;
   Timer? _movementTimer;
+  
+  // Animación de sprite
+  AnimatedSprite? _danSprite;
+  AnimatedSprite? _danSpriteNorth;
+  AnimatedSprite? _danSpriteSouth;
+  AnimatedSprite? _doorSprite;
+  AnimatedSprite? _stairsDownSprite; // Nuevo sprite para escaleras
+  String _currentDirection = 'SOUTH';
+  int _currentFrame = 0;
+  double _animationTimer = 0.0;
+  static const double _frameRate = 0.15;
 
   @override
   void initState() {
@@ -58,7 +72,6 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
     _focusNode = FocusNode();
     _roomManager = RoomManager();
     
-    // Configurar animación de transición
     _transitionController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
@@ -67,8 +80,45 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
       CurvedAnimation(parent: _transitionController, curve: Curves.easeInOut),
     );
     
+    _loadDanSprite();
     _showIntroDialogue();
     _startMovementLoop();
+  }
+  
+  Future<void> _loadDanSprite() async {
+    try {
+      final spriteNorth = await AnimatedSprite.load('assets/sprites/dan_walk_north.png');
+      final spriteSouth = await AnimatedSprite.load('assets/sprites/dan_walk_south.png');
+      final doorSprite = await AnimatedSprite.load(
+        'assets/images/doors_sprite_sheet.png',
+        columns: 2,
+        rows: 1,
+      );
+      
+      // Intentar cargar sprite de escaleras (si existe)
+      AnimatedSprite? stairsDown;
+      try {
+        stairsDown = await AnimatedSprite.load(
+          'assets/images/stairs_down.png',
+          columns: 1,
+          rows: 1,
+        );
+      } catch (e) {
+        print('Warning: stairs_down.png not found yet.');
+      }
+      
+      if (mounted) {
+        setState(() {
+          _danSpriteNorth = spriteNorth;
+          _danSpriteSouth = spriteSouth;
+          _danSprite = spriteSouth;
+          _doorSprite = doorSprite;
+          _stairsDownSprite = stairsDown;
+        });
+      }
+    } catch (e) {
+      print('Error loading sprites: $e');
+    }
   }
   
   @override
@@ -82,9 +132,8 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
   void _startMovementLoop() {
     _movementTimer = Timer.periodic(const Duration(milliseconds: 16), (timer) {
       if (mounted) {
-        // Actualizar cooldown de transición
         if (_transitionCooldown > 0) {
-          _transitionCooldown -= 0.016; // 16ms en segundos
+          _transitionCooldown -= 0.016;
         }
         
         if (!_isTransitioning) {
@@ -212,7 +261,6 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
     
     if (!mounted) return;
     
-    // Transición al Capítulo 2 (Búnker)
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => const BunkerScene()),
     );
@@ -223,7 +271,6 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
 
     Vector2 velocity = const Vector2(0, 0);
 
-    // Detectar teclas presionadas (Teclado)
     if (_pressedKeys.contains(LogicalKeyboardKey.keyW) ||
         _pressedKeys.contains(LogicalKeyboardKey.arrowUp)) {
       velocity = Vector2(velocity.x, velocity.y - 1);
@@ -241,41 +288,54 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
       velocity = Vector2(velocity.x + 1, velocity.y);
     }
 
-    // Sumar input del joystick
     if (_isJoystickActive) {
       velocity = velocity + _joystickInput;
     }
 
-    // Normalizar y aplicar velocidad
     if (velocity.x != 0 || velocity.y != 0) {
-      final length = (velocity.x * velocity.x + velocity.y * velocity.y);
-      if (length > 0) {
-        final normalized = Vector2(
-          velocity.x / length,
-          velocity.y / length,
-        );
-        
-        Vector2 newPosition = Vector2(
-          _playerPosition.x + normalized.x * _playerSpeed,
-          _playerPosition.y + normalized.y * _playerSpeed,
-        );
-
-        // Límites del container (habitación actual)
-        final room = _roomManager.currentRoom;
-        final padding = _playerSize / 2;
-        
-        newPosition = Vector2(
-          newPosition.x.clamp(padding, room.roomSize.width - padding),
-          newPosition.y.clamp(padding, room.roomSize.height - padding),
-        );
-
-          setState(() {
-            _playerPosition = newPosition;
-          });
-        }
+      if (velocity.length > 1) {
+        velocity = velocity.normalized();
+      } else if (velocity.length == 0) {
+        // do nothing
+      } else {
+        velocity = velocity.normalized();
       }
       
-      // Verificar si hay interactuables cerca para mostrar el botón
+      velocity = velocity * _playerSpeed;
+
+      final room = _roomManager.currentRoom;
+      
+      final newX = (_playerPosition.x + velocity.x);
+      final newY = (_playerPosition.y + velocity.y);
+      final newPos = Vector2(newX, newY);
+      
+      if (_isValidPosition(newPos, room)) {
+        setState(() {
+          _playerPosition = newPos;
+          
+          if (velocity.y < -0.1) {
+            _currentDirection = 'NORTH';
+            _danSprite = _danSpriteNorth;
+          } else if (velocity.y > 0.1) {
+            _currentDirection = 'SOUTH';
+            _danSprite = _danSpriteSouth;
+          }
+          
+          _animationTimer += 0.016;
+          if (_animationTimer >= _frameRate) {
+            _animationTimer = 0.0;
+            _currentFrame = (_currentFrame + 1) % 9;
+          }
+        });
+      }
+    } else {
+      if (_currentFrame != 0) {
+        setState(() {
+          _currentFrame = 0;
+        });
+      }
+    }
+      
       final room = _roomManager.currentRoom;
       bool canInteract = false;
       for (final interactable in room.interactables) {
@@ -294,38 +354,128 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
       }
   }
 
-  void _checkDoorCollisions() {
-    if (_isTransitioning || _transitionCooldown > 0) return;
+  bool _isValidPosition(Vector2 pos, RoomData room) {
+    // Aumentamos un poco el padding para evitar que el sprite se salga visualmente
+    final padding = _playerSize / 1.8; 
+    
+    if (pos.x < padding || pos.x > room.roomSize.width - padding ||
+        pos.y < padding || pos.y > room.roomSize.height - padding) {
+      return false;
+    }
 
-    final room = _roomManager.currentRoom;
-    for (final door in room.doors) {
-      if (door.isPlayerInRange(_playerPosition, _playerSize)) {
-        _transitionToRoom(door.targetRoomId);
-        break;
+    if (room.shape == RoomShape.cutCorners) {
+      final hallwayWidth = room.roomSize.width * 0.25;
+      final hallwayHeight = room.roomSize.height * 0.25;
+      final hallwayY = room.roomSize.height * 0.4;
+      
+      // Bloquear SOLO las esquinas cortadas, NO el pasillo lateral
+      // Esquina superior izquierda (arriba del pasillo)
+      if (pos.x < hallwayWidth + padding && pos.y < hallwayY - padding) {
+        return false;
+      }
+      
+      // Esquina inferior izquierda (abajo del pasillo)
+      if (pos.x < hallwayWidth + padding && pos.y > hallwayY + hallwayHeight + padding) {
+        return false;
       }
     }
+    
+    // Colisiones para habitaciones hexagonales (esquinas cortadas diagonalmente)
+    if (room.shape == RoomShape.hexagon) {
+      final cornerCut = room.roomSize.height * 0.15;
+      
+      // Esquina superior izquierda
+      if (pos.y < cornerCut + padding && pos.x < cornerCut + padding) {
+        return false;
+      }
+      
+      // Esquina superior derecha
+      if (pos.y < cornerCut + padding && pos.x > room.roomSize.width - cornerCut - padding) {
+        return false;
+      }
+      
+      // Esquina inferior izquierda
+      if (pos.y > room.roomSize.height - cornerCut - padding && pos.x < cornerCut + padding) {
+        return false;
+      }
+      
+      // Esquina inferior derecha
+      if (pos.y > room.roomSize.height - cornerCut - padding && 
+          pos.x > room.roomSize.width - cornerCut - padding) {
+        return false;
+      }
+    }
+    
+    // Colisiones para habitaciones en forma de L
+    if (room.shape == RoomShape.lShape) {
+      final cutWidth = room.roomSize.width * 0.4;
+      final cutHeight = room.roomSize.height * 0.4;
+      
+      // Bloquear la esquina inferior DERECHA (área cortada)
+      // El corte está en X > (width - cutWidth) y Y > (height - cutHeight)
+      if (pos.x > room.roomSize.width - cutWidth - padding && 
+          pos.y > room.roomSize.height - cutHeight - padding) {
+        return false;
+      }
+    }
+    
+    // Colisiones para habitaciones en forma de U
+    if (room.shape == RoomShape.uShape) {
+      final towerWidth = room.roomSize.width * 0.17; // 120px de 700px
+      final towerHeight = room.roomSize.height * 0.2; // 120px de 600px
+      
+      // Bloquear el hueco central superior (entre las dos torres)
+      if (pos.y < towerHeight + padding && 
+          pos.x > towerWidth + padding && 
+          pos.x < room.roomSize.width - towerWidth - padding) {
+        return false;
+      }
+    }
+    
+    // Colisiones con muebles (furniture)
+    for (final interactable in room.interactables) {
+      if (interactable.type == InteractableType.furniture) {
+        // Área de colisión reducida para permitir acercarse (85px funcionó bien)
+        final collisionPadding = 85.0;
+        
+        final objLeft = interactable.position.x + collisionPadding;
+        final objRight = interactable.position.x + interactable.size.x - collisionPadding;
+        final objTop = interactable.position.y + collisionPadding;
+        final objBottom = interactable.position.y + interactable.size.y - collisionPadding;
+        
+        // Solo verificar colisión si el área resultante es válida
+        if (objRight > objLeft && objBottom > objTop) {
+          // Verificar si el jugador colisiona con el mueble
+          if (pos.x + padding > objLeft && pos.x - padding < objRight &&
+              pos.y + padding > objTop && pos.y - padding < objBottom) {
+            return false;
+          }
+        }
+      }
+    }
+    
+    return true;
   }
 
-  void _transitionToRoom(String targetRoomId) async {
+  Future<void> _transitionToRoom(String targetRoomId, {Vector2? spawnPosition}) async {
+    if (_isTransitioning || _transitionCooldown > 0) return;
+    
     setState(() {
       _isTransitioning = true;
     });
 
-    // Fade out
     await _transitionController.forward();
     
-    // Cambiar habitación
     setState(() {
       _roomManager.changeRoom(targetRoomId);
-      _playerPosition = _roomManager.currentRoom.playerSpawnPosition;
+      _playerPosition = spawnPosition ?? _roomManager.currentRoom.playerSpawnPosition;
     });
 
-    // Fade in
     await _transitionController.reverse();
     
     setState(() {
       _isTransitioning = false;
-      _transitionCooldown = _cooldownDuration; // Activar cooldown después de la transición
+      _transitionCooldown = _cooldownDuration;
     });
   }
 
@@ -333,24 +483,26 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
     final room = _roomManager.currentRoom;
     const interactionRadius = 80.0;
 
-    // Buscar interactable cercano
+    // Prioridad: Puertas
+    for (final door in room.doors) {
+      if (door.isPlayerInRange(_playerPosition, _playerSize)) {
+        _transitionToRoom(door.targetRoomId, spawnPosition: door.targetSpawnPosition);
+        return;
+      }
+    }
+
     for (final interactable in room.interactables) {
       if (interactable.isInRange(_playerPosition, interactionRadius)) {
         debugPrint('Interacting with: ${interactable.id}');
         
-        // Verificar si ya fue interactuado (si es one-time)
         if (interactable.isOneTime && interactable.hasBeenInteracted) {
           debugPrint('Already interacted with ${interactable.id}');
           return;
         }
 
-        // Marcar como interactuado
         interactable.hasBeenInteracted = true;
-
-        // Ejecutar callback personalizado si existe
         interactable.onInteract?.call();
 
-        // Mostrar diálogo si existe
         if (interactable.dialogue != null) {
           setState(() {
             _isDialogueActive = true;
@@ -363,7 +515,6 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
               setState(() {
                 _isDialogueActive = false;
                 
-                // Lógica específica del teléfono
                 if (interactable.id == 'phone') {
                   _phoneCallCompleted = true;
                   debugPrint('Phone call completed, transitioning to combat...');
@@ -376,11 +527,1244 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           );
         }
         
-        return; // Solo interactuar con el primer objeto encontrado
+        return;
       }
     }
     
     debugPrint('No interactable in range');
+  }
+
+  void _checkDoorCollisions() {
+    // Este método solo verifica si hay una puerta cerca para mostrar el indicador
+    // La transición real se hace en _tryInteract() cuando se presiona E
+    final room = _roomManager.currentRoom;
+    bool nearDoor = false;
+    
+    for (final door in room.doors) {
+      if (door.isPlayerInRange(_playerPosition, _playerSize)) {
+        nearDoor = true;
+        break;
+      }
+    }
+    
+    // Actualizar el estado de _canInteract si cambió
+    if (_canInteract != nearDoor) {
+      setState(() {
+        _canInteract = nearDoor;
+      });
+    }
+  }
+
+  Widget buildPipe({double? width, double? height, bool isVertical = false}) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.grey[800]!,
+            Colors.grey[400]!,
+            Colors.grey[800]!,
+          ],
+          begin: isVertical ? Alignment.centerLeft : Alignment.topCenter,
+          end: isVertical ? Alignment.centerRight : Alignment.bottomCenter,
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildRectangularWalls(RoomData room) {
+    return [
+      Positioned(
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 60,
+        child: Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/wall_texture.jpg'),
+              repeat: ImageRepeat.repeatX,
+              alignment: Alignment.bottomCenter,
+            ),
+            border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+          ),
+        ),
+      ),
+      Positioned(
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 20,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.brown[900],
+            border: const Border(top: BorderSide(color: Colors.black, width: 2)),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black54,
+                offset: Offset(0, -2),
+                blurRadius: 2,
+              ),
+            ],
+          ),
+        ),
+      ),
+      Positioned(
+        top: 0,
+        bottom: 0,
+        left: 0,
+        width: 20,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.brown[900],
+            border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black54,
+                offset: Offset(2, 0),
+                blurRadius: 2,
+              ),
+            ],
+          ),
+        ),
+      ),
+      Positioned(
+        top: 0,
+        bottom: 0,
+        right: 0,
+        width: 20,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.brown[900],
+            border: const Border(left: BorderSide(color: Colors.black, width: 2)),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black54,
+                offset: Offset(-2, 0),
+                blurRadius: 2,
+              ),
+            ],
+          ),
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildCutCornersWalls(RoomData room) {
+    final hallwayWidth = room.roomSize.width * 0.25;
+    final hallwayHeight = room.roomSize.height * 0.25; // Coincidir con RoomShapeClipper
+    final hallwayY = room.roomSize.height * 0.4;
+    
+    const wallHeight = 60.0;
+    const wallThickness = 20.0;
+    const pipeThickness = 8.0;
+
+    Widget buildPipe({double? width, double? height, bool isVertical = false}) {
+      return Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: const Color(0xFF5D4037),
+          border: Border.all(color: Colors.black, width: 1),
+          borderRadius: BorderRadius.circular(2),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF4E342E), Color(0xFF8D6E63), Color(0xFF4E342E)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+        ),
+      );
+    }
+
+    return [
+      Positioned(
+        top: 0,
+        left: hallwayWidth,
+        right: 0,
+        height: wallHeight,
+        child: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/wall_texture.jpg'),
+                  repeat: ImageRepeat.repeatX,
+                  alignment: Alignment.bottomCenter,
+                ),
+                border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: pipeThickness,
+              child: buildPipe(height: pipeThickness),
+            ),
+          ],
+        ),
+      ),
+      Positioned(
+        top: 0,
+        left: hallwayWidth,
+        width: wallThickness,
+        height: hallwayY,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              right: 0,
+              width: pipeThickness,
+              child: buildPipe(width: pipeThickness, isVertical: true),
+            ),
+          ],
+        ),
+      ),
+      Positioned(
+        top: hallwayY,
+        left: 0,
+        width: hallwayWidth + wallThickness,
+        height: wallHeight,
+        child: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/wall_texture.jpg'),
+                  repeat: ImageRepeat.repeatX,
+                  alignment: Alignment.bottomCenter,
+                ),
+                border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: pipeThickness,
+              child: buildPipe(height: pipeThickness),
+            ),
+          ],
+        ),
+      ),
+      Positioned(
+        top: hallwayY + hallwayHeight,
+        left: 0,
+        width: hallwayWidth,
+        height: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(top: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+             Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: pipeThickness,
+              child: buildPipe(height: pipeThickness),
+            ),
+          ],
+        ),
+      ),
+      Positioned(
+        top: hallwayY + hallwayHeight,
+        bottom: 0,
+        left: hallwayWidth,
+        width: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              right: 0,
+              width: pipeThickness,
+              child: buildPipe(width: pipeThickness, isVertical: true),
+            ),
+          ],
+        ),
+      ),
+      Positioned(
+        top: 0,
+        bottom: 0,
+        right: 0,
+        width: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(left: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              width: pipeThickness,
+              child: buildPipe(width: pipeThickness, isVertical: true),
+            ),
+          ],
+        ),
+      ),
+      Positioned(
+        bottom: 0,
+        left: hallwayWidth,
+        right: 0,
+        height: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(top: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+             Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: pipeThickness,
+              child: buildPipe(height: pipeThickness),
+            ),
+          ],
+        ),
+      ),
+      Positioned(
+        top: hallwayY,
+        left: 0,
+        width: wallThickness, 
+        height: hallwayHeight + wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              right: 0,
+              width: pipeThickness,
+              child: buildPipe(width: pipeThickness, isVertical: true),
+            ),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildHexagonWalls(RoomData room) {
+    const wallHeight = 60.0;
+    const wallThickness = 20.0;
+    const pipeThickness = 8.0;
+    final cornerCut = room.roomSize.height * 0.15;
+
+    Widget buildPipe({double? width, double? height, bool isVertical = false}) {
+      return Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: const Color(0xFF5D4037),
+          border: Border.all(color: Colors.black, width: 1),
+          borderRadius: BorderRadius.circular(2),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF4E342E), Color(0xFF8D6E63), Color(0xFF4E342E)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+        ),
+      );
+    }
+
+    return [
+      // Pared superior (con cortes en esquinas)
+      Positioned(
+        top: 0,
+        left: cornerCut,
+        right: cornerCut,
+        height: wallHeight,
+        child: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/wall_texture.jpg'),
+                  repeat: ImageRepeat.repeatX,
+                  alignment: Alignment.bottomCenter,
+                ),
+                border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: pipeThickness,
+              child: buildPipe(height: pipeThickness),
+            ),
+          ],
+        ),
+      ),
+      
+      // Pared inferior (con cortes en esquinas)
+      Positioned(
+        bottom: 0,
+        left: cornerCut,
+        right: cornerCut,
+        height: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(top: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: pipeThickness,
+              child: buildPipe(height: pipeThickness),
+            ),
+          ],
+        ),
+      ),
+      
+      // Pared izquierda (con cortes en esquinas)
+      Positioned(
+        top: cornerCut,
+        bottom: cornerCut,
+        left: 0,
+        width: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              right: 0,
+              width: pipeThickness,
+              child: buildPipe(width: pipeThickness, isVertical: true),
+            ),
+          ],
+        ),
+      ),
+      
+      // Pared derecha (con cortes en esquinas)
+      Positioned(
+        top: cornerCut,
+        bottom: cornerCut,
+        right: 0,
+        width: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(left: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              width: pipeThickness,
+              child: buildPipe(width: pipeThickness, isVertical: true),
+            ),
+          ],
+        ),
+      ),
+      
+      // Esquinas diagonales (4 bloques sólidos)
+      // Esquina superior izquierda
+      Positioned(
+        top: 0,
+        left: 0,
+        width: cornerCut,
+        height: cornerCut,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.brown[900],
+            border: const Border(
+              bottom: BorderSide(color: Colors.black, width: 2),
+              right: BorderSide(color: Colors.black, width: 2),
+            ),
+          ),
+        ),
+      ),
+      
+      // Esquina superior derecha
+      Positioned(
+        top: 0,
+        right: 0,
+        width: cornerCut,
+        height: cornerCut,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.brown[900],
+            border: const Border(
+              bottom: BorderSide(color: Colors.black, width: 2),
+              left: BorderSide(color: Colors.black, width: 2),
+            ),
+          ),
+        ),
+      ),
+      
+      // Esquina inferior izquierda
+      Positioned(
+        bottom: 0,
+        left: 0,
+        width: cornerCut,
+        height: cornerCut,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.brown[900],
+            border: const Border(
+              top: BorderSide(color: Colors.black, width: 2),
+              right: BorderSide(color: Colors.black, width: 2),
+            ),
+          ),
+        ),
+      ),
+      
+      // Esquina inferior derecha
+      Positioned(
+        bottom: 0,
+        right: 0,
+        width: cornerCut,
+        height: cornerCut,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.brown[900],
+            border: const Border(
+              top: BorderSide(color: Colors.black, width: 2),
+              left: BorderSide(color: Colors.black, width: 2),
+            ),
+          ),
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildLShapeWalls(RoomData room) {
+    const wallHeight = 60.0;
+    const wallThickness = 20.0;
+    const pipeThickness = 8.0;
+    final cutWidth = room.roomSize.width * 0.4;
+    final cutHeight = room.roomSize.height * 0.4;
+
+    Widget buildPipe({double? width, double? height, bool isVertical = false}) {
+      return Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: const Color(0xFF5D4037),
+          border: Border.all(color: Colors.black, width: 1),
+          borderRadius: BorderRadius.circular(2),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF4E342E), Color(0xFF8D6E63), Color(0xFF4E342E)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+        ),
+      );
+    }
+
+    return [
+      // 1. Pared Superior (Completa)
+      Positioned(
+        top: 0,
+        left: 0,
+        right: 0,
+        height: wallHeight,
+        child: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/wall_texture.jpg'),
+                  repeat: ImageRepeat.repeatX,
+                  alignment: Alignment.bottomCenter,
+                ),
+                border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: pipeThickness,
+              child: buildPipe(height: pipeThickness),
+            ),
+          ],
+        ),
+      ),
+
+      // 2. Pared Izquierda (Completa)
+      Positioned(
+        top: 0,
+        bottom: 0,
+        left: 0,
+        width: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              right: 0,
+              width: pipeThickness,
+              child: buildPipe(width: pipeThickness, isVertical: true),
+            ),
+          ],
+        ),
+      ),
+
+      // 3. Pared Derecha Superior (Hasta el corte)
+      Positioned(
+        top: 0,
+        right: 0,
+        height: room.roomSize.height - cutHeight,
+        width: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(left: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              width: pipeThickness,
+              child: buildPipe(width: pipeThickness, isVertical: true),
+            ),
+          ],
+        ),
+      ),
+
+      // 4. Pared Inferior Izquierda (Hasta el corte)
+      Positioned(
+        bottom: 0,
+        left: 0,
+        right: cutWidth, // Llega hasta donde empieza el corte desde la derecha
+        height: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/wall_texture.jpg'),
+                  repeat: ImageRepeat.repeatX,
+                  alignment: Alignment.bottomCenter,
+                ),
+                border: Border(top: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+          ],
+        ),
+      ),
+
+      // 5. Paredes del Corte (Esquina Inferior Derecha)
+      
+      // Pared Vertical del Corte (baja desde el techo del corte hasta el suelo)
+      Positioned(
+        top: room.roomSize.height - cutHeight,
+        bottom: 0,
+        right: cutWidth,
+        width: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(right: BorderSide(color: Colors.black, width: 2)), // Borde derecho porque es pared externa del cuarto
+              ),
+            ),
+             Positioned(
+              top: 0,
+              bottom: 0,
+              right: 0,
+              width: pipeThickness,
+              child: buildPipe(width: pipeThickness, isVertical: true),
+            ),
+          ],
+        ),
+      ),
+
+      // Pared Horizontal del Corte (techo del corte)
+      Positioned(
+        top: room.roomSize.height - cutHeight,
+        right: 0,
+        width: cutWidth,
+        height: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/wall_texture.jpg'),
+                  repeat: ImageRepeat.repeatX,
+                  alignment: Alignment.bottomCenter,
+                ),
+                border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+             Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: pipeThickness,
+              child: buildPipe(height: pipeThickness),
+            ),
+          ],
+        ),
+      ),
+
+      
+      // Pared inferior (solo la parte derecha, desde el corte)
+      Positioned(
+        bottom: 0,
+        left: cutWidth,
+        right: 0,
+        height: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(top: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: pipeThickness,
+              child: buildPipe(height: pipeThickness),
+            ),
+          ],
+        ),
+      ),
+      
+      // Pared vertical interna (borde del corte, lado derecho)
+      Positioned(
+        top: room.roomSize.height - cutHeight,
+        bottom: 0,
+        left: cutWidth,
+        width: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(
+                  left: BorderSide(color: Colors.black, width: 2),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              width: pipeThickness,
+              child: buildPipe(width: pipeThickness, isVertical: true),
+            ),
+          ],
+        ),
+      ),
+      
+      // Pared horizontal interna (borde del corte, lado superior)
+      Positioned(
+        top: room.roomSize.height - cutHeight,
+        left: 0,
+        width: cutWidth,
+        height: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(
+                  bottom: BorderSide(color: Colors.black, width: 2),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: pipeThickness,
+              child: buildPipe(height: pipeThickness),
+            ),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildBottomEntranceWalls(RoomData room) {
+    final wallThickness = 60.0;
+    final pipeThickness = 10.0;
+    
+    // Dimensiones del pasillo (mismas que en RoomShapeClipper)
+    final hallwayWidth = 120.0;
+    final hallwayHeight = 150.0;
+    final mainRoomHeight = room.roomSize.height - hallwayHeight;
+    final hallwayX = (room.roomSize.width - hallwayWidth) / 2;
+
+    Widget buildPipe({double? width, double? height, bool isVertical = false}) {
+      return Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: const Color(0xFF5D4037),
+          border: Border.all(color: Colors.black, width: 1),
+          borderRadius: BorderRadius.circular(2),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF4E342E), Color(0xFF8D6E63), Color(0xFF4E342E)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+        ),
+      );
+    }
+    
+    return [
+      // 1. Pared Norte (Top) - Completa
+      Positioned(
+        top: 0,
+        left: 0,
+        right: 0,
+        height: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/wall_texture.jpg'),
+                  repeat: ImageRepeat.repeatX,
+                  alignment: Alignment.bottomCenter,
+                ),
+                border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: pipeThickness,
+              child: buildPipe(height: pipeThickness),
+            ),
+          ],
+        ),
+      ),
+      
+      // 2. Pared Oeste (Izquierda) - Completa hasta mainRoomHeight
+      Positioned(
+        top: 0,
+        left: 0,
+        height: mainRoomHeight,
+        width: wallThickness, // Pared vertical izquierda
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              width: pipeThickness,
+              child: buildPipe(width: pipeThickness, isVertical: true),
+            ),
+          ],
+        ),
+      ),
+      
+      // 3. Pared Este (Derecha) - Completa hasta mainRoomHeight
+      Positioned(
+        top: 0,
+        right: 0,
+        height: mainRoomHeight,
+        width: wallThickness, // Pared vertical derecha
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(left: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              right: 0,
+              width: pipeThickness,
+              child: buildPipe(width: pipeThickness, isVertical: true),
+            ),
+          ],
+        ),
+      ),
+      
+      // 4. Pared Sur Izquierda (Main Room)
+      Positioned(
+        top: mainRoomHeight - wallThickness,
+        left: 0,
+        width: hallwayX, // Hasta el inicio del pasillo
+        height: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/wall_texture.jpg'),
+                  repeat: ImageRepeat.repeatX,
+                  alignment: Alignment.bottomCenter,
+                ),
+                border: Border(top: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+          ],
+        ),
+      ),
+      
+      // 5. Pared Sur Derecha (Main Room)
+      Positioned(
+        top: mainRoomHeight - wallThickness,
+        left: hallwayX + hallwayWidth,
+        right: 0, // Hasta el final a la derecha
+        height: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/wall_texture.jpg'),
+                  repeat: ImageRepeat.repeatX,
+                  alignment: Alignment.bottomCenter,
+                ),
+                border: Border(top: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+          ],
+        ),
+      ),
+      
+      // 6. Paredes del Pasillo (Verticales)
+      // Izquierda del pasillo
+      Positioned(
+        top: mainRoomHeight,
+        left: hallwayX,
+        height: hallwayHeight,
+        width: 20, // Pared delgada para pasillo
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.brown[900],
+            border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+          ),
+        ),
+      ),
+      
+      // Derecha del pasillo
+      Positioned(
+        top: mainRoomHeight,
+        left: hallwayX + hallwayWidth - 20,
+        height: hallwayHeight,
+        width: 20, // Pared delgada para pasillo
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.brown[900],
+            border: const Border(left: BorderSide(color: Colors.black, width: 2)),
+          ),
+        ),
+      ),
+      
+      // 7. Fondo del pasillo (Sur final) - Donde irán las escaleras
+      // No dibujamos pared aquí para dejar que las escaleras "salgan"
+    ];
+  }
+
+
+
+  List<Widget> _buildUShapeWalls(RoomData room) {
+    const wallHeight = 60.0;
+    const wallThickness = 20.0;
+    const pipeThickness = 8.0;
+    final towerWidth = room.roomSize.width * 0.17; // 120px
+    final towerHeight = room.roomSize.height * 0.2; // 120px
+
+    Widget buildPipe({double? width, double? height, bool isVertical = false}) {
+      return Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: const Color(0xFF5D4037),
+          border: Border.all(color: Colors.black, width: 1),
+          borderRadius: BorderRadius.circular(2),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF4E342E), Color(0xFF8D6E63), Color(0xFF4E342E)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+        ),
+      );
+    }
+
+    return [
+      // --- PAREDES EXTERIORES ---
+      
+      // Pared superior izquierda (Torre Izq Top)
+      Positioned(
+        top: 0,
+        left: 0,
+        width: towerWidth,
+        height: wallHeight,
+        child: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/wall_texture.jpg'),
+                  repeat: ImageRepeat.repeatX,
+                  alignment: Alignment.bottomCenter,
+                ),
+                border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: pipeThickness,
+              child: buildPipe(height: pipeThickness),
+            ),
+          ],
+        ),
+      ),
+
+      // Pared superior derecha (Torre Der Top)
+      Positioned(
+        top: 0,
+        right: 0,
+        width: towerWidth,
+        height: wallHeight,
+        child: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/wall_texture.jpg'),
+                  repeat: ImageRepeat.repeatX,
+                  alignment: Alignment.bottomCenter,
+                ),
+                border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: pipeThickness,
+              child: buildPipe(height: pipeThickness),
+            ),
+          ],
+        ),
+      ),
+
+      // Pared izquierda (Completa)
+      Positioned(
+        top: 0,
+        bottom: 0,
+        left: 0,
+        width: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              right: 0,
+              width: pipeThickness,
+              child: buildPipe(width: pipeThickness, isVertical: true),
+            ),
+          ],
+        ),
+      ),
+
+      // Pared derecha (Completa)
+      Positioned(
+        top: 0,
+        bottom: 0,
+        right: 0,
+        width: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(left: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              width: pipeThickness,
+              child: buildPipe(width: pipeThickness, isVertical: true),
+            ),
+          ],
+        ),
+      ),
+
+      // Pared inferior (Completa)
+      Positioned(
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(top: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: pipeThickness,
+              child: buildPipe(height: pipeThickness),
+            ),
+          ],
+        ),
+      ),
+
+      // --- PAREDES INTERNAS (HUECO U) ---
+
+      // Pared vertical interna izquierda (Lado derecho de torre izq)
+      Positioned(
+        top: 0,
+        left: towerWidth,
+        height: towerHeight,
+        width: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(left: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              width: pipeThickness,
+              child: buildPipe(width: pipeThickness, isVertical: true),
+            ),
+          ],
+        ),
+      ),
+
+      // Pared vertical interna derecha (Lado izquierdo de torre der)
+      Positioned(
+        top: 0,
+        right: towerWidth,
+        height: towerHeight,
+        width: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              right: 0,
+              width: pipeThickness,
+              child: buildPipe(width: pipeThickness, isVertical: true),
+            ),
+          ],
+        ),
+      ),
+
+      // Pared horizontal central (Fondo del hueco - donde va la puerta del Hallway)
+      // Esta pared mira al SUR, pero visualmente es como una pared norte para la sala principal
+      Positioned(
+        top: towerHeight,
+        left: towerWidth,
+        right: towerWidth,
+        height: wallHeight,
+        child: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/wall_texture.jpg'),
+                  repeat: ImageRepeat.repeatX,
+                  alignment: Alignment.bottomCenter,
+                ),
+                border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: pipeThickness,
+              child: buildPipe(height: pipeThickness),
+            ),
+          ],
+        ),
+      ),
+    ];
   }
 
   @override
@@ -396,15 +1780,12 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
         autofocus: true,
         onKeyEvent: (event) {
           if (event is KeyDownEvent) {
-            // Saltar diálogo con ESC
             if (event.logicalKey == LogicalKeyboardKey.escape && _isDialogueActive) {
               debugPrint('ESC pressed - skipping dialogue');
               DialogueOverlay.skipCurrent();
-              // No cambiar _isDialogueActive aquí, se cambiará en onComplete
               return;
             }
             
-            // Interactuar con E
             if (event.logicalKey == LogicalKeyboardKey.keyE && !_isDialogueActive) {
               _tryInteract();
               return;
@@ -415,29 +1796,28 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             _pressedKeys.remove(event.logicalKey);
           }
         },
-        child: Listener(
-          onPointerDown: (event) {
-            // Solo activar en la mitad izquierda de la pantalla
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onPanStart: (details) {
             final screenSize = MediaQuery.of(context).size;
-            if (event.position.dx < screenSize.width / 2) {
+            if (details.globalPosition.dx < screenSize.width / 2) {
               setState(() {
                 _isJoystickActive = true;
-                _joystickOrigin = event.position;
-                _joystickPosition = event.position;
+                _joystickOrigin = details.globalPosition;
+                _joystickPosition = details.globalPosition;
                 _joystickInput = Vector2(0, 0);
               });
             }
           },
-          onPointerMove: (event) {
+          onPanUpdate: (details) {
             if (_isJoystickActive && _joystickOrigin != null) {
               setState(() {
-                final currentPos = event.position;
+                final currentPos = details.globalPosition;
                 Vector2 delta = Vector2(
                   currentPos.dx - _joystickOrigin!.dx,
                   currentPos.dy - _joystickOrigin!.dy,
                 );
                 
-                // Limitar el movimiento del knob al radio
                 if (delta.length > _joystickRadius) {
                   delta = delta.normalized() * _joystickRadius;
                 }
@@ -447,12 +1827,11 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                   _joystickOrigin!.dy + delta.y,
                 );
                 
-                // Calcular vector normalizado para el movimiento (0.0 a 1.0)
                 _joystickInput = delta / _joystickRadius;
               });
             }
           },
-          onPointerUp: (event) {
+          onPanEnd: (details) {
             setState(() {
               _isJoystickActive = false;
               _joystickOrigin = null;
@@ -462,44 +1841,169 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           },
           child: Stack(
             children: [
-            // Habitación actual con límites
             Center(
-              child: Container(
-                width: room.roomSize.width,
-                height: room.roomSize.height,
-                decoration: BoxDecoration(
-                  color: room.backgroundColor,
-                  border: Border.all(color: Colors.brown, width: 4),
-                ),
-                child: Stack(
+              child: FittedBox(
+                fit: BoxFit.contain,
+                child: SizedBox(
+                  width: room.roomSize.width,
+                  height: room.roomSize.height,
+                  child: Stack(
+                  clipBehavior: Clip.none,
                   children: [
-                    // Puertas (visuales)
-                    ...room.doors.map((door) {
-                      return Positioned(
-                        left: door.position.x,
-                        top: door.position.y,
-                        child: Container(
-                          width: door.size.x,
-                          height: door.size.y,
-                          decoration: BoxDecoration(
-                            color: Colors.brown.withOpacity(0.5),
-                            border: Border.all(color: Colors.yellow, width: 2),
-                          ),
-                          child: Center(
-                            child: Text(
-                              door.label,
-                              style: const TextStyle(
-                                color: Colors.yellow,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
+                    ClipPath(
+                      clipper: RoomShapeClipper(shape: room.shape),
+                      child: Container(
+                        width: room.roomSize.width,
+                        height: room.roomSize.height,
+                        decoration: BoxDecoration(
+                          color: room.backgroundColor,
+                          image: const DecorationImage(
+                            image: AssetImage('assets/images/wood_floor.jpg'),
+                            repeat: ImageRepeat.repeat,
+                            scale: 4.0, 
                           ),
                         ),
-                      );
+                      ),
+                    ),
+
+                    if (room.shape == RoomShape.cutCorners)
+                      ..._buildCutCornersWalls(room)
+                    else if (room.shape == RoomShape.hexagon)
+                      ..._buildHexagonWalls(room)
+                    else if (room.shape == RoomShape.lShape)
+                      ..._buildLShapeWalls(room)
+                    else if (room.shape == RoomShape.uShape)
+                      ..._buildUShapeWalls(room)
+                    else
+                      ..._buildRectangularWalls(room),
+
+                    ...room.doors.map((door) {
+                      final dist = _playerPosition.distanceTo(Vector2(
+                        door.position.dx + door.size.x / 2,
+                        door.position.dy + door.size.y / 2,
+                      ));
+                      final isOpen = dist < 80.0;
+                      
+                      // LÓGICA ESPECIAL PARA SALA DE ESTAR
+                      final isLivingRoom = room.id == 'living_room';
+                        
+                        final isHorizontal = door.size.x > door.size.y;
+                        
+                        if (isHorizontal && _doorSprite != null) {
+                          final visualWidth = door.size.x * 1.2;
+                          // Altura ajustada para que la puerta quepa sin salirse del mapa
+                          final visualHeight = door.size.y * 4.5; 
+                          
+                          final isNorth = door.position.dy < room.roomSize.height / 2;
+                          final isSouth = door.position.dy > room.roomSize.height / 2;
+                          
+                          double topPos;
+                          
+                          if (isNorth) {
+                            // Lógica específica para sala en U
+                            if (isLivingRoom && door.position.dy > 50) {
+                              // Puerta central (Hallway) - La pared está más abajo (y=120)
+                              // Wall bottom is at 120 (towerHeight) + 60 (wallHeight) = 180
+                              // Pero visualmente queremos que parezca incrustada en la pared de fondo del hueco
+                              topPos = 120.0 + 60.0 - visualHeight + door.size.y;
+                            } else if (door.position.dy < 100) {
+                              // Puertas norte estándar (Study, Emma) - Pared en y=0, bottom en y=60
+                              topPos = 60.0 - visualHeight + door.size.y;
+                            } else {
+                              topPos = door.position.dy - visualHeight + door.size.y;
+                            }
+                          } else if (isSouth) {
+                            // Puerta en pared sur (abajo)
+                            
+                            // Si es la habitación de Emma o el Estudio, mostrar ESCALERAS BAJANDO
+                            // El usuario pidió quitar la puerta y que las escaleras "rompan" la pared.
+                            // Para lograr esto visualmente, dibujamos las escaleras ENCIMA del muro.
+
+                            
+                            // Puerta normal para otras habitaciones
+                            topPos = room.roomSize.height - visualHeight + 5; 
+                          } else {
+                            // Puertas en paredes internas
+                            topPos = door.position.dy - visualHeight + door.size.y;
+                            
+                            if (room.shape == RoomShape.cutCorners && door.position.dy > 100 && door.position.dy < room.roomSize.height / 2) {
+                               topPos -= 10.0; 
+                            }
+                          }
+
+                        return Positioned(
+                          left: door.position.x - (visualWidth - door.size.x) / 2, // Centrar horizontalmente
+                          top: topPos, 
+                          child: SizedBox(
+                            width: visualWidth,
+                            height: visualHeight,
+                            child: AnimatedSpriteWidget(
+                              sprite: _doorSprite!,
+                              direction: 'DOOR',
+                              frameIndex: isOpen ? 1 : 0,
+                              size: visualWidth,
+                            ),
+                          ),
+                        );
+                      } else {
+                        // Puertas verticales (izquierda/derecha)
+                        if (_doorSprite != null) {
+                          // Para puertas verticales, intercambiamos dimensiones porque rotaremos 90°
+                          // spriteWidth se convierte en la ALTURA después de rotar
+                          final spriteWidth = door.size.y * 4.5; // Aumentado para que la puerta sea alta
+                          final spriteHeight = door.size.x * 1.2; // El ancho del sprite (después de rotar)
+                          
+                          final isWest = door.position.dx < room.roomSize.width / 2;
+                          final isEast = door.position.dx > room.roomSize.width / 2;
+                          
+                          double leftPos;
+                          
+                          if (isWest && door.position.dx < 100) {
+                            // Puerta en pared oeste (izquierda) - pegada a la pared
+                            leftPos = 20.0 - spriteHeight + door.size.x; // Pegada a la pared izquierda
+                          } else if (isEast) {
+                            // Puerta en pared este (derecha) - PEGADA A LA PARED
+                            // El sprite debe extenderse desde la pared hacia la izquierda
+                            leftPos = room.roomSize.width - 20.0 - spriteHeight + door.size.x;
+                          } else {
+                            // Puertas internas
+                            leftPos = door.position.x - (spriteHeight - door.size.x) / 2;
+                          }
+                          
+                          return Positioned(
+                            left: leftPos,
+                            top: door.position.y - (spriteWidth - door.size.y) / 2, // Centrar verticalmente
+                            child: SizedBox(
+                              width: spriteHeight, // Ancho del contenedor (antes de rotar)
+                              height: spriteWidth, // Alto del contenedor (antes de rotar)
+                              child: Transform.rotate(
+                                angle: 1.5708, // 90 grados en radianes (π/2)
+                                child: AnimatedSpriteWidget(
+                                  sprite: _doorSprite!,
+                                  direction: 'DOOR',
+                                  frameIndex: isOpen ? 1 : 0,
+                                  size: spriteWidth,
+                                ),
+                              ),
+                            ),
+                          );
+                        } else {
+                          // Fallback si no hay sprite
+                          return Positioned(
+                            left: door.position.x,
+                            top: door.position.y,
+                            child: Container(
+                              width: door.size.x,
+                              height: door.size.y,
+                              decoration: BoxDecoration(
+                                color: isOpen ? Colors.black : Colors.brown[800],
+                                border: Border.all(color: Colors.brown[900]!, width: 2),
+                              ),
+                            ),
+                          );
+                        }
+                      }
                     }),
-                    // Interactables
                     ...room.interactables.map((interactable) {
                       return InteractableObject(
                         data: interactable,
@@ -518,38 +2022,38 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                         },
                       );
                     }),
-                    // Jugador
                     Positioned(
                       left: _playerPosition.x - _playerSize / 2,
                       top: _playerPosition.y - _playerSize / 2,
-                      child: SizedBox(
-                        width: _playerSize,
-                        height: _playerSize,
-                        child: Image.asset(
-                          'assets/avatars/full_body/dan_fullbody.png',
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: Colors.blue,
-                                border: Border.all(color: Colors.white, width: 2),
-                                shape: BoxShape.circle,
+                      child: _danSprite != null
+                          ? AnimatedSpriteWidget(
+                              sprite: _danSprite!,
+                              direction: _currentDirection,
+                              frameIndex: _currentFrame,
+                              size: _playerSize,
+                            )
+                          : SizedBox(
+                              width: _playerSize,
+                              height: _playerSize,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.blue,
+                                  border: Border.all(color: Colors.white, width: 2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.person,
+                                  color: Colors.white,
+                                  size: 30,
+                                ),
                               ),
-                              child: const Icon(
-                                Icons.person,
-                                color: Colors.white,
-                                size: 30,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                            ),
                     ),
                   ],
                 ),
               ),
             ),
-            // Overlay de transición (pantalla negra)
+          ),
             if (_isTransitioning)
               AnimatedBuilder(
                 animation: _fadeAnimation,
@@ -559,7 +2063,6 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                   );
                 },
               ),
-            // HUD
             Positioned(
               top: 16,
               left: 16,
@@ -605,7 +2108,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                 ),
               ),
             ),
-            // Controles
+            if (kIsWeb || (defaultTargetPlatform != TargetPlatform.android && defaultTargetPlatform != TargetPlatform.iOS))
             Positioned(
               bottom: 16,
               right: 16,
@@ -627,9 +2130,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                 ),
               ),
             ),
-            // Joystick UI
             if (_isJoystickActive && _joystickOrigin != null && _joystickPosition != null) ...[
-              // Base del joystick
               Positioned(
                 left: _joystickOrigin!.dx - _joystickRadius,
                 top: _joystickOrigin!.dy - _joystickRadius,
@@ -643,7 +2144,6 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                   ),
                 ),
               ),
-              // Knob del joystick
               Positioned(
                 left: _joystickPosition!.dx - _joystickKnobRadius,
                 top: _joystickPosition!.dy - _joystickKnobRadius,
@@ -665,7 +2165,6 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
               ),
             ],
             
-            // Botón de interacción (Móvil)
             if (_canInteract && !_isDialogueActive)
               Positioned(
                 bottom: 80,
