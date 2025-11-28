@@ -68,6 +68,7 @@ flutter:
     - assets/avatars/dialogue_body/
     - assets/images/
     - assets/sprites/
+    - assets/sprites/objects/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

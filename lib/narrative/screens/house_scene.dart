@@ -523,6 +523,36 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
            if (sofaHitbox.overlaps(playerRect)) {
              return false;
            }
+        } else if (interactable.id == 'emma_desk') {
+           // Hitbox ajustada para el escritorio (menos permisiva que muebles genéricos)
+           final deskHitbox = furnitureRect.deflate(10.0);
+           if (deskHitbox.overlaps(playerRect)) {
+             return false;
+           }
+        } else if (interactable.id == 'emma_bed') {
+           // Hitbox ajustada para la cama
+           final bedHitbox = furnitureRect.deflate(10.0);
+           if (bedHitbox.overlaps(playerRect)) {
+             return false;
+           }
+        } else if (interactable.id == 'furniture_1') {
+           // Mueble 1 (grande): Deflate mayor para no bloquear (compensando aumento de tamaño)
+           final itemHitbox = furnitureRect.deflate(30.0);
+           if (itemHitbox.overlaps(playerRect)) {
+             return false;
+           }
+        } else if (interactable.id == 'furniture_2') {
+           // Mueble 2 (delgado): Deflate ajustado
+           final itemHitbox = furnitureRect.deflate(15.0);
+           if (itemHitbox.overlaps(playerRect)) {
+             return false;
+           }
+        } else if (interactable.id == 'furniture_3') {
+           // Mueble 3 (pequeño): Deflate menor para no perder colisión
+           final itemHitbox = furnitureRect.deflate(5.0);
+           if (itemHitbox.overlaps(playerRect)) {
+             return false;
+           }
         } else {
            // Muebles genéricos
            // Reducir un poco la hitbox del mueble para ser permisivos

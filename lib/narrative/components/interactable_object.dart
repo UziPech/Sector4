@@ -49,7 +49,7 @@ class InteractableObject extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Para muebles decorativos, no mostrar borde a menos que esté en rango
-    final isFurniture = data.type == InteractableType.furniture;
+    final isFurniture = data.type == InteractableType.furniture || data.type == InteractableType.photo;
     final showBorder = !isFurniture || isInRange;
     
     return Positioned(
@@ -198,7 +198,7 @@ class InteractableObject extends StatelessWidget {
       case InteractableType.phone:
         return Colors.green.withOpacity(0.5);
       case InteractableType.photo:
-        return Colors.blue.withOpacity(0.5);
+        return Colors.transparent;
       case InteractableType.door:
         return Colors.brown.withOpacity(0.5);
       case InteractableType.furniture:

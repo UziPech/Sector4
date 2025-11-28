@@ -96,9 +96,10 @@ class RoomManager {
         InteractableData(
           id: 'emma_desk',
           name: 'Escritorio de Emma',
-          type: InteractableType.desk,
+          type: InteractableType.furniture,
           position: const Vector2(200, 200),
-          size: const Vector2(80, 60),
+          size: const Vector2(92, 70),
+          spritePath: 'assets/sprites/objects/desk.png',
           dialogue: DialogueSequence(
             id: 'emma_desk_dialogue',
             dialogues: [
@@ -111,14 +112,68 @@ class RoomManager {
           ),
         ),
         
+        InteractableData(
+          id: 'emma_bed',
+          name: 'Cama de Emma',
+          type: InteractableType.furniture,
+          position: const Vector2(400, 200),
+          size: const Vector2(100, 120),
+          spritePath: 'assets/sprites/objects/bed.png',
+        ),
+        
+        InteractableData(
+          id: 'furniture_1',
+          name: 'Mueble 1',
+          type: InteractableType.furniture,
+          position: const Vector2(145, 10),
+          size: const Vector2(144, 144),
+          spritePath: 'assets/sprites/objects/furniture_1.png',
+        ),
+        InteractableData(
+          id: 'furniture_2',
+          name: 'Mueble 2',
+          type: InteractableType.furniture,
+          position: const Vector2(285, 10),
+          size: const Vector2(44, 144),
+          spritePath: 'assets/sprites/objects/furniture_2.png',
+        ),
+        InteractableData(
+          id: 'furniture_3',
+          name: 'Mueble 3',
+          type: InteractableType.furniture,
+          position: const Vector2(530, 10),
+          size: const Vector2(60, 80),
+          spritePath: 'assets/sprites/objects/furniture_3.png',
+        ),
+        
         // Sofá - Zona norte de la habitación
         InteractableData(
           id: 'emma_sofa',
           name: 'Sofá',
           type: InteractableType.furniture,
-          position: const Vector2(300, 30),
+          position: const Vector2(330, 15),
           size: const Vector2(200, 100),
           spritePath: 'assets/images/sofa.png',
+        ),
+
+        // Fotos - Pared de la extensión izquierda
+        InteractableData(
+          id: 'emma_photos',
+          name: 'Fotos',
+          type: InteractableType.photo,
+          position: const Vector2(50, 320),
+          size: const Vector2(80, 60),
+          spritePath: 'assets/sprites/objects/photos.png',
+          dialogue: DialogueSequence(
+            id: 'emma_photos_dialogue',
+            dialogues: [
+              const DialogueData(
+                speakerName: 'Dan',
+                text: 'Recuerdos de tiempos mejores...',
+                type: DialogueType.internal,
+              ),
+            ],
+          ),
         ),
       ],
       doors: [
