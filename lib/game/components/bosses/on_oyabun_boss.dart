@@ -147,6 +147,12 @@ class OnOyabunBoss extends PositionComponent
   // Umbral de muerte honorable
   final double honorableDeathThreshold = 0.10; // 10% HP
   
+  // Sistema de sprites
+  SpriteAnimationComponent? _spriteComponent;
+  late SpriteAnimation _idleAnimation;
+  late SpriteAnimation _walkAnimation;
+  late SpriteAnimation _attackAnimation;
+  
   // ==================== CONSTRUCTOR ====================
   OnOyabunBoss({
     required Vector2 position,
@@ -159,6 +165,9 @@ class OnOyabunBoss extends PositionComponent
     
     // Tamaño del jefe (3 metros de alto, el doble del jugador)
     size = Vector2(60, 90); // Width x Height
+    
+    // Cargar sprites del boss
+    await _loadSprites();
     
     // Agregar hitbox circular
     add(RectangleHitbox(
@@ -178,6 +187,70 @@ class OnOyabunBoss extends PositionComponent
     debugPrint('🎯 Target inicial: ${game.player.role == PlayerRole.mel ? "Mel" : "Dan"}');
   }
   
+  /// Carga el spritesheet y configura las animaciones
+  Future<void> _loadSprites() async {
+    try {
+      print('🔍 [Oyabun] Intentando cargar sprites...');
+      final spriteSheet = await game.images.load('sprites/On_oyabuSpritesComplete.png');
+      print('🔍 [Oyabun] SpriteSheet cargado: ${spriteSheet.width}x${spriteSheet.height}');
+      
+      // Configuración del spritesheet
+      // Dimensiones confirmadas: 672x420px = 8x5 frames de 84x84px
+      const frameWidth = 84.0;
+      const frameHeight = 84.0;
+      const framesPerRow = 8;
+      
+      // Animación idle (primera fila)
+      _idleAnimation = SpriteAnimation.fromFrameData(
+        spriteSheet,
+        SpriteAnimationData.sequenced(
+          amount: framesPerRow,
+          stepTime: 0.2,
+          textureSize: Vector2(frameWidth, frameHeight),
+          texturePosition: Vector2.zero(),
+        ),
+      );
+      
+      // Animación walk (segunda fila)
+      _walkAnimation = SpriteAnimation.fromFrameData(
+        spriteSheet,
+        SpriteAnimationData.sequenced(
+          amount: framesPerRow,
+          stepTime: 0.12,
+          textureSize: Vector2(frameWidth, frameHeight),
+          texturePosition: Vector2(0, frameHeight),
+        ),
+      );
+      
+      // Animación attack (tercera fila)
+      _attackAnimation = SpriteAnimation.fromFrameData(
+        spriteSheet,
+        SpriteAnimationData.sequenced(
+          amount: framesPerRow,
+          stepTime: 0.1,
+          textureSize: Vector2(frameWidth, frameHeight),
+          texturePosition: Vector2(0, frameHeight * 2),
+        ),
+      );
+      
+      // Crear componente de sprite escalado
+      _spriteComponent = SpriteAnimationComponent(
+        animation: _idleAnimation,
+        size: Vector2(size.x * 1.2, size.y * 1.2), // Escalar component
+        anchor: Anchor.center,
+      );
+      
+      add(_spriteComponent!);
+      print('🎉 [Oyabun] Sprite component agregado exitosamente');
+      
+      debugPrint('✅ Sprites de On-Oyabun cargados exitosamente');
+    } catch (e, stackTrace) {
+      debugPrint('⚠️ Error cargando sprites de On-Oyabun: $e');
+      debugPrint('   Stack trace: $stackTrace');
+      debugPrint('   Usando fallback a renderizado rectangular');
+    }
+  }
+  
   /// Recibe daño de cualquier fuente
   // (Este método fue movido a la sección de DAÑO Y MUERTE más abajo)
 
@@ -188,6 +261,18 @@ class OnOyabunBoss extends PositionComponent
     super.update(dt);
     
     if (isDead) return;
+    
+    // Actualizar animación de sprites según estado
+    if (_spriteComponent != null) {
+      // Determinar animación según acción
+      if (currentAction == 'attacking' || isPerformingCombo) {
+        _spriteComponent!.animation = _attackAnimation;
+      } else if (velocity.length > 10) {
+        _spriteComponent!.animation = _walkAnimation;
+      } else {
+        _spriteComponent!.animation = _idleAnimation;
+      }
+    }
     
     // Actualizar cooldowns de armas
     _updateWeaponCooldowns(dt);
@@ -283,14 +368,20 @@ class OnOyabunBoss extends PositionComponent
   void render(Canvas canvas) {
     super.render(canvas);
     
-    // Renderizar aura según fase
+    // Renderizar aura según fase (MANTENER)
     _renderAura(canvas);
     
-    // Renderizar cuerpo del jefe (placeholder)
-    _renderBody(canvas);
+    // FALLBACK: Si sprites no cargaron, renderizar rectángulo
+    if (_spriteComponent == null) {
+      _renderBodyFallback(canvas);
+    }
+    // NOTA: Si sprites cargaron, se renderizan automáticamente por SpriteAnimationComponent
     
-    // Renderizar barra de HP (para testing)
+    // Renderizar barra de HP
     _renderHealthBar(canvas);
+    
+    // Renderizar indicador de fase
+    _renderPhaseIndicator(canvas);
   }
   
   void _renderAura(Canvas canvas) {
@@ -323,8 +414,8 @@ class OnOyabunBoss extends PositionComponent
     );
   }
   
-  void _renderBody(Canvas canvas) {
-    // Placeholder: Círculo grande rojo/negro según fase
+  void _renderBodyFallback(Canvas canvas) {
+    // FALLBACK: Rectángulo según fase si sprites no cargaron
     Color bodyColor = const Color(0xFF880000);
     
     switch (currentPhase) {
@@ -353,12 +444,18 @@ class OnOyabunBoss extends PositionComponent
       ..strokeWidth = 2;
     
     canvas.drawRect(size.toRect(), borderPaint);
-    
+  }
+  
+  void _renderPhaseIndicator(Canvas canvas) {
     // Indicador de fase (pequeño texto)
     final textPainter = TextPainter(
       text: TextSpan(
         text: 'Fase ${currentPhase.index + 1}',
-        style: const TextStyle(color: Colors.white, fontSize: 10),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       textDirection: TextDirection.ltr,
     );

@@ -67,6 +67,7 @@ flutter:
     - assets/avatars/full_body/
     - assets/avatars/dialogue_body/
     - assets/images/
+    - assets/images/sprites/
     - assets/sprites/
     - assets/sprites/objects/
 

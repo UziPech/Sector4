@@ -72,6 +72,11 @@ class YureiKohaa extends PositionComponent
   
   static const double _size = 40.0;
   
+  // Sistema de sprites
+  SpriteAnimationComponent? _spriteComponent;
+  late SpriteAnimation _idleAnimation;
+  late SpriteAnimation _walkAnimation;
+  
   YureiKohaa({
     required Vector2 position,
   })  : _health = 3000.0, // HP inicial MUY ALTO
@@ -83,6 +88,9 @@ class YureiKohaa extends PositionComponent
     size = Vector2.all(_size);
     anchor = Anchor.center;
     
+    // Cargar spritesheet de Yurei Kohaa
+    await _loadSprites();
+    
     // Agregar hitbox
     add(CircleHitbox(
       radius: _size / 2,
@@ -90,11 +98,79 @@ class YureiKohaa extends PositionComponent
     ));
   }
   
+  /// Carga el spritesheet y configura las animaciones
+  Future<void> _loadSprites() async {
+    try {
+      print('🔍 [Kohaa] Intentando cargar sprites...');
+      final spriteSheet = await game.images.load('sprites/Yurei_kohaaSpritesComplete.png');
+      print('🔍 [Kohaa] SpriteSheet cargado: ${spriteSheet.width}x${spriteSheet.height}');
+      
+      // Configuración del spritesheet
+      // Dimensiones confirmadas: 672x420px = 8x5 frames de 84x84px
+      const frameWidth = 84.0;
+      const frameHeight = 84.0;
+      const framesPerRow = 8;
+      
+      // Animación idle (primera fila)
+      _idleAnimation = SpriteAnimation.fromFrameData(
+        spriteSheet,
+        SpriteAnimationData.sequenced(
+          amount: framesPerRow,
+          stepTime: 0.15,
+          textureSize: Vector2(frameWidth, frameHeight),
+          texturePosition: Vector2.zero(),
+        ),
+      );
+      
+      // Animación walk (segunda fila)
+      _walkAnimation = SpriteAnimation.fromFrameData(
+        spriteSheet,
+        SpriteAnimationData.sequenced(
+          amount: framesPerRow,
+          stepTime: 0.1,
+          textureSize: Vector2(frameWidth, frameHeight),
+          texturePosition: Vector2(0, frameHeight),
+        ),
+      );
+      
+      // Crear componente de sprite con escala alta (mantener visual grande)
+      _spriteComponent = SpriteAnimationComponent(
+        animation: _idleAnimation,
+        size: Vector2.all(_size * 1.3), // Escalar el component, no el texture
+        anchor: Anchor.center,
+      );
+      
+      add(_spriteComponent!);
+      print('🎉 [Kohaa] Sprite component agregado exitosamente');
+      
+      debugPrint('✅ Sprites de Yurei Kohaa cargados exitosamente');
+    } catch (e, stackTrace) {
+      debugPrint('⚠️ Error cargando sprites de Yurei Kohaa: $e');
+      debugPrint('   Stack trace: $stackTrace');
+      debugPrint('   Usando fallback a renderizado circular');
+    }
+  }
+  
   @override
   void update(double dt) {
     super.update(dt);
     
     if (_isDead) return;
+    
+    // Actualizar animación de sprites según estado
+    if (_spriteComponent != null) {
+      // Determinar animación según velocidad
+      final velocity = _isDashing ? _dashDirection * _dashSpeed : 
+                      (_currentTarget != null && position.distanceTo(_currentTarget!.position) > _attackRange)
+                      ? (_currentTarget!.position - position).normalized() * _speed
+                      : Vector2.zero();
+      
+      if (velocity.length > 10) {
+        _spriteComponent!.animation = _walkAnimation;
+      } else {
+        _spriteComponent!.animation = _idleAnimation;
+      }
+    }
     
     // Actualizar timers
     if (_attackTimer > 0) _attackTimer -= dt;
@@ -663,11 +739,13 @@ class YureiKohaa extends PositionComponent
     removeFromParent();
   }
   
+  
+  
   @override
   void render(Canvas canvas) {
     super.render(canvas);
     
-    // Aura roja para Kijin
+    // Aura roja para Kijin (MANTENER)
     final auraPaint = Paint()
       ..color = Colors.red.withOpacity(0.3)
       ..style = PaintingStyle.fill;
@@ -678,28 +756,32 @@ class YureiKohaa extends PositionComponent
       auraPaint,
     );
     
-    // Cuerpo de Kohaa (rojo oscuro)
-    final bodyPaint = Paint()
-      ..color = const Color(0xFF8B0000).withOpacity(0.9)
-      ..style = PaintingStyle.fill;
-    
-    canvas.drawCircle(
-      (size / 2).toOffset(),
-      _size / 2,
-      bodyPaint,
-    );
-    
-    // Borde blanco brillante
-    final borderPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
-    
-    canvas.drawCircle(
-      (size / 2).toOffset(),
-      _size / 2,
-      borderPaint,
-    );
+    // FALLBACK: Si sprites no cargaron, dibujar círculo
+    if (_spriteComponent == null) {
+      // Cuerpo de Kohaa (rojo oscuro) - FALLBACK
+      final bodyPaint = Paint()
+        ..color = const Color(0xFF8B0000).withOpacity(0.9)
+        ..style = PaintingStyle.fill;
+      
+      canvas.drawCircle(
+        (size / 2).toOffset(),
+        _size / 2,
+        bodyPaint,
+      );
+      
+      // Borde blanco brillante
+      final borderPaint = Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3;
+      
+      canvas.drawCircle(
+        (size / 2).toOffset(),
+        _size / 2,
+        borderPaint,
+      );
+    }
+    // NOTA: Si sprites cargaron, el sprite se renderiza automáticamente por el SpriteAnimationComponent
     
     // Indicador de HUIDA (verde pulsante)
     if (_isFleeing) {
