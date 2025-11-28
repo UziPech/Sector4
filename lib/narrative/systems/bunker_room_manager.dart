@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/room_data.dart';
 import '../models/interactable_data.dart';
 import '../models/dialogue_data.dart';
+import 'tree_generator.dart';
 
 /// Gestor de habitaciones del búnker (Capítulo 2)
 class BunkerRoomManager {
@@ -65,6 +66,9 @@ class BunkerRoomManager {
             ],
           ),
         ),
+        
+        // 200 árboles generados proceduralmente (50 por cuadrante)
+        ...TreeGenerator.generateTrees(),
       ],
       doors: [
         const DoorData(

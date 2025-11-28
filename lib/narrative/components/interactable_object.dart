@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import '../models/interactable_data.dart';
 import '../models/dialogue_data.dart';
 import 'dialogue_system.dart';
+import 'animated_tree.dart';
 
 /// Widget para objetos interactuables en la escena
 class InteractableObject extends StatelessWidget {
@@ -48,9 +49,10 @@ class InteractableObject extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Para muebles decorativos, no mostrar borde a menos que esté en rango
+    // Para muebles decorativos, fotos y decoraciones, no mostrar borde a menos que esté en rango
     final isFurniture = data.type == InteractableType.furniture || data.type == InteractableType.photo;
-    final showBorder = !isFurniture || isInRange;
+    final isDecoration = data.type == InteractableType.decoration;
+    final showBorder = (!isFurniture && !isDecoration) || isInRange;
     
     return Positioned(
       left: data.position.x,

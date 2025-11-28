@@ -51,6 +51,7 @@ enum InteractableType {
   npc, // Personaje (futuro)
   object, // Objeto general
   character, // Personaje interactuable (Mel)
+  decoration, // Decoración visual (árboles, efectos)
 }
 
 

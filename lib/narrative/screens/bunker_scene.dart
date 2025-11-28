@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' as ui; // Import dart:ui for Image
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
@@ -9,6 +10,7 @@ import '../systems/bunker_room_manager.dart';
 import '../components/interactable_object.dart';
 import '../components/dialogue_system.dart';
 import '../components/animated_sprite.dart';
+import '../components/forest_painter.dart'; // Import ForestPainter
 import '../services/save_system.dart';
 import '../../main.dart';
 
@@ -24,7 +26,7 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
   late final BunkerRoomManager _roomManager;
   Vector2 _playerPosition = const Vector2(350, 400);
   final double _playerSize = 80.0; // Aumentado a 80 para mejor visibilidad
-  final double _playerSpeed = 3.0;
+  final double _playerSpeed = 6.0; // Velocidad balanceada para móvil y desktop
   final Set<LogicalKeyboardKey> _pressedKeys = {};
   bool _isDialogueActive = false;
   bool _melMetCompleted = false;
@@ -47,7 +49,9 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
   Timer? _updateTimer;
   
   // Animación de sprite
-  AnimatedSprite? _danSprite;
+  AnimatedSprite? _danSpriteNorth;
+  AnimatedSprite? _danSpriteSouth;
+  ui.Image? _treeSprite; // Sprite sheet para los árboles
   String _currentDirection = 'SOUTH';
   int _currentFrame = 0;
   double _animationTimer = 0.0;
@@ -69,17 +73,38 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
       _updateCooldown();
     });
     
-    // Cargar sprite sheet de Dan
-    _loadDanSprite();
+    // Cargar sprites de Dan (Norte y Sur)
+    _loadDanSprites();
+    // Cargar sprite sheet de árboles
+    _loadTreeSprite();
     
     _showArrivalMonologue();
   }
   
-  Future<void> _loadDanSprite() async {
-    final sprite = await AnimatedSprite.load('assets/sprites/dan_spritesheet.png');
+  Future<void> _loadDanSprites() async {
+    try {
+      final spriteNorth = await AnimatedSprite.load('assets/sprites/dan_walk_north.png');
+      final spriteSouth = await AnimatedSprite.load('assets/sprites/dan_walk_south.png');
+      
+      if (mounted) {
+        setState(() {
+          _danSpriteNorth = spriteNorth;
+          _danSpriteSouth = spriteSouth;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading Dan sprites: $e');
+    }
+  }
+
+  Future<void> _loadTreeSprite() async {
+    final data = await rootBundle.load('assets/sprites/pine_trees.png');
+    final bytes = data.buffer.asUint8List();
+    final codec = await ui.instantiateImageCodec(bytes);
+    final frame = await codec.getNextFrame();
     if (mounted) {
       setState(() {
-        _danSprite = sprite;
+        _treeSprite = frame.image;
       });
     }
   }
@@ -190,43 +215,33 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
     }
 
     if (velocity.x != 0 || velocity.y != 0) {
-      // Use length for normalization to match HouseScene logic
-      final length = (velocity.x * velocity.x + velocity.y * velocity.y);
-      if (length > 0) {
-        // Manual normalization if needed, or use normalized() if available
-        // Assuming Vector2 has normalized() from previous fixes
-        // But let's be safe and use the same logic as HouseScene if possible, 
-        // or trust the existing normalized() method if it works.
-        // The existing code used velocity.normalized() * _playerSpeed.
-        // We will stick to that but ensure we handle the joystick input correctly.
-        
-        // Re-normalize only if magnitude > 1 (to allow slow movement with joystick)?
-        // Or just normalize always for constant speed.
-        // Let's normalize always for now.
-        if (velocity.length > 1) {
-             velocity = velocity.normalized();
-        } else if (velocity.length == 0) {
-             // do nothing
-        } else {
-             // if joystick is partial, we might want to keep it? 
-             // But for consistency with keyboard, let's normalize direction and apply speed.
-             velocity = velocity.normalized();
-        }
-        
-        velocity = velocity * _playerSpeed;
+      // Normalizar y aplicar velocidad de manera consistente
+      if (velocity.length > 0) {
+        velocity = velocity.normalized() * _playerSpeed;
+      }
 
-        final room = _roomManager.currentRoom;
-        final newX = (_playerPosition.x + velocity.x).clamp(_playerSize / 2, room.roomSize.width - _playerSize / 2);
-        final newY = (_playerPosition.y + velocity.y).clamp(_playerSize / 2, room.roomSize.height - _playerSize / 2);
-        setState(() { 
-          _playerPosition = Vector2(newX, newY);
-          
-          // Actualizar solo la dirección, sin animar frames
-          _currentDirection = AnimatedSprite.calculateDirection(velocity.x, velocity.y);
-          _currentFrame = 0; // Siempre usar el primer frame (sin animación)
-          
-          // Debug: imprimir dirección
-          print('Velocity: (${velocity.x.toStringAsFixed(2)}, ${velocity.y.toStringAsFixed(2)}) -> Direction: $_currentDirection');
+      final room = _roomManager.currentRoom;
+      final newX = (_playerPosition.x + velocity.x).clamp(_playerSize / 2, room.roomSize.width - _playerSize / 2);
+      final newY = (_playerPosition.y + velocity.y).clamp(_playerSize / 2, room.roomSize.height - _playerSize / 2);
+      
+      setState(() { 
+        _playerPosition = Vector2(newX, newY);
+        
+        // Calcular dirección
+        _currentDirection = AnimatedSprite.calculateDirection(velocity.x, velocity.y);
+        
+        // Animar frames
+        _animationTimer += 0.016; // ~16ms por frame
+        if (_animationTimer >= _frameRate) {
+          _animationTimer = 0;
+          _currentFrame = (_currentFrame + 1) % 3; // Ciclar entre 3 frames
+        }
+      });
+    } else {
+      // Si no se mueve, resetear a frame 0 (idle)
+      if (_currentFrame != 0) {
+        setState(() {
+          _currentFrame = 0;
         });
       }
     }
@@ -253,7 +268,25 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
 
   Widget _buildRoomWithCamera(RoomData room, Size screenSize) {
     if (room.cameraMode == CameraMode.follow) {
-      // Cámara que sigue al jugador - usar Positioned para mover el contenido
+      // Para el mapa exterior en móvil, usar FittedBox para que se vea completo
+      if (room.id == 'exterior_large' && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS)) {
+        return Center(
+          child: FittedBox(
+            fit: BoxFit.contain,
+            child: Container(
+              width: room.roomSize.width,
+              height: room.roomSize.height,
+              decoration: BoxDecoration(
+                color: room.backgroundColor,
+                border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+              ),
+              child: Stack(children: _buildRoomContent(room)),
+            ),
+          ),
+        );
+      }
+      
+      // Cámara que sigue al jugador - usar Positioned para mover el contenido (Desktop)
       final cameraX = (_playerPosition.x - screenSize.width / 2).clamp(
         0.0,
         room.roomSize.width - screenSize.width,
@@ -303,12 +336,41 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
   }
 
   List<Widget> _buildRoomContent(RoomData room) {
+    // Separar árboles de otros interactables
+    final trees = room.interactables.where((i) => i.type == InteractableType.decoration).toList();
+    final otherInteractables = room.interactables.where((i) => i.type != InteractableType.decoration).toList();
+
     return [
-      // Grid de fondo para visualización
-      CustomPaint(
-        size: Size(room.roomSize.width, room.roomSize.height),
-        painter: GridPainter(),
-      ),
+      // Fondo del mapa (textura o color)
+      if (room.id == 'exterior_large')
+        // Textura de piso para el mapa exterior grande
+        Positioned.fill(
+          child: Image.asset(
+            'assets/images/bunker_exterior_floor.jpg',
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(color: room.backgroundColor);
+            },
+          ),
+        )
+      else
+        // Grid de fondo para otras habitaciones
+        CustomPaint(
+          size: Size(room.roomSize.width, room.roomSize.height),
+          painter: GridPainter(),
+        ),
+      
+      // Renderizado optimizado de árboles (ForestPainter)
+      if (_treeSprite != null && trees.isNotEmpty)
+        Positioned.fill(
+          child: CustomPaint(
+            painter: ForestPainter(
+              image: _treeSprite!,
+              trees: trees,
+            ),
+          ),
+        ),
+
       // Puertas
       ...room.doors.map((door) => Positioned(
         left: door.position.x, top: door.position.y,
@@ -338,8 +400,8 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
           ),
         ),
       )),
-      // Interactables
-      ...room.interactables.map((interactable) => InteractableObject(
+      // Interactables (Solo los que NO son decoración/árboles)
+      ...otherInteractables.map((interactable) => InteractableObject(
         data: interactable, 
         playerPosition: _playerPosition, 
         interactionRadius: 80,
@@ -349,14 +411,29 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
       Positioned(
         left: _playerPosition.x - _playerSize / 2, 
         top: _playerPosition.y - _playerSize / 2,
-        child: _danSprite != null
-            ? AnimatedSpriteWidget(
-                sprite: _danSprite!,
-                direction: _currentDirection,
+        child: Builder(
+          builder: (context) {
+            // Seleccionar sprite basado en dirección
+            AnimatedSprite? spriteToUse;
+            
+            if (_currentDirection.contains('NORTH')) {
+              spriteToUse = _danSpriteNorth;
+            } else {
+              spriteToUse = _danSpriteSouth;
+            }
+            
+            // Fallback si alguno es null
+            spriteToUse ??= _danSpriteSouth ?? _danSpriteNorth;
+            
+            if (spriteToUse != null) {
+              return AnimatedSpriteWidget(
+                sprite: spriteToUse,
+                direction: _currentDirection, // AnimatedSprite ignorará esto si rows=1
                 frameIndex: _currentFrame,
                 size: _playerSize,
-              )
-            : SizedBox(
+              );
+            } else {
+              return SizedBox(
                 width: _playerSize,
                 height: _playerSize,
                 child: Container(
@@ -373,12 +450,15 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
                     ],
                   ),
                   child: const Icon(
-                    Icons.person, 
-                    color: Colors.white, 
-                    size: 28,
+                    Icons.person,
+                    color: Colors.white,
+                    size: 40,
                   ),
                 ),
-              ),
+              );
+            }
+          }
+        ),
       ),
     ];
   }
