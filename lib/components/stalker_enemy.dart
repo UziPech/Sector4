@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flame/components.dart';
 import 'package:flame/palette.dart';
 import 'package:flame/collisions.dart';
+import 'package:flutter/services.dart';
 import 'enemy_character.dart';
 import '../game/expediente_game.dart';
 
@@ -46,6 +47,10 @@ class StalkerEnemy extends EnemyCharacter {
   
   StalkerState stalkerState = StalkerState.active;
   
+  // Sistema de sprites animados
+  SpriteAnimationGroupComponent<String>? _spriteComponent;
+  bool _spritesLoaded = false;
+  
   // Referencia al objeto obsesivo (se asigna externamente)
   String? obsessionObjectId;
   
@@ -73,6 +78,65 @@ class StalkerEnemy extends EnemyCharacter {
     final hitbox = children.whereType<RectangleHitbox>().firstOrNull;
     if (hitbox != null) {
       hitbox.collisionType = CollisionType.passive;
+    }
+    
+    // Cargar sprites
+    await _loadStalkerSprites();
+  }
+  
+  Future<void> _loadStalkerSprites() async {
+    try {
+      print('🔄 Loading Stalker sprite sheet...');
+      
+      final data = await rootBundle.load('assets/sprites/Stalker.png');
+      final codec = await instantiateImageCodec(data.buffer.asUint8List());
+      final frame = await codec.getNextFrame();
+      final image = frame.image;
+      
+      print('📊 Stalker image: ${image.width}x${image.height}');
+      
+      const framesPerRow = 8;
+      const rows = 4;
+      final frameWidth = image.width / framesPerRow;
+      final frameHeight = image.height / rows;
+      
+      // Crear sprites para cada dirección
+      final List<Sprite> upSprites = [];
+      final List<Sprite> downSprites = [];
+      final List<Sprite> rightSprites = [];
+      final List<Sprite> leftSprites = [];
+      
+      for (int i = 0; i < framesPerRow; i++) {
+        upSprites.add(Sprite(image, srcPosition: Vector2(i * frameWidth, 0), srcSize: Vector2(frameWidth, frameHeight)));
+        downSprites.add(Sprite(image, srcPosition: Vector2(i * frameWidth, frameHeight), srcSize: Vector2(frameWidth, frameHeight)));
+        rightSprites.add(Sprite(image, srcPosition: Vector2(i * frameWidth, frameHeight * 2), srcSize: Vector2(frameWidth, frameHeight)));
+        leftSprites.add(Sprite(image, srcPosition: Vector2(i * frameWidth, frameHeight * 3), srcSize: Vector2(frameWidth, frameHeight)));
+      }
+      
+      final walkUp = SpriteAnimation.spriteList(upSprites, stepTime: 0.1);
+      final walkDown = SpriteAnimation.spriteList(downSprites, stepTime: 0.1);
+      final walkRight = SpriteAnimation.spriteList(rightSprites, stepTime: 0.1);
+      final walkLeft = SpriteAnimation.spriteList(leftSprites, stepTime: 0.1);
+      
+      _spriteComponent = SpriteAnimationGroupComponent<String>(
+        animations: {
+          'up': walkUp,
+          'down': walkDown,
+          'right': walkRight,
+          'left': walkLeft,
+        },
+        current: 'down',
+        anchor: Anchor.center,
+        size: Vector2.all(120),
+        position: Vector2.zero(),
+      );
+      
+      add(_spriteComponent!);
+      _spritesLoaded = true;
+      print('✅ Stalker sprites loaded!');
+    } catch (e) {
+      print('❌ Error loading Stalker sprites: $e');
+      _spritesLoaded = false;
     }
   }
   
@@ -167,6 +231,15 @@ class StalkerEnemy extends EnemyCharacter {
         
         if (toTarget.length > 10) {
           position.add(toTarget.normalized() * effectiveSpeed * dt);
+          
+          // Actualizar dirección del sprite
+          if (_spriteComponent != null) {
+            if (toTarget.y.abs() > toTarget.x.abs()) {
+              _spriteComponent!.current = toTarget.y < 0 ? 'up' : 'down';
+            } else {
+              _spriteComponent!.current = toTarget.x > 0 ? 'right' : 'left';
+            }
+          }
         }
       }
     }
@@ -355,6 +428,42 @@ class StalkerEnemy extends EnemyCharacter {
   
   @override
   void render(Canvas canvas) {
+    // Si los sprites están cargados, no dibujar el círculo
+    if (_spriteComponent != null && _spritesLoaded) {
+      // Aplicar tinte de color según estado
+      if (stalkerState == StalkerState.dashing) {
+        _spriteComponent!.paint.colorFilter = const ColorFilter.mode(
+          Color.fromARGB(100, 255, 180, 0),
+          BlendMode.srcATop,
+        );
+      } else if (stalkerState == StalkerState.charging) {
+        _spriteComponent!.paint.colorFilter = ColorFilter.mode(
+          Color.fromARGB(100, 255, (_shakeIntensity * 128).toInt(), 0),
+          BlendMode.srcATop,
+        );
+      } else if (stalkerState == StalkerState.berserk) {
+        _spriteComponent!.paint.colorFilter = const ColorFilter.mode(
+          Color.fromARGB(100, 255, 0, 0),
+          BlendMode.srcATop,
+        );
+      } else if (stalkerState == StalkerState.sleeping) {
+        _spriteComponent!.paint.colorFilter = const ColorFilter.mode(
+          Color.fromARGB(150, 100, 100, 200),
+          BlendMode.srcATop,
+        );
+      } else {
+        _spriteComponent!.paint.colorFilter = null;
+      }
+      
+      // Llamar a render base para barras de vida/escudo
+      super.render(canvas);
+      
+      // Renderizar barra de estabilidad
+      _renderStabilityBar(canvas);
+      return;
+    }
+    
+    // FALLBACK: Dibujar círculo si no hay sprite
     // Aplicar offset de temblor si está cargando
     if (stalkerState == StalkerState.charging) {
       canvas.save();
@@ -417,6 +526,11 @@ class StalkerEnemy extends EnemyCharacter {
     // Llamar a render base para barras de vida/escudo
     super.render(canvas);
     
+    // Renderizar barra de estabilidad
+    _renderStabilityBar(canvas);
+  }
+  
+  void _renderStabilityBar(Canvas canvas) {
     // Renderizar barra de estabilidad (Amarilla) debajo de la vida
     if (stalkerState == StalkerState.active || stalkerState == StalkerState.berserk) {
       const double barWidth = 32.0;
@@ -439,9 +553,6 @@ class StalkerEnemy extends EnemyCharacter {
         Rect.fromLTWH(-barWidth / 2, offsetY, barWidth * stabilityPercent, barHeight),
         Paint()..color = barColor,
       );
-    } else if (stalkerState == StalkerState.sleeping) {
-      // Indicador "Zzz" cuando duerme
-      // (Simplificado - podríamos añadir texto si fuera necesario)
     }
   }
 }

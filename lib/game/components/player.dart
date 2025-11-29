@@ -1,3 +1,4 @@
+import 'dart:ui' as ui; // Para cargar imágenes manualmente
 import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
@@ -33,6 +34,9 @@ class PlayerCharacter extends PositionComponent
   double _health = 100.0;
   double _maxHealth = 100.0;
   bool _isDead = false;
+  
+  // Sprite Component for Dan
+  SpriteAnimationGroupComponent<String>? _danSprite;
   
   // Movimiento
   final Vector2 _velocity = Vector2.zero();
@@ -127,6 +131,93 @@ class PlayerCharacter extends PositionComponent
       // Equipar Mano Mutante por defecto
       weaponInventory.equipWeapon(0);
     }
+    
+    // Cargar sprites para Dan
+    if (role == PlayerRole.dan) {
+      await _loadDanAnimations();
+    }
+  }
+  
+  Future<void> _loadDanAnimations() async {
+    try {
+      // Cargar imágenes manualmente
+      final northData = await rootBundle.load('assets/sprites/dan_walk_north.png');
+      final northCodec = await ui.instantiateImageCodec(northData.buffer.asUint8List());
+      final northFrame = await northCodec.getNextFrame();
+      final northImage = northFrame.image;
+
+      final southData = await rootBundle.load('assets/sprites/dan_walk_south.png');
+      final southCodec = await ui.instantiateImageCodec(southData.buffer.asUint8List());
+      final southFrame = await southCodec.getNextFrame();
+      final southImage = southFrame.image;
+      
+      // Configurar animaciones (Grilla 3x3 = 9 frames)
+      // La lógica original en house_scene usa AnimatedSprite.load con defaults (cols=3, rows=3)
+      // y cicla con % 9, lo que significa que usa los 9 frames.
+      final cols = 3;
+      final rows = 3;
+      final frameWidth = northImage.width / cols;
+      final frameHeight = northImage.height / rows;
+      final textureSize = Vector2(frameWidth, frameHeight);
+      
+      // Animación Norte (Caminata)
+      final northAnim = SpriteAnimation.fromFrameData(
+        northImage,
+        SpriteAnimationData.sequenced(
+          amount: 9, // 9 frames totales (3 filas x 3 columnas)
+          stepTime: 0.15, // Velocidad original
+          textureSize: textureSize,
+          amountPerRow: 3, // Baja a la siguiente fila cada 3 frames
+        ),
+      );
+      
+      // Animación Sur (Caminata)
+      final southAnim = SpriteAnimation.fromFrameData(
+        southImage,
+        SpriteAnimationData.sequenced(
+          amount: 9,
+          stepTime: 0.15,
+          textureSize: textureSize,
+          amountPerRow: 3,
+        ),
+      );
+      
+      // Animación Idle Norte (Usamos el primer frame de la animación norte)
+      final idleNorthAnim = SpriteAnimation.spriteList(
+        [northAnim.frames[0].sprite],
+        stepTime: 1.0,
+        loop: false,
+      );
+      
+      // Animación Idle Sur (Usamos el primer frame de la animación sur)
+      final idleSouthAnim = SpriteAnimation.spriteList(
+        [southAnim.frames[0].sprite],
+        stepTime: 1.0,
+        loop: false,
+      );
+      
+      _danSprite = SpriteAnimationGroupComponent<String>(
+        animations: {
+          'north': northAnim,
+          'south': southAnim,
+          'idle_north': idleNorthAnim,
+          'idle_south': idleSouthAnim,
+        },
+        current: 'idle_south',
+        anchor: Anchor.center,
+        // El tamaño visual es 80x80 como en el capítulo 1
+        size: Vector2(80, 80), 
+        // Centrado respecto al componente Player (que es 32x32)
+        // Player anchor es center, así que (0,0) es el centro.
+        // Pero en Flame los hijos son relativos al topLeft del padre si no se cambia.
+        // Player es 32x32. Su centro es (16, 16).
+        position: Vector2(16, 16), 
+      );
+      
+      add(_danSprite!);
+    } catch (e) {
+      debugPrint('Error cargando sprites de Dan: $e');
+    }
   }
   
   @override
@@ -182,6 +273,38 @@ class PlayerCharacter extends PositionComponent
     
     // Movimiento normal
     _updateMovement(dt);
+    
+    // Actualizar animación de Dan
+    if (_danSprite != null) {
+      _updateDanAnimation();
+    }
+  }
+  
+  void _updateDanAnimation() {
+    if (_velocity.length > 0) {
+      // Movimiento
+      if (_velocity.y < -0.1) {
+        _danSprite!.current = 'north';
+      } else if (_velocity.y > 0.1) {
+        _danSprite!.current = 'south';
+      } else {
+        // Movimiento horizontal: mantener dirección vertical previa o usar sur
+        final current = _danSprite!.current;
+        if (current == 'north' || current == 'idle_north') {
+          _danSprite!.current = 'north';
+        } else {
+          _danSprite!.current = 'south';
+        }
+      }
+    } else {
+      // Idle
+      final current = _danSprite!.current;
+      if (current == 'north' || current == 'idle_north') {
+        _danSprite!.current = 'idle_north';
+      } else {
+        _danSprite!.current = 'idle_south';
+      }
+    }
   }
   
   void _updateMovement(double dt) {
@@ -616,13 +739,15 @@ class PlayerCharacter extends PositionComponent
       );
     }
     
-    // Dibujar círculo del jugador (color según rol)
-    final paint = role == PlayerRole.dan ? _paintDan : _paintMel;
-    canvas.drawCircle(
-      (size / 2).toOffset(),
-      _size / 2,
-      paint,
-    );
+    // Dibujar círculo del jugador (color según rol) - SOLO SI NO HAY SPRITE
+    if (_danSprite == null) {
+      final paint = role == PlayerRole.dan ? _paintDan : _paintMel;
+      canvas.drawCircle(
+        (size / 2).toOffset(),
+        _size / 2,
+        paint,
+      );
+    }
     
     // Efecto visual de regeneración para Mel
     if (stats.hasRegeneration && _regenTimer > 0) {
