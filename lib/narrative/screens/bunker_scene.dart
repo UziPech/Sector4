@@ -34,10 +34,10 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
   bool _melMetCompleted = false;
   bool _briefingCompleted = false;
   bool _isTransitioning = false;
+  bool _transitionScheduled = false; // Prevenir múltiples llamadas al delay
   late AnimationController _transitionController;
   late Animation<double> _fadeAnimation;
-  double _transitionCooldown = 0;
-  final double _cooldownDuration = 0.5;
+  // Cooldown removido - _transitionScheduled ya previene transiciones múltiples
   final FocusNode _focusNode = FocusNode();
   // Joystick Virtual
   Offset? _joystickOrigin;
@@ -162,29 +162,43 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
   }
 
   void _updateCooldown() {
-    if (_transitionCooldown > 0) {
-      setState(() {
-        _transitionCooldown -= 0.016;
-        if (_transitionCooldown < 0) _transitionCooldown = 0;
-      });
-    }
+    // Cooldown removido - ya no es necesario
   }
 
   void _checkDoorCollisions() {
-    if (_isTransitioning || _transitionCooldown > 0) return;
+    if (_isTransitioning || _transitionScheduled) return; // Cooldown removido
     final room = _roomManager.currentRoom;
     for (final door in room.doors) {
-      final doorRect = Rect.fromLTWH(door.position.x, door.position.y, door.size.x, door.size.y);
+      // Usar área de colisión más pequeña (90% del tamaño de la puerta, centrado)
+      final collisionSizeFactor = 0.9;
+      final collisionWidth = door.size.x * collisionSizeFactor;
+      final collisionHeight = door.size.y * collisionSizeFactor;
+      final collisionX = door.position.x + (door.size.x - collisionWidth) / 2;
+      final collisionY = door.position.y + (door.size.y - collisionHeight) / 2;
+      
+      final doorRect = Rect.fromLTWH(collisionX, collisionY, collisionWidth, collisionHeight);
       final playerRect = Rect.fromCenter(center: Offset(_playerPosition.x, _playerPosition.y), width: _playerSize, height: _playerSize);
+      
       if (doorRect.overlaps(playerRect)) {
-        _transitionToRoom(door.targetRoomId, spawnPosition: door.targetSpawnPosition);
+        _transitionScheduled = true; // Marcar que hay una transición programada
+        // Delay para permitir que la animación de apertura se muestre
+        Future.delayed(const Duration(milliseconds: 400), () {
+          if (mounted && _transitionScheduled) {
+            _transitionToRoom(door.targetRoomId, spawnPosition: door.targetSpawnPosition);
+          }
+        });
         return;
       }
     }
   }
 
+
   void _transitionToRoom(String targetRoomId, {Vector2? spawnPosition}) async {
-    setState(() { _isTransitioning = true; });
+    if (_isTransitioning) return; // Prevenir transiciones múltiples
+    setState(() { 
+      _isTransitioning = true;
+      _transitionScheduled = false; // Resetear flag
+    });
     await _transitionController.forward();
     setState(() {
       _roomManager.changeRoom(targetRoomId);
@@ -193,7 +207,7 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
     await _transitionController.reverse();
     setState(() {
       _isTransitioning = false;
-      _transitionCooldown = _cooldownDuration;
+      // Cooldown removido
     });
   }
 
@@ -624,7 +638,7 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
   List<Widget> _buildWalls(RoomData room) {
     final List<Widget> walls = [];
     const double thickness = 100.0;
-    const double overlap = 15.0; // Overlap to cover door gaps
+    const double overlap = 30.0; // Increased from 15px to fully cover edges
     
     // Top Wall
     final topDoors = room.doors.where((d) => d.position.y <= 10).toList(); // Tolerancia

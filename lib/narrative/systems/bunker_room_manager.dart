@@ -540,7 +540,7 @@ class BunkerRoomManager {
           size: Vector2(130, 130),
           targetRoomId: 'hallway',
           label: 'Pasillo',
-          targetSpawnPosition: Vector2(600, 250), // Spawn derecha en pasillo
+          targetSpawnPosition: Vector2(550, 250), // Ajustado de 600 a 550 para evitar colisión con pared
         ),
         const DoorData(
           id: 'door_to_quarters',

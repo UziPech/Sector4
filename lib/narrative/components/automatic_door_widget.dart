@@ -12,7 +12,7 @@ class AutomaticDoorWidget extends StatefulWidget {
     Key? key,
     required this.doorData,
     required this.playerPosition,
-    this.activationDistance = 100.0,
+    this.activationDistance = 120.0, // Aumentado a 120 para asegurar que abra ANTES de la colisión
   }) : super(key: key);
 
   @override
@@ -34,24 +34,43 @@ class _AutomaticDoorWidgetState extends State<AutomaticDoorWidget> with SingleTi
       vsync: this,
     );
     _animation = Tween<double>(begin: 0, end: 3).animate(_controller);
+    
+    // Verificar proximidad inicial
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkProximity();
+    });
   }
 
   Future<void> _loadSpriteSheet() async {
-    // Cargar la imagen del sprite sheet
-    final imageProvider = const AssetImage('assets/images/door_sliding_spritesheet.png');
-    final stream = imageProvider.resolve(ImageConfiguration.empty);
-    stream.addListener(ImageStreamListener((info, _) {
-      if (mounted) {
-        setState(() {
-          _spriteSheet = info.image;
-        });
-      }
-    }));
+    try {
+      print('🚪 Loading door spritesheet...');
+      // Cargar la imagen del sprite sheet
+      final imageProvider = const AssetImage('assets/images/door_sliding_spritesheet.png');
+      final stream = imageProvider.resolve(ImageConfiguration.empty);
+      stream.addListener(ImageStreamListener((info, _) {
+        if (mounted) {
+          setState(() {
+            _spriteSheet = info.image;
+          });
+          print('🚪 ✅ Door spritesheet LOADED successfully: ${info.image.width}x${info.image.height}');
+        }
+      }));
+    } catch (e) {
+      print('🚪 ❌ ERROR loading door spritesheet: $e');
+    }
   }
 
   @override
   void didUpdateWidget(AutomaticDoorWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
+    
+    // Si cambiamos de puerta (room change), resetear estado
+    if (oldWidget.doorData != widget.doorData) {
+      _isOpen = false;
+      _controller.reset();
+      print('🚪 Door widget RESET for ${widget.doorData.id}');
+    }
+    
     _checkProximity();
   }
 
@@ -59,15 +78,22 @@ class _AutomaticDoorWidgetState extends State<AutomaticDoorWidget> with SingleTi
     final doorCenter = widget.doorData.position + widget.doorData.size / 2;
     final dist = widget.playerPosition.distanceTo(doorCenter);
     
+    // Debug logging
+    if (dist < widget.activationDistance && !_isOpen) {
+      print('🚪 Door ${widget.doorData.id} opening - distance: ${dist.toStringAsFixed(1)}px');
+    }
+    
     if (dist < widget.activationDistance) {
       if (!_isOpen) {
         _isOpen = true;
         _controller.forward();
+        print('🚪 ✅ Door animation STARTED for ${widget.doorData.id}');
       }
     } else {
       if (_isOpen) {
         _isOpen = false;
         _controller.reverse();
+        print('🚪 ⬇️ Door animation CLOSING for ${widget.doorData.id}');
       }
     }
   }
