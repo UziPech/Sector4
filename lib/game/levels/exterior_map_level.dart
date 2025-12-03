@@ -342,8 +342,8 @@ class ExteriorMapLevel extends Component with HasGameReference<ExpedienteKorinGa
   }
   
   Future<void> _createWalls() async {
-    // Paredes del perímetro
-    final wallThickness = 32.0;
+    // Paredes del perímetro (límites del mapa)
+    final wallThickness = 40.0;
     
     // Pared superior
     await game.world.add(_SimpleWall(
@@ -369,86 +369,122 @@ class ExteriorMapLevel extends Component with HasGameReference<ExpedienteKorinGa
       size: Vector2(wallThickness, mapHeight),
     ));
     
-    // Obstáculos interiores (escombros, drones caídos)
-    await _createObstacles();
+    // Crear colisiones de objetos visibles en el mapa
+    await _createMapObjectCollisions();
   }
   
-  Future<void> _createObstacles() async {
-    final random = Random();
+  Future<void> _createMapObjectCollisions() async {
+    // Basado en la imagen del mapa (1600x1200), crear hitboxes para cada objeto visible
+    // Coordenadas ajustadas según la imagen real
     
-    // Crear algunos obstáculos aleatorios
-    for (int i = 0; i < 10; i++) {
-      final x = random.nextDouble() * (mapWidth - 200) + 100;
-      final y = random.nextDouble() * (mapHeight - 200) + 100;
-      final width = random.nextDouble() * 60 + 40;
-      final height = random.nextDouble() * 60 + 40;
-      
-      await game.world.add(_SimpleWall(
-        position: Vector2(x, y),
-        size: Vector2(width, height),
-        isObstacle: true,
-      ));
-    }
+    // === LADO IZQUIERDO (ZONA ROJA) ===
+    
+    // Jeep izquierdo (oxidado) - parte superior izquierda
+    await game.world.add(_SimpleWall(
+      position: Vector2(280, 420),
+      size: Vector2(200, 140),
+      isObstacle: true,
+    ));
+    
+    // Reflector izquierdo superior
+    await game.world.add(_SimpleWall(
+      position: Vector2(120, 280),
+      size: Vector2(70, 100),
+      isObstacle: true,
+    ));
+    
+    // Cajas/contenedores izquierda superior
+    await game.world.add(_SimpleWall(
+      position: Vector2(180, 180),
+      size: Vector2(100, 100),
+      isObstacle: true,
+    ));
+    
+    // Barriles amarillos (biohazard) izquierda inferior
+    await game.world.add(_SimpleWall(
+      position: Vector2(200, 850),
+      size: Vector2(120, 100),
+      isObstacle: true,
+    ));
+    
+    // Valla inferior izquierda (horizontal)
+    await game.world.add(_SimpleWall(
+      position: Vector2(400, 1000),
+      size: Vector2(600, 50),
+      isObstacle: true,
+    ));
+    
+    // === CENTRO ===
+    
+    // Escombros/objetos centro
+    await game.world.add(_SimpleWall(
+      position: Vector2(450, 700),
+      size: Vector2(100, 80),
+      isObstacle: true,
+    ));
+    
+    // Valla central (vertical) - REMOVIDA para permitir paso
+    
+    // === LADO DERECHO (ZONA VERDE) ===
+    
+    // Jeep derecho (verde militar) - parte superior derecha
+    await game.world.add(_SimpleWall(
+      position: Vector2(1320, 420),
+      size: Vector2(200, 140),
+      isObstacle: true,
+    ));
+    
+    // Reflector derecho superior
+    await game.world.add(_SimpleWall(
+      position: Vector2(1480, 280),
+      size: Vector2(70, 100),
+      isObstacle: true,
+    ));
+    
+    // Cajas/contenedores derecha superior
+    await game.world.add(_SimpleWall(
+      position: Vector2(1420, 180),
+      size: Vector2(100, 100),
+      isObstacle: true,
+    ));
+    
+    // Barriles amarillos (biohazard) derecha inferior
+    await game.world.add(_SimpleWall(
+      position: Vector2(1400, 850),
+      size: Vector2(120, 100),
+      isObstacle: true,
+    ));
+    
+    // Valla inferior derecha (horizontal)
+    await game.world.add(_SimpleWall(
+      position: Vector2(1200, 1000),
+      size: Vector2(600, 50),
+      isObstacle: true,
+    ));
+    
+    // Charco verde (tóxico) derecha - área de daño
+    await game.world.add(_SimpleWall(
+      position: Vector2(1300, 600),
+      size: Vector2(220, 180),
+      isObstacle: true,
+    ));
   }
 }
 
 /// Componente de fondo visual del mapa
-class _MapBackground extends PositionComponent {
+class _MapBackground extends SpriteComponent with HasGameReference<ExpedienteKorinGame> {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
     size = Vector2(ExteriorMapLevel.mapWidth, ExteriorMapLevel.mapHeight);
     position = Vector2.zero();
-  }
-  
-  @override
-  void render(Canvas canvas) {
-    super.render(canvas);
     
-    // Fondo base (suelo)
-    final groundPaint = Paint()
-      ..color = const Color(0xFF1a1a1a)
-      ..style = PaintingStyle.fill;
-    canvas.drawRect(size.toRect(), groundPaint);
-    
-    // Grid de líneas para dar sensación de espacio
-    final gridPaint = Paint()
-      ..color = Colors.white.withOpacity(0.05)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-    
-    const gridSize = 50.0;
-    
-    // Líneas verticales
-    for (double x = 0; x < size.x; x += gridSize) {
-      canvas.drawLine(
-        Offset(x, 0),
-        Offset(x, size.y),
-        gridPaint,
-      );
-    }
-    
-    // Líneas horizontales
-    for (double y = 0; y < size.y; y += gridSize) {
-      canvas.drawLine(
-        Offset(0, y),
-        Offset(size.x, y),
-        gridPaint,
-      );
-    }
-    
-    // Manchas de humo/niebla (círculos oscuros)
-    final smokePaint = Paint()
-      ..color = Colors.black.withOpacity(0.3)
-      ..style = PaintingStyle.fill;
-    
-    final random = Random(42); // Seed fijo para consistencia
-    for (int i = 0; i < 15; i++) {
-      final x = random.nextDouble() * size.x;
-      final y = random.nextDouble() * size.y;
-      final radius = random.nextDouble() * 100 + 50;
-      
-      canvas.drawCircle(Offset(x, y), radius, smokePaint);
+    // Cargar imagen de fondo (Flame busca en assets/images/ por defecto)
+    try {
+      sprite = await game.loadSprite('bunker_exterior_floor.png');
+    } catch (e) {
+      debugPrint('❌ Error loading background image: $e');
+      // Si falla, usar fondo de color sólido
     }
   }
   
@@ -470,47 +506,38 @@ class _SimpleWall extends PositionComponent {
   Future<void> onLoad() async {
     await super.onLoad();
     
-    // Agregar hitbox para colisiones
-    add(RectangleHitbox());
+    // Agregar hitbox para colisiones (passive para que bloquee al jugador)
+    add(RectangleHitbox()..collisionType = CollisionType.passive);
   }
   
   @override
   void render(Canvas canvas) {
     super.render(canvas);
     
-    // Color según tipo
-    final wallColor = isObstacle 
-        ? const Color(0xFF3a3a3a) // Gris oscuro para obstáculos
-        : const Color(0xFF2a2a2a); // Más oscuro para paredes
-    
-    final wallPaint = Paint()
-      ..color = wallColor
-      ..style = PaintingStyle.fill;
-    
-    canvas.drawRect(size.toRect(), wallPaint);
-    
-    // Borde
-    final borderPaint = Paint()
-      ..color = Colors.red.withOpacity(0.3)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    
-    canvas.drawRect(size.toRect(), borderPaint);
-    
-    // Si es obstáculo, agregar detalles visuales
-    if (isObstacle) {
-      final detailPaint = Paint()
-        ..color = Colors.orange.withOpacity(0.2)
+    // Solo renderizar paredes perimetrales (no obstáculos)
+    // Los obstáculos son invisibles pero tienen colisión
+    if (!isObstacle) {
+      final wallPaint = Paint()
+        ..color = const Color(0xFF2a2a2a)
         ..style = PaintingStyle.fill;
       
-      // Dibujar algunas líneas diagonales (escombros)
-      canvas.drawLine(
-        const Offset(0, 0),
-        Offset(size.x, size.y),
-        Paint()
-          ..color = Colors.white.withOpacity(0.1)
-          ..strokeWidth = 2,
-      );
+      canvas.drawRect(size.toRect(), wallPaint);
+      
+      final borderPaint = Paint()
+        ..color = Colors.red.withOpacity(0.3)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2;
+      
+      canvas.drawRect(size.toRect(), borderPaint);
+    }
+    
+    // DEBUG: Ver hitboxes de objetos
+    if (isObstacle) {
+      final debugPaint = Paint()
+        ..color = Colors.red.withOpacity(0.5)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3;
+      canvas.drawRect(size.toRect(), debugPaint);
     }
   }
 }

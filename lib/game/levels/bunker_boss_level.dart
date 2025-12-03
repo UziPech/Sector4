@@ -26,7 +26,8 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
     
     // 2.Spawnear al Jugador (Centro de Comando)
     // Command Room center is roughly (0, -600) relative to Hallway (0,0)
-    game.player.position = Vector2(350, 100); 
+    // Adjusted to (350, 250) to be safely inside the room with 100px thick walls
+    game.player.position = Vector2(350, 250); 
     
     // 3. Spawnear al Stalker (VESTÍBULO - Salida)
     // El Stalker bloquea la salida, añadiendo tensión
@@ -83,6 +84,12 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
     
     // 5. Efecto de Alerta Roja
     game.camera.viewport.add(RedAlertOverlay());
+    
+    // 5.5. Mensaje de advertencia de zona peligrosa
+    game.notificationSystem.show(
+      '⚠️ ZONA PELIGROSA ⚠️',
+      'ENTIDAD HOSTIL DETECTADA - NIVEL DE AMENAZA: CRÍTICO',
+    );
     
     // 6. Pantalla Negra de Transición
     final blackScreen = BlackScreenOverlay();
@@ -173,19 +180,19 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
     // --- COMMAND ROOM (Top) ---
     // Bounds: Rect(0, 0, 700, 500)
     _addRoomWalls(Vector2(0, 0), Vector2(700, 500), doors: [DoorPos.bottom]);
-    _addFloor(Vector2(0, 0), Vector2(700, 500), const Color(0xFF3A3A5A));
+    _addFloor(Vector2(0, 0), Vector2(700, 500), const Color(0xFF3A3A5A), textureFile: 'metal_floor_clean.png');
     _addLabel(Vector2(350, 250), "CENTRO DE COMANDO");
 
     // --- HALLWAY (Center) ---
     // Bounds: Rect(0, 500, 700, 500)
     _addRoomWalls(Vector2(0, 500), Vector2(700, 500), doors: [DoorPos.top, DoorPos.left, DoorPos.right, DoorPos.bottom]);
-    _addFloor(Vector2(0, 500), Vector2(700, 500), const Color(0xFF3A3A4A));
+    _addFloor(Vector2(0, 500), Vector2(700, 500), const Color(0xFF3A3A4A), textureFile: 'metal_floor_dark.png');
     _addLabel(Vector2(350, 750), "PASILLO PRINCIPAL");
 
     // --- ARMORY (Left) ---
     // Bounds: Rect(-700, 500, 700, 500)
     _addRoomWalls(Vector2(-700, 500), Vector2(700, 500), doors: [DoorPos.right, DoorPos.top]);
-    _addFloor(Vector2(-700, 500), Vector2(700, 500), const Color(0xFF4A4A3A));
+    _addFloor(Vector2(-700, 500), Vector2(700, 500), const Color(0xFF4A4A3A), textureFile: 'metal_floor_dark.png');
     _addLabel(Vector2(-350, 750), "ARMERÍA");
 
     // --- LIBRARY (Left-Top of Hallway) ---
@@ -197,67 +204,67 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
     // --- LAB (Right) ---
     // Bounds: Rect(700, 500, 700, 500)
     _addRoomWalls(Vector2(700, 500), Vector2(700, 500), doors: [DoorPos.left, DoorPos.right]);
-    _addFloor(Vector2(700, 500), Vector2(700, 500), const Color(0xFF2A4A5A));
+    _addFloor(Vector2(700, 500), Vector2(700, 500), const Color(0xFF2A4A5A), textureFile: 'metal_floor_clean.png');
     _addLabel(Vector2(1050, 750), "LABORATORIO");
     
     // --- CAFETERIA (Right of Lab) ---
     // Bounds: Rect(1400, 500, 700, 500)
     _addRoomWalls(Vector2(1400, 500), Vector2(700, 500), doors: [DoorPos.left]);
-    _addFloor(Vector2(1400, 500), Vector2(700, 500), const Color(0xFF4A4A3A));
+    _addFloor(Vector2(1400, 500), Vector2(700, 500), const Color(0xFF4A4A3A), textureFile: 'metal_floor_dark.png');
     _addLabel(Vector2(1750, 750), "COMEDOR");
     
     // --- DORMS (Bottom) ---
     // Bounds: Rect(0, 1000, 700, 500)
     _addRoomWalls(Vector2(0, 1000), Vector2(700, 500), doors: [DoorPos.top, DoorPos.bottom]);
-    _addFloor(Vector2(0, 1000), Vector2(700, 500), const Color(0xFF3A3A4A));
+    _addFloor(Vector2(0, 1000), Vector2(700, 500), const Color(0xFF3A3A4A), textureFile: 'metal_floor_quarters.png');
     _addLabel(Vector2(350, 1250), "DORMITORIOS");
     
     // --- VESTIBULE (Bottom of Dorms) ---
     // Bounds: Rect(0, 1500, 700, 500)
     _addRoomWalls(Vector2(0, 1500), Vector2(700, 500), doors: [DoorPos.top]);
-    _addFloor(Vector2(0, 1500), Vector2(700, 500), const Color(0xFF3A3A4A));
+    _addFloor(Vector2(0, 1500), Vector2(700, 500), const Color(0xFF3A3A4A), textureFile: 'metal_floor_dark.png');
     _addLabel(Vector2(350, 1750), "VESTÍBULO (SALIDA)");
   }
   
   void _addRoomWalls(Vector2 pos, Vector2 size, {required List<DoorPos> doors}) {
-    const double thickness = 40.0; // Thicker walls
+    const double thickness = 100.0; // Increased to match visual asset size
     const double doorSize = 150.0;
     
     // Top Wall
     if (doors.contains(DoorPos.top)) {
-      game.world.add(Wall(pos, Vector2((size.x - doorSize)/2, thickness))); // Left part
-      game.world.add(Wall(pos + Vector2((size.x + doorSize)/2, 0), Vector2((size.x - doorSize)/2, thickness))); // Right part
+      game.world.add(Wall(pos, Vector2((size.x - doorSize)/2, thickness), side: WallSide.top)); // Left part
+      game.world.add(Wall(pos + Vector2((size.x + doorSize)/2, 0), Vector2((size.x - doorSize)/2, thickness), side: WallSide.top)); // Right part
     } else {
-      game.world.add(Wall(pos, Vector2(size.x, thickness)));
+      game.world.add(Wall(pos, Vector2(size.x, thickness), side: WallSide.top));
     }
     
     // Bottom Wall
     if (doors.contains(DoorPos.bottom)) {
-      game.world.add(Wall(pos + Vector2(0, size.y - thickness), Vector2((size.x - doorSize)/2, thickness)));
-      game.world.add(Wall(pos + Vector2((size.x + doorSize)/2, size.y - thickness), Vector2((size.x - doorSize)/2, thickness)));
+      game.world.add(Wall(pos + Vector2(0, size.y - thickness), Vector2((size.x - doorSize)/2, thickness), side: WallSide.bottom));
+      game.world.add(Wall(pos + Vector2((size.x + doorSize)/2, size.y - thickness), Vector2((size.x - doorSize)/2, thickness), side: WallSide.bottom));
     } else {
-      game.world.add(Wall(pos + Vector2(0, size.y - thickness), Vector2(size.x, thickness)));
+      game.world.add(Wall(pos + Vector2(0, size.y - thickness), Vector2(size.x, thickness), side: WallSide.bottom));
     }
     
     // Left Wall
     if (doors.contains(DoorPos.left)) {
-      game.world.add(Wall(pos, Vector2(thickness, (size.y - doorSize)/2)));
-      game.world.add(Wall(pos + Vector2(0, (size.y + doorSize)/2), Vector2(thickness, (size.y - doorSize)/2)));
+      game.world.add(Wall(pos, Vector2(thickness, (size.y - doorSize)/2), side: WallSide.left));
+      game.world.add(Wall(pos + Vector2(0, (size.y + doorSize)/2), Vector2(thickness, (size.y - doorSize)/2), side: WallSide.left));
     } else {
-      game.world.add(Wall(pos, Vector2(thickness, size.y)));
+      game.world.add(Wall(pos, Vector2(thickness, size.y), side: WallSide.left));
     }
     
     // Right Wall
     if (doors.contains(DoorPos.right)) {
-      game.world.add(Wall(pos + Vector2(size.x - thickness, 0), Vector2(thickness, (size.y - doorSize)/2)));
-      game.world.add(Wall(pos + Vector2(size.x - thickness, (size.y + doorSize)/2), Vector2(thickness, (size.y - doorSize)/2)));
+      game.world.add(Wall(pos + Vector2(size.x - thickness, 0), Vector2(thickness, (size.y - doorSize)/2), side: WallSide.right));
+      game.world.add(Wall(pos + Vector2(size.x - thickness, (size.y + doorSize)/2), Vector2(thickness, (size.y - doorSize)/2), side: WallSide.right));
     } else {
-      game.world.add(Wall(pos + Vector2(size.x - thickness, 0), Vector2(thickness, size.y)));
+      game.world.add(Wall(pos + Vector2(size.x - thickness, 0), Vector2(thickness, size.y), side: WallSide.right));
     }
   }
   
-  void _addFloor(Vector2 pos, Vector2 size, Color color) {
-    game.world.add(Floor(pos, size, color));
+  void _addFloor(Vector2 pos, Vector2 size, Color color, {String? textureFile}) {
+    game.world.add(Floor(pos, size, color, textureFile: textureFile));
   }
   
   void _addLabel(Vector2 pos, String text) {
@@ -435,33 +442,130 @@ enum DoorPos { top, bottom, left, right }
 
 
 
-class Wall extends TiledWall { // Inherit from TiledWall for player collision
-  Wall(Vector2 pos, Vector2 sz) {
+enum WallSide { top, bottom, left, right }
+
+class Wall extends TiledWall with HasGameReference<ExpedienteKorinGame> {
+  Sprite? _panelSprite;
+  final WallSide side;
+  
+  Wall(Vector2 pos, Vector2 sz, {required this.side}) {
     position = pos;
     size = sz;
-    priority = -50;
+    priority = -90;
   }
   
   @override
   Future<void> onLoad() async {
     await super.onLoad();
     add(RectangleHitbox()..collisionType = CollisionType.passive);
+    
+    // Cargar textura según orientación
+    final isHorizontal = side == WallSide.top || side == WallSide.bottom;
+    final panelFile = isHorizontal ? 'wall_panel_horizontal.png' : 'wall_panel_vertical.png';
+    
+    try {
+      _panelSprite = await game.loadSprite(panelFile);
+    } catch (e) {
+      debugPrint('Error loading wall panel $panelFile: $e');
+    }
   }
   
   @override
   void render(Canvas canvas) {
-    canvas.drawRect(size.toRect(), Paint()..color = Colors.grey);
+    if (_panelSprite != null) {
+      final image = _panelSprite!.image;
+      final imgWidth = image.width.toDouble();
+      final imgHeight = image.height.toDouble();
+      
+      // Definir el recorte (slice) según el lado de la pared
+      // Asumimos que el grosor visual de la pared en la textura es igual al grosor físico (100px)
+      Rect srcRect;
+      
+      switch (side) {
+        case WallSide.top:
+          // Barra superior de la textura horizontal
+          srcRect = Rect.fromLTWH(0, 0, imgWidth, size.y); 
+          break;
+        case WallSide.bottom:
+          // Barra inferior de la textura horizontal
+          srcRect = Rect.fromLTWH(0, imgHeight - size.y, imgWidth, size.y);
+          break;
+        case WallSide.left:
+          // Barra izquierda de la textura vertical
+          srcRect = Rect.fromLTWH(0, 0, size.x, imgHeight);
+          break;
+        case WallSide.right:
+          // Barra derecha de la textura vertical
+          srcRect = Rect.fromLTWH(imgWidth - size.x, 0, size.x, imgHeight);
+          break;
+      }
+      
+      // Renderizar el recorte repetido a lo largo de la pared
+      if (side == WallSide.top || side == WallSide.bottom) {
+        // Horizontal: Repetir en X
+        for (double x = 0; x < size.x; x += imgWidth) {
+          final w = (x + imgWidth > size.x) ? size.x - x : imgWidth;
+          
+          canvas.drawImageRect(
+            image,
+            Rect.fromLTWH(srcRect.left, srcRect.top, w, srcRect.height), // Recorte ajustado al ancho restante
+            Rect.fromLTWH(x, 0, w, size.y),
+            Paint(),
+          );
+        }
+      } else {
+        // Vertical: Repetir en Y
+        for (double y = 0; y < size.y; y += imgHeight) {
+          final h = (y + imgHeight > size.y) ? size.y - y : imgHeight;
+          
+          canvas.drawImageRect(
+            image,
+            Rect.fromLTWH(srcRect.left, srcRect.top, srcRect.width, h), // Recorte ajustado al alto restante
+            Rect.fromLTWH(0, y, size.x, h),
+            Paint(),
+          );
+        }
+      }
+    } else {
+      canvas.drawRect(size.toRect(), Paint()..color = Colors.grey);
+    }
   }
 }
 
 
-class Floor extends PositionComponent {
+class Floor extends PositionComponent with HasGameReference<ExpedienteKorinGame> {
   final Color color;
-  Floor(Vector2 position, Vector2 size, this.color) : super(position: position, size: size, priority: -100);
+  final String? textureFile;
+  Sprite? _floorSprite;
+  
+  Floor(Vector2 position, Vector2 size, this.color, {this.textureFile}) 
+      : super(position: position, size: size, priority: -100);
+  
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    
+    if (textureFile != null) {
+      try {
+        _floorSprite = await game.loadSprite(textureFile!);
+      } catch (e) {
+        debugPrint('Error loading floor texture $textureFile: $e');
+      }
+    }
+  }
   
   @override
   void render(Canvas canvas) {
-    canvas.drawRect(size.toRect(), Paint()..color = color);
+    if (textureFile != null && _floorSprite != null) {
+      // Renderizar textura escalada para cubrir el área
+      _floorSprite!.render(
+        canvas,
+        size: size,
+      );
+    } else {
+      // Fallback a color sólido
+      canvas.drawRect(size.toRect(), Paint()..color = color);
+    }
   }
 }
 

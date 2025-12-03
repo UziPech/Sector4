@@ -77,7 +77,7 @@ class BunkerRoomManager {
           size: Vector2(100, 100),
           targetRoomId: 'exterior',
           label: 'Entrada',
-          targetSpawnPosition: Vector2(350, 400),
+          targetSpawnPosition: Vector2(350, 350),
         ),
       ],
     );
@@ -88,7 +88,7 @@ class BunkerRoomManager {
       name: 'Exterior',
       type: RoomType.exterior,
       backgroundColor: const Color(0xFF4A5A4A), // Verde grisáceo
-      playerSpawnPosition: const Vector2(350, 400),
+      playerSpawnPosition: const Vector2(350, 350),
       roomSize: const Size(700, 500),
       interactables: [
         InteractableData(
@@ -129,11 +129,19 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_vestibule',
-          position: Vector2(300, 0), // Arriba (Flush)
-          size: Vector2(100, 80),
+          position: Vector2(285, -15), // Arriba (Flush)
+          size: Vector2(130, 130),
           targetRoomId: 'vestibule',
           label: 'Entrar',
-          targetSpawnPosition: Vector2(350, 400), // Spawn abajo en vestíbulo
+          targetSpawnPosition: Vector2(350, 350), // Spawn abajo en vestíbulo
+        ),
+        const DoorData(
+          id: 'door_to_road',
+          position: Vector2(285, 385), // Abajo (Flush)
+          size: Vector2(130, 130),
+          targetRoomId: 'exterior_large',
+          label: 'Camino',
+          targetSpawnPosition: Vector2(950, 350), // Regresar al camino
         ),
       ],
     );
@@ -144,7 +152,7 @@ class BunkerRoomManager {
       name: 'Vestíbulo',
       type: RoomType.hallway,
       backgroundColor: const Color(0xFF3A3A4A),
-      playerSpawnPosition: const Vector2(350, 400),
+      playerSpawnPosition: const Vector2(350, 350),
       roomSize: const Size(700, 500),
       interactables: [
         InteractableData(
@@ -185,19 +193,19 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_exterior',
-          position: Vector2(300, 450), // Abajo (Flush)
-          size: Vector2(100, 50),
+          position: Vector2(285, 385), // Abajo (Flush)
+          size: Vector2(130, 130),
           targetRoomId: 'exterior',
           label: 'Salir',
-          targetSpawnPosition: Vector2(350, 100), // Spawn arriba en exterior
+          targetSpawnPosition: Vector2(350, 150), // Spawn arriba en exterior
         ),
         const DoorData(
           id: 'door_to_hallway',
-          position: Vector2(300, 0), // Arriba (Flush)
-          size: Vector2(100, 50),
+          position: Vector2(285, -15), // Arriba (Flush)
+          size: Vector2(130, 130),
           targetRoomId: 'hallway',
           label: 'Pasillo',
-          targetSpawnPosition: Vector2(350, 400), // Spawn abajo en pasillo
+          targetSpawnPosition: Vector2(350, 350), // Spawn abajo en pasillo
         ),
       ],
     );
@@ -208,7 +216,7 @@ class BunkerRoomManager {
       name: 'Pasillo Principal',
       type: RoomType.hallway,
       backgroundColor: const Color(0xFF3A3A5A),
-      playerSpawnPosition: const Vector2(350, 400),
+      playerSpawnPosition: const Vector2(350, 350),
       roomSize: const Size(700, 500),
       interactables: [
         InteractableData(
@@ -232,43 +240,43 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_vestibule_from_hallway',
-          position: Vector2(300, 450), // Abajo (Flush)
-          size: Vector2(100, 50),
+          position: Vector2(285, 385), // Abajo (Flush)
+          size: Vector2(130, 130),
           targetRoomId: 'vestibule',
           label: 'Vestíbulo',
-          targetSpawnPosition: Vector2(350, 100), // Spawn arriba en vestíbulo
+          targetSpawnPosition: Vector2(350, 150), // Spawn arriba en vestíbulo
         ),
         const DoorData(
           id: 'door_to_armory',
-          position: Vector2(300, 0), // Arriba (Flush) - Asumiendo Armería arriba por coordenadas originales
-          size: Vector2(100, 50),
+          position: Vector2(285, -15), // Arriba (Flush) - Asumiendo Armería arriba por coordenadas originales
+          size: Vector2(130, 130),
           targetRoomId: 'armory',
           label: 'Armería',
-          targetSpawnPosition: Vector2(350, 400), // Spawn abajo en armería
+          targetSpawnPosition: Vector2(350, 350), // Spawn abajo en armería
         ),
         const DoorData(
           id: 'door_to_library',
-          position: Vector2(0, 250), // Izquierda (Flush)
-          size: Vector2(50, 100),
+          position: Vector2(-15, 235), // Izquierda (Flush)
+          size: Vector2(130, 130),
           targetRoomId: 'library',
           label: 'Archivo',
-          targetSpawnPosition: Vector2(600, 250), // Spawn derecha en biblioteca
+          targetSpawnPosition: Vector2(550, 250), // Spawn derecha en biblioteca
         ),
         const DoorData(
           id: 'door_to_lab',
-          position: Vector2(650, 250), // Derecha (Flush)
-          size: Vector2(50, 100),
+          position: Vector2(585, 235), // Derecha (Flush)
+          size: Vector2(130, 130),
           targetRoomId: 'laboratory',
           label: 'Laboratorio',
-          targetSpawnPosition: Vector2(100, 250), // Spawn izquierda en laboratorio
+          targetSpawnPosition: Vector2(150, 250), // Spawn izquierda en laboratorio
         ),
         const DoorData(
           id: 'door_to_command',
-          position: Vector2(500, 0), // Arriba (Flush) - Offset
-          size: Vector2(100, 50),
+          position: Vector2(485, -15), // Arriba (Flush) - Offset
+          size: Vector2(130, 130),
           targetRoomId: 'command',
           label: 'Comando',
-          targetSpawnPosition: Vector2(350, 400), // Spawn abajo en comando
+          targetSpawnPosition: Vector2(350, 350), // Spawn abajo en comando
         ),
       ],
     );
@@ -279,7 +287,7 @@ class BunkerRoomManager {
       name: 'Armería',
       type: RoomType.armory,
       backgroundColor: const Color(0xFF4A4A3A),
-      playerSpawnPosition: const Vector2(350, 400),
+      playerSpawnPosition: const Vector2(350, 350),
       roomSize: const Size(700, 500),
       interactables: [
         InteractableData(
@@ -325,11 +333,11 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_hallway_from_armory',
-          position: Vector2(300, 450), // Abajo (Flush)
-          size: Vector2(100, 50),
+          position: Vector2(285, 385), // Abajo (Flush)
+          size: Vector2(130, 130),
           targetRoomId: 'hallway',
           label: 'Pasillo',
-          targetSpawnPosition: Vector2(350, 100), // Spawn arriba en pasillo
+          targetSpawnPosition: Vector2(350, 150), // Spawn arriba en pasillo
         ),
       ],
     );
@@ -340,7 +348,7 @@ class BunkerRoomManager {
       name: 'Archivo',
       type: RoomType.library,
       backgroundColor: const Color(0xFF3A3A4A),
-      playerSpawnPosition: const Vector2(600, 250),
+      playerSpawnPosition: const Vector2(550, 250),
       roomSize: const Size(700, 500),
       interactables: [
         InteractableData(
@@ -386,11 +394,11 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_hallway_from_library',
-          position: Vector2(650, 250), // Derecha (Flush)
-          size: Vector2(50, 100),
+          position: Vector2(585, 235), // Derecha (Flush)
+          size: Vector2(130, 130),
           targetRoomId: 'hallway',
           label: 'Pasillo',
-          targetSpawnPosition: Vector2(100, 250), // Spawn izquierda en pasillo
+          targetSpawnPosition: Vector2(150, 250), // Spawn izquierda en pasillo
         ),
       ],
     );
@@ -401,7 +409,7 @@ class BunkerRoomManager {
       name: 'Laboratorio',
       type: RoomType.laboratory,
       backgroundColor: const Color(0xFF2A4A5A),
-      playerSpawnPosition: const Vector2(100, 250),
+      playerSpawnPosition: const Vector2(150, 250),
       roomSize: const Size(700, 500),
       interactables: [
         InteractableData(
@@ -528,27 +536,27 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_hallway_from_lab',
-          position: Vector2(0, 250), // Izquierda (Flush)
-          size: Vector2(50, 100),
+          position: Vector2(-15, 235), // Izquierda (Flush)
+          size: Vector2(130, 130),
           targetRoomId: 'hallway',
           label: 'Pasillo',
           targetSpawnPosition: Vector2(600, 250), // Spawn derecha en pasillo
         ),
         const DoorData(
           id: 'door_to_quarters',
-          position: Vector2(300, 0), // Arriba (Flush)
-          size: Vector2(100, 50),
+          position: Vector2(285, -15), // Arriba (Flush)
+          size: Vector2(130, 130),
           targetRoomId: 'quarters',
           label: 'Cuartel',
-          targetSpawnPosition: Vector2(350, 400), // Spawn abajo en cuartel
+          targetSpawnPosition: Vector2(350, 350), // Spawn abajo en cuartel
         ),
         const DoorData(
           id: 'door_to_cafeteria',
-          position: Vector2(650, 250), // Derecha (Flush)
-          size: Vector2(50, 100),
+          position: Vector2(585, 235), // Derecha (Flush)
+          size: Vector2(130, 130),
           targetRoomId: 'cafeteria',
           label: 'Comedor',
-          targetSpawnPosition: Vector2(100, 250), // Spawn izquierda en comedor
+          targetSpawnPosition: Vector2(150, 250), // Spawn izquierda en comedor
         ),
       ],
     );
@@ -559,7 +567,7 @@ class BunkerRoomManager {
       name: 'Centro de Comando',
       type: RoomType.command,
       backgroundColor: const Color(0xFF3A3A5A),
-      playerSpawnPosition: const Vector2(350, 400),
+      playerSpawnPosition: const Vector2(350, 350),
       roomSize: const Size(700, 500),
       interactables: [
         InteractableData(
@@ -620,11 +628,11 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_hallway_from_command',
-          position: Vector2(200, 450), // Abajo (Flush)
-          size: Vector2(100, 50),
+          position: Vector2(185, 385), // Abajo (Flush)
+          size: Vector2(130, 130),
           targetRoomId: 'hallway',
           label: 'Pasillo',
-          targetSpawnPosition: Vector2(350, 100), // Spawn arriba en pasillo
+          targetSpawnPosition: Vector2(350, 150), // Spawn arriba en pasillo
         ),
       ],
     );
@@ -635,7 +643,7 @@ class BunkerRoomManager {
       name: 'Cuartel',
       type: RoomType.bedroom,
       backgroundColor: const Color(0xFF3A3A4A),
-      playerSpawnPosition: const Vector2(350, 400),
+      playerSpawnPosition: const Vector2(350, 350),
       roomSize: const Size(700, 500),
       interactables: [
         InteractableData(
@@ -659,11 +667,11 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_lab_from_quarters',
-          position: Vector2(300, 450), // Abajo (Flush)
-          size: Vector2(100, 50),
+          position: Vector2(285, 385), // Abajo (Flush)
+          size: Vector2(130, 130),
           targetRoomId: 'laboratory',
           label: 'Laboratorio',
-          targetSpawnPosition: Vector2(350, 100), // Spawn arriba en laboratorio
+          targetSpawnPosition: Vector2(350, 150), // Spawn arriba en laboratorio
         ),
       ],
     );
@@ -674,7 +682,7 @@ class BunkerRoomManager {
       name: 'Comedor',
       type: RoomType.cafeteria,
       backgroundColor: const Color(0xFF4A4A3A),
-      playerSpawnPosition: const Vector2(100, 250),
+      playerSpawnPosition: const Vector2(150, 250),
       roomSize: const Size(700, 500),
       interactables: [
         InteractableData(
@@ -698,11 +706,11 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_lab_from_cafeteria',
-          position: Vector2(0, 250), // Izquierda (Flush)
-          size: Vector2(50, 100),
+          position: Vector2(-15, 235), // Izquierda (Flush)
+          size: Vector2(130, 130),
           targetRoomId: 'laboratory',
           label: 'Laboratorio',
-          targetSpawnPosition: Vector2(600, 250), // Spawn derecha en laboratorio
+          targetSpawnPosition: Vector2(550, 250), // Spawn derecha en laboratorio
         ),
       ],
     );

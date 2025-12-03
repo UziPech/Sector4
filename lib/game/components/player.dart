@@ -684,7 +684,7 @@ class PlayerCharacter extends PositionComponent
     super.onCollision(intersectionPoints, other);
     
     // Colisión con paredes - retroceder
-    if (other is TiledWall) {
+    if (other is TiledWall || other.runtimeType.toString().contains('SimpleWall')) {
       position = _previousPosition.clone();
     }
   }

@@ -110,7 +110,7 @@ class ExpedienteKorinGame extends FlameGame
     objectiveNotifier.value = 'Eliminar la amenaza';
     
     await world.add(BunkerBossLevel());
-    notificationSystem.show('ALERTA ROJA', 'Entidad Hostil Detectada: THE STALKER');
+    // El mensaje de advertencia se muestra desde BunkerBossLevel.onLoad()
   }
   
   Future<void> loadExteriorMap() async {

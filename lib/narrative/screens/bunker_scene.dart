@@ -11,6 +11,8 @@ import '../components/interactable_object.dart';
 import '../components/dialogue_system.dart';
 import '../components/animated_sprite.dart';
 import '../components/forest_painter.dart'; // Import ForestPainter
+import '../components/wall_widget.dart'; // Import WallWidget
+import '../components/automatic_door_widget.dart'; // Import AutomaticDoorWidget
 import '../services/save_system.dart';
 import '../../main.dart';
 
@@ -52,6 +54,9 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
   AnimatedSprite? _danSpriteNorth;
   AnimatedSprite? _danSpriteSouth;
   ui.Image? _treeSprite; // Sprite sheet para los árboles
+  ui.Image? _wallHorizontal;
+  ui.Image? _wallVertical;
+  
   String _currentDirection = 'SOUTH';
   int _currentFrame = 0;
   double _animationTimer = 0.0;
@@ -77,6 +82,8 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
     _loadDanSprites();
     // Cargar sprite sheet de árboles
     _loadTreeSprite();
+    // Cargar texturas de paredes
+    _loadWallTextures();
     
     _showArrivalMonologue();
   }
@@ -106,6 +113,29 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
       setState(() {
         _treeSprite = frame.image;
       });
+    }
+  }
+
+  Future<void> _loadWallTextures() async {
+    try {
+      final dataH = await rootBundle.load('assets/images/wall_panel_horizontal.png');
+      final bytesH = dataH.buffer.asUint8List();
+      final codecH = await ui.instantiateImageCodec(bytesH);
+      final frameH = await codecH.getNextFrame();
+      
+      final dataV = await rootBundle.load('assets/images/wall_panel_vertical.png');
+      final bytesV = dataV.buffer.asUint8List();
+      final codecV = await ui.instantiateImageCodec(bytesV);
+      final frameV = await codecV.getNextFrame();
+      
+      if (mounted) {
+        setState(() {
+          _wallHorizontal = frameH.image;
+          _wallVertical = frameV.image;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading wall textures: $e');
     }
   }
 
@@ -221,12 +251,20 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
       }
 
       final room = _roomManager.currentRoom;
-      final newX = (_playerPosition.x + velocity.x).clamp(_playerSize / 2, room.roomSize.width - _playerSize / 2);
-      final newY = (_playerPosition.y + velocity.y).clamp(_playerSize / 2, room.roomSize.height - _playerSize / 2);
+      
+      // Intentar mover en X
+      double nextX = (_playerPosition.x + velocity.x).clamp(_playerSize / 2, room.roomSize.width - _playerSize / 2);
+      if (_isPositionValid(Vector2(nextX, _playerPosition.y))) {
+        _playerPosition = Vector2(nextX, _playerPosition.y);
+      }
+      
+      // Intentar mover en Y
+      double nextY = (_playerPosition.y + velocity.y).clamp(_playerSize / 2, room.roomSize.height - _playerSize / 2);
+      if (_isPositionValid(Vector2(_playerPosition.x, nextY))) {
+        _playerPosition = Vector2(_playerPosition.x, nextY);
+      }
       
       setState(() { 
-        _playerPosition = Vector2(newX, newY);
-        
         // Calcular dirección
         _currentDirection = AnimatedSprite.calculateDirection(velocity.x, velocity.y);
         
@@ -263,6 +301,94 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
          _canInteract = canInteract;
        });
     }
+  }
+
+  bool _isPositionValid(Vector2 pos) {
+    // Si estamos en exterior_large (mapa abierto), usar lógica simple o límites del mapa
+    if (_roomManager.currentRoom.id == 'exterior_large') return true;
+
+    final room = _roomManager.currentRoom;
+    const double thickness = 100.0;
+    final double halfSize = _playerSize / 4; // Usar un hitbox más pequeño (20px) para los pies/centro, no todo el sprite (80px)
+    
+    // Límites del cuarto (hard bounds) ya manejados por clamp, pero doble check
+    if (pos.x < 0 || pos.x > room.roomSize.width ||
+        pos.y < 0 || pos.y > room.roomSize.height) {
+      print('DEBUG: Out of bounds: $pos. Room: ${room.roomSize}');
+      return false;
+    }
+
+    // Chequear colisión con paredes
+    // Izquierda
+    if (pos.x - halfSize < thickness) {
+      bool inDoor = false;
+      for (final door in room.doors) {
+        if (door.position.x <= 10) {
+           // Permitir paso si estamos alineados con la puerta
+           if (pos.y >= door.position.y && pos.y <= door.position.y + door.size.y) {
+             inDoor = true; 
+             break;
+           }
+        }
+      }
+      if (!inDoor) {
+        print('DEBUG: Collision Left. Pos: $pos, HalfSize: $halfSize, Thickness: $thickness');
+        return false;
+      }
+    }
+    
+    // Derecha
+    if (pos.x + halfSize > room.roomSize.width - thickness) {
+       bool inDoor = false;
+       for (final door in room.doors) {
+         if (door.position.x >= room.roomSize.width - thickness - 10) {
+            if (pos.y >= door.position.y && pos.y <= door.position.y + door.size.y) {
+              inDoor = true;
+              break;
+            }
+         }
+       }
+       if (!inDoor) {
+         print('DEBUG: Collision Right. Pos: $pos, HalfSize: $halfSize, Thickness: $thickness, RoomWidth: ${room.roomSize.width}');
+         return false;
+       }
+    }
+
+    // Arriba
+    if (pos.y - halfSize < thickness) {
+       bool inDoor = false;
+       for (final door in room.doors) {
+         if (door.position.y <= 10) {
+            if (pos.x >= door.position.x && pos.x <= door.position.x + door.size.x) {
+              inDoor = true;
+              break;
+            }
+         }
+       }
+       if (!inDoor) {
+         print('DEBUG: Collision Top. Pos: $pos, HalfSize: $halfSize, Thickness: $thickness');
+         return false;
+       }
+    }
+
+    // Abajo
+    if (pos.y + halfSize > room.roomSize.height - thickness) {
+       bool inDoor = false;
+       for (final door in room.doors) {
+         if (door.position.y >= room.roomSize.height - thickness - 10) {
+            if (pos.x >= door.position.x && pos.x <= door.position.x + door.size.x) {
+              inDoor = true;
+              break;
+            }
+         }
+       }
+       if (!inDoor) {
+         print('DEBUG: Collision Bottom. Pos: $pos, HalfSize: $halfSize, Thickness: $thickness, RoomHeight: ${room.roomSize.height}');
+         return false;
+       }
+    }
+
+    return true;
   }
 
 
@@ -346,15 +472,63 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
         // Textura de piso para el mapa exterior grande
         Positioned.fill(
           child: Image.asset(
-            'assets/images/bunker_exterior_floor.jpg',
+            'assets/images/bunker_exterior_floor.png',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(color: room.backgroundColor);
             },
           ),
         )
+      else if (room.id == 'laboratory' || room.id == 'command')
+        // Piso metálico limpio para laboratorio y centro de comando
+        Positioned.fill(
+          child: Image.asset(
+            'assets/images/metal_floor_clean.png',
+            fit: BoxFit.cover,
+            repeat: ImageRepeat.repeat,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(color: room.backgroundColor);
+            },
+          ),
+        )
+      else if (room.id == 'hallway' || room.id == 'armory' || room.id == 'vestibule' || room.id == 'cafeteria')
+        // Piso metálico oscuro para pasillo, armería, vestíbulo y comedor
+        Positioned.fill(
+          child: Image.asset(
+            'assets/images/metal_floor_dark.png',
+            fit: BoxFit.cover,
+            repeat: ImageRepeat.repeat,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(color: room.backgroundColor);
+            },
+          ),
+        )
+      else if (room.id == 'quarters')
+        // Piso metálico envejecido para dormitorios
+        Positioned.fill(
+          child: Image.asset(
+            'assets/images/metal_floor_quarters.png',
+            fit: BoxFit.cover,
+            repeat: ImageRepeat.repeat,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(color: room.backgroundColor);
+            },
+          ),
+        )
+      else if (room.id == 'exterior')
+        // Piso de hierba oscura para el exterior del búnker
+        Positioned.fill(
+          child: Image.asset(
+            'assets/images/exterior_floor.png',
+            fit: BoxFit.cover,
+            repeat: ImageRepeat.repeat,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(color: room.backgroundColor);
+            },
+          ),
+        )
       else
-        // Grid de fondo para otras habitaciones
+        // Grid de fondo para otras habitaciones (biblioteca)
         CustomPaint(
           size: Size(room.roomSize.width, room.roomSize.height),
           painter: GridPainter(),
@@ -371,33 +545,17 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
           ),
         ),
 
+      // Paredes (WallWidgets)
+      if (_wallHorizontal != null && _wallVertical != null && room.id != 'exterior_large')
+        ..._buildWalls(room),
+
       // Puertas
+      // Puertas (AutomaticDoorWidget)
       ...room.doors.map((door) => Positioned(
         left: door.position.x, top: door.position.y,
-        child: Container(
-          width: door.size.x, height: door.size.y,
-          decoration: BoxDecoration(
-            color: Colors.yellow.withOpacity(0.3), 
-            border: Border.all(color: Colors.yellow, width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.yellow.withOpacity(0.5),
-                blurRadius: 10,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: Center(
-            child: Text(
-              door.label, 
-              style: const TextStyle(
-                color: Colors.yellow, 
-                fontSize: 12, 
-                fontWeight: FontWeight.bold, 
-                fontFamily: 'monospace',
-              ),
-            ),
-          ),
+        child: AutomaticDoorWidget(
+          doorData: door,
+          playerPosition: _playerPosition,
         ),
       )),
       // Interactables (Solo los que NO son decoración/árboles)
@@ -462,6 +620,130 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
       ),
     ];
   }
+
+  List<Widget> _buildWalls(RoomData room) {
+    final List<Widget> walls = [];
+    const double thickness = 100.0;
+    const double overlap = 15.0; // Overlap to cover door gaps
+    
+    // Top Wall
+    final topDoors = room.doors.where((d) => d.position.y <= 10).toList(); // Tolerancia
+    if (topDoors.isEmpty) {
+      walls.add(Positioned(
+        top: 0, left: 0,
+        child: WallWidget(width: room.roomSize.width, height: thickness, side: WallSide.top, image: _wallHorizontal),
+      ));
+    } else {
+      // Ordenar puertas por X
+      topDoors.sort((a, b) => a.position.x.compareTo(b.position.x));
+      double currentX = 0;
+      for (final door in topDoors) {
+        // Draw wall up to door start + overlap
+        double wallWidth = (door.position.x + overlap) - currentX;
+        if (wallWidth > 0) {
+          walls.add(Positioned(
+            top: 0, left: currentX,
+            child: WallWidget(width: wallWidth, height: thickness, side: WallSide.top, image: _wallHorizontal),
+          ));
+        }
+        // Start next wall at door end - overlap
+        currentX = door.position.x + door.size.x - overlap;
+      }
+      if (currentX < room.roomSize.width) {
+        walls.add(Positioned(
+          top: 0, left: currentX,
+          child: WallWidget(width: room.roomSize.width - currentX, height: thickness, side: WallSide.top, image: _wallHorizontal),
+        ));
+      }
+    }
+    
+    // Bottom Wall
+    final bottomDoors = room.doors.where((d) => d.position.y >= room.roomSize.height - thickness - 10).toList();
+    if (bottomDoors.isEmpty) {
+      walls.add(Positioned(
+        bottom: 0, left: 0,
+        child: WallWidget(width: room.roomSize.width, height: thickness, side: WallSide.bottom, image: _wallHorizontal),
+      ));
+    } else {
+      bottomDoors.sort((a, b) => a.position.x.compareTo(b.position.x));
+      double currentX = 0;
+      for (final door in bottomDoors) {
+        double wallWidth = (door.position.x + overlap) - currentX;
+        if (wallWidth > 0) {
+          walls.add(Positioned(
+            bottom: 0, left: currentX,
+            child: WallWidget(width: wallWidth, height: thickness, side: WallSide.bottom, image: _wallHorizontal),
+          ));
+        }
+        currentX = door.position.x + door.size.x - overlap;
+      }
+      if (currentX < room.roomSize.width) {
+        walls.add(Positioned(
+          bottom: 0, left: currentX,
+          child: WallWidget(width: room.roomSize.width - currentX, height: thickness, side: WallSide.bottom, image: _wallHorizontal),
+        ));
+      }
+    }
+    
+    // Left Wall
+    final leftDoors = room.doors.where((d) => d.position.x <= 10).toList();
+    if (leftDoors.isEmpty) {
+      walls.add(Positioned(
+        top: 0, left: 0,
+        child: WallWidget(width: thickness, height: room.roomSize.height, side: WallSide.left, image: _wallVertical),
+      ));
+    } else {
+      leftDoors.sort((a, b) => a.position.y.compareTo(b.position.y));
+      double currentY = 0;
+      for (final door in leftDoors) {
+        double wallHeight = (door.position.y + overlap) - currentY;
+        if (wallHeight > 0) {
+          walls.add(Positioned(
+            top: currentY, left: 0,
+            child: WallWidget(width: thickness, height: wallHeight, side: WallSide.left, image: _wallVertical),
+          ));
+        }
+        currentY = door.position.y + door.size.y - overlap;
+      }
+      if (currentY < room.roomSize.height) {
+        walls.add(Positioned(
+          top: currentY, left: 0,
+          child: WallWidget(width: thickness, height: room.roomSize.height - currentY, side: WallSide.left, image: _wallVertical),
+        ));
+      }
+    }
+    
+    // Right Wall
+    final rightDoors = room.doors.where((d) => d.position.x >= room.roomSize.width - thickness - 10).toList();
+    if (rightDoors.isEmpty) {
+      walls.add(Positioned(
+        top: 0, right: 0,
+        child: WallWidget(width: thickness, height: room.roomSize.height, side: WallSide.right, image: _wallVertical),
+      ));
+    } else {
+      rightDoors.sort((a, b) => a.position.y.compareTo(b.position.y));
+      double currentY = 0;
+      for (final door in rightDoors) {
+        double wallHeight = (door.position.y + overlap) - currentY;
+        if (wallHeight > 0) {
+          walls.add(Positioned(
+            top: currentY, right: 0,
+            child: WallWidget(width: thickness, height: wallHeight, side: WallSide.right, image: _wallVertical),
+          ));
+        }
+        currentY = door.position.y + door.size.y - overlap;
+      }
+      if (currentY < room.roomSize.height) {
+        walls.add(Positioned(
+          top: currentY, right: 0,
+          child: WallWidget(width: thickness, height: room.roomSize.height - currentY, side: WallSide.right, image: _wallVertical),
+        ));
+      }
+    }
+    
+    return walls;
+  }
+
 
   @override
   Widget build(BuildContext context) {
