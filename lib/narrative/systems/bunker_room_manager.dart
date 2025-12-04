@@ -31,6 +31,7 @@ class BunkerRoomManager {
       playerSpawnPosition: const Vector2(400, 1200),
       roomSize: const Size(2000, 1500),
       cameraMode: CameraMode.follow,
+      backgroundImage: 'assets/images/bunker_exterior_floor.jpg',
       interactables: [
         InteractableData(
           id: 'road_sign',

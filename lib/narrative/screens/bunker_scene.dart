@@ -482,11 +482,11 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
 
     return [
       // Fondo del mapa (textura o color)
-      if (room.id == 'exterior_large')
-        // Textura de piso para el mapa exterior grande
+      // Fondo del mapa (textura o color)
+      if (room.backgroundImage != null)
         Positioned.fill(
           child: Image.asset(
-            'assets/images/bunker_exterior_floor.png',
+            room.backgroundImage!,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(color: room.backgroundColor);

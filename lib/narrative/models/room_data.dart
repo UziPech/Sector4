@@ -36,6 +36,8 @@ class RoomData {
   final CameraMode cameraMode;
   final RoomShape shape; // Forma de la habitación
 
+  final String? backgroundImage; // Ruta de la imagen de fondo (opcional)
+
   const RoomData({
     required this.id,
     required this.name,
@@ -45,8 +47,9 @@ class RoomData {
     required this.doors,
     required this.playerSpawnPosition,
     this.roomSize = const Size(700, 500),
-    this.cameraMode = CameraMode.fixed, // Por defecto cámara fija
-    this.shape = RoomShape.rectangle, // Por defecto rectangular
+    this.cameraMode = CameraMode.fixed,
+    this.shape = RoomShape.rectangle,
+    this.backgroundImage,
   });
 }
 

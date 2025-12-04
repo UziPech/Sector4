@@ -35,8 +35,8 @@ class ExteriorMapLevel extends Component with HasGameReference<ExpedienteKorinGa
   OnOyabunBoss? _oyabun;
   
   // Dimensiones del mapa
-  static const double mapWidth = 1600.0;
-  static const double mapHeight = 1200.0;
+  static const double mapWidth = 2000.0;
+  static const double mapHeight = 1500.0;
   
   @override
   Future<void> onLoad() async {
@@ -481,7 +481,7 @@ class _MapBackground extends SpriteComponent with HasGameReference<ExpedienteKor
     
     // Cargar imagen de fondo (Flame busca en assets/images/ por defecto)
     try {
-      sprite = await game.loadSprite('bunker_exterior_floor.png');
+      sprite = await game.loadSprite('bunker_exterior_floor.jpg');
     } catch (e) {
       debugPrint('❌ Error loading background image: $e');
       // Si falla, usar fondo de color sólido
