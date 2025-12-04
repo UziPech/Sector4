@@ -13,6 +13,8 @@ import '../projectiles/falling_katana.dart';
 import '../../../narrative/components/dialogue_system.dart';
 import '../effects/screen_flash.dart';
 import '../effects/teleport_effect.dart';
+import '../effects/explosive_wave.dart'; // Importar onda explosiva
+import '../../levels/exterior_map_level.dart'; // Importar nivel exterior para límites
 import '../../../narrative/models/dialogue_data.dart';
 import '../../models/player_role.dart';
 /// 怨親分 ON-OYABUN - "El Padrino de la Venganza"
@@ -103,8 +105,8 @@ class OnOyabunBoss extends PositionComponent
   final double healingWaveCooldownDuration = 20.0; // Cada 20 segundos
   final double healingWaveAmount = 300.0; // Se cura 300 HP
   final double healingWaveDamage = 60.0; // Daña 60 HP
-  final double healingWaveRadius = 250.0; // Radio de 250 unidades
-  final double healingWavePushForce = 200.0; // Empuje de 200 unidades
+  final double healingWaveRadius = 800.0; // Aumentado de 250 a 800 para mapa exterior
+  final double healingWavePushForce = 80.0; // Reducido de 200 a 80 para evitar bugs
   
   // Grito de Guerra (habilidad épica)
   double warCryCooldown = 0.0;
@@ -120,7 +122,7 @@ class OnOyabunBoss extends PositionComponent
   // Detecta cuando el jugador huye y se teletransporta
   double _previousDistanceToTarget = 0.0;
   int _consecutiveDistanceIncreases = 0;
-  final int _fleeingThreshold = 4; // 4 actualizaciones consecutivas alejándose
+  final int _fleeingThreshold = 3; // Reducido de 4 a 3 para mayor sensibilidad
   double _teleportCooldown = 0.0;
   final double _teleportCooldownDuration = 12.0; // Cooldown de 12s
   bool _canTeleport = true;
@@ -534,6 +536,9 @@ class OnOyabunBoss extends PositionComponent
     // FLASH BLANCO DRAMÁTICO
     _createScreenFlash();
     
+    // ONDA EXPLOSIVA
+    _triggerExplosiveWave();
+    
     // Pausar y mostrar diálogos de transición
     Future.delayed(const Duration(milliseconds: 300), () {
       _showPhase2Dialogue();
@@ -557,6 +562,8 @@ class OnOyabunBoss extends PositionComponent
     _createScreenFlash(color: Colors.black.withOpacity(0.9));
     Future.delayed(const Duration(milliseconds: 300), () {
       _createScreenFlash(color: Colors.red);
+      // ONDA EXPLOSIVA (más fuerte en fase 3 pero segura)
+      _triggerExplosiveWave(damage: 50, force: 80, radius: 1000);
     });
     
     // Diálogos
@@ -636,23 +643,32 @@ class OnOyabunBoss extends PositionComponent
       final distToKohaa = position.distanceTo(kohaa!.position);
       
       // Si Kohaa está huyendo, cambiar temporalmente al jugador
+
       if (kohaa!.isRetreating) {
         target = player.isDead ? kohaa : player;
         if (previousTarget != target && target == player) {
           debugPrint('🎯 Boss cambió objetivo → JUGADOR (Kohaa está huyendo)');
         }
       }
-      // Priorizar a Kohaa si está cerca (dentro de 200 unidades) y NO está huyendo
-      else if (distToKohaa < distToPlayer || distToKohaa < 200) {
+      // Priorizar al JUGADOR si está cerca (< 250u)
+      else if (distToPlayer < 250) {
+        target = player;
+        if (previousTarget != player) {
+          debugPrint('🎯 Boss cambió objetivo → JUGADOR (Jugador está cerca)');
+        }
+      }
+      // Si no, priorizar a Kohaa si está MUY cerca (< 150u)
+      else if (distToKohaa < 150) {
         target = kohaa;
         if (previousTarget != kohaa) {
-          debugPrint('🎯 Boss cambió objetivo → KOHAA ALIADA (${distToKohaa.toInt()}u vs Jugador ${distToPlayer.toInt()}u)');
+          debugPrint('🎯 Boss cambió objetivo → KOHAA ALIADA (Kohaa está muy cerca)');
         }
+      }
+      // Si no, el más cercano
+      else if (distToKohaa < distToPlayer) {
+        target = kohaa;
       } else {
-        target = player.isDead ? kohaa : player;
-        if (previousTarget != target && target == player) {
-          debugPrint('🎯 Boss cambió objetivo → JUGADOR (${distToPlayer.toInt()}u vs Kohaa ${distToKohaa.toInt()}u)');
-        }
+        target = player;
       }
     } else {
       target = player.isDead ? null : player;
@@ -693,7 +709,7 @@ class OnOyabunBoss extends PositionComponent
     // CONDICIÓN 2: Detectar huida consistente
     if (currentDistance >= 200) {
       // Detectar si la distancia está aumentando consistentemente
-      if (currentDistance > _previousDistanceToTarget + 10) { // Margen de 10 unidades
+      if (currentDistance > _previousDistanceToTarget + 5) { // Margen reducido de 10 a 5
         _consecutiveDistanceIncreases++;
       } else {
         _consecutiveDistanceIncreases = 0;
@@ -784,8 +800,18 @@ class OnOyabunBoss extends PositionComponent
     double worldMinY = 100.0;
     double worldMaxY = 1100.0;
     
-    // Mapa grande (3000x3000)
-    if (worldSize.width > 2000) {
+    // Detectar si estamos en el mapa exterior (2000x1500)
+    final exteriorMap = game.world.children.query<ExteriorMapLevel>().firstOrNull;
+    
+    if (exteriorMap != null) {
+      // Límites para ExteriorMapLevel (2000x1500)
+      // Dejamos 100px de margen por las paredes
+      worldMinX = 100.0;
+      worldMaxX = 1900.0;
+      worldMinY = 100.0;
+      worldMaxY = 1400.0;
+    } else if (worldSize.width > 2000) {
+      // Fallback para mapas muy grandes
       worldMinX = 250.0;
       worldMaxX = 2750.0;
       worldMinY = 250.0;
@@ -816,6 +842,18 @@ class OnOyabunBoss extends PositionComponent
     game.world.add(teleportEffect);
     
     // TODO: Agregar sonido de teletransportación
+  }
+
+  /// Genera una onda explosiva que daña y empuja
+  void _triggerExplosiveWave({double damage = 30, double force = 50, double radius = 800}) {
+    final wave = ExplosiveWave(
+      position: position.clone(),
+      damage: damage,
+      knockbackForce: force,
+      maxRadius: radius,
+    );
+    game.world.add(wave);
+    debugPrint('🌊 ON-OYABUN: ¡ONDA EXPLOSIVA ACTIVADA!');
   }
   
   void _aiPhase1(double distance) {
@@ -1467,7 +1505,15 @@ class OnOyabunBoss extends PositionComponent
         // Posición aleatoria cerca del jugador
         final offsetX = (random.nextDouble() - 0.5) * 400;
         final offsetY = (random.nextDouble() - 0.5) * 400;
-        final spawnX = (player.position.x + offsetX).clamp(50.0, 1550.0);
+        
+        // Ajustar límites según el mapa
+        double maxSpawnX = 1550.0;
+        final exteriorMap = game.world.children.query<ExteriorMapLevel>().firstOrNull;
+        if (exteriorMap != null) {
+          maxSpawnX = 1950.0; // Mapa exterior es más ancho
+        }
+        
+        final spawnX = (player.position.x + offsetX).clamp(50.0, maxSpawnX);
         final spawnY = -50.0; // Arriba de la pantalla
         
         final katana = FallingKatana(
@@ -1497,7 +1543,7 @@ class OnOyabunBoss extends PositionComponent
     for (int i = 0; i < 5; i++) {
       Future.delayed(Duration(milliseconds: i * 300), () {
         final angle = (i / 5) * 2 * pi;
-        final distance = 150.0 + random.nextDouble() * 50;
+        final distance = 300.0 + random.nextDouble() * 200; // Aumentado para mapa exterior
         final x = position.x + cos(angle) * distance;
         final y = position.y + sin(angle) * distance;
         
@@ -1522,7 +1568,7 @@ class OnOyabunBoss extends PositionComponent
     for (int i = 0; i < 6; i++) {
       Future.delayed(Duration(milliseconds: i * 200), () {
         final angle = (i / 6) * 2 * pi;
-        final distance = 180.0 + random.nextDouble() * 60;
+        final distance = 350.0 + random.nextDouble() * 150; // Aumentado para mapa exterior
         final x = position.x + cos(angle) * distance;
         final y = position.y + sin(angle) * distance;
         
@@ -1665,7 +1711,7 @@ class OnOyabunBoss extends PositionComponent
     for (int i = 0; i < warCryGhostCount; i++) {
       Future.delayed(Duration(milliseconds: i * 200), () {
         final angle = (i / warCryGhostCount) * 2 * pi;
-        final distance = 180.0;
+        final distance = 400.0; // Aumentado de 180 a 400 para encerrar al jugador en mapa grande
         final x = position.x + cos(angle) * distance;
         final y = position.y + sin(angle) * distance;
         
@@ -1786,14 +1832,13 @@ class OnOyabunBoss extends PositionComponent
   /// Crea un efecto de flash de pantalla
   void _createScreenFlash({Color? color}) {
     final flash = ScreenFlash(
-      screenSize: Vector2(1600, 1200), // Tamaño del mapa
+      screenSize: Vector2(3000, 3000), // Aumentado para cubrir todo el mapa exterior
       flashColor: color ?? Colors.white,
       duration: 0.6,
     );
     game.world.add(flash);
   }
-  
-  /// Diálogo cuando spawnea Fantasmas Yakuza
+
   void _showYakuzaGhostsDialogue() {
     if (game.buildContext == null) return;
     

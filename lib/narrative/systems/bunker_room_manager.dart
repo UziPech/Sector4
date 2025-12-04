@@ -257,7 +257,7 @@ class BunkerRoomManager {
         ),
         const DoorData(
           id: 'door_to_library',
-          position: Vector2(-15, 235), // Izquierda (Flush)
+          position: Vector2(-15, 185), // Izquierda (Flush) - Centrado
           size: Vector2(130, 130),
           targetRoomId: 'library',
           label: 'Archivo',
@@ -265,7 +265,7 @@ class BunkerRoomManager {
         ),
         const DoorData(
           id: 'door_to_lab',
-          position: Vector2(585, 235), // Derecha (Flush)
+          position: Vector2(585, 185), // Derecha (Flush) - Centrado
           size: Vector2(130, 130),
           targetRoomId: 'laboratory',
           label: 'Laboratorio',
@@ -395,7 +395,7 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_hallway_from_library',
-          position: Vector2(585, 235), // Derecha (Flush)
+          position: Vector2(585, 185), // Derecha (Flush) - Centrado
           size: Vector2(130, 130),
           targetRoomId: 'hallway',
           label: 'Pasillo',
@@ -537,7 +537,7 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_hallway_from_lab',
-          position: Vector2(-15, 235), // Izquierda (Flush)
+          position: Vector2(-15, 185), // Izquierda (Flush) - Centrado
           size: Vector2(130, 130),
           targetRoomId: 'hallway',
           label: 'Pasillo',
@@ -553,7 +553,7 @@ class BunkerRoomManager {
         ),
         const DoorData(
           id: 'door_to_cafeteria',
-          position: Vector2(585, 235), // Derecha (Flush)
+          position: Vector2(585, 185), // Derecha (Flush) - Centrado
           size: Vector2(130, 130),
           targetRoomId: 'cafeteria',
           label: 'Comedor',
@@ -707,7 +707,7 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_lab_from_cafeteria',
-          position: Vector2(-15, 235), // Izquierda (Flush)
+          position: Vector2(-15, 185), // Izquierda (Flush) - Centrado
           size: Vector2(130, 130),
           targetRoomId: 'laboratory',
           label: 'Laboratorio',
