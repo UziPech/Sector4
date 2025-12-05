@@ -8,6 +8,7 @@ import 'house_scene.dart';
 import 'bunker_scene.dart';
 import 'story_screen.dart';
 import 'login_screen.dart';
+import '../../game/audio_manager.dart';
 
 /// Pantalla del menú principal con efectos visuales avanzados
 class MenuScreen extends StatefulWidget {
@@ -48,11 +49,14 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
       vsync: this,
       duration: const Duration(seconds: 1),
     )..repeat();
-    
+
     _generateRaindrops();
 
     // Inicializar efecto glitch (cada 3-6s)
     _scheduleGlitch();
+
+    // Iniciar música de login (Integrado del remoto)
+    AudioManager().playLoginMusic();
   }
 
   void _scheduleGlitch() {
@@ -418,7 +422,7 @@ class DrippingBloodPainter extends CustomPainter {
     final paint = Paint()
       ..color = const Color(0xFFE60000) // Rojo sangre vivo
       ..style = PaintingStyle.fill; 
-
+    
     // Pintura para el brillo interior (highlight)
     final highlightPaint = Paint()
       ..color = const Color(0xFFFF4D4D).withOpacity(0.6)

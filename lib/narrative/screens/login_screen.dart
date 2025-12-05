@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:video_player/video_player.dart';
 import 'house_scene.dart';
+import '../../game/audio_manager.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,6 +18,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
+    
+    // Inicializar Video
     _controller = VideoPlayerController.asset('assets/images/Fondo.mp4')
       ..initialize().then((_) {
         _controller.setLooping(true);
@@ -24,11 +27,17 @@ class _LoginScreenState extends State<LoginScreen> {
         _controller.play();
         setState(() {}); // Refresh to show video
       });
+
+    // Inicializar Audio (Integrado del remoto)
+    AudioManager().init().then((_) {
+      AudioManager().playLoginMusic();
+    });
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    // AudioManager().stopMusic(); // Opcional, según lógica del remoto
     super.dispose();
   }
 
