@@ -119,13 +119,17 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
 
     // Inicializar Video
-    _controller = VideoPlayerController.asset('assets/images/Fondo.mp4')
-      ..initialize().then((_) {
-        _controller.setLooping(true);
-        _controller.setVolume(0.0); // Mute video
-        _controller.play();
-        setState(() {}); // Refresh to show video
-      });
+    _controller =
+        VideoPlayerController.asset(
+            'assets/images/Fondo.mp4',
+            videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+          )
+          ..initialize().then((_) {
+            _controller.setLooping(true);
+            _controller.setVolume(0.0); // Mute video
+            _controller.play();
+            setState(() {}); // Refresh to show video
+          });
 
     // Inicializar Audio (Integrado del remoto)
     AudioManager().init().then((_) {
