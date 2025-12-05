@@ -33,7 +33,7 @@ class BunkerRoomManager {
       playerSpawnPosition: const Vector2(400, 1200),
       roomSize: const Size(2000, 1500),
       cameraMode: CameraMode.follow,
-      backgroundImage: 'assets/images/bunker_exterior_floor.jpg',
+      backgroundImage: 'assets/images/city_map_night.png',
       interactables: [
         InteractableData(
           id: 'road_sign',
@@ -70,9 +70,9 @@ class BunkerRoomManager {
             ],
           ),
         ),
-
-        // 200 árboles generados proceduralmente (50 por cuadrante)
-        ...TreeGenerator.generateTrees(),
+        
+        // 200 árboles generados proceduralmente (ELIMINADOS)
+        // ...TreeGenerator.generateTrees(),
       ],
       doors: [
         const DoorData(

@@ -481,7 +481,7 @@ class _MapBackground extends SpriteComponent with HasGameReference<ExpedienteKor
     
     // Cargar imagen de fondo (Flame busca en assets/images/ por defecto)
     try {
-      sprite = await game.loadSprite('bunker_exterior_floor.jpg');
+      sprite = await game.loadSprite('city_map_night.png');
     } catch (e) {
       debugPrint('❌ Error loading background image: $e');
       // Si falla, usar fondo de color sólido

@@ -55,13 +55,13 @@ class _StoryScreenState extends State<StoryScreen> {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.black,
-              Colors.grey[900]!,
-            ],
+          image: DecorationImage(
+            image: AssetImage('assets/images/city_map_night.png'),
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+              Colors.black.withOpacity(0.7), 
+              BlendMode.darken,
+            ),
           ),
         ),
         child: SafeArea(

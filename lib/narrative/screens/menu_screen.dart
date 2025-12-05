@@ -36,13 +36,30 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
     super.initState();
     
     // Inicializar Video
-    _videoController = VideoPlayerController.asset('assets/images/Fondo.mp4')
-      ..initialize().then((_) {
-        _videoController.setLooping(true);
-        _videoController.setVolume(0.0);
-        _videoController.play();
-        setState(() {});
-      });
+    // Inicializar Video con opción para mezclar audio (evita que robe el foco agresivamente)
+    _videoController = VideoPlayerController.asset(
+      'assets/images/Fondo.mp4',
+      videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+    );
+    
+    _videoController.initialize().then((_) {
+      // Asegurar que se actualice la UI una vez inicializado
+      setState(() {});
+      
+      _videoController.setVolume(0.0);
+      _videoController.setLooping(true);
+      _videoController.play();
+      
+      // Iniciar música
+      AudioManager().playLoginMusic();
+    });
+
+    _videoController.addListener(() {
+      // Forzar reconstrucción si hay errores o cambios de estado críticos
+      if (_videoController.value.hasError) {
+        debugPrint('❌ Video Error: ${_videoController.value.errorDescription}');
+      }
+    });
 
     // Inicializar lluvia
     _rainController = AnimationController(
@@ -54,9 +71,6 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
 
     // Inicializar efecto glitch (cada 3-6s)
     _scheduleGlitch();
-
-    // Iniciar música de login (Integrado del remoto)
-    AudioManager().playLoginMusic();
   }
 
   void _scheduleGlitch() {

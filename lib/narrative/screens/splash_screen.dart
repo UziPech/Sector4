@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'menu_screen.dart';
+import '../../game/audio_manager.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -20,9 +21,12 @@ class _SplashScreenState extends State<SplashScreen> {
     
     // Iniciar el efecto de glitch
     _startGlitchEffect();
+    
+    // Iniciar música de intro (10 segundos)
+    AudioManager().playIntroAudio();
 
-    // Navegar al menú después de 4 segundos
-    Timer(const Duration(seconds: 4), () {
+    // Navegar al menú después de 6 segundos (ajustado para sincronización)
+    _navigationTimer = Timer(const Duration(seconds: 6), () {
       if (mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
@@ -35,6 +39,26 @@ class _SplashScreenState extends State<SplashScreen> {
         );
       }
     });
+  }
+  
+  Timer? _navigationTimer;
+
+  void _skipIntro() {
+    _navigationTimer?.cancel();
+    _glitchTimer?.cancel();
+    AudioManager().stopIntroAudio();
+    
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const MenuScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 500),
+        ),
+      );
+    }
   }
 
   void _startGlitchEffect() {
@@ -49,6 +73,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void dispose() {
+    _navigationTimer?.cancel();
     _glitchTimer?.cancel();
     super.dispose();
   }
@@ -57,52 +82,56 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // LOGO / NOMBRE DEL ESTUDIO
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // LOGO
-                Image.asset(
-                  'assets/images/gymbro_logo.png',
-                  height: 160, // Aumentado para mayor presencia
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(width: 20), // Espacio entre logo y texto
-                // NOMBRE
-                VHSGlitchTitle(
-                  text: 'GYMBRO',
-                  fontSize: 64, // Aumentar un poco para impacto
-                  isGlitching: _isGlitching,
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 20),
-            
-            // SUBTÍTULO TECH
-            TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0.0, end: 1.0),
-              duration: const Duration(seconds: 2),
-              curve: Curves.easeIn,
-              builder: (context, value, child) {
-                return Opacity(
-                  opacity: value,
-                  child: Text(
-                    'POWERED BY FLUTTER',
-                    style: GoogleFonts.robotoMono(
-                      color: Colors.blueGrey,
-                      fontSize: 12,
-                      letterSpacing: 4.0,
-                    ),
+      body: GestureDetector(
+        onTap: _skipIntro,
+        behavior: HitTestBehavior.opaque,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // LOGO / NOMBRE DEL ESTUDIO
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // LOGO
+                  Image.asset(
+                    'assets/images/gymbro_logo.png',
+                    height: 160,
+                    fit: BoxFit.contain,
                   ),
-                );
-              },
-            ),
-          ],
+                  const SizedBox(width: 20),
+                  // NOMBRE
+                  VHSGlitchTitle(
+                    text: 'GYMBRO',
+                    fontSize: 64,
+                    isGlitching: _isGlitching,
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // SUBTÍTULO TECH
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.0, end: 1.0),
+                duration: const Duration(seconds: 3),
+                curve: Curves.easeIn,
+                builder: (context, value, child) {
+                  return Opacity(
+                    opacity: value,
+                    child: Text(
+                      'POWERED BY FLUTTER',
+                      style: GoogleFonts.robotoMono(
+                        color: Colors.blueGrey,
+                        fontSize: 12,
+                        letterSpacing: 4.0,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

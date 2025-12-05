@@ -17,6 +17,7 @@ import 'components/enemies/yurei_kohaa.dart'; // Para reset de HP
 import 'components/enemies/redeemed_kijin_ally.dart'; // Para reset de Kohaa aliada
 import 'components/bosses/on_oyabun_boss.dart'; // Para reset del boss
 import '../narrative/models/dialogue_data.dart'; // Para sistema de diálogos
+import 'audio_manager.dart'; // Importar AudioManager
 
 /// Motor principal del juego Expediente Kōrin
 /// Gestiona el mundo, carga de mapas por capítulo y sistemas de juego
@@ -65,6 +66,9 @@ class ExpedienteKorinGame extends FlameGame
   Future<void> onLoad() async {
     // debugMode = true; // Desactivado - colisiones corregidas
     await super.onLoad();
+    
+    // Inicializar Audio
+    await AudioManager().init();
     
     // Configurar cámara
     camera.viewfinder.anchor = Anchor.center;

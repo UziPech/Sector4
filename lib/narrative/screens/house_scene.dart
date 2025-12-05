@@ -12,9 +12,9 @@ import '../components/animated_sprite.dart';
 import '../components/room_shape_clipper.dart';
 import '../services/save_system.dart';
 import 'bunker_scene.dart';
-import 'menu_screen.dart';
 import '../../game/audio_manager.dart';
 import 'package:flame_audio/flame_audio.dart';
+import 'menu_screen.dart';
 
 /// Escena de la casa de Dan (Capítulo 1) - Con sistema de habitaciones
 class HouseScene extends StatefulWidget {
@@ -92,6 +92,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
     _loadDanSprite();
     _showIntroDialogue();
     _startMovementLoop();
+    
+    // Iniciar música del capítulo
+    AudioManager().playHouseMusic();
   }
   
   Future<void> _loadDanSprite() async {
@@ -2579,7 +2582,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                               onPressed: () {
                                 Navigator.pop(context);
                                 Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(builder: (context) => const MenuScreen()),
+                                  MaterialPageRoute(builder: (context) => MenuScreen()),
                                 );
                               },
                               style: ElevatedButton.styleFrom(
