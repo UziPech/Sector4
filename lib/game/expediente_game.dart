@@ -93,6 +93,7 @@ class ExpedienteKorinGame extends FlameGame
     camera.viewport.add(hud);
 
     notificationSystem = MissionNotification();
+    notificationSystem = MissionNotification();
     camera.viewport.add(notificationSystem);
 
     if (startInBossMode) {

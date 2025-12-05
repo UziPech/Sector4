@@ -16,6 +16,8 @@ import '../components/automatic_door_widget.dart'; // Import AutomaticDoorWidget
 import '../services/save_system.dart';
 import '../../main.dart';
 import '../../game/audio_manager.dart';
+import 'package:flame_audio/flame_audio.dart';
+import 'menu_screen.dart';
 
 /// Capítulo 2: El Búnker - Sistema de habitaciones
 class BunkerScene extends StatefulWidget {
@@ -50,6 +52,14 @@ class _BunkerSceneState extends State<BunkerScene>
   static const double _joystickKnobRadius = 25.0;
   bool _canInteract = false;
 
+
+
+  // Configuración
+  bool _isConfigOpen = false;
+  bool _isPaused = false;
+  double _volume = 1.0;
+  double _sfxVolume = 1.0;
+
   Timer? _updateTimer;
 
   // Animación de sprite
@@ -78,8 +88,10 @@ class _BunkerSceneState extends State<BunkerScene>
       end: 1.0,
     ).animate(_transitionController);
     _updateTimer = Timer.periodic(const Duration(milliseconds: 16), (_) {
-      _updatePlayerPosition();
-      _checkDoorCollisions();
+      if (!_isPaused) {
+        _updatePlayerPosition();
+        _checkDoorCollisions();
+      }
       _updateCooldown();
     });
 
@@ -94,6 +106,10 @@ class _BunkerSceneState extends State<BunkerScene>
     _loadWallTextures();
 
     _showArrivalMonologue();
+
+    // Inicializar volúmenes
+    _volume = AudioManager().musicVolume;
+    _sfxVolume = AudioManager().sfxVolume;
   }
 
   Future<void> _loadDanSprites() async {
@@ -1021,52 +1037,60 @@ class _BunkerSceneState extends State<BunkerScene>
               _pressedKeys.remove(event.logicalKey);
             }
           },
-          child: Listener(
-            behavior: HitTestBehavior.opaque,
-            onPointerDown: (event) {
-              final screenSize = MediaQuery.of(context).size;
-              if (event.position.dx < screenSize.width / 2) {
-                setState(() {
-                  _isJoystickActive = true;
-                  _joystickOrigin = event.position;
-                  _joystickPosition = event.position;
-                  _joystickInput = Vector2(0, 0);
-                });
-              }
-            },
-            onPointerMove: (event) {
-              if (_isJoystickActive && _joystickOrigin != null) {
-                setState(() {
-                  final currentPos = event.position;
-                  Vector2 delta = Vector2(
-                    currentPos.dx - _joystickOrigin!.dx,
-                    currentPos.dy - _joystickOrigin!.dy,
-                  );
-
-                  if (delta.length > _joystickRadius) {
-                    delta = delta.normalized() * _joystickRadius;
-                  }
-
-                  _joystickPosition = Offset(
-                    _joystickOrigin!.dx + delta.x,
-                    _joystickOrigin!.dy + delta.y,
-                  );
-
-                  _joystickInput = delta / _joystickRadius;
-                });
-              }
-            },
-            onPointerUp: (event) {
-              setState(() {
-                _isJoystickActive = false;
-                _joystickOrigin = null;
-                _joystickPosition = null;
-                _joystickInput = Vector2(0, 0);
-              });
-            },
+          child: Container(
             child: Stack(
               children: [
                 _buildRoomWithCamera(room, screenSize),
+                
+                // CAPA DE INPUT (JOYSTICK) - Detrás de la UI
+                Positioned.fill(
+                  child: Listener(
+                    behavior: HitTestBehavior.translucent,
+                    onPointerDown: (event) {
+                      final screenSize = MediaQuery.of(context).size;
+                      if (event.position.dx < screenSize.width / 2) {
+                        setState(() {
+                          _isJoystickActive = true;
+                          _joystickOrigin = event.position;
+                          _joystickPosition = event.position;
+                          _joystickInput = Vector2(0, 0);
+                        });
+                      }
+                    },
+                    onPointerMove: (event) {
+                      if (_isJoystickActive && _joystickOrigin != null) {
+                        setState(() {
+                          final currentPos = event.position;
+                          Vector2 delta = Vector2(
+                            currentPos.dx - _joystickOrigin!.dx,
+                            currentPos.dy - _joystickOrigin!.dy,
+                          );
+
+                          if (delta.length > _joystickRadius) {
+                            delta = delta.normalized() * _joystickRadius;
+                          }
+
+                          _joystickPosition = Offset(
+                            _joystickOrigin!.dx + delta.x,
+                            _joystickOrigin!.dy + delta.y,
+                          );
+
+                          _joystickInput = delta / _joystickRadius;
+                        });
+                      }
+                    },
+                    onPointerUp: (event) {
+                      setState(() {
+                        _isJoystickActive = false;
+                        _joystickOrigin = null;
+                        _joystickPosition = null;
+                        _joystickInput = Vector2(0, 0);
+                      });
+                    },
+                    child: Container(color: Colors.transparent),
+                  ),
+                ),
+
                 if (_isTransitioning)
                   AnimatedBuilder(
                     animation: _fadeAnimation,
@@ -1219,6 +1243,60 @@ class _BunkerSceneState extends State<BunkerScene>
                       ),
                     ),
                   ),
+
+                // BOTÓN DE CONFIGURACIÓN (Top Right)
+                Positioned(
+                  top: MediaQuery.of(context).padding.top + 16,
+                  right: 16,
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _isConfigOpen = !_isConfigOpen;
+                        _isPaused = _isConfigOpen; // Pausar si se abre, reanudar si se cierra
+                      });
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutBack,
+                      width: _isConfigOpen ? 280 : 50,
+                      height: _isConfigOpen ? 340 : 50,
+                      padding: EdgeInsets.zero,
+                      clipBehavior: Clip.hardEdge,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.5),
+                          width: 1.5,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.white.withOpacity(0.2),
+                            blurRadius: 15,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: _isConfigOpen
+                          ? OverflowBox(
+                              minWidth: 276,
+                              maxWidth: 276,
+                              minHeight: 336,
+                              maxHeight: 336,
+                              alignment: Alignment.center,
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                child: _buildConfigPanel(),
+                              ),
+                            )
+                          : const Icon(
+                              Icons.settings,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -1235,6 +1313,249 @@ class _BunkerSceneState extends State<BunkerScene>
     if (_roomManager.currentRoom.id == 'exterior')
       return 'Objetivo: Entrar al búnker';
     return 'Objetivo: Encontrar a Mel';
+  }
+  Widget _buildConfigPanel() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header con botón de cerrar
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'SISTEMA',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'monospace',
+                letterSpacing: 1.5,
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _isConfigOpen = false;
+                  _isPaused = false; // Reanudar juego
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white24),
+                ),
+                child: const Icon(Icons.close, color: Colors.white, size: 16),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        const Divider(color: Colors.white24, height: 1),
+        const SizedBox(height: 20),
+        
+        // Control de Volumen
+        Row(
+          children: [
+            const Icon(Icons.volume_up, color: Colors.white70, size: 20),
+            const SizedBox(width: 10),
+            const Text(
+              'AUDIO',
+              style: TextStyle(color: Colors.white70, fontSize: 12, fontFamily: 'monospace'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        SizedBox(
+          height: 30,
+          child: SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: Colors.white,
+              inactiveTrackColor: Colors.grey[800],
+              thumbColor: Colors.white,
+              trackHeight: 4,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+            ),
+            child: Slider(
+              value: _volume,
+              onChanged: (value) {
+                setState(() {
+                  _volume = value;
+                  AudioManager().musicVolume = value;
+                  FlameAudio.bgm.audioPlayer.setVolume(value);
+                });
+              },
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 15),
+
+        // Control de SFX
+        Row(
+          children: [
+            const Icon(Icons.graphic_eq, color: Colors.white70, size: 20),
+            const SizedBox(width: 10),
+            const Text(
+              'EFECTOS (SFX)',
+              style: TextStyle(color: Colors.white70, fontSize: 12, fontFamily: 'monospace'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        SizedBox(
+          height: 30,
+          child: SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: Colors.white,
+              inactiveTrackColor: Colors.grey[800],
+              thumbColor: Colors.white,
+              trackHeight: 4,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+            ),
+            child: Slider(
+              value: _sfxVolume,
+              onChanged: (value) {
+                setState(() {
+                  _sfxVolume = value;
+                  AudioManager().sfxVolume = value;
+                });
+              },
+            ),
+          ),
+        ),
+
+        const Spacer(),
+
+        // Botón Salir
+        SizedBox(
+          width: double.infinity,
+          height: 45,
+          child: ElevatedButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => Dialog(
+                  backgroundColor: Colors.transparent,
+                  insetPadding: const EdgeInsets.all(20),
+                  child: Container(
+                    width: 450,
+                    height: 360,
+                    decoration: const BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/images/wood_card_bg.png'),
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 85, vertical: 50),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          '¿ABORTAR MISIÓN?',
+                          style: TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 18,
+                            fontFamily: 'monospace',
+                            fontWeight: FontWeight.bold,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black,
+                                offset: Offset(1, 1),
+                                blurRadius: 2,
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 15),
+                        const Text(
+                          'El progreso no guardado se perderá.',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontFamily: 'monospace',
+                            shadows: [
+                              Shadow(
+                                color: Colors.black,
+                                offset: Offset(1, 1),
+                                blurRadius: 2,
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: const Text(
+                                'CANCELAR',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 30), // Espacio fijo entre botones
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(builder: (context) => const MenuScreen()),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.redAccent.withOpacity(0.8),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: const Text('CONFIRMAR', style: TextStyle(fontSize: 12)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.withOpacity(0.2),
+              foregroundColor: Colors.redAccent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: const BorderSide(color: Colors.redAccent),
+              ),
+              elevation: 0,
+            ),
+            child: const Text(
+              'SALIR AL MENÚ',
+              style: TextStyle(
+                fontSize: 14, 
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+                fontFamily: 'monospace',
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 

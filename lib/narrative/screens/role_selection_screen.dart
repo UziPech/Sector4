@@ -5,6 +5,7 @@ import '../../game/expediente_game.dart';
 import '../../game/ui/game_over_with_advice.dart';
 import '../models/dialogue_data.dart';
 import '../components/dialogue_system.dart';
+import '../../game/ui/game_ui.dart';
 
 /// Pantalla de selección de rol (Dan vs Mel)
 class RoleSelectionScreen extends StatefulWidget {
@@ -229,7 +230,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                 onSequenceComplete: korinGame.onDialogueComplete,
               );
             },
+            'GameUI': (context, game) => GameUI(game: game as ExpedienteKorinGame),
           },
+          initialActiveOverlays: const ['GameUI'],
         ),
       ),
     );

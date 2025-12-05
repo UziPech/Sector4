@@ -1922,49 +1922,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
               _pressedKeys.remove(event.logicalKey);
             }
           },
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onPanStart: (details) {
-              final screenSize = MediaQuery.of(context).size;
-              if (details.globalPosition.dx < screenSize.width / 2) {
-                setState(() {
-                  _isJoystickActive = true;
-                  _joystickOrigin = details.globalPosition;
-                  _joystickPosition = details.globalPosition;
-                  _joystickInput = Vector2(0, 0);
-                });
-              }
-            },
-            onPanUpdate: (details) {
-              if (_isJoystickActive && _joystickOrigin != null) {
-                setState(() {
-                  final currentPos = details.globalPosition;
-                  Vector2 delta = Vector2(
-                    currentPos.dx - _joystickOrigin!.dx,
-                    currentPos.dy - _joystickOrigin!.dy,
-                  );
-                  
-                  if (delta.length > _joystickRadius) {
-                    delta = delta.normalized() * _joystickRadius;
-                  }
-                  
-                  _joystickPosition = Offset(
-                    _joystickOrigin!.dx + delta.x,
-                    _joystickOrigin!.dy + delta.y,
-                  );
-                  
-                  _joystickInput = delta / _joystickRadius;
-                });
-              }
-            },
-            onPanEnd: (details) {
-              setState(() {
-                _isJoystickActive = false;
-                _joystickOrigin = null;
-                _joystickPosition = null;
-                _joystickInput = Vector2(0, 0);
-              });
-            },
+          child: Container(
             child: Stack(
               children: [
                 Center(
@@ -2168,6 +2126,55 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                         ],
                       ),
                     ),
+                  ),
+                ),
+
+                // CAPA DE INPUT (JOYSTICK) - Detrás de la UI
+                Positioned.fill(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onPanStart: (details) {
+                      final screenSize = MediaQuery.of(context).size;
+                      if (details.globalPosition.dx < screenSize.width / 2) {
+                        setState(() {
+                          _isJoystickActive = true;
+                          _joystickOrigin = details.globalPosition;
+                          _joystickPosition = details.globalPosition;
+                          _joystickInput = Vector2(0, 0);
+                        });
+                      }
+                    },
+                    onPanUpdate: (details) {
+                      if (_isJoystickActive && _joystickOrigin != null) {
+                        setState(() {
+                          final currentPos = details.globalPosition;
+                          Vector2 delta = Vector2(
+                            currentPos.dx - _joystickOrigin!.dx,
+                            currentPos.dy - _joystickOrigin!.dy,
+                          );
+                          
+                          if (delta.length > _joystickRadius) {
+                            delta = delta.normalized() * _joystickRadius;
+                          }
+                          
+                          _joystickPosition = Offset(
+                            _joystickOrigin!.dx + delta.x,
+                            _joystickOrigin!.dy + delta.y,
+                          );
+                          
+                          _joystickInput = delta / _joystickRadius;
+                        });
+                      }
+                    },
+                    onPanEnd: (details) {
+                      setState(() {
+                        _isJoystickActive = false;
+                        _joystickOrigin = null;
+                        _joystickPosition = null;
+                        _joystickInput = Vector2(0, 0);
+                      });
+                    },
+                    child: Container(color: Colors.transparent),
                   ),
                 ),
                 
