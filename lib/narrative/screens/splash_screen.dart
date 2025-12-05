@@ -62,10 +62,23 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // LOGO / NOMBRE DEL ESTUDIO
-            VHSGlitchTitle(
-              text: 'GIN GAMES',
-              fontSize: 48,
-              isGlitching: _isGlitching,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // LOGO
+                Image.asset(
+                  'assets/images/gymbro_logo.png',
+                  height: 160, // Aumentado para mayor presencia
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(width: 20), // Espacio entre logo y texto
+                // NOMBRE
+                VHSGlitchTitle(
+                  text: 'GYMBRO',
+                  fontSize: 64, // Aumentar un poco para impacto
+                  isGlitching: _isGlitching,
+                ),
+              ],
             ),
             
             const SizedBox(height: 20),
