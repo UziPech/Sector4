@@ -211,8 +211,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     // CONTENIDO
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 40, // Reducido para móviles
-                        vertical: 60,
+                        horizontal: 100, // Aumentado significativamente para centrar en la madera
+                        vertical: 30,
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -224,7 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               color: const Color(0xFFFFECB3),
                               fontSize: size.width < 600
                                   ? 28
-                                  : 38, // Fuente responsiva
+                                  : 38,
                               fontWeight: FontWeight.bold,
                               shadows: [
                                 const Shadow(
@@ -235,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8), // Reducido de 12
                           Text(
                             _isLoginMode
                                 ? 'Ingresa tus credenciales para continuar'
@@ -254,7 +254,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 30),
+                          const SizedBox(height: 20), // Reducido de 30
 
                           // --- FORMULARIO ---
                           _buildTextField(
@@ -262,14 +262,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             label: 'Correo Electrónico',
                             icon: Icons.email_outlined,
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 12), // Reducido de 16
                           _buildTextField(
                             controller: _passwordController,
                             label: 'Contraseña',
                             icon: Icons.lock_outline,
                             isPassword: true,
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 20), // Reducido de 24
 
                           // BOTÓN DE ACCIÓN PRINCIPAL
                           _LoginButton(
@@ -279,7 +279,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             onPressed: _handleAuth,
                           ),
 
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 10), // Reducido de 16
 
                           // CAMBIAR MODO
                           TextButton(
@@ -302,10 +302,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
 
-                          const SizedBox(height: 30),
-                          const Divider(color: Colors.white24),
-                          const SizedBox(height: 20),
-
+                          const SizedBox(height: 10), // Reducido de 30
+                          const Divider(color: Colors.white24, height: 20), // Height explícito reducido
+                          
                           // BOTÓN INVITADO
                           _LoginButton(
                             text: 'Entrar como Invitado',

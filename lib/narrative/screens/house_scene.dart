@@ -12,6 +12,9 @@ import '../components/animated_sprite.dart';
 import '../components/room_shape_clipper.dart';
 import '../services/save_system.dart';
 import 'bunker_scene.dart';
+import 'menu_screen.dart';
+import '../../game/audio_manager.dart';
+import 'package:flame_audio/flame_audio.dart';
 
 /// Escena de la casa de Dan (Capítulo 1) - Con sistema de habitaciones
 class HouseScene extends StatefulWidget {
@@ -65,6 +68,10 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
   int _currentFrame = 0;
   double _animationTimer = 0.0;
   static const double _frameRate = 0.15;
+
+  // Configuración In-Game
+  bool _isConfigOpen = false;
+  double _volume = 0.5; // Default volume
 
   @override
   void initState() {
@@ -2299,11 +2306,207 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                       ),
                     ),
                   ),
+
+                // BOTÓN DE CONFIGURACIÓN (Top Right)
+                Positioned(
+                  top: MediaQuery.of(context).padding.top + 16,
+                  right: 16,
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _isConfigOpen = !_isConfigOpen;
+                      });
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutBack,
+                      width: _isConfigOpen ? 280 : 50,
+                      height: _isConfigOpen ? 240 : 50,
+                      padding: EdgeInsets.zero, // Padding movido al contenido interno
+                      clipBehavior: Clip.hardEdge,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.5),
+                          width: 1.5,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.white.withOpacity(0.2),
+                            blurRadius: 15,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: _isConfigOpen
+                          ? OverflowBox(
+                              minWidth: 276,
+                              maxWidth: 276,
+                              minHeight: 236,
+                              maxHeight: 236,
+                              alignment: Alignment.center,
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                child: _buildConfigPanel(),
+                              ),
+                            )
+                          : const Center(
+                              child: Icon(
+                                Icons.settings,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildConfigPanel() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header con botón de cerrar
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'SISTEMA',
+              style: TextStyle(
+                color: Colors.white, // Blanco
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'monospace',
+                letterSpacing: 1.5,
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _isConfigOpen = false;
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white24),
+                ),
+                child: const Icon(Icons.close, color: Colors.white, size: 16),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        const Divider(color: Colors.white24, height: 1),
+        const SizedBox(height: 20),
+        
+        // Control de Volumen
+        Row(
+          children: [
+            const Icon(Icons.volume_up, color: Colors.white70, size: 20),
+            const SizedBox(width: 10),
+            const Text(
+              'AUDIO',
+              style: TextStyle(color: Colors.white70, fontSize: 12, fontFamily: 'monospace'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        SizedBox(
+          height: 30,
+          child: SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: Colors.white, // Blanco
+              inactiveTrackColor: Colors.grey[800],
+              thumbColor: Colors.white,
+              trackHeight: 4,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+            ),
+            child: Slider(
+              value: _volume,
+              onChanged: (value) {
+                setState(() {
+                  _volume = value;
+                  AudioManager().musicVolume = value;
+                  FlameAudio.bgm.audioPlayer.setVolume(value);
+                });
+              },
+            ),
+          ),
+        ),
+
+        const Spacer(),
+
+        // Botón Salir
+        SizedBox(
+          width: double.infinity,
+          height: 45,
+          child: ElevatedButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: Colors.grey[900],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: Colors.red.withOpacity(0.5)),
+                  ),
+                  title: const Text('¿ABORTAR MISIÓN?', 
+                    style: TextStyle(color: Colors.redAccent, fontFamily: 'monospace', fontWeight: FontWeight.bold)
+                  ),
+                  content: const Text(
+                    'El progreso no guardado se perderá.',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('CANCELAR', style: TextStyle(color: Colors.grey)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (context) => const MenuScreen()),
+                        );
+                      },
+                      child: const Text('CONFIRMAR', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.withOpacity(0.2),
+              foregroundColor: Colors.redAccent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: const BorderSide(color: Colors.redAccent),
+              ),
+              elevation: 0,
+            ),
+            child: const Text(
+              'SALIR AL MENÚ',
+              style: TextStyle(
+                fontSize: 14, 
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+                fontFamily: 'monospace',
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
