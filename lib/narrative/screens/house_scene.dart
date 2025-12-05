@@ -71,7 +71,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
 
   // Configuración In-Game
   bool _isConfigOpen = false;
-  double _volume = 0.5; // Default volume
+  bool _isPaused = false; // Estado de pausa
+  double _volume = 0.5; // Default music volume
+  double _sfxVolume = 0.8; // Default SFX volume
 
   @override
   void initState() {
@@ -143,6 +145,13 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           _transitionCooldown -= 0.016;
         }
         
+        if (_transitionCooldown > 0) {
+          _transitionCooldown -= 0.016;
+        }
+        
+        // Pausar lógica si el juego está pausado
+        if (_isPaused) return;
+
         if (!_isTransitioning) {
           _updatePlayerPosition();
           _checkDoorCollisions();
@@ -2315,14 +2324,15 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                     onTap: () {
                       setState(() {
                         _isConfigOpen = !_isConfigOpen;
+                        _isPaused = _isConfigOpen; // Pausar si se abre, reanudar si se cierra
                       });
                     },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeOutBack,
                       width: _isConfigOpen ? 280 : 50,
-                      height: _isConfigOpen ? 240 : 50,
-                      padding: EdgeInsets.zero, // Padding movido al contenido interno
+                      height: _isConfigOpen ? 340 : 50, // Aumentado para caber SFX
+                      padding: EdgeInsets.zero,
                       clipBehavior: Clip.hardEdge,
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.9),
@@ -2343,8 +2353,8 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                           ? OverflowBox(
                               minWidth: 276,
                               maxWidth: 276,
-                              minHeight: 236,
-                              maxHeight: 236,
+                              minHeight: 336, // Ajustado a nueva altura (340 - 4)
+                              maxHeight: 336,
                               alignment: Alignment.center,
                               child: Container(
                                 padding: const EdgeInsets.all(12),
@@ -2392,6 +2402,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
               onTap: () {
                 setState(() {
                   _isConfigOpen = false;
+                  _isPaused = false; // Reanudar juego
                 });
               },
               child: Container(
@@ -2445,6 +2456,43 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           ),
         ),
 
+        const SizedBox(height: 15),
+
+        // Control de SFX
+        Row(
+          children: [
+            const Icon(Icons.graphic_eq, color: Colors.white70, size: 20),
+            const SizedBox(width: 10),
+            const Text(
+              'EFECTOS (SFX)',
+              style: TextStyle(color: Colors.white70, fontSize: 12, fontFamily: 'monospace'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        SizedBox(
+          height: 30,
+          child: SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: Colors.white,
+              inactiveTrackColor: Colors.grey[800],
+              thumbColor: Colors.white,
+              trackHeight: 4,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+            ),
+            child: Slider(
+              value: _sfxVolume,
+              onChanged: (value) {
+                setState(() {
+                  _sfxVolume = value;
+                  AudioManager().sfxVolume = value;
+                });
+              },
+            ),
+          ),
+        ),
+
         const Spacer(),
 
         // Botón Salir
@@ -2455,34 +2503,99 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (context) => AlertDialog(
-                  backgroundColor: Colors.grey[900],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: Colors.red.withOpacity(0.5)),
-                  ),
-                  title: const Text('¿ABORTAR MISIÓN?', 
-                    style: TextStyle(color: Colors.redAccent, fontFamily: 'monospace', fontWeight: FontWeight.bold)
-                  ),
-                  content: const Text(
-                    'El progreso no guardado se perderá.',
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('CANCELAR', style: TextStyle(color: Colors.grey)),
+                barrierDismissible: false,
+                builder: (context) => Dialog(
+                  backgroundColor: Colors.transparent,
+                  insetPadding: const EdgeInsets.all(20),
+                  child: Container(
+                    width: 450,
+                    height: 360,
+                    decoration: const BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/images/wood_card_bg.png'),
+                        fit: BoxFit.fill,
+                      ),
                     ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => const MenuScreen()),
-                        );
-                      },
-                      child: const Text('CONFIRMAR', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                    padding: const EdgeInsets.symmetric(horizontal: 85, vertical: 50),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          '¿ABORTAR MISIÓN?',
+                          style: TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 18,
+                            fontFamily: 'monospace',
+                            fontWeight: FontWeight.bold,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black,
+                                offset: Offset(1, 1),
+                                blurRadius: 2,
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 15),
+                        const Text(
+                          'El progreso no guardado se perderá.',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontFamily: 'monospace',
+                            shadows: [
+                              Shadow(
+                                color: Colors.black,
+                                offset: Offset(1, 1),
+                                blurRadius: 2,
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: const Text(
+                                'CANCELAR',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 30), // Espacio fijo entre botones
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(builder: (context) => const MenuScreen()),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.redAccent.withOpacity(0.8),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: const Text('CONFIRMAR', style: TextStyle(fontSize: 12)),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               );
             },
