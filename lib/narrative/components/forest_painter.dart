@@ -16,22 +16,28 @@ class ForestPainter extends CustomPainter {
     final paint = Paint();
 
     for (final tree in trees) {
-      if (tree.sourceRect != null) {
-        // Destination rect based on tree position and size
-        // Position is center-based in the data, but drawImageRect uses top-left usually, 
-        // let's check how InteractableObject renders.
-        // InteractableObject uses Positioned: left: pos.x - size.x/2, top: pos.y - size.y/2
-        
-        final dst = Rect.fromLTWH(
-          tree.position.x - tree.size.x / 2,
-          tree.position.y - tree.size.y / 2,
-          tree.size.x,
-          tree.size.y,
-        );
+      // Destination rect
+      final dst = Rect.fromLTWH(
+        tree.position.x - tree.size.x / 2,
+        tree.position.y - tree.size.y / 2,
+        tree.size.x,
+        tree.size.y,
+      );
 
+      if (tree.sourceRect != null) {
+        // Sprite sheet case
         canvas.drawImageRect(
           image,
           tree.sourceRect!,
+          dst,
+          paint,
+        );
+      } else {
+        // Full image case (single asset)
+        final src = Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble());
+        canvas.drawImageRect(
+          image,
+          src,
           dst,
           paint,
         );

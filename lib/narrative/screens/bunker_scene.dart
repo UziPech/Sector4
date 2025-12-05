@@ -105,7 +105,7 @@ class _BunkerSceneState extends State<BunkerScene> with SingleTickerProviderStat
   }
 
   Future<void> _loadTreeSprite() async {
-    final data = await rootBundle.load('assets/sprites/pine_trees.png');
+    final data = await rootBundle.load('assets/sprites/realistic_pine_tree.png');
     final bytes = data.buffer.asUint8List();
     final codec = await ui.instantiateImageCodec(bytes);
     final frame = await codec.getNextFrame();

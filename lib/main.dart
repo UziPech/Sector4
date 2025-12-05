@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flame/game.dart';
-import 'package:flame/game.dart';
 // import 'package:vector_math/vector_math_64.dart' hide Colors; // YA NO ES NECESARIO, Flame lo exporta
 
 import 'narrative/screens/menu_screen.dart';
+import 'narrative/screens/splash_screen.dart'; // Importar Splash Screen
 import 'game/expediente_game.dart';
 import 'game/ui/game_over_with_advice.dart'; // Nuevo import
 import 'narrative/components/dialogue_system.dart'; // Importar sistema de diálogos
@@ -36,7 +36,7 @@ class ExpedienteKorinApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MenuScreen(),
+      home: SplashScreen(), // Iniciar con Splash Screen
     );
   }
 }
