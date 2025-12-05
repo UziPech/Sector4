@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:video_player/video_player.dart';
 import 'house_scene.dart';
 import 'bunker_scene.dart';
 import 'story_screen.dart';
@@ -17,6 +18,9 @@ class MenuScreen extends StatefulWidget {
 }
 
 class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateMixin {
+  // Controlador de Video
+  late VideoPlayerController _videoController;
+
   // Controladores para la lluvia
   late AnimationController _rainController;
   final List<Raindrop> _raindrops = [];
@@ -30,6 +34,15 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     
+    // Inicializar Video
+    _videoController = VideoPlayerController.asset('assets/images/Fondo.mp4')
+      ..initialize().then((_) {
+        _videoController.setLooping(true);
+        _videoController.setVolume(0.0);
+        _videoController.play();
+        setState(() {});
+      });
+
     // Inicializar lluvia
     _rainController = AnimationController(
       vsync: this,
@@ -72,6 +85,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
 
   @override
   void dispose() {
+    _videoController.dispose();
     _rainController.dispose();
     _glitchTimer?.cancel();
     super.dispose();
@@ -82,12 +96,18 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
     return Scaffold(
       body: Stack(
         children: [
-          // 1. CAPA DE FONDO (Imagen Base)
+          // 1. CAPA DE FONDO (Video)
           Positioned.fill(
-            child: Image.asset(
-              'assets/images/login_screen_new.jpg',
-              fit: BoxFit.cover,
-            ),
+            child: _videoController.value.isInitialized
+                ? FittedBox(
+                    fit: BoxFit.cover,
+                    child: SizedBox(
+                      width: _videoController.value.size.width,
+                      height: _videoController.value.size.height,
+                      child: VideoPlayer(_videoController),
+                    ),
+                  )
+                : Container(color: Colors.black),
           ),
 
           // 2. EFECTO DE VIÑETA (Radial Gradient)

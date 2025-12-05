@@ -63,7 +63,7 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             // LOGO / NOMBRE DEL ESTUDIO
             VHSGlitchTitle(
-              text: 'UZIEL GAMES',
+              text: 'GIN GAMES',
               fontSize: 48,
               isGlitching: _isGlitching,
             ),
