@@ -150,7 +150,7 @@ class RedeemedKijinAlly extends PositionComponent
         _isPreparingDash = false;
         _isDashing = true;
         _dashPreparationTimer = 0.0;
-        print('⚡ ¡Kijin Redimido EMBISTE!');
+        // [PERF] print('⚡ ¡Kijin Redimido EMBISTE!');
       }
       return; // No moverse durante preparación
     }
@@ -225,7 +225,7 @@ class RedeemedKijinAlly extends PositionComponent
       _retreatTimer = _retreatDuration;
       _retreatCooldown = _retreatCooldownDuration;
       _healingDuringRetreat = 0.0; // Reset healing counter
-      print('🏃💨💚 ¡Kohaa aliada HUYE del combate para recuperarse! (HP: ${(_health).toInt()}/${_maxHealth.toInt()})');
+      // [PERF] print('🏃💨💚 ¡Kohaa aliada HUYE del combate para recuperarse! (HP: ${(_health).toInt()}/${_maxHealth.toInt()})');
     }
     
     // Ejecutar retirada con curación
@@ -234,7 +234,7 @@ class RedeemedKijinAlly extends PositionComponent
       return;
     } else if (_retreatTimer <= 0 && _isRetreating) {
       _isRetreating = false;
-      print('✅ Kohaa aliada regresa al combate (HP: ${(_health).toInt()}/${_maxHealth.toInt()})');
+      // [PERF] print('✅ Kohaa aliada regresa al combate (HP: ${(_health).toInt()}/${_maxHealth.toInt()})');
     }
     
     // PRIORIDAD 2: Buscar objetivo
@@ -313,7 +313,7 @@ class RedeemedKijinAlly extends PositionComponent
     if (position.x < 250 + dangerMargin || position.x > 2750 - dangerMargin ||
         position.y < 250 + dangerMargin || position.y > 2750 - dangerMargin) {
       retreatDirection = (center - position).normalized();
-      print('⚠️ Kohaa cerca del borde, huyendo al CENTRO');
+      // [PERF] print('⚠️ Kohaa cerca del borde, huyendo al CENTRO');
     } else {
       // Si está cerca pero no en peligro, ajustar dirección
       if (position.x < 250 + safeMargin) {
@@ -343,7 +343,7 @@ class RedeemedKijinAlly extends PositionComponent
       
       // Debug cada segundo
       if (_retreatTimer.toInt() != (_retreatTimer + dt).toInt()) {
-        print('💚 Kohaa curándose: +${actualHeal.toInt()} HP (${_health.toInt()}/${_maxHealth.toInt()})');
+        // [PERF] print('💚 Kohaa curándose: +${actualHeal.toInt()} HP (${_health.toInt()}/${_maxHealth.toInt()})');
       }
     }
   }
@@ -357,7 +357,7 @@ class RedeemedKijinAlly extends PositionComponent
     _dashTimer = _dashCooldown;
     _dashDirection = (_currentTarget!.position - position).normalized();
     
-    print('🛡️ Kijin Redimido prepara dash (invulnerable)');
+    // [PERF] print('🛡️ Kijin Redimido prepara dash (invulnerable)');
   }
   
   void _damageEnemiesInPath() {
@@ -371,7 +371,7 @@ class RedeemedKijinAlly extends PositionComponent
       final distance = position.distanceTo(enemy.position);
       if (distance <= dashRadius) {
         enemy.takeDamage(dashDamage);
-        print('⚡ Dash golpeó irracional: $dashDamage daño');
+        // [PERF] print('⚡ Dash golpeó irracional: $dashDamage daño');
       }
     }
     
@@ -382,7 +382,7 @@ class RedeemedKijinAlly extends PositionComponent
       final distance = position.distanceTo(boss.position);
       if (distance <= dashRadius) {
         boss.takeDamage(dashDamage);
-        print('⚡ Dash golpeó a KOHAA: $dashDamage daño');
+        // [PERF] print('⚡ Dash golpeó a KOHAA: $dashDamage daño');
       }
     }
 
@@ -392,7 +392,7 @@ class RedeemedKijinAlly extends PositionComponent
       final distance = position.distanceTo(boss.position);
       if (distance <= dashRadius) {
         boss.takeDamage(dashDamage);
-        print('⚡ Dash golpeó a ON-OYABUN: $dashDamage daño');
+        // [PERF] print('⚡ Dash golpeó a ON-OYABUN: $dashDamage daño');
       }
     }
   }
@@ -544,7 +544,7 @@ class RedeemedKijinAlly extends PositionComponent
       if (!boss.isDead) {
         _currentTarget = boss;
         _currentTactic = 'distract_boss';
-        print('🎯 Kohaa aliada: Distrayendo al boss');
+        // [PERF] print('🎯 Kohaa aliada: Distrayendo al boss');
         return;
       }
     }
@@ -572,13 +572,13 @@ class RedeemedKijinAlly extends PositionComponent
     // Atacar según el tipo de enemigo
     if (_currentTarget is IrrationalEnemy) {
       (_currentTarget as IrrationalEnemy).takeDamage(_damage);
-      print('⚔️ Kijin Redimido atacó Irracional: $_damage daño');
+      // [PERF] print('⚔️ Kijin Redimido atacó Irracional: $_damage daño');
     } else if (_currentTarget is YureiKohaa) {
       (_currentTarget as YureiKohaa).takeDamage(_damage);
-      print('⚔️ Kijin Redimido atacó Kohaa: $_damage daño');
+      // [PERF] print('⚔️ Kijin Redimido atacó Kohaa: $_damage daño');
     } else if (_currentTarget is OnOyabunBoss) {
       (_currentTarget as OnOyabunBoss).takeDamage(_damage);
-      print('⚔️ Kijin Redimido atacó ON-OYABUN: $_damage daño');
+      // [PERF] print('⚔️ Kijin Redimido atacó ON-OYABUN: $_damage daño');
     }
     
     _attackTimer = _attackCooldown;
@@ -604,11 +604,11 @@ class RedeemedKijinAlly extends PositionComponent
   
   /// Ejecuta la explosión táctica
   void _executeTacticalExplosion(OnOyabunBoss boss) {
-    print('💥🔥 ¡KOHAA ALIADA USA EXPLOSIÓN TÁCTICA!');
+    // [PERF] print('💥🔥 ¡KOHAA ALIADA USA EXPLOSIÓN TÁCTICA!');
     
     // Daño al boss
     boss.takeDamage(_tacticalExplosionDamage);
-    print('   💥 Boss recibe ${_tacticalExplosionDamage.toInt()} daño de la explosión!');
+    // [PERF] print('   💥 Boss recibe ${_tacticalExplosionDamage.toInt()} daño de la explosión!');
     
     // Empujar al boss ligeramente
     final pushDirection = (boss.position - position).normalized();
@@ -617,14 +617,14 @@ class RedeemedKijinAlly extends PositionComponent
     // Cooldown
     _tacticalExplosionTimer = _tacticalExplosionCooldown;
     
-    print('   🌟 Onda expansiva de ${_tacticalExplosionRadius.toInt()} unidades');
-    print('   ⏱️ Cooldown: ${_tacticalExplosionCooldown.toInt()}s');
+    // [PERF] print('   🌟 Onda expansiva de ${_tacticalExplosionRadius.toInt()} unidades');
+    // [PERF] print('   ⏱️ Cooldown: ${_tacticalExplosionCooldown.toInt()}s');
   }
   
   /// LLANTO DE KOHAA - Ondas de dolor que dañan a todos los enemigos
   void _executeCryingWave() {
-    print('😭💔🌊 ¡LLANTO DE KOHAA! Ondas de dolor devastadoras');
-    print('   💔 Kohaa llora por su dolor (HP: ${_health.toInt()}/${_maxHealth.toInt()})');
+    // [PERF] print('😭💔🌊 ¡LLANTO DE KOHAA! Ondas de dolor devastadoras');
+    // [PERF] print('   💔 Kohaa llora por su dolor (HP: ${_health.toInt()}/${_maxHealth.toInt()})');
     
     int enemiesHit = 0;
     
@@ -635,7 +635,7 @@ class RedeemedKijinAlly extends PositionComponent
         if (distance <= _cryingWaveRadius) {
           boss.takeDamage(_cryingWaveDamage);
           enemiesHit++;
-          print('   🌊 Onda golpea a ON-OYABUN: ${_cryingWaveDamage.toInt()} daño');
+          // [PERF] print('   🌊 Onda golpea a ON-OYABUN: ${_cryingWaveDamage.toInt()} daño');
         }
       }
     });
@@ -673,8 +673,8 @@ class RedeemedKijinAlly extends PositionComponent
       }
     });
     
-    print('   💥 ${enemiesHit} enemigos golpeados por las ondas');
-    print('   ⏱️ Cooldown: ${_cryingWaveCooldownDuration.toInt()}s');
+    // [PERF] print('   💥 ${enemiesHit} enemigos golpeados por las ondas');
+    // [PERF] print('   ⏱️ Cooldown: ${_cryingWaveCooldownDuration.toInt()}s');
     
     // Cooldown
     _cryingWaveCooldown = _cryingWaveCooldownDuration;
@@ -686,7 +686,7 @@ class RedeemedKijinAlly extends PositionComponent
     
     // INVULNERABLE durante preparación del dash
     if (_isPreparingDash) {
-      print('🛡️ ¡Kijin Redimido es INVULNERABLE! (Preparando dash)');
+      // [PERF] print('🛡️ ¡Kijin Redimido es INVULNERABLE! (Preparando dash)');
       return;
     }
     
@@ -696,7 +696,7 @@ class RedeemedKijinAlly extends PositionComponent
     if (!_hasSpawnedNurses && _health <= _maxHealth * 0.5) {
       _spawnNurses();
       _hasSpawnedNurses = true;
-      print('🩸 ¡KIJIN REDIMIDO INVOCA ENFERMEROS AL 50% HP!');
+      // [PERF] print('🩸 ¡KIJIN REDIMIDO INVOCA ENFERMEROS AL 50% HP!');
     }
     
     if (_health <= 0) {
@@ -706,7 +706,7 @@ class RedeemedKijinAlly extends PositionComponent
   }
   
   void _spawnNurses() {
-    print('🩸 ¡Kijin redimido invoca enfermeros para ayudar!');
+    // [PERF] print('🩸 ¡Kijin redimido invoca enfermeros para ayudar!');
     
     // Spawn 2 enfermeros ALIADOS
     for (int i = 0; i < 2; i++) {
@@ -725,7 +725,7 @@ class RedeemedKijinAlly extends PositionComponent
       
       game.world.add(nurse);
       // NO llamar a registerAlly() - los enfermeros son parte del Kijin, no slots separados
-      print('👥 Enfermero spawneado (10 min de duración, parte del Kijin)');
+      // [PERF] print('👥 Enfermero spawneado (10 min de duración, parte del Kijin)');
     }
   }
   
@@ -911,12 +911,12 @@ class RedeemedKijinAlly extends PositionComponent
     
     // Debug si se está saliendo
     if (pos.x != clampedPos.x || pos.y != clampedPos.y) {
-      print('⚠️ Kohaa corregida: (${pos.x.toInt()}, ${pos.y.toInt()}) → (${clampedPos.x.toInt()}, ${clampedPos.y.toInt()})');
+      // [PERF] print('⚠️ Kohaa corregida: (${pos.x.toInt()}, ${pos.y.toInt()}) → (${clampedPos.x.toInt()}, ${clampedPos.y.toInt()})');
       
       // Si está MUY cerca del borde, detener movimiento completamente
       if (pos.x < worldMinX + 50 || pos.x > worldMaxX - 50 ||
           pos.y < worldMinY + 50 || pos.y > worldMaxY - 50) {
-        print('🛑 Kohaa DETENIDA en el borde');
+        // [PERF] print('🛑 Kohaa DETENIDA en el borde');
       }
     }
     

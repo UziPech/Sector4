@@ -179,7 +179,7 @@ class AlliedEnemy extends PositionComponent
       if (distance < 300.0) {
         nearest = kohaa;
         nearestDistance = distance;
-        print('🎯 Aliado priorizando YUREI KOHAA (${distance.toInt()}u)');
+        // [PERF] print('🎯 Aliado priorizando YUREI KOHAA (${distance.toInt()}u)');
         break; // Prioridad absoluta
       } else if (distance < nearestDistance) {
         nearest = kohaa;
@@ -243,19 +243,19 @@ class AlliedEnemy extends PositionComponent
     // Atacar según el tipo de enemigo
     if (_currentTarget is YakuzaGhost) {
       (_currentTarget as YakuzaGhost).takeDamage(_damage);
-      print('⚔️ Enfermero atacó Fantasma Yakuza: $_damage daño');
+      // [PERF] print('⚔️ Enfermero atacó Fantasma Yakuza: $_damage daño');
     } else if (_currentTarget is FloatingKatana) {
       (_currentTarget as FloatingKatana).takeDamage(_damage);
-      print('⚔️ Enfermero atacó Katana Flotante: $_damage daño');
+      // [PERF] print('⚔️ Enfermero atacó Katana Flotante: $_damage daño');
     } else if (_currentTarget is IrrationalEnemy) {
       (_currentTarget as IrrationalEnemy).takeDamage(_damage);
-      print('⚔️ Aliado atacó Irracional: $_damage daño');
+      // [PERF] print('⚔️ Aliado atacó Irracional: $_damage daño');
     } else if (_currentTarget is YureiKohaa) {
       (_currentTarget as YureiKohaa).takeDamage(_damage);
-      print('⚔️ Aliado atacó Kohaa: $_damage daño');
+      // [PERF] print('⚔️ Aliado atacó Kohaa: $_damage daño');
     } else if (_currentTarget is OnOyabunBoss) {
       (_currentTarget as OnOyabunBoss).takeDamage(_damage);
-      print('⚔️ Aliado atacó ON-OYABUN: $_damage daño');
+      // [PERF] print('⚔️ Aliado atacó ON-OYABUN: $_damage daño');
     }
     
     _attackTimer = _attackCooldown;

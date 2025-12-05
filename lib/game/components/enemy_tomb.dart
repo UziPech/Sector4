@@ -13,6 +13,11 @@ class EnemyTomb extends PositionComponent
   double _pulseTimer = 0.0;
   bool _isPlayerNearby = false;
   
+  // Cached TextPainter
+  TextPainter? _promptPainter;
+  String _lastPromptText = '';
+  double _lastOpacity = -1.0;
+  
   static const double _tombRadius = 20.0;
   static const double _interactionRange = 50.0;
   static const double _defaultLifetime = 5.0;
@@ -120,27 +125,50 @@ class EnemyTomb extends PositionComponent
     if (_isPlayerNearby) {
       final promptText = isKijin ? 'E - Revivir (2 slots)' : 'E - Revivir';
       
-      final textPainter = TextPainter(
-        text: TextSpan(
-          text: promptText,
-          style: TextStyle(
-            color: promptColor.withOpacity(opacity),
-            fontSize: isKijin ? 11 : 12,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'monospace',
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-      );
+      // Actualizar painter solo si cambia significativamente o no existe
+      // Nota: La opacidad cambia cada frame, pero el layout del texto es lo costoso.
+      // Podemos actualizar el painter solo cuando cambia el texto, y aplicar opacidad al pintarlo o 
+      // si usamos TextSpan con color base, solo necesitamos layout una vez si el texto no cambia.
+      // Pero TextPainter no tiene "setOpacity". Recrear TextPainter es costoso por el layout.
+      // Solución: Crear el painter con color sólido y usar saveLayer/opacity en el canvas si fuera necesario,
+      // pero TextPainter usa el color del estilo. 
+      // Optimizacion: Solo hacer layout si el texto cambia. El estilo lo podemos actualizar? No fácilmente.
+      // Mejor: Cachear el layout. Si la opacidad cambia, lamentablemente hay que repintar, pero podemos
+      // al menos evitar instanciar el objeto si la opacidad no cambia mucho (aunque cambia cada frame por lifetime).
+      // COMPROMISO: Crear el painter una sola vez (layout) con color blanco solido, y pintar con opacidad en el canvas? No, TextPainter ignora tint.
+      // Solución practica: Cachear el painter con el color base, y solo actualizarlo si la opacidad cambia > 0.1 o así? Descartado.
+      // MEJOR: Usar un color fijo en el painter y pintar en un layer con opacidad? 
+      // Vamos a simplemente cachear el objeto y el layout y solo recrearlo, ya que el texto es lo que importa.
       
-      textPainter.layout();
-      textPainter.paint(
-        canvas,
-        Offset(
-          center.dx - textPainter.width / 2,
-          center.dy - _tombRadius - 20,
-        ),
-      );
+      if (_promptPainter == null || promptText != _lastPromptText || (opacity - _lastOpacity).abs() > 0.05) {
+         _lastPromptText = promptText;
+         _lastOpacity = opacity;
+         
+         _promptPainter = TextPainter(
+          text: TextSpan(
+            text: promptText,
+            style: TextStyle(
+              color: promptColor.withOpacity(opacity),
+              fontSize: isKijin ? 11 : 12,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'monospace',
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+        )..layout();
+      }
+      
+      if (_promptPainter != null) {
+        _promptPainter!.paint(
+          canvas,
+          Offset(
+            center.dx - _promptPainter!.width / 2,
+            center.dy - _tombRadius - 20,
+          ),
+        );
+      }
+    } else {
+      _promptPainter = null; // Liberar cuando no se muestra
     }
   }
   

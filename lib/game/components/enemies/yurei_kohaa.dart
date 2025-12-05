@@ -76,6 +76,12 @@ class YureiKohaa extends PositionComponent
   SpriteAnimationComponent? _spriteComponent;
   late SpriteAnimation _idleAnimation;
   late SpriteAnimation _walkAnimation;
+
+  // Cached TextPainters
+  late TextPainter _bossNamePainter;
+  TextPainter? _statusTextPainter;
+  String _lastStatusText = '';
+  Color _lastStatusColor = Colors.transparent;
   
   YureiKohaa({
     required Vector2 position,
@@ -96,14 +102,28 @@ class YureiKohaa extends PositionComponent
       radius: _size / 2,
       collisionType: CollisionType.passive,
     ));
+
+    // Inicializar painter del nombre (es estático)
+    _bossNamePainter = TextPainter(
+      text: const TextSpan(
+        text: 'YUREI KOHAA',
+        style: TextStyle(
+          color: Colors.red,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'monospace',
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
   }
   
   /// Carga el spritesheet y configura las animaciones
   Future<void> _loadSprites() async {
     try {
-      print('🔍 [Kohaa] Intentando cargar sprites...');
+      // [PERF] print('🔍 [Kohaa] Intentando cargar sprites...');
       final spriteSheet = await game.images.load('sprites/Yurei_kohaaSpritesComplete.png');
-      print('🔍 [Kohaa] SpriteSheet cargado: ${spriteSheet.width}x${spriteSheet.height}');
+      // [PERF] print('🔍 [Kohaa] SpriteSheet cargado: ${spriteSheet.width}x${spriteSheet.height}');
       
       // Configuración del spritesheet
       // Dimensiones confirmadas: 672x420px = 8x5 frames de 84x84px
@@ -141,7 +161,7 @@ class YureiKohaa extends PositionComponent
       );
       
       add(_spriteComponent!);
-      print('🎉 [Kohaa] Sprite component agregado exitosamente');
+      // [PERF] print('🎉 [Kohaa] Sprite component agregado exitosamente');
       
       debugPrint('✅ Sprites de Yurei Kohaa cargados exitosamente');
     } catch (e, stackTrace) {
@@ -190,7 +210,7 @@ class YureiKohaa extends PositionComponent
         _isPreparingDash = false;
         _isDashing = true;
         _dashPreparationTimer = 0.0;
-        print('⚡ ¡Kohaa EMBISTE con furia!');
+        // [PERF] print('⚡ ¡Kohaa EMBISTE con furia!');
       }
       return; // No moverse durante preparación
     }
@@ -245,11 +265,12 @@ class YureiKohaa extends PositionComponent
     if (healthPercent <= _fleeHealthThreshold && !_isFleeing) {
       // NO huir si el objetivo es el boss final
       if (_currentTarget is OnOyabunBoss) {
-        print('⚔️ Kohaa está baja de vida pero NO huye del boss (${(healthPercent * 100).toInt()}% HP)');
+        // [PERF] print('⚔️ Kohaa está baja de vida pero NO huye del boss (${(healthPercent * 100).toInt()}% HP)');
       }
       // NO huir si ya alcanzó el límite de huidas
       else if (_fleeCount >= _maxFleeCount) {
-        print('🚫 Kohaa NO puede huir más ($_fleeCount/$_maxFleeCount huidas usadas) - ${(healthPercent * 100).toInt()}% HP');
+        // Solo imprimir una vez cada cierto tiempo o no imprimir
+        // // [PERF] print('🚫 Kohaa NO puede huir más ($_fleeCount/$_maxFleeCount huidas usadas) - ${(healthPercent * 100).toInt()}% HP');
       }
       // Huir solo si aún tiene huidas disponibles
       else {
@@ -257,7 +278,7 @@ class YureiKohaa extends PositionComponent
         _fleeTimer = 0.0;
         _fleeCount++;
         _fleeTargetPosition = null; // Resetear posición objetivo
-        print('🏃 ¡Kohaa está huyendo! ($_fleeCount/$_maxFleeCount huidas) (${(healthPercent * 100).toInt()}% HP)');
+        // [PERF] print('🏃 ¡Kohaa está huyendo! ($_fleeCount/$_maxFleeCount huidas) (${(healthPercent * 100).toInt()}% HP)');
       }
     }
     
@@ -272,7 +293,7 @@ class YureiKohaa extends PositionComponent
         _isFleeing = false;
         _fleeTargetPosition = null;
         _fleeTimer = 0.0;
-        print('⚔️ Kohaa vuelve al combate (${(healthPercent * 100).toInt()}% HP) - Huidas restantes: ${_maxFleeCount - _fleeCount}');
+        // [PERF] print('⚔️ Kohaa vuelve al combate (${(healthPercent * 100).toInt()}% HP) - Huidas restantes: ${_maxFleeCount - _fleeCount}');
       }
     }
     
@@ -317,7 +338,7 @@ class YureiKohaa extends PositionComponent
     if (_currentTarget is OnOyabunBoss) {
       _isFleeing = false;
       _fleeTimer = 0.0;
-      print('⚠️ Kohaa NO puede huir del boss final - ¡Lucha hasta la muerte!');
+      // [PERF] print('⚠️ Kohaa NO puede huir del boss final - ¡Lucha hasta la muerte!');
       return;
     }
     
@@ -393,7 +414,7 @@ class YureiKohaa extends PositionComponent
       if (_healingTimer >= _healingInterval) {
         // Verificar si aún puede curarse (límite total)
         if (_totalHealingReceived >= _maxTotalHealing) {
-          print('🚫 Kohaa alcanzó el límite de curación (${_totalHealingReceived.toInt()}/${_maxTotalHealing.toInt()} HP)');
+          // [PERF] print('🚫 Kohaa alcanzó el límite de curación (${_totalHealingReceived.toInt()}/${_maxTotalHealing.toInt()} HP)');
           _healingTimer = 0.0;
           return;
         }
@@ -406,7 +427,7 @@ class YureiKohaa extends PositionComponent
         if (healed > 0) {
           _totalHealingReceived += healed;
           final remaining = _maxTotalHealing - _totalHealingReceived;
-          print('💚 Kohaa se cura ${healed.toStringAsFixed(0)} HP (${_health.toStringAsFixed(0)}/${_maxHealth}) - Curación restante: ${remaining.toInt()} HP');
+          // [PERF] print('💚 Kohaa se cura ${healed.toStringAsFixed(0)} HP (${_health.toStringAsFixed(0)}/${_maxHealth}) - Curación restante: ${remaining.toInt()} HP');
         }
         
         _healingTimer = 0.0;
@@ -442,7 +463,7 @@ class YureiKohaa extends PositionComponent
     if (boss != null && !boss!.isDead && random.nextDouble() < 0.9) {
       _currentTarget = boss;
       if (_currentTarget != boss) { // Solo imprimir cuando cambia de objetivo
-        print('🔥 Kohaa ha detectado al boss final - OBJETIVO PRIORITARIO');
+        // [PERF] print('🔥 Kohaa ha detectado al boss final - OBJETIVO PRIORITARIO');
       }
       return;
     }
@@ -489,7 +510,7 @@ class YureiKohaa extends PositionComponent
     _dashTimer = _dashCooldown;
     _dashDirection = (_currentTarget!.position - position).normalized();
     
-    print('🛡️ ¡Kohaa se vuelve INVULNERABLE y prepara su embestida!');
+    // [PERF] print('🛡️ ¡Kohaa se vuelve INVULNERABLE y prepara su embestida!');
   }
   
   @override
@@ -507,22 +528,22 @@ class YureiKohaa extends PositionComponent
     // Colisión con jugador
     if (other is PlayerCharacter) {
       other.takeDamage(dashDamage);
-      print('💥 ¡Dash de Kohaa impactó al jugador! $dashDamage daño');
+      // [PERF] print('💥 ¡Dash de Kohaa impactó al jugador! $dashDamage daño');
     }
     // Colisión con aliados normales
     else if (other is AlliedEnemy) {
       other.takeDamage(dashDamage);
-      print('💥 ¡Dash de Kohaa impactó a aliado! $dashDamage daño');
+      // [PERF] print('💥 ¡Dash de Kohaa impactó a aliado! $dashDamage daño');
     }
     // Colisión con aliados Kijin
     else if (other is RedeemedKijinAlly) {
       other.takeDamage(dashDamage);
-      print('💥 ¡Dash de Kohaa impactó a Kijin aliado! $dashDamage daño');
+      // [PERF] print('💥 ¡Dash de Kohaa impactó a Kijin aliado! $dashDamage daño');
     }
     // Colisión con el boss final
     else if (other is OnOyabunBoss) {
       other.takeDamage(dashDamage);
-      print('🔥💥 ¡DASH DE KOHAA IMPACTÓ AL BOSS FINAL! $dashDamage daño');
+      // [PERF] print('🔥💥 ¡DASH DE KOHAA IMPACTÓ AL BOSS FINAL! $dashDamage daño');
     }
   }
   
@@ -539,16 +560,16 @@ class YureiKohaa extends PositionComponent
   void _attack(PositionComponent target) {
     if (target is PlayerCharacter) {
       target.takeDamage(_damage);
-      print('⚔️ Kohaa atacó al jugador: $_damage daño');
+      // [PERF] print('⚔️ Kohaa atacó al jugador: $_damage daño');
     } else if (target is AlliedEnemy) {
       target.takeDamage(_damage);
-      print('⚔️ Kohaa atacó a aliado normal: $_damage daño');
+      // [PERF] print('⚔️ Kohaa atacó a aliado normal: $_damage daño');
     } else if (target is RedeemedKijinAlly) {
       target.takeDamage(_damage);
-      print('⚔️ Kohaa atacó a Kijin aliado: $_damage daño');
+      // [PERF] print('⚔️ Kohaa atacó a Kijin aliado: $_damage daño');
     } else if (target is OnOyabunBoss) {
       target.takeDamage(_damage);
-      print('🔥⚔️🔥 ¡KOHAA ATACÓ AL BOSS FINAL! ($_damage daño)');
+      // [PERF] print('🔥⚔️🔥 ¡KOHAA ATACÓ AL BOSS FINAL! ($_damage daño)');
     }
   }
   
@@ -558,12 +579,12 @@ class YureiKohaa extends PositionComponent
     
     // INVULNERABLE durante preparación del dash
     if (_isPreparingDash) {
-      print('🛡️ ¡Kohaa es INVULNERABLE! (Preparando dash)');
+      // [PERF] print('🛡️ ¡Kohaa es INVULNERABLE! (Preparando dash)');
       return;
     }
     
     _health -= damage;
-    print('💥 Kohaa recibió $damage de daño! (${_health.toStringAsFixed(0)}/${_maxHealth} HP)');
+    // [PERF] print('💥 Kohaa recibió $damage de daño! (${_health.toStringAsFixed(0)}/${_maxHealth} HP)');
     
     // NUEVA: Explosión defensiva cuando está baja de vida
     final healthPercent = _health / _maxHealth;
@@ -577,7 +598,7 @@ class YureiKohaa extends PositionComponent
     if (!_hasSpawnedNurses && _health <= _maxHealth * 0.6) {
       _spawnNurses();
       _hasSpawnedNurses = true;
-      print('🩸 ¡KOHAA SPAWNEÓ ENFERMEROS AL 60% HP!');
+      // [PERF] print('🩸 ¡KOHAA SPAWNEÓ ENFERMEROS AL 60% HP!');
     }
     
     if (_health <= 0) {
@@ -594,11 +615,11 @@ class YureiKohaa extends PositionComponent
     const double pushForce = 450.0;
     const double healAmount = 100.0;
     
-    print('💥🔴 ¡KOHAA USA EXPLOSIÓN DEFENSIVA! Se cura $healAmount HP');
+    // [PERF] print('💥🔴 ¡KOHAA USA EXPLOSIÓN DEFENSIVA! Se cura $healAmount HP');
     
     // CURARSE
     _health = (_health + healAmount).clamp(0.0, _maxHealth);
-    print('💚 Kohaa se curó a ${_health.toStringAsFixed(0)}/${_maxHealth} HP');
+    // [PERF] print('💚 Kohaa se curó a ${_health.toStringAsFixed(0)}/${_maxHealth} HP');
     
     // Dañar y empujar al jugador
     final player = game.player;
@@ -608,7 +629,7 @@ class YureiKohaa extends PositionComponent
       // EMPUJAR FUERTEMENTE
       final pushDirection = (player.position - position).normalized();
       player.position += pushDirection * pushForce * 0.15;
-      print('💥 ¡Jugador recibió $explosionDamage daño y fue EMPUJADO!');
+      // [PERF] print('💥 ¡Jugador recibió $explosionDamage daño y fue EMPUJADO!');
     }
     
     // Dañar y empujar aliados normales
@@ -637,7 +658,7 @@ class YureiKohaa extends PositionComponent
   }
   
   void _spawnNurses() {
-    print('🩸 ¡CAMBIO DE FASE! Kohaa invoca enfermeros!');
+    // [PERF] print('🩸 ¡CAMBIO DE FASE! Kohaa invoca enfermeros!');
     
     // ===== ATAQUE AOE DE FASE =====
     _executePhaseTransitionAOE();
@@ -645,7 +666,7 @@ class YureiKohaa extends PositionComponent
     // REGENERAR VIDA al spawn de enfermeros (25% de HP max)
     final healAmount = _maxHealth * 0.25;
     _health = (_health + healAmount).clamp(0.0, _maxHealth);
-    print('💚 ¡Kohaa se curó ${healAmount.toStringAsFixed(0)} HP! (${_health.toStringAsFixed(0)}/${_maxHealth})');
+    // [PERF] print('💚 ¡Kohaa se curó ${healAmount.toStringAsFixed(0)} HP! (${_health.toStringAsFixed(0)}/${_maxHealth})');
     
     // Spawn 2 enfermeros
     for (int i = 0; i < 2; i++) {
@@ -671,7 +692,7 @@ class YureiKohaa extends PositionComponent
     const double aoeDamage = 30.0;
     const double pushForce = 300.0;
     
-    print('💥💥 ¡EXPLOSIÓN DE FASE! Radio: $aoeRadius');
+    // [PERF] print('💥💥 ¡EXPLOSIÓN DE FASE! Radio: $aoeRadius');
     
     // Dañar jugador si está cerca
     final player = game.player;
@@ -681,7 +702,7 @@ class YureiKohaa extends PositionComponent
       // Empujar jugador
       final pushDirection = (player.position - position).normalized();
       player.position += pushDirection * pushForce * 0.1; // Pequeño empuje
-      print('💥 Jugador recibió $aoeDamage daño y fue empujado!');
+      // [PERF] print('💥 Jugador recibió $aoeDamage daño y fue empujado!');
     }
     
     // Dañar TODOS los aliados cercanos
@@ -694,7 +715,7 @@ class YureiKohaa extends PositionComponent
         // Empujar aliado
         final pushDirection = (ally.position - position).normalized();
         ally.position += pushDirection * pushForce * 0.15;
-        print('💥 Aliado normal recibió $aoeDamage daño y fue empujado!');
+        // [PERF] print('💥 Aliado normal recibió $aoeDamage daño y fue empujado!');
       }
     }
     
@@ -708,7 +729,7 @@ class YureiKohaa extends PositionComponent
         // Empujar aliado Kijin
         final pushDirection = (ally.position - position).normalized();
         ally.position += pushDirection * pushForce * 0.15;
-        print('💥 Kijin aliado recibió $aoeDamage daño y fue empujado!');
+        // [PERF] print('💥 Kijin aliado recibió $aoeDamage daño y fue empujado!');
       }
     }
   }
@@ -718,14 +739,14 @@ class YureiKohaa extends PositionComponent
     if (_isDead) return; // No recuperar si ya murió
     
     _health = (_health + amount).clamp(0.0, _maxHealth);
-    print('💚 Kohaa recuperó $amount HP! Ahora tiene ${_health.toStringAsFixed(0)}/$_maxHealth HP');
+    // [PERF] print('💚 Kohaa recuperó $amount HP! Ahora tiene ${_health.toStringAsFixed(0)}/$_maxHealth HP');
   }
   
   /// Muerte de Kohaa
   void _die() {
     _isDead = true;
     
-    print('GAME MESSAGE: Kohaa ha sido derrotada...');
+    // [PERF] print('GAME MESSAGE: Kohaa ha sido derrotada...');
     
     // Crear tumba especial ROJA para Kijin
     final tomb = EnemyTomb(
@@ -809,26 +830,37 @@ class YureiKohaa extends PositionComponent
         statusColor = Colors.green;
       }
       
-      // Texto de estado
-      final fleeText = TextPainter(
-        text: TextSpan(
-          text: statusText,
-          style: TextStyle(
-            color: statusColor,
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
+      // Actualizar painter solo si cambia el texto o color
+      if (statusText != _lastStatusText || statusColor != _lastStatusColor || _statusTextPainter == null) {
+        _lastStatusText = statusText;
+        _lastStatusColor = statusColor;
+        _statusTextPainter = TextPainter(
+          text: TextSpan(
+            text: statusText,
+            style: TextStyle(
+              color: statusColor,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        textDirection: TextDirection.ltr,
-      );
-      fleeText.layout();
-      fleeText.paint(
-        canvas,
-        Offset(
-          (size.x - fleeText.width) / 2,
-          -50,
-        ),
-      );
+          textDirection: TextDirection.ltr,
+        )..layout();
+      }
+      
+      // Dibujar texto cacheado
+      if (_statusTextPainter != null) {
+        _statusTextPainter!.paint(
+          canvas,
+          Offset(
+            (size.x - _statusTextPainter!.width) / 2,
+            -50,
+          ),
+        );
+      }
+    } else {
+      // Limpiar painter si no se usa para liberar memoria
+      _statusTextPainter = null;
+      _lastStatusText = '';
     }
     
     // Indicador de preparación (INVULNERABLE - dorado brillante)
@@ -919,24 +951,10 @@ class YureiKohaa extends PositionComponent
   }
   
   void _drawBossName(Canvas canvas) {
-    final textPainter = TextPainter(
-      text: const TextSpan(
-        text: 'YUREI KOHAA',
-        style: TextStyle(
-          color: Colors.red,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'monospace',
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    
-    textPainter.layout();
-    textPainter.paint(
+    _bossNamePainter.paint(
       canvas,
       Offset(
-        (size.x - textPainter.width) / 2,
+        (size.x - _bossNamePainter.width) / 2,
         -35,
       ),
     );

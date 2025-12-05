@@ -154,6 +154,10 @@ class OnOyabunBoss extends PositionComponent
   late SpriteAnimation _idleAnimation;
   late SpriteAnimation _walkAnimation;
   late SpriteAnimation _attackAnimation;
+
+  // Cached TextPainters
+  TextPainter? _phaseIndicatorPainter;
+  BossPhase? _lastPhase;
   
   // ==================== CONSTRUCTOR ====================
   OnOyabunBoss({
@@ -192,9 +196,9 @@ class OnOyabunBoss extends PositionComponent
   /// Carga el spritesheet y configura las animaciones
   Future<void> _loadSprites() async {
     try {
-      print('🔍 [Oyabun] Intentando cargar sprites...');
+      // [PERF] print('🔍 [Oyabun] Intentando cargar sprites...');
       final spriteSheet = await game.images.load('sprites/On_oyabuSpritesComplete.png');
-      print('🔍 [Oyabun] SpriteSheet cargado: ${spriteSheet.width}x${spriteSheet.height}');
+      // [PERF] print('🔍 [Oyabun] SpriteSheet cargado: ${spriteSheet.width}x${spriteSheet.height}');
       
       // Configuración del spritesheet
       // Dimensiones confirmadas: 672x420px = 8x5 frames de 84x84px
@@ -243,7 +247,7 @@ class OnOyabunBoss extends PositionComponent
       );
       
       add(_spriteComponent!);
-      print('🎉 [Oyabun] Sprite component agregado exitosamente');
+      // [PERF] print('🎉 [Oyabun] Sprite component agregado exitosamente');
       
       debugPrint('✅ Sprites de On-Oyabun cargados exitosamente');
     } catch (e, stackTrace) {
@@ -449,20 +453,22 @@ class OnOyabunBoss extends PositionComponent
   }
   
   void _renderPhaseIndicator(Canvas canvas) {
-    // Indicador de fase (pequeño texto)
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: 'Fase ${currentPhase.index + 1}',
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
+    if (_phaseIndicatorPainter == null || _lastPhase != currentPhase) {
+      _lastPhase = currentPhase;
+      _phaseIndicatorPainter = TextPainter(
+        text: TextSpan(
+          text: 'Fase ${currentPhase.index + 1}',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout();
-    textPainter.paint(canvas, Offset(5, size.y - 15));
+        textDirection: TextDirection.ltr,
+      )..layout();
+    }
+
+    _phaseIndicatorPainter!.paint(canvas, Offset(5, size.y - 15));
   }
   
   void _renderHealthBar(Canvas canvas) {

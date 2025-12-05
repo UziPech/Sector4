@@ -29,6 +29,9 @@ class IrrationalEnemy extends PositionComponent
   PositionComponent? _currentTarget;
   
   static const double _size = 28.0;
+
+  // Cached TextPainter
+  late TextPainter _stunIndicatorPainter;
   
   IrrationalEnemy({
     required Vector2 position,
@@ -52,6 +55,19 @@ class IrrationalEnemy extends PositionComponent
       radius: _size / 2,
       collisionType: CollisionType.passive,
     ));
+
+    // Inicializar painter de stun (estático)
+    _stunIndicatorPainter = TextPainter(
+      text: const TextSpan(
+        text: '★',
+        style: TextStyle(
+          color: Colors.yellow,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
   }
   
   @override
@@ -145,10 +161,10 @@ class IrrationalEnemy extends PositionComponent
   void _attack(PositionComponent target) {
     if (target is PlayerCharacter) {
       target.takeDamage(_damage);
-      print('⚜️ Irracional atacó al jugador: $_damage daño');
+      // [PERF] print('⚜️ Irracional atacó al jugador: $_damage daño');
     } else if (target is YureiKohaa) {
       target.takeDamage(_damage);
-      print('⚜️ Irracional atacó a Kohaa: $_damage daño');
+      // [PERF] print('⚜️ Irracional atacó a Kohaa: $_damage daño');
     }
   }
   
@@ -263,23 +279,10 @@ class IrrationalEnemy extends PositionComponent
   }
   
   void _drawStunIndicator(Canvas canvas) {
-    final textPainter = TextPainter(
-      text: const TextSpan(
-        text: '★',
-        style: TextStyle(
-          color: Colors.yellow,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    
-    textPainter.layout();
-    textPainter.paint(
+    _stunIndicatorPainter.paint(
       canvas,
       Offset(
-        (size.x - textPainter.width) / 2,
+        (size.x - _stunIndicatorPainter.width) / 2,
         -30,
       ),
     );
