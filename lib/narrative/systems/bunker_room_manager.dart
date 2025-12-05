@@ -14,7 +14,7 @@ class BunkerRoomManager {
   }
 
   RoomData get currentRoom => _rooms[_currentRoomId]!;
-  
+
   void changeRoom(String roomId) {
     if (_rooms.containsKey(roomId)) {
       _currentRoomId = roomId;
@@ -27,7 +27,9 @@ class BunkerRoomManager {
       id: 'exterior_large',
       name: 'Camino al Búnker',
       type: RoomType.exterior,
-      backgroundColor: const Color(0xFF3A4A3A), // Verde oscuro (bosque/exterior)
+      backgroundColor: const Color(
+        0xFF3A4A3A,
+      ), // Verde oscuro (bosque/exterior)
       playerSpawnPosition: const Vector2(400, 1200),
       roomSize: const Size(2000, 1500),
       cameraMode: CameraMode.follow,
@@ -61,13 +63,14 @@ class BunkerRoomManager {
             dialogues: const [
               DialogueData(
                 speakerName: 'Dan',
-                text: 'Un vehículo militar abandonado. Hace tiempo que nadie viene por aquí.',
+                text:
+                    'Un vehículo militar abandonado. Hace tiempo que nadie viene por aquí.',
                 type: DialogueType.internal,
               ),
             ],
           ),
         ),
-        
+
         // 200 árboles generados proceduralmente (50 por cuadrante)
         ...TreeGenerator.generateTrees(),
       ],
@@ -98,6 +101,7 @@ class BunkerRoomManager {
           position: const Vector2(350, 100),
           size: const Vector2(100, 80),
           type: InteractableType.door,
+          spritePath: 'assets/images/objects/bunker_door.png',
           dialogue: DialogueSequence(
             id: 'entrance_dialogue',
             dialogues: const [
@@ -184,7 +188,8 @@ class BunkerRoomManager {
             dialogues: const [
               DialogueData(
                 speakerName: 'Dan',
-                text: 'Casilleros vacíos. El personal fue evacuado hace tiempo.',
+                text:
+                    'Casilleros vacíos. El personal fue evacuado hace tiempo.',
                 type: DialogueType.internal,
               ),
             ],
@@ -231,7 +236,8 @@ class BunkerRoomManager {
             dialogues: const [
               DialogueData(
                 speakerName: 'Dan',
-                text: 'El layout del búnker. Laboratorio, armería, centro de comando...',
+                text:
+                    'El layout del búnker. Laboratorio, armería, centro de comando...',
                 type: DialogueType.internal,
               ),
             ],
@@ -249,7 +255,10 @@ class BunkerRoomManager {
         ),
         const DoorData(
           id: 'door_to_armory',
-          position: Vector2(285, -15), // Arriba (Flush) - Asumiendo Armería arriba por coordenadas originales
+          position: Vector2(
+            285,
+            -15,
+          ), // Arriba (Flush) - Asumiendo Armería arriba por coordenadas originales
           size: Vector2(130, 130),
           targetRoomId: 'armory',
           label: 'Armería',
@@ -269,7 +278,10 @@ class BunkerRoomManager {
           size: Vector2(130, 130),
           targetRoomId: 'laboratory',
           label: 'Laboratorio',
-          targetSpawnPosition: Vector2(150, 250), // Spawn izquierda en laboratorio
+          targetSpawnPosition: Vector2(
+            150,
+            250,
+          ), // Spawn izquierda en laboratorio
         ),
         const DoorData(
           id: 'door_to_command',
@@ -297,12 +309,14 @@ class BunkerRoomManager {
           position: const Vector2(200, 200),
           size: const Vector2(80, 80),
           type: InteractableType.object,
+          spritePath: 'assets/images/objects/weapon_rack.png',
           dialogue: DialogueSequence(
             id: 'weapons_dialogue',
             dialogues: const [
               DialogueData(
                 speakerName: 'Dan',
-                text: 'Cuchillo del Diente Caótico y mi pistola estándar. Hora de trabajar.',
+                text:
+                    'Cuchillo del Diente Caótico y mi pistola estándar. Hora de trabajar.',
                 type: DialogueType.internal,
               ),
               DialogueData(
@@ -363,12 +377,14 @@ class BunkerRoomManager {
             dialogues: const [
               DialogueData(
                 speakerName: 'Dan',
-                text: 'Reportes sobre Resonantes. Entidades que se alimentan de emociones...',
+                text:
+                    'Reportes sobre Resonantes. Entidades que se alimentan de emociones...',
                 type: DialogueType.internal,
               ),
               const DialogueData(
                 speakerName: 'Dan',
-                text: 'Necesitan un "ancla" física. Un objeto obsesivo que los mantiene en este plano.',
+                text:
+                    'Necesitan un "ancla" física. Un objeto obsesivo que los mantiene en este plano.',
                 type: DialogueType.internal,
               ),
             ],
@@ -380,12 +396,14 @@ class BunkerRoomManager {
           position: const Vector2(500, 250),
           size: const Vector2(60, 60),
           type: InteractableType.object,
+          spritePath: 'assets/images/objects/terminal.png',
           dialogue: DialogueSequence(
             id: 'terminal_dialogue',
             dialogues: const [
               DialogueData(
                 speakerName: 'Sistema',
-                text: 'ÚLTIMA UBICACIÓN REGISTRADA: Emma Kowalski - Universidad de Kioto, Sector 4',
+                text:
+                    'ÚLTIMA UBICACIÓN REGISTRADA: Emma Kowalski - Universidad de Kioto, Sector 4',
                 type: DialogueType.system,
               ),
             ],
@@ -419,7 +437,7 @@ class BunkerRoomManager {
           position: const Vector2(350, 250),
           size: const Vector2(100, 100),
           type: InteractableType.character,
-          spritePath: 'assets/avatars/full_body/mel_fullbody.png',
+          spritePath: 'assets/images/objects/mel_capsule.png',
           dialogue: DialogueSequence(
             id: 'mel_dialogue',
             dialogues: const [
@@ -430,7 +448,8 @@ class BunkerRoomManager {
               ),
               DialogueData(
                 speakerName: 'Mel',
-                text: 'Lo sé. El ex-investigador que voló doce horas para convertirse en un padre desesperado.',
+                text:
+                    'Lo sé. El ex-investigador que voló doce horas para convertirse en un padre desesperado.',
                 avatarPath: 'assets/avatars/dialogue_icons/mel_dialogue.png',
               ),
               DialogueData(
@@ -440,7 +459,8 @@ class BunkerRoomManager {
               ),
               DialogueData(
                 speakerName: 'Dan',
-                text: 'Marcus dijo que eres Soporte Vital. ¿Qué significa en campo?',
+                text:
+                    'Marcus dijo que eres Soporte Vital. ¿Qué significa en campo?',
                 avatarPath: 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
               ),
               DialogueData(
@@ -450,17 +470,20 @@ class BunkerRoomManager {
               ),
               DialogueData(
                 speakerName: 'Mel',
-                text: 'Aquí no cazamos básicos de Sector 2, los que atacan por puro instinto.',
+                text:
+                    'Aquí no cazamos básicos de Sector 2, los que atacan por puro instinto.',
                 avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Mel',
-                text: 'Aquí enfrentamos Amenazas de Sector 4. Kijin. Cazadores tácticos.',
+                text:
+                    'Aquí enfrentamos Amenazas de Sector 4. Kijin. Cazadores tácticos.',
                 avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Mel',
-                text: 'Piensan. Priorizan objetivos. Flanquean. Se alimentan de la ira.',
+                text:
+                    'Piensan. Priorizan objetivos. Flanquean. Se alimentan de la ira.',
                 avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
               ),
               DialogueData(
@@ -475,12 +498,14 @@ class BunkerRoomManager {
               ),
               DialogueData(
                 speakerName: 'Mel',
-                text: 'Si te superan, si la desesperación te rompe, no solo detengo sangrados.',
+                text:
+                    'Si te superan, si la desesperación te rompe, no solo detengo sangrados.',
                 avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Mel',
-                text: 'Te afirmo a la vida. Te devuelvo al foco cuando el cuerpo cede.',
+                text:
+                    'Te afirmo a la vida. Te devuelvo al foco cuando el cuerpo cede.',
                 avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
               ),
               DialogueData(
@@ -500,7 +525,8 @@ class BunkerRoomManager {
               ),
               DialogueData(
                 speakerName: 'Mel',
-                text: 'Tengo una ventana de recarga. Si me fuerzas sin cabeza, me pedirás cuando aún no esté lista.',
+                text:
+                    'Tengo una ventana de recarga. Si me fuerzas sin cabeza, me pedirás cuando aún no esté lista.',
                 avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
               ),
               DialogueData(
@@ -541,7 +567,10 @@ class BunkerRoomManager {
           size: Vector2(130, 130),
           targetRoomId: 'hallway',
           label: 'Pasillo',
-          targetSpawnPosition: Vector2(550, 250), // Ajustado de 600 a 550 para evitar colisión con pared
+          targetSpawnPosition: Vector2(
+            550,
+            250,
+          ), // Ajustado de 600 a 550 para evitar colisión con pared
         ),
         const DoorData(
           id: 'door_to_quarters',
@@ -577,6 +606,7 @@ class BunkerRoomManager {
           position: const Vector2(350, 200),
           size: const Vector2(100, 80),
           type: InteractableType.object,
+          spritePath: 'assets/images/objects/main_console.png',
           dialogue: DialogueSequence(
             id: 'briefing_dialogue',
             dialogues: const [
@@ -592,12 +622,14 @@ class BunkerRoomManager {
               ),
               DialogueData(
                 speakerName: 'Marcus',
-                text: 'Emma está en el Sector 4. Actividad Resonante confirmada.',
+                text:
+                    'Emma está en el Sector 4. Actividad Resonante confirmada.',
                 avatarPath: 'assets/avatars/dialogue_icons/Marcus_Dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Marcus',
-                text: 'Recuerda: los Resonantes son invulnerables hasta que destruyas su objeto obsesivo.',
+                text:
+                    'Recuerda: los Resonantes son invulnerables hasta que destruyas su objeto obsesivo.',
                 avatarPath: 'assets/avatars/dialogue_icons/Marcus_Dialogue.png',
               ),
               DialogueData(
@@ -658,7 +690,8 @@ class BunkerRoomManager {
             dialogues: const [
               DialogueData(
                 speakerName: 'Dan',
-                text: 'Cuántas noches pasé aquí. Planeando misiones, estudiando amenazas...',
+                text:
+                    'Cuántas noches pasé aquí. Planeando misiones, estudiando amenazas...',
                 type: DialogueType.internal,
               ),
             ],
@@ -697,7 +730,8 @@ class BunkerRoomManager {
             dialogues: const [
               DialogueData(
                 speakerName: 'Dan',
-                text: 'La última comida que tuve aquí fue hace... ¿cuánto? ¿Años?',
+                text:
+                    'La última comida que tuve aquí fue hace... ¿cuánto? ¿Años?',
                 type: DialogueType.internal,
               ),
             ],
@@ -711,7 +745,10 @@ class BunkerRoomManager {
           size: Vector2(130, 130),
           targetRoomId: 'laboratory',
           label: 'Laboratorio',
-          targetSpawnPosition: Vector2(550, 250), // Spawn derecha en laboratorio
+          targetSpawnPosition: Vector2(
+            550,
+            250,
+          ), // Spawn derecha en laboratorio
         ),
       ],
     );
