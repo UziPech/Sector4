@@ -38,34 +38,15 @@ class AudioManager {
     FlameAudio.bgm.play('music/bosque.mp3', volume: musicVolume);
   }
 
-  /// Reproduce la secuencia de combate: Intro -> Loop
-  void playCombatMusicSequence() async {
+  /// Reproduce la secuencia de combate: Intro + Loop simultáneos
+  void playCombatMusicSequence() {
     stopMusic();
 
-    try {
-      // Reproducir intro y obtener el player
-      final player = await FlameAudio.play(
-        'music/inicios de pelea.mp3',
-        volume: musicVolume,
-      );
+    // Reproducir intro como efecto de sonido (una sola vez)
+    FlameAudio.play('music/inicios de pelea.mp3', volume: musicVolume);
 
-      // Escuchar cuando termine la intro para iniciar el loop
-      player.onPlayerComplete.listen((event) {
-        if (!FlameAudio.bgm.isPlaying) {
-          FlameAudio.bgm.play(
-            'music/pelea con el stalker.mp3',
-            volume: musicVolume,
-          );
-        }
-      });
-    } catch (e) {
-      // Fallback si falla la intro: tocar loop directo
-      print("Error playing intro: $e");
-      FlameAudio.bgm.play(
-        'music/pelea con el stalker.mp3',
-        volume: musicVolume,
-      );
-    }
+    // Reproducir música de fondo (loop) inmediatamente
+    FlameAudio.bgm.play('music/pelea con el stalker.mp3', volume: musicVolume);
   }
 
   /// Reproduce SFX de ataque (superpuesto)
