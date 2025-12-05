@@ -4,6 +4,9 @@ import '../expediente_game.dart';
 import '../../game/audio_manager.dart';
 import '../../narrative/screens/menu_screen.dart';
 
+import 'package:flame/game.dart'; // Para Vector2
+import 'dynamic_joystick_overlay.dart';
+
 class GameUI extends StatefulWidget {
   final ExpedienteKorinGame game;
 
@@ -21,6 +24,13 @@ class _GameUIState extends State<GameUI> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
+        // 0. JOYSTICK DINÁMICO (Siempre activo para consistencia con HouseScene)
+        DynamicJoystickOverlay(
+          onInput: (input) {
+            widget.game.updateJoystickInput(input);
+          },
+        ),
+
         // 1. BOTÓN DE CONFIGURACIÓN (Top Right - Movido para visibilidad)
         // 1. BOTÓN DE CONFIGURACIÓN (Top Right - Movido para visibilidad)
         Positioned(
@@ -83,10 +93,10 @@ class _GameUIState extends State<GameUI> {
           ),
         ),
 
-        // 2. PANEL NARRATIVO (Top Left - Ajustado a realidad visual)
+        // 2. PANEL NARRATIVO (Top Right - Movido para evitar solapamiento con HUD de Vida)
         Positioned(
           top: 15,
-          left: 15,
+          right: 80, // A la izquierda del botón de configuración
           child: SafeArea(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -150,7 +160,9 @@ class _GameUIState extends State<GameUI> {
           ),
         ),
 
-        // 3. GUÍA DE CONTROLES (Bottom Left)
+        // 3. GUÍA DE CONTROLES (Bottom Left - Oculto en móviles)
+        if (Theme.of(context).platform != TargetPlatform.android && 
+            Theme.of(context).platform != TargetPlatform.iOS)
         Positioned(
           bottom: 15,
           left: 15,

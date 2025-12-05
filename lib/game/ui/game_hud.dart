@@ -24,11 +24,31 @@ class GameHUD extends PositionComponent
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    // Añadir botón de ataque si es móvil
-    if (defaultTargetPlatform == TargetPlatform.android ||
-        defaultTargetPlatform == TargetPlatform.iOS) {
-      add(AttackButtonComponent(player: player, gameRef: game));
+    // Añadir controles móviles (Botones)
+    // Se muestran siempre para consistencia con el Joystick
+      
+    // NOTA: El Joystick ahora se maneja en GameUI (Flutter Overlay) para ser dinámico
+    // y coincidir con el estilo del Capítulo 1.
+
+    // 2. Botón de Ataque (Común)
+    add(AttackButtonComponent(player: player, gameRef: game));
+
+    // 3. Botones Específicos
+    if (player.playerRole == PlayerRole.dan) {
+      // DAN: Cambio de Arma (Q) y Recarga (R)
+      add(SwitchWeaponButtonComponent(player: player, gameRef: game));
+      add(ReloadButtonComponent(player: player, gameRef: game));
+    } else {
+      // MEL: Resurrección (E) y Dash (Shift)
+      add(ResurrectButtonComponent(player: player, gameRef: game));
+      add(DashButtonComponent(player: player, gameRef: game));
     }
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    // El input del joystick se actualiza desde GameUI -> game.updateJoystickInput
   }
 
   @override
@@ -493,6 +513,272 @@ class AttackButtonComponent extends PositionComponent with TapCallbacks {
   @override
   void onTapDown(TapDownEvent event) {
     player.attack();
+    super.onTapDown(event);
+  }
+}
+
+class SwitchWeaponButtonComponent extends PositionComponent with TapCallbacks {
+  final PlayerCharacter player;
+  final ExpedienteKorinGame gameRef;
+
+  SwitchWeaponButtonComponent({required this.player, required this.gameRef})
+      : super(priority: 101);
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    size = Vector2(60, 60);
+    // Posicionar arriba del botón de ataque
+    position = Vector2(
+      gameRef.size.x - size.x - 50,
+      gameRef.size.y - size.y - 140,
+    );
+    anchor = Anchor.topLeft;
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+    
+    final paint = Paint()
+      ..color = Colors.blue.withOpacity(0.6)
+      ..style = PaintingStyle.fill;
+    
+    final radius = size.x / 2;
+    canvas.drawCircle(Offset(radius, radius), radius, paint);
+    
+    final borderPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    canvas.drawCircle(Offset(radius, radius), radius, borderPaint);
+
+    // Icono de intercambio (flechas circulares simplificadas)
+    final iconPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
+      
+    canvas.drawArc(
+      Rect.fromCircle(center: Offset(radius, radius), radius: radius * 0.5),
+      0.5,
+      5.0,
+      false,
+      iconPaint,
+    );
+    
+    // Texto "Q"
+    final textPainter = TextPainter(
+      text: const TextSpan(
+        text: 'Q',
+        style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(canvas, Offset(radius - textPainter.width / 2, radius - textPainter.height / 2));
+  }
+
+  @override
+  void onTapDown(TapDownEvent event) {
+    player.weaponInventory.nextWeapon();
+    super.onTapDown(event);
+  }
+}
+
+class ReloadButtonComponent extends PositionComponent with TapCallbacks {
+  final PlayerCharacter player;
+  final ExpedienteKorinGame gameRef;
+
+  ReloadButtonComponent({required this.player, required this.gameRef})
+      : super(priority: 101);
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    size = Vector2(50, 50);
+    // Posicionar a la izquierda del botón de ataque
+    position = Vector2(
+      gameRef.size.x - size.x - 140,
+      gameRef.size.y - size.y - 55,
+    );
+    anchor = Anchor.topLeft;
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    // Solo visible si el arma actual usa munición
+    final weapon = player.weaponInventory.currentWeapon;
+    if (weapon is RangedWeapon) {
+      if (weapon.currentAmmo < weapon.maxAmmo) {
+        // Mostrar si necesita recarga
+        // Podríamos hacerlo invisible o transparente
+      }
+    }
+  }
+
+  @override
+  void render(Canvas canvas) {
+    // Solo renderizar si es arma de rango
+    final weapon = player.weaponInventory.currentWeapon;
+    if (weapon is! RangedWeapon) return;
+
+    super.render(canvas);
+    
+    final paint = Paint()
+      ..color = Colors.orange.withOpacity(0.6)
+      ..style = PaintingStyle.fill;
+    
+    final radius = size.x / 2;
+    canvas.drawCircle(Offset(radius, radius), radius, paint);
+    
+    final borderPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    canvas.drawCircle(Offset(radius, radius), radius, borderPaint);
+
+    // Texto "R"
+    final textPainter = TextPainter(
+      text: const TextSpan(
+        text: 'R',
+        style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(canvas, Offset(radius - textPainter.width / 2, radius - textPainter.height / 2));
+  }
+
+  @override
+  void onTapDown(TapDownEvent event) {
+    final weapon = player.weaponInventory.currentWeapon;
+    if (weapon is RangedWeapon) {
+      weapon.reload();
+    }
+    super.onTapDown(event);
+  }
+}
+
+class ResurrectButtonComponent extends PositionComponent with TapCallbacks {
+  final PlayerCharacter player;
+  final ExpedienteKorinGame gameRef;
+
+  ResurrectButtonComponent({required this.player, required this.gameRef})
+      : super(priority: 101);
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    size = Vector2(60, 60);
+    // Posicionar arriba del botón de ataque (donde iría el cambio de arma)
+    position = Vector2(
+      gameRef.size.x - size.x - 50,
+      gameRef.size.y - size.y - 140,
+    );
+    anchor = Anchor.topLeft;
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+    
+    final paint = Paint()
+      ..color = Colors.purple.withOpacity(0.6)
+      ..style = PaintingStyle.fill;
+    
+    final radius = size.x / 2;
+    canvas.drawCircle(Offset(radius, radius), radius, paint);
+    
+    final borderPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    canvas.drawCircle(Offset(radius, radius), radius, borderPaint);
+
+    // Icono de calavera simplificado (E)
+    final iconPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+      
+    // Ojos
+    canvas.drawCircle(Offset(radius - 8, radius - 5), 4, iconPaint);
+    canvas.drawCircle(Offset(radius + 8, radius - 5), 4, iconPaint);
+    // Nariz
+    canvas.drawRect(Rect.fromCenter(center: Offset(radius, radius + 5), width: 4, height: 6), iconPaint);
+    
+    // Texto "E"
+    final textPainter = TextPainter(
+      text: const TextSpan(
+        text: 'E',
+        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(canvas, Offset(radius - textPainter.width / 2, radius + 10));
+  }
+
+  @override
+  void onTapDown(TapDownEvent event) {
+    player.tryResurrect();
+    super.onTapDown(event);
+  }
+}
+
+class DashButtonComponent extends PositionComponent with TapCallbacks {
+  final PlayerCharacter player;
+  final ExpedienteKorinGame gameRef;
+
+  DashButtonComponent({required this.player, required this.gameRef})
+      : super(priority: 101);
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    size = Vector2(50, 50);
+    // Posicionar a la izquierda del botón de ataque (donde iría la recarga)
+    position = Vector2(
+      gameRef.size.x - size.x - 140,
+      gameRef.size.y - size.y - 55,
+    );
+    anchor = Anchor.topLeft;
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+    
+    final paint = Paint()
+      ..color = Colors.cyan.withOpacity(0.6)
+      ..style = PaintingStyle.fill;
+    
+    final radius = size.x / 2;
+    canvas.drawCircle(Offset(radius, radius), radius, paint);
+    
+    final borderPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    canvas.drawCircle(Offset(radius, radius), radius, borderPaint);
+
+    // Icono de velocidad (flecha doble)
+    final iconPath = Path();
+    iconPath.moveTo(radius - 5, radius - 10);
+    iconPath.lineTo(radius + 5, radius);
+    iconPath.lineTo(radius - 5, radius + 10);
+    
+    iconPath.moveTo(radius + 2, radius - 10);
+    iconPath.lineTo(radius + 12, radius);
+    iconPath.lineTo(radius + 2, radius + 10);
+
+    canvas.drawPath(iconPath, Paint()..color = Colors.white..style = PaintingStyle.stroke..strokeWidth = 2);
+  }
+
+  @override
+  void onTapDown(TapDownEvent event) {
+    player.tryDash();
     super.onTapDown(event);
   }
 }

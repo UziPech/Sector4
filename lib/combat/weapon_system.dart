@@ -12,6 +12,7 @@ import '../game/components/player.dart';
 import '../components/bullet.dart';
 import '../components/character_component.dart';
 import '../components/enemy_character.dart';
+import '../game/audio_manager.dart';
 
 /// Clase base para todas las armas
 abstract class Weapon {
@@ -161,6 +162,10 @@ class MeleeWeapon extends Weapon {
           }
         }
       }
+    }
+
+    if (hitSomething) {
+      AudioManager().playAttackSfx();
     }
 
     return hitSomething;

@@ -95,7 +95,7 @@ class _BunkerSceneState extends State<BunkerScene>
       _updateCooldown();
     });
 
-    // Iniciar música del bosque
+    // Iniciar música del bosque (Exterior)
     AudioManager().playForestMusic();
 
     // Cargar sprites de Dan (Norte y Sur)
@@ -262,6 +262,15 @@ class _BunkerSceneState extends State<BunkerScene>
 
   void _transitionToRoom(String targetRoomId, {Vector2? spawnPosition}) async {
     if (_isTransitioning) return; // Prevenir transiciones múltiples
+    
+    // Lógica de cambio de audio según la habitación
+    if (targetRoomId == 'exterior' || targetRoomId == 'exterior_large') {
+      AudioManager().playForestMusic();
+    } else {
+      // Cualquier otra habitación es interior del búnker
+      AudioManager().playBunkerMusic();
+    }
+
     setState(() {
       _isTransitioning = true;
       _transitionScheduled = false; // Resetear flag

@@ -54,14 +54,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   // Referencia al juego para pasarle inputs
   late ExpedienteKorinGame _game;
-  
-  // Joystick Virtual (Copiado de HouseScene)
-  Offset? _joystickOrigin;
-  Offset? _joystickPosition;
-  bool _isJoystickActive = false;
-  Vector2 _joystickInput = Vector2(0, 0);
-  static const double _joystickRadius = 60.0;
-  static const double _joystickKnobRadius = 25.0;
 
   @override
   void initState() {
@@ -72,116 +64,24 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Listener(
-        onPointerDown: (event) {
-          // Solo activar en la mitad izquierda de la pantalla
-          final screenSize = MediaQuery.of(context).size;
-          if (event.position.dx < screenSize.width / 2) {
-            setState(() {
-              _isJoystickActive = true;
-              _joystickOrigin = event.position;
-              _joystickPosition = event.position;
-              _joystickInput = Vector2(0, 0);
-            });
-            _game.updateJoystickInput(_joystickInput);
-          }
-        },
-        onPointerMove: (event) {
-          if (_isJoystickActive && _joystickOrigin != null) {
-            setState(() {
-              final currentPos = event.position;
-              Vector2 delta = Vector2(
-                currentPos.dx - _joystickOrigin!.dx,
-                currentPos.dy - _joystickOrigin!.dy,
-              );
-              
-              // Limitar el movimiento del knob al radio
-              if (delta.length > _joystickRadius) {
-                delta = delta.normalized() * _joystickRadius;
-              }
-              
-              _joystickPosition = Offset(
-                _joystickOrigin!.dx + delta.x,
-                _joystickOrigin!.dy + delta.y,
-              );
-              
-              // Calcular vector normalizado para el movimiento (0.0 a 1.0)
-              _joystickInput = delta / _joystickRadius;
-            });
-            _game.updateJoystickInput(_joystickInput);
-          }
-        },
-        onPointerUp: (event) {
-          setState(() {
-            _isJoystickActive = false;
-            _joystickOrigin = null;
-            _joystickPosition = null;
-            _joystickInput = Vector2(0, 0);
-          });
-          _game.updateJoystickInput(_joystickInput);
-        },
-        child: Stack(
-          children: [
-            // 1. EL JUEGO (Fondo)
-            GameWidget(
-              game: _game,
-              overlayBuilderMap: {
-                'GameOver': (context, game) => GameOverWithAdvice(
-                  game: game as ExpedienteKorinGame,
-                ),
-                'DialogueOverlay': (context, game) {
-                  final korinGame = game as ExpedienteKorinGame;
-                  if (korinGame.currentDialogue == null) return const SizedBox.shrink();
-                  
-                  return DialogueSystem(
-                    sequence: korinGame.currentDialogue!,
-                    onSequenceComplete: korinGame.onDialogueComplete,
-                  );
-                },
-                'GameUI': (context, game) => GameUI(game: game as ExpedienteKorinGame),
-              },
-              initialActiveOverlays: const ['GameUI'],
-            ),
+      body: GameWidget(
+        game: _game,
+        overlayBuilderMap: {
+          'GameOver': (context, game) => GameOverWithAdvice(
+            game: game as ExpedienteKorinGame,
+          ),
+          'DialogueOverlay': (context, game) {
+            final korinGame = game as ExpedienteKorinGame;
+            if (korinGame.currentDialogue == null) return const SizedBox.shrink();
             
-            // 2. JOYSTICK UI (Superpuesto)
-            if (_isJoystickActive && _joystickOrigin != null && _joystickPosition != null) ...[
-              // Base del joystick
-              Positioned(
-                left: _joystickOrigin!.dx - _joystickRadius,
-                top: _joystickOrigin!.dy - _joystickRadius,
-                child: Container(
-                  width: _joystickRadius * 2,
-                  height: _joystickRadius * 2,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withOpacity(0.5), width: 2),
-                  ),
-                ),
-              ),
-              // Knob del joystick
-              Positioned(
-                left: _joystickPosition!.dx - _joystickKnobRadius,
-                top: _joystickPosition!.dy - _joystickKnobRadius,
-                child: Container(
-                  width: _joystickKnobRadius * 2,
-                  height: _joystickKnobRadius * 2,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.8),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 5,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
+            return DialogueSystem(
+              sequence: korinGame.currentDialogue!,
+              onSequenceComplete: korinGame.onDialogueComplete,
+            );
+          },
+          'GameUI': (context, game) => GameUI(game: game as ExpedienteKorinGame),
+        },
+        initialActiveOverlays: const ['GameUI'],
       ),
     );
   }

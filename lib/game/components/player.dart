@@ -454,14 +454,14 @@ class PlayerCharacter extends PositionComponent
       // Resucitar con E (solo Mel)
       if (event.logicalKey == LogicalKeyboardKey.keyE &&
           role == PlayerRole.mel) {
-        _tryResurrect();
+        tryResurrect();
       }
 
       // Dash con Shift (solo Mel con Kijin activo)
       if (event.logicalKey == LogicalKeyboardKey.shiftLeft ||
           event.logicalKey == LogicalKeyboardKey.shiftRight) {
         if (role == PlayerRole.mel) {
-          _tryDash();
+          tryDash();
         }
       }
     } else if (event is KeyUpEvent) {
@@ -473,11 +473,10 @@ class PlayerCharacter extends PositionComponent
 
   void attack() {
     weaponInventory.currentWeapon?.tryAttack(this, game);
-    AudioManager().playAttackSfx();
   }
 
   /// Intenta usar dash (solo si hay Kijin redimido vivo)
-  void _tryDash() {
+  void tryDash() {
     // Verificar cooldown
     if (_dashTimer > 0) {
       print('⏱️ Dash en cooldown: ${_dashTimer.toStringAsFixed(1)}s');
@@ -524,7 +523,7 @@ class PlayerCharacter extends PositionComponent
   }
 
   /// Intenta resucitar un enemigo cercano (solo Mel)
-  void _tryResurrect() {
+  void tryResurrect() {
     // Buscar resurrection manager
     final resurrectionManager = game.world.children
         .query<ResurrectionManager>()

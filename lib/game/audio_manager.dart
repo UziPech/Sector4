@@ -23,14 +23,15 @@ class AudioManager {
     FlameAudio.bgm.initialize();
     // Precargar audios comunes si es necesario
     await FlameAudio.audioCache.loadAll([
-      'music/login.mp3',
       'music/bosque.mp3',
-      'music/inicios de pelea.mp3',
       'music/pelea con el stalker.mp3',
       'music/dan peleando con cuchillo.mp3',
       'sfx/intro_glitch.mp3',
       'music/menu_rain_ambience.mp3',
       'music/house_ambience.mp3',
+      'music/bunker_ambience.mp3',
+      'music/stalker_theme.mp3',
+      'sfx/stalker_alert.mp3',
     ]);
   }
 
@@ -62,21 +63,36 @@ class AudioManager {
     FlameAudio.bgm.play('music/house_ambience.mp3', volume: musicVolume);
   }
 
+  /// Reproduce la música del Búnker (Capítulo 2)
+  void playBunkerMusic() {
+    if (_currentMusic == 'music/bunker_ambience.mp3' && FlameAudio.bgm.isPlaying) return;
+    
+    stopMusic();
+    _currentMusic = 'music/bunker_ambience.mp3';
+    FlameAudio.bgm.play('music/bunker_ambience.mp3', volume: musicVolume);
+  }
+
   /// Reproduce la música del Bosque en bucle (modo focus)
   void playForestMusic() {
     stopMusic();
     FlameAudio.bgm.play('music/bosque.mp3', volume: musicVolume);
   }
 
-  /// Reproduce la secuencia de combate: Intro + Loop simultáneos
-  void playCombatMusicSequence() {
+  /// Reproduce la secuencia de combate: Alert SFX + Boss Theme
+  Future<void> playCombatMusicSequence() async {
     stopMusic();
 
-    // Reproducir intro como efecto de sonido (una sola vez)
-    FlameAudio.play('music/inicios de pelea.mp3', volume: musicVolume);
+    // 1. Reproducir efecto de alerta (Impacto)
+    await FlameAudio.play('sfx/stalker_alert.mp3', volume: sfxVolume);
 
-    // Reproducir música de fondo (loop) inmediatamente
-    FlameAudio.bgm.play('music/pelea con el stalker.mp3', volume: musicVolume);
+    // 2. Esperar un poco (opcional, para dramatismo) o iniciar música inmediatamente
+    // Si el SFX es largo (6s), podemos esperar un poco o mezclarlo.
+    // Vamos a esperar 2 segundos para que el impacto resuene antes de la música
+    await Future.delayed(const Duration(seconds: 2));
+
+    // 3. Reproducir música de fondo (loop)
+    _currentMusic = 'music/stalker_theme.mp3';
+    FlameAudio.bgm.play('music/stalker_theme.mp3', volume: musicVolume);
   }
 
   /// Reproduce SFX de ataque (superpuesto)
