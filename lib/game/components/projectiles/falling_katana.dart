@@ -38,8 +38,8 @@ class FallingKatana extends PositionComponent
     // Verificar impacto con jugador
     _checkPlayerHit();
     
-    // Remover si sale de la pantalla
-    if (position.y > 1200) {
+    // Remover si sale de la pantalla (ajustado para mapa exterior 1500px)
+    if (position.y > 1600) {
       removeFromParent();
     }
   }
