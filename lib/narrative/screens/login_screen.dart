@@ -2,9 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'house_scene.dart';
+import '../../game/audio_manager.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Iniciar música de login
+    AudioManager().init().then((_) {
+      AudioManager().playLoginMusic();
+    });
+  }
+
+  @override
+  void dispose() {
+    // Detener música al salir del login (opcional, o dejar que la siguiente escena maneje el audio)
+    // AudioManager().stopMusic();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +40,7 @@ class LoginScreen extends StatelessWidget {
               fit: BoxFit.cover,
             ),
           ),
-          
+
           // 2. CAPA OSCURA (Vignette)
           Positioned.fill(
             child: Container(
@@ -41,7 +63,9 @@ class LoginScreen extends StatelessWidget {
               width: 600,
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.6), // Fondo semitransparente para el cuadro
+                color: Colors.black.withOpacity(
+                  0.6,
+                ), // Fondo semitransparente para el cuadro
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: Colors.white.withOpacity(0.1)),
               ),
@@ -80,7 +104,7 @@ class LoginScreen extends StatelessWidget {
                       );
                     },
                   ),
-                  
+
                   const SizedBox(height: 16),
 
                   // BOTÓN GOOGLE
@@ -128,7 +152,9 @@ class LoginScreen extends StatelessWidget {
   void _showComingSoonSnackBar(BuildContext context, String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('$feature - Requiere configuración de Backend (Firebase)'),
+        content: Text(
+          '$feature - Requiere configuración de Backend (Firebase)',
+        ),
         backgroundColor: Colors.redAccent,
         duration: const Duration(seconds: 2),
       ),

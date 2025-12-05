@@ -7,6 +7,7 @@ import 'house_scene.dart';
 import 'bunker_scene.dart';
 import 'story_screen.dart';
 import 'login_screen.dart';
+import '../../game/audio_manager.dart';
 
 /// Pantalla del menú principal con efectos visuales avanzados
 class MenuScreen extends StatefulWidget {
@@ -16,7 +17,8 @@ class MenuScreen extends StatefulWidget {
   State<MenuScreen> createState() => _MenuScreenState();
 }
 
-class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateMixin {
+class _MenuScreenState extends State<MenuScreen>
+    with SingleTickerProviderStateMixin {
   // Controladores para la lluvia
   late AnimationController _rainController;
   final List<Raindrop> _raindrops = [];
@@ -29,44 +31,52 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    
+
     // Inicializar lluvia
     _rainController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
     )..repeat();
-    
+
     _generateRaindrops();
 
     // Inicializar efecto glitch (cada 3-6s)
     _scheduleGlitch();
+
+    // Iniciar música de login
+    AudioManager().playLoginMusic();
   }
 
   void _scheduleGlitch() {
-    _glitchTimer = Timer(Duration(milliseconds: 3000 + _random.nextInt(3000)), () {
-      if (mounted) {
-        setState(() => _isTitleGlitching = true);
-        
-        // Duración del glitch (corto, como estática)
-        Future.delayed(const Duration(milliseconds: 200), () {
-          if (mounted) {
-            setState(() => _isTitleGlitching = false);
-            _scheduleGlitch(); // Programar el siguiente
-          }
-        });
-      }
-    });
+    _glitchTimer = Timer(
+      Duration(milliseconds: 3000 + _random.nextInt(3000)),
+      () {
+        if (mounted) {
+          setState(() => _isTitleGlitching = true);
+
+          // Duración del glitch (corto, como estática)
+          Future.delayed(const Duration(milliseconds: 200), () {
+            if (mounted) {
+              setState(() => _isTitleGlitching = false);
+              _scheduleGlitch(); // Programar el siguiente
+            }
+          });
+        }
+      },
+    );
   }
 
   void _generateRaindrops() {
     // Generar 100 gotas iniciales
     for (int i = 0; i < 100; i++) {
-      _raindrops.add(Raindrop(
-        x: _random.nextDouble(),
-        y: _random.nextDouble(),
-        speed: 0.01 + _random.nextDouble() * 0.02,
-        length: 0.02 + _random.nextDouble() * 0.03,
-      ));
+      _raindrops.add(
+        Raindrop(
+          x: _random.nextDouble(),
+          y: _random.nextDouble(),
+          speed: 0.01 + _random.nextDouble() * 0.02,
+          length: 0.02 + _random.nextDouble() * 0.03,
+        ),
+      );
     }
   }
 
@@ -113,10 +123,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
               animation: _rainController,
               builder: (context, child) {
                 return CustomPaint(
-                  painter: RainPainter(
-                    raindrops: _raindrops,
-                    random: _random,
-                  ),
+                  painter: RainPainter(raindrops: _raindrops, random: _random),
                 );
               },
             ),
@@ -124,28 +131,29 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
 
           // 4. CAPA DE OSCURECIMIENTO (Overlay general)
           Positioned.fill(
-            child: Container(
-              color: Colors.black.withOpacity(0.4),
-            ),
+            child: Container(color: Colors.black.withOpacity(0.4)),
           ),
 
           // 5. CONTENIDO (Texto y Botones)
           Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: const EdgeInsets.only(left: 80.0), // Margen izquierdo considerable
+              padding: const EdgeInsets.only(
+                left: 80.0,
+              ), // Margen izquierdo considerable
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: SizedBox(
-                  width: 800, 
-                  height: 700, 
+                  width: 800,
+                  height: 700,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start, // Todo alineado a la izquierda
+                    crossAxisAlignment: CrossAxisAlignment
+                        .start, // Todo alineado a la izquierda
                     children: [
                       // Espacio superior para bajar un poco el título del borde
                       const SizedBox(height: 80),
-                      
+
                       // --- TÍTULO ---
                       FittedBox(
                         fit: BoxFit.scaleDown,
@@ -154,23 +162,23 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               VHSGlitchTitle(
-                                text: 'EXPEDIENTE', 
-                                fontSize: 64, 
+                                text: 'EXPEDIENTE',
+                                fontSize: 64,
                                 isGlitching: _isTitleGlitching,
                               ),
                               const SizedBox(width: 24),
                               VHSGlitchTitle(
                                 text: 'KŌRIN',
-                                fontSize: 64, 
+                                fontSize: 64,
                                 isGlitching: _isTitleGlitching,
                               ),
                             ],
                           ),
                         ),
                       ),
-                      
+
                       const SizedBox(height: 16),
-                      
+
                       Text(
                         'v0.1.0 - Capítulo 1',
                         style: GoogleFonts.robotoMono(
@@ -180,14 +188,15 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                       ),
 
                       // Espacio flexible entre Título y Botones
-                      const Spacer(), 
-                      
+                      const Spacer(),
+
                       // --- BOTONES ---
                       // Contenedor de ancho limitado para los botones
                       SizedBox(
-                        width: 300, 
+                        width: 300,
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start, // Botones alineados a la izquierda
+                          crossAxisAlignment: CrossAxisAlignment
+                              .start, // Botones alineados a la izquierda
                           children: [
                             _MenuButton(
                               text: 'NUEVO JUEGO',
@@ -236,29 +245,37 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
-                                      backgroundColor: Colors.black.withOpacity(0.9), // Fondo oscuro
+                                      backgroundColor: Colors.black.withOpacity(
+                                        0.9,
+                                      ), // Fondo oscuro
                                       shape: RoundedRectangleBorder(
-                                        side: const BorderSide(color: Colors.redAccent, width: 1),
+                                        side: const BorderSide(
+                                          color: Colors.redAccent,
+                                          width: 1,
+                                        ),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                            title: Text(
-                                              'CONFIRMACIÓN',
-                                              style: GoogleFonts.robotoMono(
-                                                color: Colors.redAccent,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            content: Text(
-                                              '¿Estás seguro que quieres salir del juego?',
-                                              style: GoogleFonts.robotoMono(
-                                                color: Colors.red, // Texto rojo como solicitado
-                                                fontSize: 16,
-                                              ),
-                                            ),
+                                      title: Text(
+                                        'CONFIRMACIÓN',
+                                        style: GoogleFonts.robotoMono(
+                                          color: Colors.redAccent,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      content: Text(
+                                        '¿Estás seguro que quieres salir del juego?',
+                                        style: GoogleFonts.robotoMono(
+                                          color: Colors
+                                              .red, // Texto rojo como solicitado
+                                          fontSize: 16,
+                                        ),
+                                      ),
                                       actions: [
                                         TextButton(
                                           onPressed: () {
-                                            Navigator.of(context).pop(); // Cerrar diálogo
+                                            Navigator.of(
+                                              context,
+                                            ).pop(); // Cerrar diálogo
                                           },
                                           child: Text(
                                             'NO',
@@ -289,7 +306,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                           ],
                         ),
                       ),
-                      
+
                       // Espacio inferior
                       const SizedBox(height: 60),
                     ],
@@ -313,7 +330,8 @@ class BleedingTitleWrapper extends StatefulWidget {
   State<BleedingTitleWrapper> createState() => _BleedingTitleWrapperState();
 }
 
-class _BleedingTitleWrapperState extends State<BleedingTitleWrapper> with SingleTickerProviderStateMixin {
+class _BleedingTitleWrapperState extends State<BleedingTitleWrapper>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   final List<BloodDrip> _drips = [];
   final Random _random = Random();
@@ -323,23 +341,25 @@ class _BleedingTitleWrapperState extends State<BleedingTitleWrapper> with Single
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 4), 
+      duration: const Duration(seconds: 4),
     )..repeat();
-    
+
     // Generar gotas para "cada letra" (aprox)
     // El texto tiene ~16 caracteres. Generamos ~20 gotas distribuidas uniformemente
     // para asegurar cobertura.
     for (int i = 0; i < 20; i++) {
       // Distribución más uniforme con pequeña variación aleatoria
-      double baseX = (i / 20.0); 
+      double baseX = (i / 20.0);
       double jitter = _random.nextDouble() * 0.04 - 0.02;
-      
-      _drips.add(BloodDrip(
-        x: (baseX + jitter).clamp(0.02, 0.98), 
-        length: 0.2 + _random.nextDouble() * 0.4, // Longitud variable
-        width: 4.0 + _random.nextDouble() * 2.0, // Grosor variable
-        swayPhase: _random.nextDouble() * 2 * pi,
-      ));
+
+      _drips.add(
+        BloodDrip(
+          x: (baseX + jitter).clamp(0.02, 0.98),
+          length: 0.2 + _random.nextDouble() * 0.4, // Longitud variable
+          width: 4.0 + _random.nextDouble() * 2.0, // Grosor variable
+          swayPhase: _random.nextDouble() * 2 * pi,
+        ),
+      );
     }
   }
 
@@ -360,8 +380,8 @@ class _BleedingTitleWrapperState extends State<BleedingTitleWrapper> with Single
             builder: (context, child) {
               return CustomPaint(
                 painter: DrippingBloodPainter(
-                  drips: _drips, 
-                  time: _controller.value
+                  drips: _drips,
+                  time: _controller.value,
                 ),
               );
             },
@@ -396,8 +416,9 @@ class DrippingBloodPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // Pintura para la sangre (Rojo sólido y brillante)
     final paint = Paint()
-      ..color = const Color(0xFFE60000) // Rojo sangre vivo
-      ..style = PaintingStyle.fill; 
+      ..color =
+          const Color(0xFFE60000) // Rojo sangre vivo
+      ..style = PaintingStyle.fill;
 
     // Pintura para el brillo interior (highlight)
     final highlightPaint = Paint()
@@ -416,9 +437,9 @@ class DrippingBloodPainter extends CustomPainter {
     for (var drip in drips) {
       final startX = drip.x * size.width;
       // Ajuste fino para que salga justo del borde inferior de las letras
-      final startY = size.height * 0.70; 
+      final startY = size.height * 0.70;
       final endY = startY + (drip.length * size.height * 0.5); // Longitud
-      
+
       // Oscilación muy sutil
       final sway = sin(time * 2 * pi + drip.swayPhase) * 1.0;
       final endX = startX + sway;
@@ -426,20 +447,20 @@ class DrippingBloodPainter extends CustomPainter {
       // Forma de gota redondeada (no afilada)
       final dripPath = Path();
       dripPath.moveTo(startX - drip.width / 2, startY);
-      
+
       // Cuerpo de la gota (recto hasta cerca del final)
       dripPath.lineTo(endX - drip.width / 3, endY - drip.width);
-      
+
       // Punta redondeada (arco)
       dripPath.arcToPoint(
         Offset(endX + drip.width / 3, endY - drip.width),
         radius: Radius.circular(drip.width / 2),
         clockwise: false,
       );
-      
+
       dripPath.lineTo(startX + drip.width / 2, startY);
       dripPath.close();
-      
+
       path.addPath(dripPath, Offset.zero);
 
       // Brillo en el centro
@@ -449,16 +470,21 @@ class DrippingBloodPainter extends CustomPainter {
       hlPath.lineTo(startX + drip.width / 4, startY);
       hlPath.close();
       highlightPath.addPath(hlPath, Offset.zero);
-      
+
       // Gota cayendo (separada) - Forma redondeada
       if (time > 0.7 && (drip.swayPhase * 10).toInt() % 4 == 0) {
-         final dropProgress = (time - 0.7) / 0.3; // 0 a 1
-         final dropY = endY + dropProgress * size.height * 0.3;
-         
-         // Gota lágrima redondeada
-         final dropPath = Path();
-         dropPath.addOval(Rect.fromCircle(center: Offset(endX, dropY), radius: drip.width * 0.6));
-         path.addPath(dropPath, Offset.zero);
+        final dropProgress = (time - 0.7) / 0.3; // 0 a 1
+        final dropY = endY + dropProgress * size.height * 0.3;
+
+        // Gota lágrima redondeada
+        final dropPath = Path();
+        dropPath.addOval(
+          Rect.fromCircle(
+            center: Offset(endX, dropY),
+            radius: drip.width * 0.6,
+          ),
+        );
+        path.addPath(dropPath, Offset.zero);
       }
     }
 
@@ -488,7 +514,7 @@ class VHSGlitchTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Random random = Random();
-    
+
     // Si no hay glitch, mostrar texto normal blanco
     if (!isGlitching) {
       return Text(
@@ -585,7 +611,8 @@ class RainPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.15) // Blanco semitransparente
+      ..color = Colors.white
+          .withOpacity(0.15) // Blanco semitransparente
       ..strokeWidth = 1.5
       ..strokeCap = StrokeCap.round;
 
@@ -602,8 +629,9 @@ class RainPainter extends CustomPainter {
       // Dibujar línea
       final start = Offset(drop.x * size.width, drop.y * size.height);
       final end = Offset(
-        drop.x * size.width - (drop.length * size.width * 0.1), // Leve inclinación
-        (drop.y + drop.length) * size.height
+        drop.x * size.width -
+            (drop.length * size.width * 0.1), // Leve inclinación
+        (drop.y + drop.length) * size.height,
       );
 
       canvas.drawLine(start, end, paint);
@@ -669,23 +697,25 @@ class _MenuButtonState extends State<_MenuButton> {
       child: GestureDetector(
         onTapDown: isEnabled ? (_) => setState(() => _isPressed = true) : null,
         onTapUp: isEnabled ? (_) => setState(() => _isPressed = false) : null,
-        onTapCancel: isEnabled ? () => setState(() => _isPressed = false) : null,
+        onTapCancel: isEnabled
+            ? () => setState(() => _isPressed = false)
+            : null,
         onTap: isEnabled ? widget.onPressed : null,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 100), // Más rápido para feedback táctil
+          duration: const Duration(
+            milliseconds: 100,
+          ), // Más rápido para feedback táctil
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
           decoration: BoxDecoration(
             color: backgroundColor,
-            border: Border.all(
-              color: borderColor,
-              width: 1.0,
-            ),
+            border: Border.all(color: borderColor, width: 1.0),
           ),
           child: Text(
             widget.text,
             textAlign: TextAlign.center,
-            style: GoogleFonts.robotoMono( // Fuente técnica para botones
+            style: GoogleFonts.robotoMono(
+              // Fuente técnica para botones
               color: textColor,
               fontSize: 18,
               fontWeight: FontWeight.bold,
