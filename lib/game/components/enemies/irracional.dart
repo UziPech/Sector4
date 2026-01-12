@@ -102,21 +102,18 @@ class IrrationalEnemy extends PositionComponent
   void _updateTarget() {
     final player = game.player;
     
-    // Buscar Kohaa
-    YureiKohaa? kohaa;
-    game.world.children.query<YureiKohaa>().forEach((k) {
-      if (!k.isDead) kohaa = k;
-    });
+    // OPTIMIZED: Use cached reference instead of query
+    final kohaa = game.activeKohaa;
     
     // Si no hay Kohaa, atacar al jugador
-    if (kohaa == null || kohaa!.isDead) {
+    if (kohaa == null || kohaa.isDead) {
       _currentTarget = player;
       return;
     }
     
     // Si hay Kohaa, atacar al más cercano
     final distToPlayer = player.isDead ? double.infinity : position.distanceTo(player.position);
-    final distToKohaa = position.distanceTo(kohaa!.position);
+    final distToKohaa = position.distanceTo(kohaa.position);
     
     _currentTarget = distToKohaa < distToPlayer ? kohaa : player;
   }
@@ -161,10 +158,8 @@ class IrrationalEnemy extends PositionComponent
   void _attack(PositionComponent target) {
     if (target is PlayerCharacter) {
       target.takeDamage(_damage);
-      // [PERF] print('⚜️ Irracional atacó al jugador: $_damage daño');
     } else if (target is YureiKohaa) {
       target.takeDamage(_damage);
-      // [PERF] print('⚜️ Irracional atacó a Kohaa: $_damage daño');
     }
   }
   

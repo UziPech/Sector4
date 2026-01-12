@@ -1,7 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flame_tiled/flame_tiled.dart';
 
@@ -14,7 +13,6 @@ import 'ui/mission_notification.dart';
 import 'levels/bunker_boss_level.dart';
 import 'levels/exterior_map_level.dart';
 import 'components/enemies/yurei_kohaa.dart'; // Para reset de HP
-import 'components/enemies/redeemed_kijin_ally.dart'; // Para reset de Kohaa aliada
 import 'components/bosses/on_oyabun_boss.dart'; // Para reset del boss
 import '../narrative/models/dialogue_data.dart'; // Para sistema de diálogos
 import 'audio_manager.dart'; // Importar AudioManager
@@ -47,6 +45,11 @@ class ExpedienteKorinGame extends FlameGame
   
   // SISTEMA DE DIÁLOGOS
   DialogueSequence? currentDialogue;
+
+  // PERFORMANCE: Tracked entities to avoid expensive queries
+  YureiKohaa? activeKohaa;
+  OnOyabunBoss? activeBoss;
+  final List<Component> allies = []; // Tracks allied enemies and kijin
 
   // INPUT TÁCTIL (Joystick Virtual)
   Vector2 joystickInput = Vector2.zero();
@@ -223,9 +226,6 @@ class ExpedienteKorinGame extends FlameGame
       message = '¡Levántate, aún hay esperanza!';
     }
     
-    print('💔 $companionName: $message');
-    print('❤️ Vidas restantes: $livesLeft/$maxLives');
-    
     // Auto-restart después de 2 segundos
     // Future.delayed(const Duration(seconds: 2), () {
     //   restart();
@@ -262,15 +262,10 @@ class ExpedienteKorinGame extends FlameGame
     
     final isDan = player.role == PlayerRole.dan;
     final companionName = isDan ? 'Mel' : 'Dan';
-    
-    print('☠️ GAME OVER - Sin vidas restantes');
-    print('💔 $companionName: No... no pudimos lograrlo...');
   }
   
   /// Reinicia el juego
   void restart() async {
-    print('🔄 Reiniciando juego... Vidas actuales: $remainingLives');
-    
     // Detectar si es un REINICIO COMPLETO (sin vidas) o PARCIAL (con vidas)
     final isFullRestart = remainingLives <= 0;
     
@@ -287,15 +282,11 @@ class ExpedienteKorinGame extends FlameGame
       
       // Recargar nivel completo según el modo actual
       if (startInBossMode) {
-        print('🔄 Recargando Boss Level...');
         await loadBossLevel();
-        print('✅ Boss Level recargado completamente');
         
       } else if (startInExteriorMap) {
-        print('🔄 Recargando Exterior Map...');
         await loadExteriorMap();
       } else {
-        print('🔄 Recargando Capítulo $currentChapter...');
         await loadChapterMap(currentChapter);
       }
       
@@ -307,10 +298,7 @@ class ExpedienteKorinGame extends FlameGame
       mel.reset();
       mel.position = player.position + Vector2(50, 0);
       
-      print('✅ Nivel completamente reiniciado. Vidas: $remainingLives/$maxLives');
-      
     } else {
-      print('💚 RESPAWN - Aún quedan $remainingLives vidas, respawneando en posición actual');
       
       // Respawn simple (con vidas restantes)
       player.resetHealth();

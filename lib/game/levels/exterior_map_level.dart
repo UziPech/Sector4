@@ -3,7 +3,6 @@ import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flutter/material.dart';
 import '../expediente_game.dart';
-import '../components/player.dart';
 import '../components/enemies/yurei_kohaa.dart';
 import '../components/enemies/irracional.dart';
 import '../components/bosses/on_oyabun_boss.dart';
@@ -82,24 +81,35 @@ class ExteriorMapLevel extends Component with HasGameReference<ExpedienteKorinGa
     }
   }
   
+  // Track enemy count to avoid expensive queries
+  int _aliveEnemyCount = 0;
+  double _enemyCheckTimer = 0.0;
+  static const double _enemyCheckInterval = 0.5; // Check every 0.5s instead of every frame
+  
   @override
   void update(double dt) {
     super.update(dt);
     
-    // Verificar si se limpiaron los enemigos iniciales
+    // OPTIMIZED: Check enemies less frequently
     if (!_initialEnemiesCleared && !_kohaaSpawned) {
-      final enemies = game.world.children.query<IrrationalEnemy>();
-      int aliveCount = 0;
-      for (final enemy in enemies) {
-        if (!enemy.isDead) aliveCount++;
-      }
-      
-      if (aliveCount == 0) {
-        _initialEnemiesCleared = true;
-        // Esperar 1 segundo y mostrar diálogo de Kohaa
-        Future.delayed(const Duration(milliseconds: 1000), () {
-          _showKohaaIntro();
-        });
+      _enemyCheckTimer += dt;
+      if (_enemyCheckTimer >= _enemyCheckInterval) {
+        _enemyCheckTimer = 0.0;
+        
+        final enemies = game.world.children.query<IrrationalEnemy>();
+        int aliveCount = 0;
+        for (final enemy in enemies) {
+          if (!enemy.isDead) aliveCount++;
+        }
+        _aliveEnemyCount = aliveCount;
+        
+        if (_aliveEnemyCount == 0) {
+          _initialEnemiesCleared = true;
+          // Esperar 1 segundo y mostrar diálogo de Kohaa
+          Future.delayed(const Duration(milliseconds: 1000), () {
+            _showKohaaIntro();
+          });
+        }
       }
     }
     
@@ -107,6 +117,8 @@ class ExteriorMapLevel extends Component with HasGameReference<ExpedienteKorinGa
     if (_kohaaSpawned && !_kohaaDefeated && _kohaa?.isDead == true) {
       _kohaaDefeated = true;
       _postKohaaTimer = 0.0;
+      // Unregister from game
+      game.activeKohaa = null;
       debugPrint('💀 Yurei Kohaa ha sido derrotada!');
       debugPrint('⏳ On-Oyabun será invocado en $_postKohaaDelay segundos...');
     }
@@ -197,6 +209,10 @@ class ExteriorMapLevel extends Component with HasGameReference<ExpedienteKorinGa
     // Spawn Kohaa en la parte superior del mapa
     _kohaa = YureiKohaa(position: Vector2(mapWidth / 2, 200));
     game.world.add(_kohaa!);
+    
+    // PERFORMANCE: Register with game for quick access
+    game.activeKohaa = _kohaa;
+    
     debugPrint('✨ Yurei Kohaa ha aparecido!');
   }
   
@@ -319,7 +335,10 @@ class ExteriorMapLevel extends Component with HasGameReference<ExpedienteKorinGa
     );
     game.world.add(_oyabun!);
     
-    debugPrint('⚔️💀 怨親分 ON-OYABUN HA SIDO INVOCADO!');
+    // PERFORMANCE: Register with game for quick access
+    game.activeBoss = _oyabun;
+    
+    debugPrint('⚜️💀 怨親分 ON-OYABUN HA SIDO INVOCADO!');
   }
   
   // ==================== ORIGINAL METHODS ====================

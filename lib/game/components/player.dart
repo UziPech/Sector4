@@ -154,30 +154,13 @@ class PlayerCharacter extends PositionComponent
 
   Future<void> _loadDanAnimations() async {
     try {
-      // Cargar imágenes manualmente
-      final northData = await rootBundle.load(
-        'assets/sprites/dan_walk_north.png',
-      );
-      final northCodec = await ui.instantiateImageCodec(
-        northData.buffer.asUint8List(),
-      );
-      final northFrame = await northCodec.getNextFrame();
-      final northImage = northFrame.image;
-
-      final southData = await rootBundle.load(
-        'assets/sprites/dan_walk_south.png',
-      );
-      final southCodec = await ui.instantiateImageCodec(
-        southData.buffer.asUint8List(),
-      );
-      final southFrame = await southCodec.getNextFrame();
-      final southImage = southFrame.image;
+      // OPTIMIZED: Use Flame's image cache instead of manual rootBundle loading
+      final northImage = await game.images.load('sprites/dan_walk_north.png');
+      final southImage = await game.images.load('sprites/dan_walk_south.png');
 
       // Configurar animaciones (Grilla 3x3 = 9 frames)
-      // La lógica original en house_scene usa AnimatedSprite.load con defaults (cols=3, rows=3)
-      // y cicla con % 9, lo que significa que usa los 9 frames.
-      final cols = 3;
-      final rows = 3;
+      const cols = 3;
+      const rows = 3;
       final frameWidth = northImage.width / cols;
       final frameHeight = northImage.height / rows;
       final textureSize = Vector2(frameWidth, frameHeight);
@@ -230,9 +213,6 @@ class PlayerCharacter extends PositionComponent
         // El tamaño visual es 80x80 como en el capítulo 1
         size: Vector2(80, 80),
         // Centrado respecto al componente Player (que es 32x32)
-        // Player anchor es center, así que (0,0) es el centro.
-        // Pero en Flame los hijos son relativos al topLeft del padre si no se cambia.
-        // Player es 32x32. Su centro es (16, 16).
         position: Vector2(16, 16),
       );
 
@@ -438,8 +418,6 @@ class PlayerCharacter extends PositionComponent
       // Cambiar arma con Q
       if (event.logicalKey == LogicalKeyboardKey.keyQ) {
         weaponInventory.nextWeapon();
-        // TODO: Mostrar UI de cambio de arma
-        print('Arma equipada: ${weaponInventory.currentWeapon?.name}');
       }
 
       // Recargar con R (solo armas con munición)
@@ -447,7 +425,6 @@ class PlayerCharacter extends PositionComponent
         final currentWeapon = weaponInventory.currentWeapon;
         if (currentWeapon is RangedWeapon) {
           currentWeapon.reload();
-          print('🔄 Recargando ${currentWeapon.name}');
         }
       }
 
@@ -479,7 +456,6 @@ class PlayerCharacter extends PositionComponent
   void tryDash() {
     // Verificar cooldown
     if (_dashTimer > 0) {
-      print('⏱️ Dash en cooldown: ${_dashTimer.toStringAsFixed(1)}s');
       return;
     }
 
@@ -503,7 +479,6 @@ class PlayerCharacter extends PositionComponent
     }
 
     if (!hasAliveKijin) {
-      print('❌ No tienes un Kijin redimido vivo. No puedes usar Dash.');
       return;
     }
 
@@ -518,8 +493,6 @@ class PlayerCharacter extends PositionComponent
     _dashPreparationTimer = 0.0;
     _dashTime = 0.0;
     _dashTimer = _dashCooldown;
-
-    print('🛡️ Mel prepara dash (invulnerable) gracias al Kijin');
   }
 
   /// Intenta resucitar un enemigo cercano (solo Mel)
@@ -550,9 +523,6 @@ class PlayerCharacter extends PositionComponent
       if (nearestTomb.isKijin) {
         // Kijin requiere 2 slots
         canResurrect = resurrectionManager.canResurrectKijin();
-        if (!canResurrect) {
-          print('❌ No hay suficientes slots para Kijin (Necesita 2)');
-        }
       } else {
         // Normal requiere 1 slot
         canResurrect = resurrectionManager.canResurrect();
@@ -582,7 +552,6 @@ class PlayerCharacter extends PositionComponent
         kijinType: 'kohaa',
       );
       game.world.add(kijinAlly);
-      print('✨ KIJIN REDIMIDO creado - NO expira por tiempo, solo por muerte');
     } else {
       manager.registerAlly();
 
@@ -593,7 +562,6 @@ class PlayerCharacter extends PositionComponent
         resurrectionManager: resurrectionManager,
       );
       game.world.add(ally);
-      print('✨ Aliado normal creado - Expira en 45 segundos');
     }
 
     // Remover la tumba
@@ -606,11 +574,6 @@ class PlayerCharacter extends PositionComponent
     if (tomb.enemyType.contains('kohaa') || tomb.enemyType.contains('kijin')) {
       _showKohaaGratitudeDialogue();
     }
-
-    // Feedback
-    debugPrint(
-      'Resurrección exitosa! Resurrecciones restantes: ${manager.resurrectionsRemaining}',
-    );
   }
 
   /// Muestra diálogo visual de agradecimiento de Kohaa

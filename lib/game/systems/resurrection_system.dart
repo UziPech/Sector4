@@ -19,7 +19,6 @@ class ResurrectionManager extends Component {
   void registerAlly() {
     if (activeAllies < maxActiveAllies) {
       activeAllies++;
-      print('ResurrectionManager: Aliado registrado. Slots usados: $activeAllies/$maxActiveAllies');
     }
   }
   
@@ -27,7 +26,6 @@ class ResurrectionManager extends Component {
   void registerKijinAlly() {
     if ((maxActiveAllies - activeAllies) >= 2) {
       activeAllies += 2;
-      print('ResurrectionManager: Kijin registrado. Slots usados: $activeAllies/$maxActiveAllies');
     }
   }
   
@@ -35,7 +33,6 @@ class ResurrectionManager extends Component {
   void unregisterAlly() {
     if (activeAllies > 0) {
       activeAllies--;
-      print('ResurrectionManager: Aliado liberado. Slots usados: $activeAllies/$maxActiveAllies');
     }
   }
   
@@ -46,7 +43,6 @@ class ResurrectionManager extends Component {
     } else {
       activeAllies = 0;
     }
-    print('ResurrectionManager: Kijin liberado. Slots usados: $activeAllies/$maxActiveAllies');
   }
   
   /// Reinicia el contador (para nuevo capítulo)
