@@ -9,6 +9,7 @@ import 'game/expediente_game.dart';
 import 'game/ui/game_over_with_advice.dart'; // Nuevo import
 import 'narrative/components/dialogue_system.dart'; // Importar sistema de diálogos
 import 'game/ui/game_ui.dart'; // Importar nueva UI
+import 'narrative/components/flashlight_overlay.dart'; // Efecto linterna
 
 
 void main() async {
@@ -73,15 +74,27 @@ class _MyAppState extends State<MyApp> {
           'DialogueOverlay': (context, game) {
             final korinGame = game as ExpedienteKorinGame;
             if (korinGame.currentDialogue == null) return const SizedBox.shrink();
-            
             return DialogueSystem(
               sequence: korinGame.currentDialogue!,
               onSequenceComplete: korinGame.onDialogueComplete,
             );
           },
+          // Linterna: capa propia, debajo de GameUI (orden en el Stack = orden en el mapa)
+          'FlashlightLayer': (context, game) {
+            final size = MediaQuery.of(context).size;
+            return IgnorePointer(
+              child: FlashlightOverlay(
+                center: Offset(size.width / 2, size.height / 2),
+                innerRadius: 140.0,
+                outerRadius: 280.0,
+                shadowOpacity: 0.96,
+              ),
+            );
+          },
           'GameUI': (context, game) => GameUI(game: game as ExpedienteKorinGame),
         },
-        initialActiveOverlays: const ['GameUI'],
+        // FlashlightLayer va PRIMERO para quedar bajo GameUI en el Stack
+        initialActiveOverlays: const ['FlashlightLayer', 'GameUI'],
       ),
     );
   }

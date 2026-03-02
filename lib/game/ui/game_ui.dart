@@ -1,450 +1,678 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flame_audio/flame_audio.dart';
 import '../expediente_game.dart';
 import '../../game/audio_manager.dart';
 import '../../narrative/screens/menu_screen.dart';
+import '../models/player_role.dart';
+import '../../combat/weapon_system.dart';
 
-import 'package:flame/game.dart'; // Para Vector2
+import 'package:flame/game.dart'; // Vector2
 import 'dynamic_joystick_overlay.dart';
+
+// ─────────────────────────────────────────────────────────────────────
+// Paleta de colores oscuros / café (horror UX)
+// ─────────────────────────────────────────────────────────────────────
+const _brown900 = Color(0xFF1A0F08);
+const _brown700 = Color(0xFF3B1F10);
+const _brown400 = Color(0xFF7B4A2A);
+const _amber = Color(0xFFD4A96A);
+const _greenDim = Color(0xFF4A7A5A);
+const _redDim = Color(0xFF8B2020);
+const _white60 = Color(0x99FFFFFF);
 
 class GameUI extends StatefulWidget {
   final ExpedienteKorinGame game;
-
-  const GameUI({Key? key, required this.game}) : super(key: key);
+  const GameUI({super.key, required this.game});
 
   @override
   State<GameUI> createState() => _GameUIState();
 }
 
-class _GameUIState extends State<GameUI> {
+class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
   bool _isConfigOpen = false;
   double _volume = 1.0;
 
+  // Panel narrativo auto-ocultable
+  bool _isNarrativeVisible = true;
+  Timer? _narrativeTimer;
+
+  // Hint de controles transitorio
+  bool _isHintVisible = true;
+  late AnimationController _hintFadeCtrl;
+  late Animation<double> _hintFadeAnim;
+
+  // Polling del HUD (salud, vidas, Mel)
+  Timer? _hudPollTimer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    widget.game.objectiveNotifier.addListener(_onObjectiveChanged);
+    _scheduleNarrativeHide();
+
+    _hintFadeCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _hintFadeAnim =
+        CurvedAnimation(parent: _hintFadeCtrl, curve: Curves.easeOut);
+    _hintFadeCtrl.value = 1.0;
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        _hintFadeCtrl.reverse().then((_) {
+          if (mounted) setState(() => _isHintVisible = false);
+        });
+      }
+    });
+
+    // Polling cada 100ms para actualizar HUD de salud/vidas
+    _hudPollTimer = Timer.periodic(const Duration(milliseconds: 100), (_) {
+      if (mounted) widget.game.updateHUDNotifiers();
+    });
+  }
+
+  void _onObjectiveChanged() {
+    if (!mounted) return;
+    setState(() => _isNarrativeVisible = true);
+    _scheduleNarrativeHide();
+  }
+
+  void _scheduleNarrativeHide() {
+    _narrativeTimer?.cancel();
+    _narrativeTimer = Timer(const Duration(seconds: 4), () {
+      if (mounted) setState(() => _isNarrativeVisible = false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _narrativeTimer?.cancel();
+    _hudPollTimer?.cancel();
+    _hintFadeCtrl.dispose();
+    widget.game.objectiveNotifier.removeListener(_onObjectiveChanged);
+    super.dispose();
+  }
+
+  // ─────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // 0. JOYSTICK DINÁMICO (Siempre activo para consistencia con HouseScene)
+        // ── 1. JOYSTICK DINÁMICO ────────────────────────────────────
         DynamicJoystickOverlay(
-          onInput: (input) {
-            widget.game.updateJoystickInput(input);
-          },
+          onInput: (input) => widget.game.updateJoystickInput(input),
         ),
 
-        // 1. BOTÓN DE CONFIGURACIÓN (Top Right - Movido para visibilidad)
-        // 1. BOTÓN DE CONFIGURACIÓN (Top Right - Movido para visibilidad)
+        // ── 2. HUD SALUD + VIDAS (top-left) ────────────────────────
         Positioned(
-          top: 15,
-          right: 15,
+          top: 12,
+          left: 12,
+          child: SafeArea(child: _buildHealthHUD()),
+        ),
+
+        // ── 3. BOTÓN CONFIG (top-right) ─────────────────────────────
+        Positioned(
+          top: 12,
+          right: 12,
           child: SafeArea(
             child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _isConfigOpen = !_isConfigOpen;
-                  if (_isConfigOpen) {
-                    widget.game.pauseEngine(); // Pausar Flame
-                  } else {
-                    widget.game.resumeEngine(); // Reanudar Flame
-                  }
-                });
-              },
+              onTap: () => setState(() {
+                _isConfigOpen = !_isConfigOpen;
+                _isConfigOpen
+                    ? widget.game.pauseEngine()
+                    : widget.game.resumeEngine();
+              }),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
-                width: _isConfigOpen ? 280 : 50,
-                height: _isConfigOpen ? 340 : 50,
-                padding: _isConfigOpen ? const EdgeInsets.all(12) : const EdgeInsets.all(8),
+                width: _isConfigOpen ? 260 : 44,
+                height: _isConfigOpen ? 320 : 44,
+                padding: _isConfigOpen
+                    ? const EdgeInsets.all(12)
+                    : const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.5),
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.white.withOpacity(0.2),
-                      blurRadius: 15,
-                      spreadRadius: 1,
-                    ),
-                  ],
+                  color: _brown900.withOpacity(0.85),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: _brown400.withOpacity(0.5), width: 1),
                 ),
                 child: _isConfigOpen
                     ? OverflowBox(
-                        minWidth: 276,
-                        maxWidth: 276,
-                        minHeight: 336,
-                        maxHeight: 336,
-                        alignment: Alignment.center,
+                        minWidth: 236,
+                        maxWidth: 236,
+                        minHeight: 296,
+                        maxHeight: 296,
                         child: Material(
                           type: MaterialType.transparency,
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
-                            child: _buildConfigPanel(),
-                          ),
+                          child: _buildConfigPanel(),
                         ),
                       )
-                    : const Icon(
-                        Icons.settings,
-                        color: Colors.white,
-                        size: 28,
-                      ),
+                    : const Icon(Icons.settings, color: _white60, size: 24),
               ),
             ),
           ),
         ),
 
-        // 2. PANEL NARRATIVO (Top Right - Movido para evitar solapamiento con HUD de Vida)
-        Positioned(
-          top: 15,
-          right: 80, // A la izquierda del botón de configuración
+        // ── 4. PANEL NARRATIVO AUTO-OCULTABLE (top-right) ───────────
+        AnimatedPositioned(
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeInOut,
+          top: 12,
+          right: _isNarrativeVisible ? 68 : -280,
           child: SafeArea(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
-                border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  ValueListenableBuilder<String>(
-                    valueListenable: widget.game.chapterNameNotifier,
-                    builder: (context, value, child) {
-                      return Text(
-                        value.toUpperCase(),
-                        style: const TextStyle(
-                          color: Colors.greenAccent,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'monospace',
-                          letterSpacing: 1.2,
-                        ),
-                        textAlign: TextAlign.right,
-                      );
-                    },
+            child: GestureDetector(
+              onTap: () {
+                setState(() => _isNarrativeVisible = !_isNarrativeVisible);
+                if (_isNarrativeVisible) _scheduleNarrativeHide();
+              },
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 220),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                decoration: BoxDecoration(
+                  color: _brown900.withOpacity(0.7),
+                  border: Border(
+                    left: BorderSide(color: _greenDim.withOpacity(0.8), width: 2),
                   ),
-                  const SizedBox(height: 4),
-                  ValueListenableBuilder<String>(
-                    valueListenable: widget.game.locationNotifier,
-                    builder: (context, value, child) {
-                      return Text(
-                        value,
-                        style: TextStyle(
-                          color: Colors.cyanAccent.withOpacity(0.9),
-                          fontSize: 12,
-                          fontFamily: 'monospace',
-                        ),
-                        textAlign: TextAlign.right,
-                      );
-                    },
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(5),
+                    bottomLeft: Radius.circular(5),
                   ),
-                  const SizedBox(height: 2),
-                  ValueListenableBuilder<String>(
-                    valueListenable: widget.game.objectiveNotifier,
-                    builder: (context, value, child) {
-                      return Text(
-                        'Objetivo: $value',
-                        style: TextStyle(
-                          color: Colors.amberAccent.withOpacity(0.9),
-                          fontSize: 12,
-                          fontFamily: 'monospace',
-                        ),
-                        textAlign: TextAlign.right,
-                      );
-                    },
-                  ),
-                ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ValueListenableBuilder<String>(
+                      valueListenable: widget.game.chapterNameNotifier,
+                      builder: (_, v, __) => Text(v.toUpperCase(),
+                          style: const TextStyle(
+                              color: _greenDim,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'monospace',
+                              letterSpacing: 1.1)),
+                    ),
+                    const SizedBox(height: 3),
+                    ValueListenableBuilder<String>(
+                      valueListenable: widget.game.locationNotifier,
+                      builder: (_, v, __) => Text(v,
+                          style: TextStyle(
+                              color: _amber.withOpacity(0.8),
+                              fontSize: 10,
+                              fontFamily: 'monospace')),
+                    ),
+                    const SizedBox(height: 2),
+                    ValueListenableBuilder<String>(
+                      valueListenable: widget.game.objectiveNotifier,
+                      builder: (_, v, __) => Text('▸ $v',
+                          style: TextStyle(
+                              color: _white60.withOpacity(0.7),
+                              fontSize: 10,
+                              fontFamily: 'monospace')),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
         ),
 
-        // 3. GUÍA DE CONTROLES (Bottom Left - Oculto en móviles)
-        if (Theme.of(context).platform != TargetPlatform.android && 
+        // Tab para re-abrir panel narrativo
+        if (!_isNarrativeVisible)
+          Positioned(
+            top: 56,
+            right: 0,
+            child: SafeArea(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() => _isNarrativeVisible = true);
+                  _scheduleNarrativeHide();
+                },
+                child: Container(
+                  width: 20,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: _brown900.withOpacity(0.75),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(5),
+                      bottomLeft: Radius.circular(5),
+                    ),
+                    border: Border(
+                      left: BorderSide(color: _greenDim.withOpacity(0.5), width: 1),
+                    ),
+                  ),
+                  child: const Icon(Icons.chevron_left, color: _greenDim, size: 14),
+                ),
+              ),
+            ),
+          ),
+
+        // ── 5. BOTONES DE ACCIÓN MÓVIL (bottom-right) ───────────────
+        _buildActionButtons(),
+
+        // ── 6. HINT DE CONTROLES TRANSITORIO ───────────────────────
+        if (_isHintVisible &&
+            Theme.of(context).platform != TargetPlatform.android &&
             Theme.of(context).platform != TargetPlatform.iOS)
-        Positioned(
-          bottom: 15,
-          left: 15,
-          child: SafeArea(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
-                border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    'WASD/Flechas: Mover',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'monospace',
-                    ),
+          Positioned(
+            bottom: 12,
+            left: 12,
+            child: SafeArea(
+              child: FadeTransition(
+                opacity: _hintFadeAnim,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: _brown900.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: _brown400.withOpacity(0.3)),
                   ),
-                  SizedBox(height: 2),
-                  Text(
-                    'E: Interactuar',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'monospace',
-                    ),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('WASD / Flechas: Mover',
+                          style: TextStyle(
+                              color: _white60, fontSize: 10, fontFamily: 'monospace')),
+                      SizedBox(height: 2),
+                      Text('E: Interactuar',
+                          style: TextStyle(
+                              color: _white60, fontSize: 10, fontFamily: 'monospace')),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
+          ),
+      ],
+    );
+  }
+
+  // ── HUD: SALUD + VIDAS + MEL ────────────────────────────────────────
+  Widget _buildHealthHUD() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: _brown900.withOpacity(0.75),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: _brown400.withOpacity(0.4), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Nombre del jugador
+          ValueListenableBuilder<double>(
+            valueListenable: widget.game.playerHealthNotifier,
+            builder: (_, hp, __) {
+              final maxHp = widget.game.playerMaxHealthNotifier.value;
+              final pct = maxHp > 0 ? (hp / maxHp).clamp(0.0, 1.0) : 0.0;
+              final barColor = pct > 0.5
+                  ? _greenDim
+                  : pct > 0.25
+                      ? _amber
+                      : _redDim;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('DAN',
+                      style: TextStyle(
+                          color: _white60,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'monospace')),
+                  const SizedBox(height: 3),
+                  _buildBar(pct, barColor, 160, 10),
+                  const SizedBox(height: 2),
+                  Text('${hp.toInt()} / ${maxHp.toInt()}',
+                      style: const TextStyle(
+                          color: _white60, fontSize: 9, fontFamily: 'monospace')),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 6),
+          // Mel cooldown
+          ValueListenableBuilder<bool>(
+            valueListenable: widget.game.melReadyNotifier,
+            builder: (_, ready, __) {
+              return ValueListenableBuilder<double>(
+                valueListenable: widget.game.melCooldownNotifier,
+                builder: (_, progress, __) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                        ready ? 'MEL — LISTO (E)' : 'MEL — RECARGANDO ${(progress * 100).toInt()}%',
+                        style: TextStyle(
+                            color: ready ? _greenDim : _amber,
+                            fontSize: 9,
+                            fontFamily: 'monospace')),
+                    if (!ready) ...[
+                      const SizedBox(height: 2),
+                      _buildBar(progress, _amber, 160, 6),
+                    ],
+                  ],
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 6),
+          // Vidas
+          ValueListenableBuilder<int>(
+            valueListenable: widget.game.livesNotifier,
+            builder: (_, lives, __) => Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('♥ ',
+                    style: TextStyle(
+                        color: _redDim, fontSize: 12, fontFamily: 'monospace')),
+                ...List.generate(
+                  3,
+                  (i) => Padding(
+                    padding: const EdgeInsets.only(right: 3),
+                    child: Icon(
+                      i < lives ? Icons.favorite : Icons.favorite_border,
+                      color: i < lives ? _redDim : _brown400,
+                      size: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBar(double pct, Color color, double width, double height) {
+    return SizedBox(
+      width: width,
+      height: height,
+      child: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: _brown700,
+              borderRadius: BorderRadius.circular(height / 2),
+            ),
+          ),
+          FractionallySizedBox(
+            widthFactor: pct,
+            child: Container(
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(height / 2),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── BOTONES DE ACCIÓN (Flutter, encima del flashlight) ──────────────
+  Widget _buildActionButtons() {
+    final game = widget.game;
+    final isDan = game.player.playerRole == PlayerRole.dan;
+
+    return Positioned(
+      bottom: 20,
+      right: 20,
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            // Fila 1: Cambio arma (Q) / Resurrección (E)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isDan)
+                  _actionBtn(
+                    label: 'Q',
+                    color: _brown700,
+                    onTap: () => game.player.weaponInventory.nextWeapon(),
+                  )
+                else
+                  _actionBtn(
+                    label: 'E',
+                    color: const Color(0xFF2A1A3A),
+                    onTap: () => game.player.tryResurrect(),
+                  ),
+                const SizedBox(width: 10),
+                // Recarga (R) / Dash (Shift)
+                isDan
+                    ? ValueListenableBuilder<double>(
+                        valueListenable: game.playerHealthNotifier,
+                        builder: (_, __, ___) {
+                          final w = game.player.weaponInventory.currentWeapon;
+                          final isRanged = w is RangedWeapon;
+                          return isRanged
+                              ? _actionBtn(
+                                  label: 'R',
+                                  color: const Color(0xFF2A1A0A),
+                                  onTap: () {
+                                    final ww = game.player.weaponInventory.currentWeapon;
+                                    if (ww is RangedWeapon) ww.reload();
+                                  },
+                                )
+                              : const SizedBox(width: 52);
+                        },
+                      )
+                    : _actionBtn(
+                        label: '››',
+                        color: const Color(0xFF0A1A2A),
+                        onTap: () => game.player.tryDash(),
+                      ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            // Fila 2: Ataque
+            _actionBtn(
+              label: '⚡',
+              color: _redDim,
+              size: 72,
+              onTap: () => game.player.attack(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _actionBtn({
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+    double size = 52,
+  }) {
+    return GestureDetector(
+      onTapDown: (_) => onTap(),
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: color.withOpacity(0.55),
+          border: Border.all(color: _white60.withOpacity(0.25), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.4),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              color: _white60,
+              fontSize: size * 0.3,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'monospace',
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── PANEL DE CONFIGURACIÓN ──────────────────────────────────────────
+  Widget _buildConfigPanel() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('SISTEMA',
+                style: TextStyle(
+                    color: _amber,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'monospace',
+                    letterSpacing: 1.4)),
+            GestureDetector(
+              onTap: () => setState(() {
+                _isConfigOpen = false;
+                widget.game.resumeEngine();
+              }),
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: _brown400.withOpacity(0.5))),
+                child: const Icon(Icons.close, color: _white60, size: 14),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Divider(color: _brown400.withOpacity(0.4), height: 1),
+        const SizedBox(height: 16),
+        _configSlider('MÚSICA', _volume, (v) {
+          setState(() {
+            _volume = v;
+            AudioManager().musicVolume = v;
+            FlameAudio.bgm.audioPlayer.setVolume(v);
+          });
+        }),
+        const SizedBox(height: 12),
+        _configSlider('EFECTOS', AudioManager().sfxVolume, (v) {
+          setState(() => AudioManager().sfxVolume = v);
+        }),
+        const Spacer(),
+        SizedBox(
+          width: double.infinity,
+          height: 40,
+          child: ElevatedButton(
+            onPressed: _confirmExit,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _redDim.withOpacity(0.3),
+              foregroundColor: const Color(0xFFE07070),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6),
+                side: const BorderSide(color: _redDim),
+              ),
+              elevation: 0,
+            ),
+            child: const Text('SALIR AL MENÚ',
+                style: TextStyle(
+                    fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'monospace')),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildConfigPanel() {
+  Widget _configSlider(String label, double value, ValueChanged<double> onChanged) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header con botón de cerrar
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'SISTEMA',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'monospace',
-                letterSpacing: 1.5,
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  _isConfigOpen = false;
-                  widget.game.resumeEngine(); // Reanudar juego Flame
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white24),
-                ),
-                child: const Icon(Icons.close, color: Colors.white, size: 16),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        const Divider(color: Colors.white24, height: 1),
-        const SizedBox(height: 20),
-        
-        // Control de Volumen Música
-        Row(
-          children: [
-            const Icon(Icons.volume_up, color: Colors.white70, size: 20),
-            const SizedBox(width: 10),
-            const Text(
-              'AUDIO',
-              style: TextStyle(color: Colors.white70, fontSize: 12, fontFamily: 'monospace'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 5),
-        SizedBox(
-          height: 30,
-          child: SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: Colors.white,
-              inactiveTrackColor: Colors.grey[800],
-              thumbColor: Colors.white,
-              trackHeight: 4,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-            ),
-            child: Slider(
-              value: _volume,
-              onChanged: (value) {
-                setState(() {
-                  _volume = value;
-                  AudioManager().musicVolume = value;
-                  FlameAudio.bgm.audioPlayer.setVolume(value);
-                });
-              },
-            ),
+        Text(label,
+            style: const TextStyle(
+                color: _white60, fontSize: 11, fontFamily: 'monospace')),
+        const SizedBox(height: 4),
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            activeTrackColor: _amber,
+            inactiveTrackColor: _brown700,
+            thumbColor: _amber,
+            trackHeight: 3,
+            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+            overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
           ),
-        ),
-
-        const SizedBox(height: 15),
-
-        // Control de SFX
-        Row(
-          children: [
-            const Icon(Icons.graphic_eq, color: Colors.white70, size: 20),
-            const SizedBox(width: 10),
-            const Text(
-              'EFECTOS (SFX)',
-              style: TextStyle(color: Colors.white70, fontSize: 12, fontFamily: 'monospace'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 5),
-        SizedBox(
-          height: 30,
-          child: SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: Colors.white,
-              inactiveTrackColor: Colors.grey[800],
-              thumbColor: Colors.white,
-              trackHeight: 4,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-            ),
-            child: Slider(
-              value: AudioManager().sfxVolume, // Usar valor actual de SFX
-              onChanged: (value) {
-                setState(() {
-                  AudioManager().sfxVolume = value;
-                });
-              },
-            ),
-          ),
-        ),
-
-        const Spacer(),
-
-        // Botón Salir
-        SizedBox(
-          width: double.infinity,
-          height: 45,
-          child: ElevatedButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (context) => Dialog(
-                  backgroundColor: Colors.transparent,
-                  insetPadding: const EdgeInsets.all(20),
-                  child: Container(
-                    width: 450,
-                    height: 360,
-                    decoration: const BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage('assets/images/wood_card_bg.png'),
-                        fit: BoxFit.fill,
-                      ),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 85, vertical: 50),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          '¿ABORTAR MISIÓN?',
-                          style: TextStyle(
-                            color: Colors.redAccent,
-                            fontSize: 18,
-                            fontFamily: 'monospace',
-                            fontWeight: FontWeight.bold,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black,
-                                offset: Offset(1, 1),
-                                blurRadius: 2,
-                              ),
-                            ],
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 15),
-                        const Text(
-                          'El progreso no guardado se perderá.',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontFamily: 'monospace',
-                            shadows: [
-                              Shadow(
-                                color: Colors.black,
-                                offset: Offset(1, 1),
-                                blurRadius: 2,
-                              ),
-                            ],
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              style: TextButton.styleFrom(
-                                padding: EdgeInsets.zero,
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: const Text(
-                                'CANCELAR',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 30),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(builder: (context) => const MenuScreen()),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.redAccent.withOpacity(0.8),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: const Text('CONFIRMAR', style: TextStyle(fontSize: 12)),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.withOpacity(0.2),
-              foregroundColor: Colors.redAccent,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-                side: const BorderSide(color: Colors.redAccent),
-              ),
-              elevation: 0,
-            ),
-            child: const Text(
-              'SALIR AL MENÚ',
-              style: TextStyle(
-                fontSize: 14, 
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-                fontFamily: 'monospace',
-              ),
-            ),
+          child: SizedBox(
+            height: 28,
+            child: Slider(value: value, onChanged: onChanged),
           ),
         ),
       ],
+    );
+  }
+
+  void _confirmExit() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(20),
+        child: Container(
+          width: 360,
+          padding: const EdgeInsets.all(28),
+          decoration: BoxDecoration(
+            color: _brown900.withOpacity(0.95),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: _brown400.withOpacity(0.5)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('¿ABORTAR MISIÓN?',
+                  style: TextStyle(
+                      color: Color(0xFFE07070),
+                      fontSize: 16,
+                      fontFamily: 'monospace',
+                      fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
+              const Text('El progreso no guardado se perderá.',
+                  style: TextStyle(
+                      color: _white60, fontSize: 12, fontFamily: 'monospace'),
+                  textAlign: TextAlign.center),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('CANCELAR',
+                        style: TextStyle(color: _white60, fontSize: 11)),
+                  ),
+                  const SizedBox(width: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (_) => const MenuScreen()));
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _redDim,
+                      foregroundColor: Colors.white,
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    ),
+                    child: const Text('CONFIRMAR', style: TextStyle(fontSize: 11)),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

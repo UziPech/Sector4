@@ -10,6 +10,7 @@ import '../components/interactable_object.dart';
 import '../components/dialogue_system.dart';
 import '../components/animated_sprite.dart';
 import '../components/room_shape_clipper.dart';
+import '../components/flashlight_overlay.dart';
 import '../services/save_system.dart';
 import 'bunker_scene.dart';
 import '../../game/audio_manager.dart';
@@ -2151,6 +2152,38 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                   ),
                 ),
 
+                // EFECTO LINTERNA - Sobre el juego, bajo la UI
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final room = _roomManager.currentRoom;
+                    final screenW = constraints.maxWidth;
+                    final screenH = constraints.maxHeight;
+                    final worldW = room.roomSize.width;
+                    final worldH = room.roomSize.height;
+
+                    // Replicar el cálculo de BoxFit.contain
+                    final scaleX = screenW / worldW;
+                    final scaleY = screenH / worldH;
+                    final scale = scaleX < scaleY ? scaleX : scaleY;
+
+                    // Offset de centrado (igual que Center + FittedBox)
+                    final offsetX = (screenW - worldW * scale) / 2;
+                    final offsetY = (screenH - worldH * scale) / 2;
+
+                    final screenCenter = Offset(
+                      _playerPosition.x * scale + offsetX,
+                      _playerPosition.y * scale + offsetY,
+                    );
+
+                    return FlashlightOverlay(
+                      center: screenCenter,
+                      innerRadius: 130.0,
+                      outerRadius: 260.0,
+                      shadowOpacity: 0.97,
+                    );
+                  },
+                ),
+
                 // CAPA DE INPUT (JOYSTICK) - Detrás de la UI
                 Positioned.fill(
                   child: GestureDetector(
@@ -2168,7 +2201,6 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                     },
                     onPanUpdate: (details) {
                       if (_isJoystickActive && _joystickOrigin != null) {
-                        _resetHudTimer();
                         setState(() {
                           final currentPos = details.globalPosition;
                           Vector2 delta = Vector2(

@@ -58,6 +58,12 @@ class ExpedienteKorinGame extends FlameGame
   final ValueNotifier<String> chapterNameNotifier = ValueNotifier<String>('CAPÍTULO 1: EL LLAMADO');
   final ValueNotifier<String> locationNotifier = ValueNotifier<String>('Habitación de Emma');
   final ValueNotifier<String> objectiveNotifier = ValueNotifier<String>('Explorar la casa');
+  // HUD Notifiers
+  final ValueNotifier<double> playerHealthNotifier = ValueNotifier<double>(100);
+  final ValueNotifier<double> playerMaxHealthNotifier = ValueNotifier<double>(100);
+  final ValueNotifier<int> livesNotifier = ValueNotifier<int>(3);
+  final ValueNotifier<double> melCooldownNotifier = ValueNotifier<double>(1.0); // 1.0 = listo, 0.0 = ocupado
+  final ValueNotifier<bool> melReadyNotifier = ValueNotifier<bool>(true);
   
   ExpedienteKorinGame({
     this.startInBossMode = false,
@@ -187,6 +193,16 @@ class ExpedienteKorinGame extends FlameGame
   /// Actualiza el input del joystick virtual desde la UI
   void updateJoystickInput(Vector2 input) {
     joystickInput = input;
+  }
+
+  /// Sincroniza los ValueNotifiers del HUD con el estado actual del juego
+  void updateHUDNotifiers() {
+    if (!isLoaded) return;
+    playerHealthNotifier.value = player.health;
+    playerMaxHealthNotifier.value = player.maxHealth;
+    livesNotifier.value = remainingLives;
+    melReadyNotifier.value = mel.canHeal;
+    melCooldownNotifier.value = mel.healCooldownProgress;
   }
   
   void _showCompanionReviveDialogue() {

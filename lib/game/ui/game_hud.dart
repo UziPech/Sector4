@@ -24,25 +24,10 @@ class GameHUD extends PositionComponent
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    // Añadir controles móviles (Botones)
-    // Se muestran siempre para consistencia con el Joystick
-      
-    // NOTA: El Joystick ahora se maneja en GameUI (Flutter Overlay) para ser dinámico
-    // y coincidir con el estilo del Capítulo 1.
-
-    // 2. Botón de Ataque (Común)
-    add(AttackButtonComponent(player: player, gameRef: game));
-
-    // 3. Botones Específicos
-    if (player.playerRole == PlayerRole.dan) {
-      // DAN: Cambio de Arma (Q) y Recarga (R)
-      add(SwitchWeaponButtonComponent(player: player, gameRef: game));
-      add(ReloadButtonComponent(player: player, gameRef: game));
-    } else {
-      // MEL: Resurrección (E) y Dash (Shift)
-      add(ResurrectButtonComponent(player: player, gameRef: game));
-      add(DashButtonComponent(player: player, gameRef: game));
-    }
+    // NOTA: Los botones de acción (Ataque, Q, R, E, Dash) ahora se renderizan
+    // como Flutter widgets en GameUI para quedar ENCIMA del FlashlightLayer.
+    // Este GameHUD solo mantiene el canvas de salud/vidas/hotbar de armas
+    // como respaldo visual en el canvas de Flame.
   }
 
   @override
@@ -53,63 +38,8 @@ class GameHUD extends PositionComponent
 
   @override
   void render(Canvas canvas) {
-    // No llamar a super.render(canvas) si no es necesario o si dibuja debug
-    // super.render(canvas);
-
-    // Fondo del HUD (Stats)
-    final hudRect = Rect.fromLTWH(10, 10, 300, 120);
-    final bgPaint = Paint()
-      ..color = Colors.black.withOpacity(0.7)
-      ..style = PaintingStyle.fill;
-    canvas.drawRect(hudRect, bgPaint);
-
-    // Borde Stats
-    final borderPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    canvas.drawRect(hudRect, borderPaint);
-
-    // Texto del jugador (Dan o Mel)
-    final playerName = player.playerRole == PlayerRole.dan ? 'DAN' : 'MEL';
-    final playerColor = player.playerRole == PlayerRole.dan
-        ? Colors.green
-        : Colors.cyan;
-    _drawText(canvas, playerName, 20, 25, Colors.white, bold: true);
-
-    // Barra de vida del jugador
-    _drawHealthBar(
-      canvas,
-      20,
-      45,
-      250,
-      player.health,
-      player.maxHealth,
-      playerColor,
-    );
-
-    // Si el jugador es Mel, mostrar contador de resurrecciones
-    if (player.playerRole == PlayerRole.mel && resurrectionManager != null) {
-      _drawResurrectionCounter(canvas, 20, 75);
-    } else {
-      // Si el jugador es Dan, mostrar info de Mel companion
-      _drawText(canvas, 'MEL - SOPORTE VITAL', 20, 75, Colors.cyan, bold: true);
-
-      // Indicador de cooldown de Mel
-      if (mel.canHeal) {
-        _drawText(canvas, 'DISPONIBLE (E)', 20, 95, Colors.yellow);
-      } else {
-        final progress = (mel.healCooldownProgress * 100).toInt();
-        _drawText(canvas, 'RECARGANDO: $progress%', 20, 95, Colors.orange);
-        _drawCooldownBar(canvas, 20, 110, 250, mel.healCooldownProgress);
-      }
-    }
-
-    // --- VIDAS RESTANTES ---
-    _drawLivesCounter(canvas);
-
-    // --- WEAPON HOTBAR ---
-    _drawWeaponHotbar(canvas);
+    // Todo el HUD ahora se renderiza como Flutter widget en GameUI
+    // (encima del FlashlightLayer). No dibujar nada en el canvas de Flame.
   }
 
   void _drawWeaponHotbar(Canvas canvas) {

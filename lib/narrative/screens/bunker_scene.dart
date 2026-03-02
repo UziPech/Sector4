@@ -18,6 +18,7 @@ import '../../main.dart';
 import '../../game/audio_manager.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'menu_screen.dart';
+import '../components/flashlight_overlay.dart';
 
 /// Capítulo 2: El Búnker - Sistema de habitaciones
 class BunkerScene extends StatefulWidget {
@@ -346,7 +347,6 @@ class _BunkerSceneState extends State<BunkerScene>
     // Joystick Input
     if (_isJoystickActive) {
       velocity = velocity + _joystickInput;
-      _resetHudTimer(); // Reseteamos el HUD al hacer tap/reaccionar
     }
 
     if (velocity.x != 0 || velocity.y != 0) {
@@ -1044,7 +1044,41 @@ class _BunkerSceneState extends State<BunkerScene>
             child: Stack(
               children: [
                 _buildRoomWithCamera(room, screenSize),
-                
+
+                // EFECTO LINTERNA - Sobre el juego, bajo la UI
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final screenW = constraints.maxWidth;
+                    final screenH = constraints.maxHeight;
+                    Offset screenCenter;
+
+                    if (room.cameraMode == CameraMode.follow) {
+                      // En modo follow, el jugador siempre está en el centro
+                      screenCenter = Offset(screenW / 2, screenH / 2);
+                    } else {
+                      // Modo fijo: replicar BoxFit.contain
+                      final worldW = room.roomSize.width;
+                      final worldH = room.roomSize.height;
+                      final scaleX = screenW / worldW;
+                      final scaleY = screenH / worldH;
+                      final scale = scaleX < scaleY ? scaleX : scaleY;
+                      final offsetX = (screenW - worldW * scale) / 2;
+                      final offsetY = (screenH - worldH * scale) / 2;
+                      screenCenter = Offset(
+                        _playerPosition.x * scale + offsetX,
+                        _playerPosition.y * scale + offsetY,
+                      );
+                    }
+
+                    return FlashlightOverlay(
+                      center: screenCenter,
+                      innerRadius: 130.0,
+                      outerRadius: 260.0,
+                      shadowOpacity: 0.97,
+                    );
+                  },
+                ),
+
                 // CAPA DE INPUT (JOYSTICK) - Detrás de la UI
                 Positioned.fill(
                   child: Listener(
