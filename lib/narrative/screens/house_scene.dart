@@ -157,7 +157,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
 
         if (!_isTransitioning) {
           _updatePlayerPosition();
-          _checkDoorCollisions();
+          _checkInteractions();
         }
       }
     });
@@ -355,22 +355,8 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
       }
     }
       
-      final room = _roomManager.currentRoom;
-      bool canInteract = false;
-      for (final interactable in room.interactables) {
-         if (interactable.isInRange(_playerPosition, 80.0)) {
-           if (!interactable.isOneTime || !interactable.hasBeenInteracted) {
-             canInteract = true;
-             break;
-           }
-         }
-      }
       
-      if (_canInteract != canInteract) {
-         setState(() {
-           _canInteract = canInteract;
-         });
-      }
+      // We don't set _canInteract here anymore, we will do it in _checkInteractions instead
   }
 
   bool _isValidPosition(Vector2 pos, RoomData room) {
@@ -1875,20 +1861,33 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
     ];
   }
 
-  void _checkDoorCollisions() {
+  void _checkInteractions() {
     final room = _roomManager.currentRoom;
-    bool nearDoor = false;
+    bool canInteractNow = false;
     
+    // Check doors
     for (final door in room.doors) {
       if (door.isPlayerInRange(_playerPosition, _playerSize)) {
-        nearDoor = true;
+        canInteractNow = true;
         break;
       }
     }
     
-    if (_canInteract != nearDoor) {
+    // Check objects if not near a door
+    if (!canInteractNow) {
+      for (final interactable in room.interactables) {
+        if (interactable.isInRange(_playerPosition, 80.0)) {
+          if (!interactable.isOneTime || !interactable.hasBeenInteracted) {
+            canInteractNow = true;
+            break;
+          }
+        }
+      }
+    }
+    
+    if (_canInteract != canInteractNow) {
       setState(() {
-        _canInteract = nearDoor;
+        _canInteract = canInteractNow;
       });
     }
   }

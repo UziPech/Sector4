@@ -84,6 +84,9 @@ class DoorData {
       width: playerSize,
       height: playerSize,
     );
-    return doorRect.overlaps(playerRect);
+    
+    // Inflar el área de interacción para que sea más permisiva (por si las colisiones de pared bloquean al jugador)
+    final interactionRect = doorRect.inflate(30.0);
+    return interactionRect.overlaps(playerRect);
   }
 }

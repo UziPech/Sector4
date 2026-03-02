@@ -70,7 +70,7 @@ class BunkerRoomManager {
             ],
           ),
         ),
-        
+
         // 200 árboles generados proceduralmente (ELIMINADOS)
         // ...TreeGenerator.generateTrees(),
       ],
@@ -81,7 +81,7 @@ class BunkerRoomManager {
           size: Vector2(100, 100),
           targetRoomId: 'exterior',
           label: 'Entrada',
-          targetSpawnPosition: Vector2(350, 350),
+          targetSpawnPosition: Vector2(350, 350), // bottom of exterior
         ),
       ],
     );
@@ -134,19 +134,19 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_vestibule',
-          position: Vector2(285, -15), // Arriba (Flush)
+          position: Vector2(285, -15),
           size: Vector2(130, 130),
           targetRoomId: 'vestibule',
           label: 'Entrar',
-          targetSpawnPosition: Vector2(350, 350), // Spawn abajo en vestíbulo
+          targetSpawnPosition: Vector2(350, 350), // bottom of vestibule
         ),
         const DoorData(
           id: 'door_to_road',
-          position: Vector2(285, 385), // Abajo (Flush)
+          position: Vector2(285, 385),
           size: Vector2(130, 130),
           targetRoomId: 'exterior_large',
           label: 'Camino',
-          targetSpawnPosition: Vector2(950, 350), // Regresar al camino
+          targetSpawnPosition: Vector2(950, 450), // Regresar al camino
         ),
       ],
     );
@@ -199,19 +199,19 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_exterior',
-          position: Vector2(285, 385), // Abajo (Flush)
+          position: Vector2(285, 385),
           size: Vector2(130, 130),
           targetRoomId: 'exterior',
           label: 'Salir',
-          targetSpawnPosition: Vector2(350, 150), // Spawn arriba en exterior
+          targetSpawnPosition: Vector2(350, 150), // top of exterior
         ),
         const DoorData(
           id: 'door_to_hallway',
-          position: Vector2(285, -15), // Arriba (Flush)
+          position: Vector2(285, -15),
           size: Vector2(130, 130),
           targetRoomId: 'hallway',
           label: 'Pasillo',
-          targetSpawnPosition: Vector2(350, 350), // Spawn abajo en pasillo
+          targetSpawnPosition: Vector2(350, 350), // bottom of hallway
         ),
       ],
     );
@@ -247,49 +247,43 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_vestibule_from_hallway',
-          position: Vector2(285, 385), // Abajo (Flush)
+          position: Vector2(285, 385),
           size: Vector2(130, 130),
           targetRoomId: 'vestibule',
           label: 'Vestíbulo',
-          targetSpawnPosition: Vector2(350, 150), // Spawn arriba en vestíbulo
+          targetSpawnPosition: Vector2(350, 150), // top of vestibule
         ),
         const DoorData(
           id: 'door_to_armory',
-          position: Vector2(
-            285,
-            -15,
-          ), // Arriba (Flush) - Asumiendo Armería arriba por coordenadas originales
+          position: Vector2(285, -15),
           size: Vector2(130, 130),
           targetRoomId: 'armory',
           label: 'Armería',
-          targetSpawnPosition: Vector2(350, 350), // Spawn abajo en armería
+          targetSpawnPosition: Vector2(350, 350), // bottom of armory
         ),
         const DoorData(
           id: 'door_to_library',
-          position: Vector2(-15, 185), // Izquierda (Flush) - Centrado
+          position: Vector2(-15, 185), // Izquierda
           size: Vector2(130, 130),
           targetRoomId: 'library',
           label: 'Archivo',
-          targetSpawnPosition: Vector2(550, 250), // Spawn derecha en biblioteca
+          targetSpawnPosition: Vector2(550, 250), // right of library
         ),
         const DoorData(
           id: 'door_to_lab',
-          position: Vector2(585, 185), // Derecha (Flush) - Centrado
+          position: Vector2(585, 185), // Derecha
           size: Vector2(130, 130),
           targetRoomId: 'laboratory',
           label: 'Laboratorio',
-          targetSpawnPosition: Vector2(
-            150,
-            250,
-          ), // Spawn izquierda en laboratorio
+          targetSpawnPosition: Vector2(150, 250), // left of lab
         ),
         const DoorData(
           id: 'door_to_command',
-          position: Vector2(485, -15), // Arriba (Flush) - Offset
+          position: Vector2(485, -15), // Arriba (offset)
           size: Vector2(130, 130),
           targetRoomId: 'command',
           label: 'Comando',
-          targetSpawnPosition: Vector2(350, 350), // Spawn abajo en comando
+          targetSpawnPosition: Vector2(350, 350), // bottom of command
         ),
       ],
     );
@@ -348,11 +342,11 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_hallway_from_armory',
-          position: Vector2(285, 385), // Abajo (Flush)
+          position: Vector2(285, 385),
           size: Vector2(130, 130),
           targetRoomId: 'hallway',
           label: 'Pasillo',
-          targetSpawnPosition: Vector2(350, 150), // Spawn arriba en pasillo
+          targetSpawnPosition: Vector2(350, 150), // top of hallway center
         ),
       ],
     );
@@ -413,11 +407,11 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_hallway_from_library',
-          position: Vector2(585, 185), // Derecha (Flush) - Centrado
+          position: Vector2(585, 185),
           size: Vector2(130, 130),
           targetRoomId: 'hallway',
           label: 'Pasillo',
-          targetSpawnPosition: Vector2(150, 250), // Spawn izquierda en pasillo
+          targetSpawnPosition: Vector2(150, 250), // left of hallway
         ),
       ],
     );
@@ -563,30 +557,27 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_hallway_from_lab',
-          position: Vector2(-15, 185), // Izquierda (Flush) - Centrado
+          position: Vector2(-15, 185),
           size: Vector2(130, 130),
           targetRoomId: 'hallway',
           label: 'Pasillo',
-          targetSpawnPosition: Vector2(
-            550,
-            250,
-          ), // Ajustado de 600 a 550 para evitar colisión con pared
+          targetSpawnPosition: Vector2(500, 250), // right of hallway
         ),
         const DoorData(
           id: 'door_to_quarters',
-          position: Vector2(285, -15), // Arriba (Flush)
+          position: Vector2(285, -15),
           size: Vector2(130, 130),
           targetRoomId: 'quarters',
           label: 'Cuartel',
-          targetSpawnPosition: Vector2(350, 350), // Spawn abajo en cuartel
+          targetSpawnPosition: Vector2(350, 350), // bottom of quarters
         ),
         const DoorData(
           id: 'door_to_cafeteria',
-          position: Vector2(585, 185), // Derecha (Flush) - Centrado
+          position: Vector2(585, 185),
           size: Vector2(130, 130),
           targetRoomId: 'cafeteria',
           label: 'Comedor',
-          targetSpawnPosition: Vector2(150, 250), // Spawn izquierda en comedor
+          targetSpawnPosition: Vector2(150, 250), // left of cafeteria
         ),
       ],
     );
@@ -661,11 +652,11 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_hallway_from_command',
-          position: Vector2(185, 385), // Abajo (Flush)
+          position: Vector2(185, 385),
           size: Vector2(130, 130),
           targetRoomId: 'hallway',
           label: 'Pasillo',
-          targetSpawnPosition: Vector2(350, 150), // Spawn arriba en pasillo
+          targetSpawnPosition: Vector2(485, 150), // top of hallway offset
         ),
       ],
     );
@@ -701,11 +692,11 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_lab_from_quarters',
-          position: Vector2(285, 385), // Abajo (Flush)
+          position: Vector2(285, 385),
           size: Vector2(130, 130),
           targetRoomId: 'laboratory',
           label: 'Laboratorio',
-          targetSpawnPosition: Vector2(350, 150), // Spawn arriba en laboratorio
+          targetSpawnPosition: Vector2(350, 150), // top of lab
         ),
       ],
     );
@@ -741,14 +732,11 @@ class BunkerRoomManager {
       doors: [
         const DoorData(
           id: 'door_to_lab_from_cafeteria',
-          position: Vector2(-15, 185), // Izquierda (Flush) - Centrado
+          position: Vector2(-15, 185),
           size: Vector2(130, 130),
           targetRoomId: 'laboratory',
           label: 'Laboratorio',
-          targetSpawnPosition: Vector2(
-            550,
-            250,
-          ), // Spawn derecha en laboratorio
+          targetSpawnPosition: Vector2(500, 250), // right of lab
         ),
       ],
     );

@@ -32,16 +32,14 @@ class _BunkerSceneState extends State<BunkerScene>
   late final BunkerRoomManager _roomManager;
   Vector2 _playerPosition = const Vector2(350, 400);
   final double _playerSize = 80.0; // Aumentado a 80 para mejor visibilidad
-  final double _playerSpeed = 6.0; // Velocidad balanceada para móvil y desktop
+  final double _playerSpeed = 3.0; // Reducido a 3.0 para igualar a la casa
   final Set<LogicalKeyboardKey> _pressedKeys = {};
   bool _isDialogueActive = false;
   bool _melMetCompleted = false;
   bool _briefingCompleted = false;
   bool _isTransitioning = false;
-  bool _transitionScheduled = false; // Prevenir múltiples llamadas al delay
   late AnimationController _transitionController;
   late Animation<double> _fadeAnimation;
-  // Cooldown removido - _transitionScheduled ya previene transiciones múltiples
   final FocusNode _focusNode = FocusNode();
   // Joystick Virtual
   Offset? _joystickOrigin;
@@ -90,7 +88,6 @@ class _BunkerSceneState extends State<BunkerScene>
     _updateTimer = Timer.periodic(const Duration(milliseconds: 16), (_) {
       if (!_isPaused) {
         _updatePlayerPosition();
-        _checkDoorCollisions();
       }
       _updateCooldown();
     });
@@ -221,45 +218,6 @@ class _BunkerSceneState extends State<BunkerScene>
     // Cooldown removido - ya no es necesario
   }
 
-  void _checkDoorCollisions() {
-    if (_isTransitioning || _transitionScheduled) return; // Cooldown removido
-    final room = _roomManager.currentRoom;
-    for (final door in room.doors) {
-      // Usar área de colisión más pequeña (90% del tamaño de la puerta, centrado)
-      final collisionSizeFactor = 0.9;
-      final collisionWidth = door.size.x * collisionSizeFactor;
-      final collisionHeight = door.size.y * collisionSizeFactor;
-      final collisionX = door.position.x + (door.size.x - collisionWidth) / 2;
-      final collisionY = door.position.y + (door.size.y - collisionHeight) / 2;
-
-      final doorRect = Rect.fromLTWH(
-        collisionX,
-        collisionY,
-        collisionWidth,
-        collisionHeight,
-      );
-      final playerRect = Rect.fromCenter(
-        center: Offset(_playerPosition.x, _playerPosition.y),
-        width: _playerSize,
-        height: _playerSize,
-      );
-
-      if (doorRect.overlaps(playerRect)) {
-        _transitionScheduled = true; // Marcar que hay una transición programada
-        // Delay para permitir que la animación de apertura se muestre
-        Future.delayed(const Duration(milliseconds: 400), () {
-          if (mounted && _transitionScheduled) {
-            _transitionToRoom(
-              door.targetRoomId,
-              spawnPosition: door.targetSpawnPosition,
-            );
-          }
-        });
-        return;
-      }
-    }
-  }
-
   void _transitionToRoom(String targetRoomId, {Vector2? spawnPosition}) async {
     if (_isTransitioning) return; // Prevenir transiciones múltiples
     
@@ -273,7 +231,6 @@ class _BunkerSceneState extends State<BunkerScene>
 
     setState(() {
       _isTransitioning = true;
-      _transitionScheduled = false; // Resetear flag
     });
     await _transitionController.forward();
     setState(() {
@@ -291,6 +248,15 @@ class _BunkerSceneState extends State<BunkerScene>
   void _tryInteract() {
     final room = _roomManager.currentRoom;
     const interactionRadius = 80.0;
+
+    // Prioridad: Puertas
+    for (final door in room.doors) {
+      if (door.isPlayerInRange(_playerPosition, _playerSize)) {
+        _transitionToRoom(door.targetRoomId, spawnPosition: door.targetSpawnPosition);
+        return;
+      }
+    }
+
     for (final interactable in room.interactables) {
       if (interactable.isInRange(_playerPosition, interactionRadius)) {
         if (interactable.isOneTime && interactable.hasBeenInteracted) return;
@@ -411,13 +377,26 @@ class _BunkerSceneState extends State<BunkerScene>
     }
 
     // Check for interactables
+    // Check for interactables and doors
     final room = _roomManager.currentRoom;
     bool canInteract = false;
-    for (final interactable in room.interactables) {
-      if (interactable.isInRange(_playerPosition, 80.0)) {
-        if (!interactable.isOneTime || !interactable.hasBeenInteracted) {
-          canInteract = true;
-          break;
+
+    // 1. Revisar si hay puertas cerca
+    for (final door in room.doors) {
+      if (door.isPlayerInRange(_playerPosition, _playerSize)) {
+        canInteract = true;
+        break;
+      }
+    }
+
+    // 2. Si no hay puertas, revisar objetos
+    if (!canInteract) {
+      for (final interactable in room.interactables) {
+        if (interactable.isInRange(_playerPosition, 80.0)) {
+          if (!interactable.isOneTime || !interactable.hasBeenInteracted) {
+            canInteract = true;
+            break;
+          }
         }
       }
     }
