@@ -75,6 +75,10 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
   double _volume = 0.5; // Default music volume
   double _sfxVolume = 0.8; // Default SFX volume
 
+  // HUD dinámico
+  bool _isHudVisible = true;
+  Timer? _hudTimer;
+
   @override
   void initState() {
     super.initState();
@@ -95,6 +99,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
     
     // Iniciar música del capítulo
     AudioManager().playHouseMusic();
+
+    // Iniciar temporizador del HUD
+    WidgetsBinding.instance.addPostFrameCallback((_) => _resetHudTimer());
   }
   
   Future<void> _loadDanSprite() async {
@@ -137,8 +144,24 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
   void dispose() {
     _focusNode.dispose();
     _movementTimer?.cancel();
+    _hudTimer?.cancel();
     _transitionController.dispose();
     super.dispose();
+  }
+
+  void _resetHudTimer() {
+    if (!mounted) return;
+    setState(() {
+      _isHudVisible = true;
+    });
+    _hudTimer?.cancel();
+    _hudTimer = Timer(const Duration(seconds: 4), () {
+      if (mounted) {
+        setState(() {
+          _isHudVisible = false;
+        });
+      }
+    });
   }
   
   void _startMovementLoop() {
@@ -2145,6 +2168,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                     },
                     onPanUpdate: (details) {
                       if (_isJoystickActive && _joystickOrigin != null) {
+                        _resetHudTimer();
                         setState(() {
                           final currentPos = details.globalPosition;
                           Vector2 delta = Vector2(
@@ -2187,51 +2211,126 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                     },
                   ),
                   
-                Positioned(
+                // HUD Dinámico y Ocultable (Top Left)
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
                   top: 16,
-                  left: 16,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.7),
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'CAPÍTULO 1: EL LLAMADO',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'monospace',
+                  left: _isHudVisible ? 16 : -250,
+                  child: GestureDetector(
+                    onTap: () {
+                      if (_isHudVisible) {
+                        setState(() { _isHudVisible = false; });
+                        _hudTimer?.cancel();
+                      } else {
+                        _resetHudTimer();
+                      }
+                    },
+                    child: Container(
+                      width: 260,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.black.withOpacity(0.85),
+                            Colors.black.withOpacity(0.4),
+                          ],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        border: Border(
+                          left: BorderSide(
+                            color: Colors.amber.withOpacity(0.5),
+                            width: 3,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          room.name,
-                          style: TextStyle(
-                            color: Colors.cyan[300],
-                            fontSize: 12,
-                            fontFamily: 'monospace',
-                          ),
+                        borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(8),
+                          bottomRight: Radius.circular(8),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _phoneCallCompleted
-                              ? 'Objetivo: Ir a Japón'
-                              : 'Objetivo: Explorar la casa',
-                          style: TextStyle(
-                            color: Colors.yellow[700],
-                            fontSize: 12,
-                            fontFamily: 'monospace',
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.bookmark, color: Colors.amber, size: 14),
+                              const SizedBox(width: 4),
+                              const Text(
+                                'CAPÍTULO 1: EL LLAMADO',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 6),
+                          Text(
+                            room.name,
+                            style: TextStyle(
+                              color: Colors.amber[200],
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'monospace',
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(Icons.gps_fixed, color: Colors.yellow[700], size: 14),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  _phoneCallCompleted
+                                      ? 'Objetivo: Ir a Japón'
+                                      : 'Objetivo: Explorar la casa',
+                                  style: TextStyle(
+                                    color: Colors.yellow[700],
+                                    fontSize: 12,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
+
+                // Pestaña para reabrir el HUD cuando está oculto
+                if (!_isHudVisible && !_isDialogueActive)
+                  Positioned(
+                    top: 24,
+                    left: 0,
+                    child: GestureDetector(
+                      onTap: _resetHudTimer,
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(12),
+                          bottomRight: Radius.circular(12),
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.6),
+                            border: Border.all(
+                              color: Colors.amber.withOpacity(0.6),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Icon(Icons.menu_open, color: Colors.amber[300], size: 20),
+                        ),
+                      ),
+                    ),
+                  ),
+
                 
                 if (kIsWeb || (defaultTargetPlatform != TargetPlatform.android && defaultTargetPlatform != TargetPlatform.iOS))
                   Positioned(

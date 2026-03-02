@@ -41,6 +41,10 @@ class _BunkerSceneState extends State<BunkerScene>
   late AnimationController _transitionController;
   late Animation<double> _fadeAnimation;
   final FocusNode _focusNode = FocusNode();
+  
+  // Variables UX (UI HUD)
+  bool _isHudVisible = true;
+  Timer? _hudTimer;
   // Joystick Virtual
   Offset? _joystickOrigin;
   Offset? _joystickPosition;
@@ -49,8 +53,6 @@ class _BunkerSceneState extends State<BunkerScene>
   static const double _joystickRadius = 60.0;
   static const double _joystickKnobRadius = 25.0;
   bool _canInteract = false;
-
-
 
   // Configuración
   bool _isConfigOpen = false;
@@ -103,6 +105,9 @@ class _BunkerSceneState extends State<BunkerScene>
     _loadWallTextures();
 
     _showArrivalMonologue();
+
+    // Inicializar temporizador del HUD
+    _resetHudTimer();
 
     // Inicializar volúmenes
     _volume = AudioManager().musicVolume;
@@ -173,9 +178,24 @@ class _BunkerSceneState extends State<BunkerScene>
   @override
   void dispose() {
     _updateTimer?.cancel();
+    _hudTimer?.cancel();
     _transitionController.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  void _resetHudTimer() {
+    setState(() {
+      _isHudVisible = true;
+    });
+    _hudTimer?.cancel();
+    _hudTimer = Timer(const Duration(seconds: 4), () {
+      if (mounted) {
+        setState(() {
+          _isHudVisible = false;
+        });
+      }
+    });
   }
 
   void _showArrivalMonologue() {
@@ -243,6 +263,7 @@ class _BunkerSceneState extends State<BunkerScene>
       _isTransitioning = false;
       // Cooldown removido
     });
+    _resetHudTimer(); // Reseteamos el HUD al entrar a una nueva zona
   }
 
   void _tryInteract() {
@@ -325,6 +346,7 @@ class _BunkerSceneState extends State<BunkerScene>
     // Joystick Input
     if (_isJoystickActive) {
       velocity = velocity + _joystickInput;
+      _resetHudTimer(); // Reseteamos el HUD al hacer tap/reaccionar
     }
 
     if (velocity.x != 0 || velocity.y != 0) {
@@ -514,62 +536,55 @@ class _BunkerSceneState extends State<BunkerScene>
 
   Widget _buildRoomWithCamera(RoomData room, Size screenSize) {
     if (room.cameraMode == CameraMode.follow) {
-      // Para el mapa exterior en móvil, usar FittedBox para que se vea completo
+      // Cámara que sigue al jugador (Desktop y Móvil)
+      double mapScale = 1.0;
+
+      // En móvil, agregamos un ligero zoom para visualizar un poco más sin alejar excesivamente la cámara.
       if (room.id == 'exterior_large' &&
           (defaultTargetPlatform == TargetPlatform.android ||
               defaultTargetPlatform == TargetPlatform.iOS)) {
-        return Center(
-          child: FittedBox(
-            fit: BoxFit.contain,
-            child: Container(
-              width: room.roomSize.width,
-              height: room.roomSize.height,
-              decoration: BoxDecoration(
-                color: room.backgroundColor,
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.3),
-                  width: 2,
-                ),
-              ),
-              child: Stack(children: _buildRoomContent(room)),
-            ),
-          ),
-        );
+         mapScale = 1.25; 
       }
+      
+      final scaledWidth = screenSize.width / mapScale;
+      final scaledHeight = screenSize.height / mapScale;
 
-      // Cámara que sigue al jugador - usar Positioned para mover el contenido (Desktop)
-      final cameraX = (_playerPosition.x - screenSize.width / 2).clamp(
+      final cameraX = (_playerPosition.x - scaledWidth / 2).clamp(
         0.0,
-        room.roomSize.width - screenSize.width,
+        room.roomSize.width - scaledWidth,
       );
-      final cameraY = (_playerPosition.y - screenSize.height / 2).clamp(
+      final cameraY = (_playerPosition.y - scaledHeight / 2).clamp(
         0.0,
-        room.roomSize.height - screenSize.height,
+        room.roomSize.height - scaledHeight,
       );
 
       return ClipRect(
         child: SizedBox(
           width: screenSize.width,
           height: screenSize.height,
-          child: Stack(
-            children: [
-              Positioned(
-                left: -cameraX,
-                top: -cameraY,
-                child: Container(
-                  width: room.roomSize.width,
-                  height: room.roomSize.height,
-                  decoration: BoxDecoration(
-                    color: room.backgroundColor,
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
-                      width: 2,
+          child: Transform.scale(
+            scale: mapScale,
+            alignment: Alignment.center,
+            child: Stack(
+              children: [
+                Positioned(
+                  left: -cameraX,
+                  top: -cameraY,
+                  child: Container(
+                    width: room.roomSize.width,
+                    height: room.roomSize.height,
+                    decoration: BoxDecoration(
+                      color: room.backgroundColor,
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.3),
+                        width: 2,
+                      ),
                     ),
+                    child: Stack(children: _buildRoomContent(room)),
                   ),
-                  child: Stack(children: _buildRoomContent(room)),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
@@ -1086,49 +1101,129 @@ class _BunkerSceneState extends State<BunkerScene>
                       color: Colors.black.withOpacity(_fadeAnimation.value),
                     ),
                   ),
-                Positioned(
+                // Nuevo HUD Dinámico y Ocultable (Top Left)
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
                   top: 16,
-                  left: 16,
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.7),
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'CAPÍTULO 2: EL BÚNKER',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'monospace',
+                  left: _isHudVisible ? 16 : -250, // Lo oculta moviéndolo a la izquierda
+                  child: GestureDetector(
+                    onTap: () {
+                      if (_isHudVisible) {
+                        // Si está visible, forzar el ocultamiento
+                        setState(() {
+                          _isHudVisible = false;
+                        });
+                        _hudTimer?.cancel();
+                      } else {
+                        // Si está oculto, volver a mostrar
+                        _resetHudTimer(); 
+                      }
+                    },
+                    child: Container(
+                      width: 280,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.black.withOpacity(0.85),
+                            Colors.black.withOpacity(0.4),
+                          ],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        border: Border(
+                          left: BorderSide(
+                            color: Colors.cyan.withOpacity(0.5),
+                            width: 3,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          room.name,
-                          style: TextStyle(
-                            color: Colors.cyan[300],
-                            fontSize: 14,
-                            fontFamily: 'monospace',
-                          ),
+                        borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(8),
+                          bottomRight: Radius.circular(8),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _getObjectiveText(),
-                          style: TextStyle(
-                            color: Colors.yellow[700],
-                            fontSize: 12,
-                            fontFamily: 'monospace',
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.bookmark, color: Colors.cyan, size: 14),
+                              const SizedBox(width: 4),
+                              const Text(
+                                'CAPÍTULO 2: EL BÚNKER',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 6),
+                          Text(
+                            room.name,
+                            style: TextStyle(
+                              color: Colors.cyan[200],
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'monospace',
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(Icons.gps_fixed, color: Colors.yellow[700], size: 14),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  _getObjectiveText(),
+                                  style: TextStyle(
+                                    color: Colors.yellow[700],
+                                    fontSize: 12,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
+                
+                // Botón Pestaña para reabrir el menú colapsado
+                if (!_isHudVisible && !_isDialogueActive)
+                  Positioned(
+                    top: 24,
+                    left: 0,
+                    child: GestureDetector(
+                      onTap: () {
+                        _resetHudTimer();
+                      },
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(12),
+                          bottomRight: Radius.circular(12),
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.6),
+                            border: Border.all(
+                              color: Colors.cyan.withOpacity(0.6),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Icon(Icons.menu_open, color: Colors.cyan[300], size: 20),
+                        ),
+                      ),
+                    ),
+                  ),
 
                 // Controles (Solo Web/Desktop)
                 if (kIsWeb ||
