@@ -2175,10 +2175,16 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                       _playerPosition.y * scale + offsetY,
                     );
 
+                    // Radios adaptativos: proporcionales al tamaño renderizado del canvas
+                    // innerRadius ≈ 18% del ancho renderizado, outerRadius ≈ 42%
+                    final renderedW = worldW * scale;
+                    final innerR = (renderedW * 0.18).clamp(80.0, 200.0);
+                    final outerR = (renderedW * 0.42).clamp(160.0, 400.0);
+
                     return FlashlightOverlay(
                       center: screenCenter,
-                      innerRadius: 130.0,
-                      outerRadius: 260.0,
+                      innerRadius: innerR,
+                      outerRadius: outerR,
                       shadowOpacity: 0.97,
                     );
                   },
@@ -2244,97 +2250,104 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                   ),
                   
                 // HUD Dinámico y Ocultable (Top Left)
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  top: 16,
-                  left: _isHudVisible ? 16 : -250,
-                  child: GestureDetector(
-                    onTap: () {
-                      if (_isHudVisible) {
-                        setState(() { _isHudVisible = false; });
-                        _hudTimer?.cancel();
-                      } else {
-                        _resetHudTimer();
-                      }
-                    },
-                    child: Container(
-                      width: 260,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.black.withOpacity(0.85),
-                            Colors.black.withOpacity(0.4),
-                          ],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        border: Border(
-                          left: BorderSide(
-                            color: Colors.amber.withOpacity(0.5),
-                            width: 3,
-                          ),
-                        ),
-                        borderRadius: const BorderRadius.only(
-                          topRight: Radius.circular(8),
-                          bottomRight: Radius.circular(8),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.bookmark, color: Colors.amber, size: 14),
-                              const SizedBox(width: 4),
-                              const Text(
-                                'CAPÍTULO 1: EL LLAMADO',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'monospace',
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            room.name,
-                            style: TextStyle(
-                              color: Colors.amber[200],
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'monospace',
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(Icons.gps_fixed, color: Colors.yellow[700], size: 14),
-                              const SizedBox(width: 6),
-                              Expanded(
-                                child: Text(
-                                  _phoneCallCompleted
-                                      ? 'Objetivo: Ir a Japón'
-                                      : 'Objetivo: Explorar la casa',
-                                  style: TextStyle(
-                                    color: Colors.yellow[700],
-                                    fontSize: 12,
-                                    fontFamily: 'monospace',
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                 AnimatedPositioned(
+                   duration: const Duration(milliseconds: 300),
+                   curve: Curves.easeInOut,
+                   top: 16,
+                   left: _isHudVisible ? 16 : -250,
+                   child: GestureDetector(
+                     onTap: () {
+                       if (_isHudVisible) {
+                         setState(() { _isHudVisible = false; });
+                         _hudTimer?.cancel();
+                       } else {
+                         _resetHudTimer();
+                       }
+                     },
+                     child: Builder(
+                       builder: (context) {
+                         final maxW = MediaQuery.of(context).size.width;
+                         final hudW = (maxW * 0.65).clamp(180.0, 260.0);
+                         return Container(
+                           width: hudW,
+                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                           decoration: BoxDecoration(
+                             gradient: LinearGradient(
+                               colors: [
+                                 Colors.black.withOpacity(0.85),
+                                 Colors.black.withOpacity(0.4),
+                               ],
+                               begin: Alignment.centerLeft,
+                               end: Alignment.centerRight,
+                             ),
+                             border: Border(
+                               left: BorderSide(
+                                 color: Colors.amber.withOpacity(0.5),
+                                 width: 3,
+                               ),
+                             ),
+                             borderRadius: const BorderRadius.only(
+                               topRight: Radius.circular(8),
+                               bottomRight: Radius.circular(8),
+                             ),
+                           ),
+                           child: Column(
+                             crossAxisAlignment: CrossAxisAlignment.start,
+                             children: [
+                               Row(
+                                 children: [
+                                   const Icon(Icons.bookmark, color: Colors.amber, size: 14),
+                                   const SizedBox(width: 4),
+                                   const Text(
+                                     'CAPÍTULO 1: EL LLAMADO',
+                                     style: TextStyle(
+                                       color: Colors.white,
+                                       fontSize: 12,
+                                       fontWeight: FontWeight.bold,
+                                       fontFamily: 'monospace',
+                                     ),
+                                   ),
+                                 ],
+                               ),
+                               const SizedBox(height: 6),
+                               Text(
+                                 room.name,
+                                 style: TextStyle(
+                                   color: Colors.amber[200],
+                                   fontSize: 14,
+                                   fontWeight: FontWeight.bold,
+                                   fontFamily: 'monospace',
+                                   letterSpacing: 1.2,
+                                 ),
+                               ),
+                               const SizedBox(height: 4),
+                               Row(
+                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                 children: [
+                                   Icon(Icons.gps_fixed, color: Colors.yellow[700], size: 14),
+                                   const SizedBox(width: 6),
+                                   Expanded(
+                                     child: Text(
+                                       _phoneCallCompleted
+                                           ? 'Objetivo: Ir a Japón'
+                                           : 'Objetivo: Explorar la casa',
+                                       style: TextStyle(
+                                         color: Colors.yellow[700],
+                                         fontSize: 12,
+                                         fontFamily: 'monospace',
+                                       ),
+                                     ),
+                                   ),
+                                 ],
+                               ),
+                             ],
+                           ),
+                         );
+                       },
+                     ),
+                   ),
+                 ),
+
 
                 // Pestaña para reabrir el HUD cuando está oculto
                 if (!_isHudVisible && !_isDialogueActive)
@@ -2364,7 +2377,10 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                   ),
 
                 
-                if (kIsWeb || (defaultTargetPlatform != TargetPlatform.android && defaultTargetPlatform != TargetPlatform.iOS))
+                // Hint de teclado SOLO en escritorio nativo (no web, no móvil)
+                if (!kIsWeb &&
+                    defaultTargetPlatform != TargetPlatform.android &&
+                    defaultTargetPlatform != TargetPlatform.iOS)
                   Positioned(
                     bottom: 16,
                     right: 16,
@@ -2426,33 +2442,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                   Positioned(
                     bottom: 80,
                     right: 40,
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: _tryInteract,
-                        borderRadius: BorderRadius.circular(30),
-                        child: Container(
-                          width: 64,
-                          height: 64,
-                          decoration: BoxDecoration(
-                            color: Colors.yellow.withOpacity(0.8),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 3),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.5),
-                                blurRadius: 8,
-                                spreadRadius: 2,
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.touch_app,
-                            color: Colors.black,
-                            size: 32,
-                          ),
-                        ),
-                      ),
+                    child: GestureDetector(
+                      onTap: _tryInteract,
+                      child: _InteractButton(),
                     ),
                   ),
 
@@ -2760,6 +2752,78 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           ),
         ),
       ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Botón de interacción — estilo horror ámbar oscuro
+// ─────────────────────────────────────────────────────────────────────────────
+class _InteractButton extends StatefulWidget {
+  const _InteractButton();
+
+  @override
+  State<_InteractButton> createState() => _InteractButtonState();
+}
+
+class _InteractButtonState extends State<_InteractButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _pulseCtrl;
+  late Animation<double> _pulseAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat(reverse: true);
+    _pulseAnim = Tween<double>(begin: 0.55, end: 0.85).animate(
+      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _pulseAnim,
+      builder: (_, __) => Container(
+        width: 62,
+        height: 62,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: const Color(0xFF1A0800).withOpacity(_pulseAnim.value),
+          border: Border.all(
+            color: const Color(0xFFD4A96A).withOpacity(_pulseAnim.value),
+            width: 2.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFD4A96A).withOpacity(_pulseAnim.value * 0.35),
+              blurRadius: 14,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            'E',
+            style: TextStyle(
+              color: const Color(0xFFD4A96A).withOpacity(_pulseAnim.value + 0.1),
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'monospace',
+              letterSpacing: 1.2,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

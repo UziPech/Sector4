@@ -120,7 +120,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   return Opacity(
                     opacity: value,
                     child: Text(
-                      'POWERED BY FLUTTER',
+                      'POWERED BY SECTOR4 GAMES',
                       style: GoogleFonts.robotoMono(
                         color: Colors.blueGrey,
                         fontSize: 12,

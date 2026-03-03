@@ -97,6 +97,10 @@ class ExpedienteKorinGame extends FlameGame
     // Configurar cámara para seguir al jugador
     camera.follow(player);
     
+    // Alejar la vista para que en móvil el mapa se vea con más contexto
+    // 0.65 = ~35% más área visible que el zoom por defecto (1.0)
+    camera.viewfinder.zoom = 0.65;
+    
     // Crear HUD
     hud = GameHUD(player: player, mel: mel);
     camera.viewport.add(hud);

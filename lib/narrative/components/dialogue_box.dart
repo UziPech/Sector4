@@ -177,6 +177,7 @@ class _DialogueBoxState extends State<DialogueBox>
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'monospace',
+                          decoration: TextDecoration.none,
                         ),
                       ),
                     ),
@@ -187,6 +188,7 @@ class _DialogueBoxState extends State<DialogueBox>
                       color: Colors.white,
                       fontSize: 18,
                       fontFamily: 'monospace',
+                      decoration: TextDecoration.none,
                       fontStyle: widget.dialogue.type == DialogueType.internal
                           ? FontStyle.italic
                           : FontStyle.normal,

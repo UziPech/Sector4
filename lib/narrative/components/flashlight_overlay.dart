@@ -75,15 +75,17 @@ class _FlashlightPainter extends CustomPainter {
       ),
       radius: outerRadius / (size.shortestSide * 0.5),
       colors: [
-        Colors.transparent,                                         // Centro iluminado
-        shadowColor.withValues(alpha: 0.0),                        // Aún claro
-        shadowColor.withValues(alpha: shadowOpacity * 0.5),        // Transición suave
-        shadowColor.withValues(alpha: shadowOpacity),              // Sombra completa
+        const Color(0x12FFA040),                                      // Núcleo ámbar cálido (muy sutil)
+        Colors.transparent,                                           // Centro iluminado
+        shadowColor.withValues(alpha: 0.0),                           // Aún claro
+        shadowColor.withValues(alpha: shadowOpacity * 0.5),           // Transición suave
+        shadowColor.withValues(alpha: shadowOpacity),                 // Sombra completa
       ],
       stops: [
         0.0,
-        innerRadius / outerRadius,                                 // Donde empieza la sombra
-        (innerRadius / outerRadius) + 0.25,                        // Zona de transición
+        innerRadius / outerRadius * 0.5,                              // Borde del núcleo cálido
+        innerRadius / outerRadius,                                    // Donde empieza la sombra
+        (innerRadius / outerRadius) + 0.25,                           // Zona de transición
         1.0,
       ],
     );

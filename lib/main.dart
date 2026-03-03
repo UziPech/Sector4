@@ -79,18 +79,10 @@ class _MyAppState extends State<MyApp> {
               onSequenceComplete: korinGame.onDialogueComplete,
             );
           },
-          // Linterna: capa propia, debajo de GameUI (orden en el Stack = orden en el mapa)
-          'FlashlightLayer': (context, game) {
-            final size = MediaQuery.of(context).size;
-            return IgnorePointer(
-              child: FlashlightOverlay(
-                center: Offset(size.width / 2, size.height / 2),
-                innerRadius: 140.0,
-                outerRadius: 280.0,
-                shadowOpacity: 0.96,
-              ),
-            );
-          },
+          // Linterna con parpadeo — capa propia, debajo de GameUI
+          'FlashlightLayer': (context, game) => const IgnorePointer(
+            child: _CombatFlashlightWidget(),
+          ),
           'GameUI': (context, game) => GameUI(game: game as ExpedienteKorinGame),
         },
         // FlashlightLayer va PRIMERO para quedar bajo GameUI en el Stack
@@ -185,6 +177,82 @@ class GameOverOverlay extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Linterna de combate con parpadeo atmosférico y radios adaptativos
+// ─────────────────────────────────────────────────────────────────────────────
+class _CombatFlashlightWidget extends StatefulWidget {
+  const _CombatFlashlightWidget();
+
+  @override
+  State<_CombatFlashlightWidget> createState() => _CombatFlashlightWidgetState();
+}
+
+class _CombatFlashlightWidgetState extends State<_CombatFlashlightWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _flickerCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    // Ciclo rápido para update continuo del flicker
+    _flickerCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 10),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _flickerCtrl.dispose();
+    super.dispose();
+  }
+
+  /// Combina dos senos a frecuencias ligeramente distintas
+  /// para producir un parpadeo no periódico, similar a una vela real.
+  /// t ∈ [0.0, 1.0] — valor del AnimationController
+  double _flickerOpacity(double t) {
+    final v1 = 0.5 + 0.5 * _sinApprox(t * 1.7 * 6.2832);
+    final v2 = 0.5 + 0.5 * _sinApprox(t * 2.9 * 6.2832 + 1.1);
+    // Opacidad de sombra oscila suavemente entre 0.88 y 0.97
+    return 0.88 + 0.09 * (v1 * 0.6 + v2 * 0.4);
+  }
+
+  /// Aproximación de sin usando identidades angulares sin importar dart:math
+  double _sinApprox(double x) {
+    // Normalizar a [-π, π]
+    x = x % 6.2832;
+    if (x > 3.14159) x -= 6.2832;
+    // Polinomio de Bhaskara (muy preciso para este uso)
+    final x2 = x * x;
+    return x * (1 - x2 * (1 / 6 - x2 / 120));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _flickerCtrl,
+      builder: (_, __) {
+        final size = MediaQuery.of(context).size;
+        final shortSide = size.shortestSide;
+
+        // Radios adaptativos: proporcionales al lado corto de la pantalla
+        final innerR = (shortSide * 0.20).clamp(80.0, 200.0);
+        final outerR = (shortSide * 0.48).clamp(160.0, 400.0);
+
+        // Opacidad de sombra con parpadeo sutil
+        final opacity = _flickerOpacity(_flickerCtrl.value);
+
+        return FlashlightOverlay(
+          center: Offset(size.width / 2, size.height / 2),
+          innerRadius: innerR,
+          outerRadius: outerR,
+          shadowOpacity: opacity,
+        );
+      },
     );
   }
 }
