@@ -677,7 +677,7 @@ class StalkerEnemy extends EnemyCharacter {
       
       // Mostrar notificación grande en pantalla
       game.notificationSystem.show(
-        'âœ… OBJETO OBSESIVO DESTRUIDO',
+        '✅ OBJETO OBSESIVO DESTRUIDO',
         '¡EL STALKER ES AHORA VULNERABLE! ¡ELIMÍNALO!',
       );
     } else {

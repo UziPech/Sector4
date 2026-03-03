@@ -56,9 +56,11 @@ class MelCharacter extends PositionComponent
     // Actualizar cooldown de curación
     if (!_canHeal) {
       _healTimer += dt;
+      game.melCooldownNotifier.value = _healTimer / _healCooldown;
       if (_healTimer >= _healCooldown) {
         _canHeal = true;
         _healTimer = 0.0;
+        game.melReadyNotifier.value = true;
       }
     }
     
@@ -121,6 +123,10 @@ class MelCharacter extends PositionComponent
     // Iniciar cooldown
     _canHeal = false;
     _healTimer = 0.0;
+    
+    // Sincronizar UI
+    game.melReadyNotifier.value = false;
+    game.melCooldownNotifier.value = 0.0;
     
     _showHealEffect();
   }

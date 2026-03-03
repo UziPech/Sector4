@@ -28,6 +28,20 @@ class FlashlightOverlay extends StatelessWidget {
     this.shadowColor = Colors.black,
   });
 
+  /// Calcula el radio interno global estandarizado para la linterna, basado en una dimensión de referencia.
+  /// Se ha reducido ligeramente a petición del usuario.
+  static double globalInnerRadius(double referenceDimension) {
+    // Anteriormente ~0.18 - 0.20. Ahora 0.15 para hacerlo más pequeño.
+    return (referenceDimension * 0.15).clamp(70.0, 180.0);
+  }
+
+  /// Calcula el radio externo global estandarizado para la linterna, basado en una dimensión de referencia.
+  /// Se ha reducido ligeramente a petición del usuario.
+  static double globalOuterRadius(double referenceDimension) {
+    // Anteriormente ~0.42 - 0.48. Ahora 0.38 para hacerlo más pequeño.
+    return (referenceDimension * 0.38).clamp(140.0, 360.0);
+  }
+
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(

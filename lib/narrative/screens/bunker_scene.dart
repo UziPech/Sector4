@@ -1068,10 +1068,19 @@ class _BunkerSceneState extends State<BunkerScene>
                       );
                     }
 
+                    // Radios adaptativos globales
+                    // Usamos el ancho de pantalla o el ancho renderizado según el modo
+                    final referenceW = room.cameraMode == CameraMode.follow 
+                        ? screenW 
+                        : room.roomSize.width * (screenW / room.roomSize.width < screenH / room.roomSize.height ? screenW / room.roomSize.width : screenH / room.roomSize.height);
+
+                    final innerR = FlashlightOverlay.globalInnerRadius(referenceW);
+                    final outerR = FlashlightOverlay.globalOuterRadius(referenceW);
+
                     return FlashlightOverlay(
                       center: screenCenter,
-                      innerRadius: 130.0,
-                      outerRadius: 260.0,
+                      innerRadius: innerR,
+                      outerRadius: outerR,
                       shadowOpacity: 0.97,
                     );
                   },

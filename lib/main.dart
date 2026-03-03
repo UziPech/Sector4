@@ -78,7 +78,7 @@ class _MyAppState extends State<MyApp> {
               onSequenceComplete: korinGame.onDialogueComplete,
             );
           },
-          // Linterna con parpadeo â€” capa propia, debajo de GameUI
+          // Linterna con parpadeo — capa propia, debajo de GameUI
           'FlashlightLayer': (context, game) => const IgnorePointer(
             child: _CombatFlashlightWidget(),
           ),
@@ -212,7 +212,7 @@ class _CombatFlashlightWidgetState extends State<_CombatFlashlightWidget>
 
   /// Combina dos senos a frecuencias ligeramente distintas
   /// para producir un parpadeo no periódico, similar a una vela real.
-  /// t âˆˆ [0.0, 1.0] â€” valor del AnimationController
+  /// t ∈ [0.0, 1.0] — valor del AnimationController
   double _flickerOpacity(double t) {
     final v1 = 0.5 + 0.5 * _sinApprox(t * 1.7 * 6.2832);
     final v2 = 0.5 + 0.5 * _sinApprox(t * 2.9 * 6.2832 + 1.1);
@@ -222,7 +222,7 @@ class _CombatFlashlightWidgetState extends State<_CombatFlashlightWidget>
 
   /// Aproximación de sin usando identidades angulares sin importar dart:math
   double _sinApprox(double x) {
-    // Normalizar a [-Ï€, Ï€]
+    // Normalizar a [-π, π]
     x = x % 6.2832;
     if (x > 3.14159) x -= 6.2832;
     // Polinomio de Bhaskara (muy preciso para este uso)
@@ -236,11 +236,10 @@ class _CombatFlashlightWidgetState extends State<_CombatFlashlightWidget>
       animation: _flickerCtrl,
       builder: (_, __) {
         final size = MediaQuery.of(context).size;
-        final shortSide = size.shortestSide;
 
-        // Radios adaptativos: proporcionales al lado corto de la pantalla
-        final innerR = (shortSide * 0.20).clamp(80.0, 200.0);
-        final outerR = (shortSide * 0.48).clamp(160.0, 400.0);
+        // Radios adaptativos globales (usando el ancho de la pantalla para mantener consistencia con otras escenas)
+        final innerR = FlashlightOverlay.globalInnerRadius(size.width);
+        final outerR = FlashlightOverlay.globalOuterRadius(size.width);
 
         // Opacidad de sombra con parpadeo sutil
         final opacity = _flickerOpacity(_flickerCtrl.value);

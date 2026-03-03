@@ -62,7 +62,7 @@ class _GameOverWithAdviceState extends State<GameOverWithAdvice> {
     // Consejos generales
     {
       'quote': '"Recuerda: tienes dos armas a tu disposición."',
-      'tip': 'Presiona Q para cambiar entre Cuchillo (âˆž) y Pistola (20 balas). Recarga con R.'
+      'tip': 'Presiona Q para cambiar entre Cuchillo (∞) y Pistola (20 balas). Recarga con R.'
     },
     {
       'quote': '"El cuchillo es devastador en cuerpo a cuerpo."',

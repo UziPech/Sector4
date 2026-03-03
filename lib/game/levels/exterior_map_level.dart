@@ -581,13 +581,13 @@ class _SimpleWall extends PositionComponent {
     }
     // Obstacles are invisible — collision only, no render.
     // DEBUG: Ver hitboxes de objetos
-    if (isObstacle) {
+    /*if (isObstacle) {
       final debugPaint = Paint()
         ..color = Colors.red.withValues(alpha: 0.5)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3;
-      canvas.drawRect(size.toRect(), debugPaint);
-    }
+      // canvas.drawRect(size.toRect(), debugPaint);
+    }*/
   }
 }
 

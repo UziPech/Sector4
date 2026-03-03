@@ -81,7 +81,7 @@ class BunkerBossLevel extends Component
 
     // 5.5. Mensaje de advertencia de zona peligrosa
     game.notificationSystem.show(
-      'âš ï¸ ZONA PELIGROSA âš ï¸',
+      '⚠️ ZONA PELIGROSA ⚠️',
       'ENTIDAD HOSTIL DETECTADA - NIVEL DE AMENAZA: CRÍTICO',
     );
 
@@ -825,10 +825,10 @@ class ExitDoorTrigger extends PositionComponent
 
     canvas.drawRect(size.toRect(), borderPaint);
 
-    // Texto "SALIDA â–º" con pulso
+    // Texto "SALIDA ►" con pulso
     final textPainter = TextPainter(
       text: TextSpan(
-        text: 'â–º SALIDA â–º',
+        text: '► SALIDA ►',
         style: TextStyle(
           color: Colors.white.withValues(alpha: 0.7 + pulse * 0.3),
           fontSize: 28,

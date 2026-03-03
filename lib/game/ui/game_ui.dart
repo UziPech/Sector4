@@ -10,9 +10,9 @@ import '../../combat/weapon_system.dart';
 // Vector2
 import 'dynamic_joystick_overlay.dart';
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────
 // Paleta de colores oscuros / café (horror UX)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────
 const _brown900 = Color(0xFF1A0F08);
 const _brown700 = Color(0xFF3B1F10);
 const _brown400 = Color(0xFF7B4A2A);
@@ -95,26 +95,26 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Material(
       type: MaterialType.transparency,
       child: Stack(
       children: [
-        // â”€â”€ 1. JOYSTICK DINÁMICO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── 1. JOYSTICK DINÁMICO ────────────────────────────────────
         DynamicJoystickOverlay(
           onInput: (input) => widget.game.updateJoystickInput(input),
         ),
 
-        // â”€â”€ 2. HUD SALUD + VIDAS (top-left) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── 2. HUD SALUD + VIDAS (top-left) ────────────────────────
         Positioned(
           top: 12,
           left: 12,
           child: SafeArea(child: _buildHealthHUD()),
         ),
 
-        // â”€â”€ 3. BOTÓN CONFIG (top-right) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── 3. BOTÓN CONFIG (top-right) ─────────────────────────────
         Positioned(
           top: 12,
           right: 12,
@@ -155,7 +155,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
           ),
         ),
 
-        // â”€â”€ 4. PANEL NARRATIVO AUTO-OCULTABLE (top-right) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── 4. PANEL NARRATIVO AUTO-OCULTABLE (top-right) ───────────
         AnimatedPositioned(
           duration: const Duration(milliseconds: 350),
           curve: Curves.easeInOut,
@@ -206,7 +206,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                     const SizedBox(height: 2),
                     ValueListenableBuilder<String>(
                       valueListenable: widget.game.objectiveNotifier,
-                      builder: (_, v, __) => Text('â–¸ $v',
+                      builder: (_, v, __) => Text('▸ $v',
                           style: TextStyle(
                               color: _white60.withValues(alpha: 0.7),
                               fontSize: 10,
@@ -249,10 +249,10 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
             ),
           ),
 
-        // â”€â”€ 5. BOTONES DE ACCIÓN MÓVIL (bottom-right) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── 5. BOTONES DE ACCIÓN MÓVIL (bottom-right) ───────────────
         _buildActionButtons(),
 
-        // â”€â”€ 6. HINT DE CONTROLES TRANSITORIO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── 6. HINT DE CONTROLES TRANSITORIO ───────────────────────
         if (_isHintVisible &&
             Theme.of(context).platform != TargetPlatform.android &&
             Theme.of(context).platform != TargetPlatform.iOS)
@@ -291,7 +291,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     );  // Material
   }
 
-  // â”€â”€ HUD: SALUD + VIDAS + MEL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── HUD: SALUD + VIDAS + MEL ────────────────────────────────────────
   Widget _buildHealthHUD() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -345,7 +345,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                        ready ? 'MEL â€” LISTO (E)' : 'MEL â€” RECARGANDO ${(progress * 100).toInt()}%',
+                        ready ? 'MEL — LISTO (E)' : 'MEL — RECARGANDO ${(progress * 100).toInt()}%',
                         style: TextStyle(
                             color: ready ? _greenDim : _amber,
                             fontSize: 9,
@@ -366,7 +366,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
             builder: (_, lives, __) => Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('â™¥ ',
+                const Text('♥ ',
                     style: TextStyle(
                         color: _redDim, fontSize: 12, fontFamily: 'monospace')),
                 ...List.generate(
@@ -414,14 +414,14 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     );
   }
 
-  // â”€â”€ BOTONES DE ACCIÓN (Flutter, encima del flashlight) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── BOTONES DE ACCIÓN (Flutter, encima del flashlight) ──────────────
   Widget _buildActionButtons() {
     final game = widget.game;
     final isDan = game.player.playerRole == PlayerRole.dan;
 
     return Positioned(
-      bottom: 20,
-      right: 20,
+      bottom: 24,
+      right: 24,
       child: SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -448,7 +448,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                 // Botón de curación de Mel (dinámico según cooldown)
                 _buildMelHealButton(game, isDan),
                 const SizedBox(width: 8),
-                // [Dan] Recarga R (solo con pistola)  |  [Mel] Dash â€ºâ€º
+                // [Dan] Recarga R (solo con pistola)  |  [Mel] Dash >>
                 isDan
                     ? ValueListenableBuilder<bool>(
                         valueListenable: game.isRangedWeaponNotifier,
@@ -466,7 +466,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                         },
                       )
                     : _actionBtn(
-                        label: 'â€ºâ€º',
+                        label: '>>',
                         color: const Color(0xFF0A1A2A),
                         onTap: () => game.player.tryDash(),
                       ),
@@ -475,7 +475,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
             const SizedBox(height: 10),
             // Fila 2: Ataque principal
             _actionBtn(
-              label: 'âš¡',
+              label: '⚡',
               color: _redDim,
               size: 72,
               onTap: () => game.player.attack(),
@@ -486,7 +486,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     );
   }
 
-  /// Botón de curación de Mel â€” cambia de color según disponibilidad
+  /// Botón de curación de Mel — cambia de color según disponibilidad
   Widget _buildMelHealButton(ExpedienteKorinGame game, bool isDan) {
     return ValueListenableBuilder<bool>(
       valueListenable: game.melReadyNotifier,
@@ -495,9 +495,10 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
           valueListenable: game.melCooldownNotifier,
           builder: (_, progress, __) {
             final btnColor = ready ? _greenDim : _brown700;
-            final label = isDan ? 'MEL\nâ™¥' : 'CURAR\nâ™¥';
+            final label = isDan ? 'MEL\n♥' : 'CURAR\n♥';
 
             return GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTapDown: (_) => game.mel.activateHeal(),
               child: Stack(
                 alignment: Alignment.center,
@@ -568,6 +569,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     double size = 52,
   }) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTapDown: (_) => onTap(),
       child: Container(
         width: size,
@@ -599,7 +601,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     );
   }
 
-  // â”€â”€ PANEL DE CONFIGURACIÓN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── PANEL DE CONFIGURACIÓN ──────────────────────────────────────────
   Widget _buildConfigPanel() {
     return Column(
       mainAxisSize: MainAxisSize.min,
