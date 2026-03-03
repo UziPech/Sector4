@@ -660,7 +660,7 @@ class _HouseSceneState extends State<HouseScene> {
                     Text(
                       _phoneCallCompleted
                           ? 'Objetivo: Ir a Japón'
-                          : 'Objetivo: Explorar la casa',
+                          : 'Objetivo: Encontrar el Telefóno',
                       style: TextStyle(
                         color: Colors.yellow[700],
                         fontSize: 12,

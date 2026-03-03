@@ -98,7 +98,9 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
   // ─────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Material(
+      type: MaterialType.transparency,
+      child: Stack(
       children: [
         // ── 1. JOYSTICK DINÁMICO ────────────────────────────────────
         DynamicJoystickOverlay(
@@ -285,7 +287,8 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
             ),
           ),
       ],
-    );
+    ),  // Stack
+    );  // Material
   }
 
   // ── HUD: SALUD + VIDAS + MEL ────────────────────────────────────────

@@ -760,7 +760,7 @@ class ExitTransitionOverlay extends Component with HasGameReference<ExpedienteKo
       final textOpacity = (opacity * 0.9).clamp(0.0, 1.0);
       final textPainter = TextPainter(
         text: TextSpan(
-          text: 'SALIENDO DEL BÚNKER...',
+          text: 'OSCURIDAD PERPETUA...',
           style: TextStyle(
             color: Colors.white.withOpacity(textOpacity),
             fontSize: 32,
