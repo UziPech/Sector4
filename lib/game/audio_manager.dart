@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flame_audio/flame_audio.dart';
-import 'package:audioplayers/audioplayers.dart';
 
 /// Gestor centralizado de audio para Expediente Kōrin
 class AudioManager {

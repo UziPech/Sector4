@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:video_player/video_player.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,12 +38,12 @@ class _LoginScreenState extends State<LoginScreen> {
     final userKey = 'user:$email';
 
     if (_isLoginMode) {
-      // Lógica de Login
+      // LÃ³gica de Login
       final storedPassword = prefs.getString(userKey);
 
       if (storedPassword != null && storedPassword == password) {
         // Login exitoso
-        _showSnackBar('¡Bienvenido de nuevo!', isError: false);
+        _showSnackBar('Â¡Bienvenido de nuevo!', isError: false);
         Future.delayed(const Duration(seconds: 1), () {
           if (!mounted) return;
           Navigator.of(context).pushReplacement(
@@ -51,16 +51,16 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         });
       } else {
-        _showSnackBar('Credenciales inválidas', isError: true);
+        _showSnackBar('Credenciales invÃ¡lidas', isError: true);
       }
     } else {
-      // Lógica de Registro
+      // LÃ³gica de Registro
       if (prefs.containsKey(userKey)) {
         _showSnackBar('El usuario ya existe', isError: true);
       } else {
         await prefs.setString(userKey, password);
         _showSnackBar(
-          '¡Cuenta creada exitosamente! Ahora inicia sesión.',
+          'Â¡Cuenta creada exitosamente! Ahora inicia sesiÃ³n.',
           isError: false,
         );
         setState(() {
@@ -92,9 +92,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.3),
+        color: Colors.black.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFF8D6E63).withOpacity(0.5)),
+        border: Border.all(color: const Color(0xFF8D6E63).withValues(alpha: 0.5)),
       ),
       child: TextField(
         controller: controller,
@@ -142,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _controller.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    // AudioManager().stopMusic(); // Opcional, según lógica del remoto
+    // AudioManager().stopMusic(); // Opcional, segÃºn lÃ³gica del remoto
     super.dispose();
   }
 
@@ -177,8 +177,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   center: Alignment.center,
                   radius: 1.5,
                   colors: [
-                    Colors.black.withOpacity(0.3),
-                    Colors.black.withOpacity(0.8),
+                    Colors.black.withValues(alpha: 0.3),
+                    Colors.black.withValues(alpha: 0.8),
                   ],
                 ),
               ),
@@ -218,7 +218,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            _isLoginMode ? 'INICIAR SESIÓN' : 'REGISTRARSE',
+                            _isLoginMode ? 'INICIAR SESIÃ“N' : 'REGISTRARSE',
                             textAlign: TextAlign.center,
                             style: GoogleFonts.rye(
                               color: const Color(0xFFFFECB3),
@@ -259,19 +259,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           // --- FORMULARIO ---
                           _buildTextField(
                             controller: _emailController,
-                            label: 'Correo Electrónico',
+                            label: 'Correo ElectrÃ³nico',
                             icon: Icons.email_outlined,
                           ),
                           const SizedBox(height: 12), // Reducido de 16
                           _buildTextField(
                             controller: _passwordController,
-                            label: 'Contraseña',
+                            label: 'ContraseÃ±a',
                             icon: Icons.lock_outline,
                             isPassword: true,
                           ),
                           const SizedBox(height: 20), // Reducido de 24
 
-                          // BOTÓN DE ACCIÓN PRINCIPAL
+                          // BOTÃ“N DE ACCIÃ“N PRINCIPAL
                           _LoginButton(
                             text: _isLoginMode ? 'ENTRAR' : 'REGISTRARSE',
                             icon: _isLoginMode ? Icons.login : Icons.person_add,
@@ -292,8 +292,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             },
                             child: Text(
                               _isLoginMode
-                                  ? '¿No tienes cuenta? Regístrate'
-                                  : '¿Ya tienes cuenta? Inicia Sesión',
+                                  ? 'Â¿No tienes cuenta? RegÃ­strate'
+                                  : 'Â¿Ya tienes cuenta? Inicia SesiÃ³n',
                               textAlign: TextAlign.center,
                               style: GoogleFonts.robotoMono(
                                 color: Colors.white70,
@@ -303,9 +303,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
 
                           const SizedBox(height: 10), // Reducido de 30
-                          const Divider(color: Colors.white24, height: 20), // Height explícito reducido
+                          const Divider(color: Colors.white24, height: 20), // Height explÃ­cito reducido
                           
-                          // BOTÓN INVITADO
+                          // BOTÃ“N INVITADO
                           _LoginButton(
                             text: 'Entrar como Invitado',
                             icon: Icons.person_outline,
@@ -327,14 +327,14 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
 
-          // 4. BOTÓN CERRAR (X)
+          // 4. BOTÃ“N CERRAR (X)
           Positioned(
             top: 40,
             right: 40,
             child: IconButton(
               icon: const Icon(Icons.close, color: Colors.white, size: 32),
               onPressed: () {
-                Navigator.of(context).pop(); // Volver al menú
+                Navigator.of(context).pop(); // Volver al menÃº
               },
             ),
           ),
@@ -361,14 +361,14 @@ class _LoginButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 50, // Más pequeños (antes 60)
+      height: 50, // MÃ¡s pequeÃ±os (antes 60)
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(
+        color: Colors.black.withValues(alpha: 
           0.4,
         ), // Fondo oscuro semitransparente para contrastar con la madera
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: const Color(0xFF8D6E63).withOpacity(0.5),
+          color: const Color(0xFF8D6E63).withValues(alpha: 0.5),
         ), // Borde sutil
       ),
       child: Material(
@@ -412,3 +412,4 @@ class _LoginButton extends StatelessWidget {
     );
   }
 }
+

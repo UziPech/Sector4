@@ -4,9 +4,9 @@ import '../models/chapter_info.dart';
 import 'house_scene.dart';
 import 'bunker_scene.dart';
 
-/// Pantalla de historia con tarjetas de capítulos
+/// Pantalla de historia con tarjetas de capÃ­tulos
 class StoryScreen extends StatefulWidget {
-  const StoryScreen({Key? key}) : super(key: key);
+  const StoryScreen({super.key});
 
   @override
   State<StoryScreen> createState() => _StoryScreenState();
@@ -17,21 +17,21 @@ class _StoryScreenState extends State<StoryScreen> {
   List<int> _skippedChapters = [];
   bool _isLoading = true;
 
-  // Definición de capítulos disponibles
+  // DefiniciÃ³n de capÃ­tulos disponibles
   final List<ChapterInfo> _chapters = const [
     ChapterInfo(
       number: 1,
-      title: 'Capítulo 1: El Despertar',
+      title: 'CapÃ­tulo 1: El Despertar',
       description: 'El sufrimiento de un padre...',
       sceneBuilder: HouseScene.new,
     ),
     ChapterInfo(
       number: 2,
-      title: 'Capítulo 2: El Búnker',
+      title: 'CapÃ­tulo 2: El BÃºnker',
       description: 'Debemos preocuparnos...',
       sceneBuilder: BunkerScene.new,
     ),
-    // Agregar más capítulos aquí en el futuro
+    // Agregar mÃ¡s capÃ­tulos aquÃ­ en el futuro
   ];
 
   @override
@@ -59,7 +59,7 @@ class _StoryScreenState extends State<StoryScreen> {
             image: AssetImage('assets/images/city_map_night.png'),
             fit: BoxFit.cover,
             colorFilter: ColorFilter.mode(
-              Colors.black.withOpacity(0.7), 
+              Colors.black.withValues(alpha: 0.7), 
               BlendMode.darken,
             ),
           ),
@@ -90,7 +90,7 @@ class _StoryScreenState extends State<StoryScreen> {
                   ],
                 ),
               ),
-              // Lista de capítulos
+              // Lista de capÃ­tulos
               Expanded(
                 child: _isLoading
                     ? const Center(
@@ -141,11 +141,11 @@ class _StoryScreenState extends State<StoryScreen> {
       builder: (context) => AlertDialog(
         backgroundColor: Colors.grey[900],
         title: const Text(
-          'Skipear Capítulo',
+          'Skipear CapÃ­tulo',
           style: TextStyle(color: Colors.white),
         ),
         content: Text(
-          '¿Estás seguro de que quieres skipear ${chapter.title}?\n\nPodrás volver a jugarlo más tarde.',
+          'Â¿EstÃ¡s seguro de que quieres skipear ${chapter.title}?\n\nPodrÃ¡s volver a jugarlo mÃ¡s tarde.',
           style: const TextStyle(color: Colors.white70),
         ),
         actions: [
@@ -180,7 +180,7 @@ class _StoryScreenState extends State<StoryScreen> {
   }
 }
 
-/// Widget de tarjeta de capítulo
+/// Widget de tarjeta de capÃ­tulo
 class _ChapterCard extends StatefulWidget {
   final ChapterInfo chapter;
   final bool isCompleted;
@@ -216,7 +216,7 @@ class _ChapterCardState extends State<_ChapterCard> {
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
             color: _isHovered && widget.isUnlocked
-                ? Colors.white.withOpacity(0.05)
+                ? Colors.white.withValues(alpha: 0.05)
                 : Colors.transparent,
             border: Border.all(
               color: widget.isUnlocked
@@ -230,7 +230,7 @@ class _ChapterCardState extends State<_ChapterCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header con título y estado
+                // Header con tÃ­tulo y estado
                 Row(
                   children: [
                     Expanded(
@@ -251,7 +251,7 @@ class _ChapterCardState extends State<_ChapterCard> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.2),
+                          color: Colors.green.withValues(alpha: 0.2),
                           border: Border.all(color: Colors.green),
                         ),
                         child: const Text(
@@ -271,7 +271,7 @@ class _ChapterCardState extends State<_ChapterCard> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.orange.withOpacity(0.2),
+                          color: Colors.orange.withValues(alpha: 0.2),
                           border: Border.all(color: Colors.orange),
                         ),
                         child: const Text(
@@ -291,7 +291,7 @@ class _ChapterCardState extends State<_ChapterCard> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.2),
+                          color: Colors.grey.withValues(alpha: 0.2),
                           border: Border.all(color: Colors.grey[700]!),
                         ),
                         child: Row(
@@ -318,7 +318,7 @@ class _ChapterCardState extends State<_ChapterCard> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                // Descripción
+                // DescripciÃ³n
                 Text(
                   widget.chapter.description,
                   style: TextStyle(
@@ -329,7 +329,7 @@ class _ChapterCardState extends State<_ChapterCard> {
                 ),
                 if (widget.isUnlocked) ...[
                   const SizedBox(height: 16),
-                  // Botones de acción
+                  // Botones de acciÃ³n
                   Row(
                     children: [
                       Expanded(
@@ -362,7 +362,7 @@ class _ChapterCardState extends State<_ChapterCard> {
   }
 }
 
-/// Botón de acción para las tarjetas
+/// BotÃ³n de acciÃ³n para las tarjetas
 class _ActionButton extends StatefulWidget {
   final String text;
   final IconData icon;
@@ -396,7 +396,7 @@ class _ActionButtonState extends State<_ActionButton> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           decoration: BoxDecoration(
-            color: _isHovered ? color.withOpacity(0.1) : Colors.transparent,
+            color: _isHovered ? color.withValues(alpha: 0.1) : Colors.transparent,
             border: Border.all(
               color: _isHovered ? color : Colors.white,
               width: 2,
@@ -427,3 +427,4 @@ class _ActionButtonState extends State<_ActionButton> {
     );
   }
 }
+

@@ -7,12 +7,12 @@ import '../../narrative/screens/menu_screen.dart';
 import '../models/player_role.dart';
 import '../../combat/weapon_system.dart';
 
-import 'package:flame/game.dart'; // Vector2
+// Vector2
 import 'dynamic_joystick_overlay.dart';
 
-// ─────────────────────────────────────────────────────────────────────
-// Paleta de colores oscuros / café (horror UX)
-// ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Paleta de colores oscuros / cafÃ© (horror UX)
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const _brown900 = Color(0xFF1A0F08);
 const _brown700 = Color(0xFF3B1F10);
 const _brown400 = Color(0xFF7B4A2A);
@@ -95,24 +95,24 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
-  // ─────────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // ── 1. JOYSTICK DINÁMICO ────────────────────────────────────
+        // â”€â”€ 1. JOYSTICK DINÃMICO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         DynamicJoystickOverlay(
           onInput: (input) => widget.game.updateJoystickInput(input),
         ),
 
-        // ── 2. HUD SALUD + VIDAS (top-left) ────────────────────────
+        // â”€â”€ 2. HUD SALUD + VIDAS (top-left) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         Positioned(
           top: 12,
           left: 12,
           child: SafeArea(child: _buildHealthHUD()),
         ),
 
-        // ── 3. BOTÓN CONFIG (top-right) ─────────────────────────────
+        // â”€â”€ 3. BOTÃ“N CONFIG (top-right) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         Positioned(
           top: 12,
           right: 12,
@@ -132,9 +132,9 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                     ? const EdgeInsets.all(12)
                     : const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: _brown900.withOpacity(0.85),
+                  color: _brown900.withValues(alpha: 0.85),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: _brown400.withOpacity(0.5), width: 1),
+                  border: Border.all(color: _brown400.withValues(alpha: 0.5), width: 1),
                 ),
                 child: _isConfigOpen
                     ? OverflowBox(
@@ -153,7 +153,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
           ),
         ),
 
-        // ── 4. PANEL NARRATIVO AUTO-OCULTABLE (top-right) ───────────
+        // â”€â”€ 4. PANEL NARRATIVO AUTO-OCULTABLE (top-right) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         AnimatedPositioned(
           duration: const Duration(milliseconds: 350),
           curve: Curves.easeInOut,
@@ -169,9 +169,9 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                 constraints: const BoxConstraints(maxWidth: 220),
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                 decoration: BoxDecoration(
-                  color: _brown900.withOpacity(0.7),
+                  color: _brown900.withValues(alpha: 0.7),
                   border: Border(
-                    left: BorderSide(color: _greenDim.withOpacity(0.8), width: 2),
+                    left: BorderSide(color: _greenDim.withValues(alpha: 0.8), width: 2),
                   ),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(5),
@@ -197,16 +197,16 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                       valueListenable: widget.game.locationNotifier,
                       builder: (_, v, __) => Text(v,
                           style: TextStyle(
-                              color: _amber.withOpacity(0.8),
+                              color: _amber.withValues(alpha: 0.8),
                               fontSize: 10,
                               fontFamily: 'monospace')),
                     ),
                     const SizedBox(height: 2),
                     ValueListenableBuilder<String>(
                       valueListenable: widget.game.objectiveNotifier,
-                      builder: (_, v, __) => Text('▸ $v',
+                      builder: (_, v, __) => Text('â–¸ $v',
                           style: TextStyle(
-                              color: _white60.withOpacity(0.7),
+                              color: _white60.withValues(alpha: 0.7),
                               fontSize: 10,
                               fontFamily: 'monospace')),
                     ),
@@ -232,13 +232,13 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                   width: 20,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: _brown900.withOpacity(0.75),
+                    color: _brown900.withValues(alpha: 0.75),
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(5),
                       bottomLeft: Radius.circular(5),
                     ),
                     border: Border(
-                      left: BorderSide(color: _greenDim.withOpacity(0.5), width: 1),
+                      left: BorderSide(color: _greenDim.withValues(alpha: 0.5), width: 1),
                     ),
                   ),
                   child: const Icon(Icons.chevron_left, color: _greenDim, size: 14),
@@ -247,10 +247,10 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
             ),
           ),
 
-        // ── 5. BOTONES DE ACCIÓN MÓVIL (bottom-right) ───────────────
+        // â”€â”€ 5. BOTONES DE ACCIÃ“N MÃ“VIL (bottom-right) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         _buildActionButtons(),
 
-        // ── 6. HINT DE CONTROLES TRANSITORIO ───────────────────────
+        // â”€â”€ 6. HINT DE CONTROLES TRANSITORIO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if (_isHintVisible &&
             Theme.of(context).platform != TargetPlatform.android &&
             Theme.of(context).platform != TargetPlatform.iOS)
@@ -263,9 +263,9 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                   decoration: BoxDecoration(
-                    color: _brown900.withOpacity(0.5),
+                    color: _brown900.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: _brown400.withOpacity(0.3)),
+                    border: Border.all(color: _brown400.withValues(alpha: 0.3)),
                   ),
                   child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,14 +288,14 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     );
   }
 
-  // ── HUD: SALUD + VIDAS + MEL ────────────────────────────────────────
+  // â”€â”€ HUD: SALUD + VIDAS + MEL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildHealthHUD() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: _brown900.withOpacity(0.75),
+        color: _brown900.withValues(alpha: 0.75),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: _brown400.withOpacity(0.4), width: 1),
+        border: Border.all(color: _brown400.withValues(alpha: 0.4), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -342,7 +342,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                        ready ? 'MEL — LISTO (E)' : 'MEL — RECARGANDO ${(progress * 100).toInt()}%',
+                        ready ? 'MEL â€” LISTO (E)' : 'MEL â€” RECARGANDO ${(progress * 100).toInt()}%',
                         style: TextStyle(
                             color: ready ? _greenDim : _amber,
                             fontSize: 9,
@@ -363,7 +363,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
             builder: (_, lives, __) => Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('♥ ',
+                const Text('â™¥ ',
                     style: TextStyle(
                         color: _redDim, fontSize: 12, fontFamily: 'monospace')),
                 ...List.generate(
@@ -411,7 +411,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     );
   }
 
-  // ── BOTONES DE ACCIÓN (Flutter, encima del flashlight) ──────────────
+  // â”€â”€ BOTONES DE ACCIÃ“N (Flutter, encima del flashlight) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildActionButtons() {
     final game = widget.game;
     final isDan = game.player.playerRole == PlayerRole.dan;
@@ -442,10 +442,10 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                     onTap: () => game.player.tryResurrect(),
                   ),
                 const SizedBox(width: 8),
-                // Botón de curación de Mel (dinámico según cooldown)
+                // BotÃ³n de curaciÃ³n de Mel (dinÃ¡mico segÃºn cooldown)
                 _buildMelHealButton(game, isDan),
                 const SizedBox(width: 8),
-                // [Dan] Recarga R (solo con pistola)  |  [Mel] Dash ››
+                // [Dan] Recarga R (solo con pistola)  |  [Mel] Dash â€ºâ€º
                 isDan
                     ? ValueListenableBuilder<bool>(
                         valueListenable: game.isRangedWeaponNotifier,
@@ -463,7 +463,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                         },
                       )
                     : _actionBtn(
-                        label: '››',
+                        label: 'â€ºâ€º',
                         color: const Color(0xFF0A1A2A),
                         onTap: () => game.player.tryDash(),
                       ),
@@ -472,7 +472,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
             const SizedBox(height: 10),
             // Fila 2: Ataque principal
             _actionBtn(
-              label: '⚡',
+              label: 'âš¡',
               color: _redDim,
               size: 72,
               onTap: () => game.player.attack(),
@@ -483,7 +483,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     );
   }
 
-  /// Botón de curación de Mel — cambia de color según disponibilidad
+  /// BotÃ³n de curaciÃ³n de Mel â€” cambia de color segÃºn disponibilidad
   Widget _buildMelHealButton(ExpedienteKorinGame game, bool isDan) {
     return ValueListenableBuilder<bool>(
       valueListenable: game.melReadyNotifier,
@@ -492,7 +492,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
           valueListenable: game.melCooldownNotifier,
           builder: (_, progress, __) {
             final btnColor = ready ? _greenDim : _brown700;
-            final label = isDan ? 'MEL\n♥' : 'CURAR\n♥';
+            final label = isDan ? 'MEL\nâ™¥' : 'CURAR\nâ™¥';
 
             return GestureDetector(
               onTapDown: (_) => game.mel.activateHeal(),
@@ -512,23 +512,23 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                       ),
                     ),
                   ),
-                  // Botón principal
+                  // BotÃ³n principal
                   Container(
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: btnColor.withOpacity(ready ? 0.75 : 0.45),
+                      color: btnColor.withValues(alpha: ready ? 0.75 : 0.45),
                       border: Border.all(
                         color: ready
-                            ? _greenDim.withOpacity(0.8)
-                            : _white60.withOpacity(0.15),
+                            ? _greenDim.withValues(alpha: 0.8)
+                            : _white60.withValues(alpha: 0.15),
                         width: 1.5,
                       ),
                       boxShadow: ready
                           ? [
                               BoxShadow(
-                                color: _greenDim.withOpacity(0.35),
+                                color: _greenDim.withValues(alpha: 0.35),
                                 blurRadius: 8,
                                 spreadRadius: 1,
                               ),
@@ -540,7 +540,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                         label,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: ready ? _white60 : _white60.withOpacity(0.4),
+                          color: ready ? _white60 : _white60.withValues(alpha: 0.4),
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'monospace',
@@ -571,11 +571,11 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
         height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: color.withOpacity(0.55),
-          border: Border.all(color: _white60.withOpacity(0.25), width: 1.5),
+          color: color.withValues(alpha: 0.55),
+          border: Border.all(color: _white60.withValues(alpha: 0.25), width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.4),
+              color: Colors.black.withValues(alpha: 0.4),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -596,7 +596,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     );
   }
 
-  // ── PANEL DE CONFIGURACIÓN ──────────────────────────────────────────
+  // â”€â”€ PANEL DE CONFIGURACIÃ“N â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildConfigPanel() {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -621,16 +621,16 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: _brown400.withOpacity(0.5))),
+                    border: Border.all(color: _brown400.withValues(alpha: 0.5))),
                 child: const Icon(Icons.close, color: _white60, size: 14),
               ),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        Divider(color: _brown400.withOpacity(0.4), height: 1),
+        Divider(color: _brown400.withValues(alpha: 0.4), height: 1),
         const SizedBox(height: 16),
-        _configSlider('MÚSICA', _volume, (v) {
+        _configSlider('MÃšSICA', _volume, (v) {
           setState(() {
             _volume = v;
             AudioManager().musicVolume = v;
@@ -648,7 +648,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
           child: ElevatedButton(
             onPressed: _confirmExit,
             style: ElevatedButton.styleFrom(
-              backgroundColor: _redDim.withOpacity(0.3),
+              backgroundColor: _redDim.withValues(alpha: 0.3),
               foregroundColor: const Color(0xFFE07070),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(6),
@@ -656,7 +656,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
               ),
               elevation: 0,
             ),
-            child: const Text('SALIR AL MENÚ',
+            child: const Text('SALIR AL MENÃš',
                 style: TextStyle(
                     fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'monospace')),
           ),
@@ -702,21 +702,21 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
           width: 360,
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
-            color: _brown900.withOpacity(0.95),
+            color: _brown900.withValues(alpha: 0.95),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: _brown400.withOpacity(0.5)),
+            border: Border.all(color: _brown400.withValues(alpha: 0.5)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('¿ABORTAR MISIÓN?',
+              const Text('Â¿ABORTAR MISIÃ“N?',
                   style: TextStyle(
                       color: Color(0xFFE07070),
                       fontSize: 16,
                       fontFamily: 'monospace',
                       fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
-              const Text('El progreso no guardado se perderá.',
+              const Text('El progreso no guardado se perderÃ¡.',
                   style: TextStyle(
                       color: _white60, fontSize: 12, fontFamily: 'monospace'),
                   textAlign: TextAlign.center),
@@ -753,3 +753,4 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     );
   }
 }
+

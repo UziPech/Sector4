@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../expediente_game.dart';
@@ -7,7 +6,7 @@ import '../enemies/redeemed_kijin_ally.dart';
 import '../enemies/allied_enemy.dart';
 import '../enemies/minions/yakuza_ghost.dart';
 
-/// Onda expansiva que daña y empuja a enemigos cercanos
+/// Onda expansiva que daÃ±a y empuja a enemigos cercanos
 /// Se usa en las transiciones de fase de On-Oyabun
 class ExplosiveWave extends PositionComponent with HasGameReference<ExpedienteKorinGame> {
   final double maxRadius;
@@ -21,10 +20,10 @@ class ExplosiveWave extends PositionComponent with HasGameReference<ExpedienteKo
   
   ExplosiveWave({
     required Vector2 position,
-    this.maxRadius = 800.0, // Aumentado de 300 a 800 para cubrir más mapa
+    this.maxRadius = 800.0, // Aumentado de 300 a 800 para cubrir mÃ¡s mapa
     this.duration = 0.8,
     this.damage = 30.0,
-    this.knockbackForce = 50.0, // Reducido drásticamente de 200 a 50 para evitar bugs de teleportación
+    this.knockbackForce = 50.0, // Reducido drÃ¡sticamente de 200 a 50 para evitar bugs de teleportaciÃ³n
   }) : super(position: position, anchor: Anchor.center);
   
   @override
@@ -39,7 +38,7 @@ class ExplosiveWave extends PositionComponent with HasGameReference<ExpedienteKo
     
     _timer += dt;
     
-    // Calcular radio actual (interpolación lineal rápida al principio, lenta al final)
+    // Calcular radio actual (interpolaciÃ³n lineal rÃ¡pida al principio, lenta al final)
     final progress = (_timer / duration).clamp(0.0, 1.0);
     // Easing out cubic
     final easeProgress = 1 - (1 - progress) * (1 - progress) * (1 - progress);
@@ -74,7 +73,7 @@ class ExplosiveWave extends PositionComponent with HasGameReference<ExpedienteKo
       }
     });
     
-    // 3. ALIADOS GENÉRICOS (Enfermeros, etc.)
+    // 3. ALIADOS GENÃ‰RICOS (Enfermeros, etc.)
     game.world.children.query<AlliedEnemy>().forEach((ally) {
       if (!ally.isDead && !_hitTargets.contains(ally)) {
         final dist = position.distanceTo(ally.position);
@@ -86,12 +85,12 @@ class ExplosiveWave extends PositionComponent with HasGameReference<ExpedienteKo
 
     // 4. MINIONS DE KOHAA (YakuzaGhost si son aliados/invocados por ella)
     // Asumimos que YakuzaGhost puede ser aliado o enemigo. 
-    // Si es invocado por Kohaa, debería ser afectado por el Boss.
-    // Si es invocado por el Boss, NO debería ser afectado (fuego amigo).
+    // Si es invocado por Kohaa, deberÃ­a ser afectado por el Boss.
+    // Si es invocado por el Boss, NO deberÃ­a ser afectado (fuego amigo).
     // Por simplicidad y solicitud del usuario ("sus minions de ella"), afectamos a todos los YakuzaGhost cercanos
-    // asumiendo que en este contexto los relevantes son los de Kohaa o que al Boss no le importa dañar a los suyos.
+    // asumiendo que en este contexto los relevantes son los de Kohaa o que al Boss no le importa daÃ±ar a los suyos.
     game.world.children.query<YakuzaGhost>().forEach((ghost) {
-      if (!_hitTargets.contains(ghost)) { // YakuzaGhost no tiene isDead público fácil a veces, pero PositionComponent sí
+      if (!_hitTargets.contains(ghost)) { // YakuzaGhost no tiene isDead pÃºblico fÃ¡cil a veces, pero PositionComponent sÃ­
          final dist = position.distanceTo(ghost.position);
          if (dist <= _currentRadius) {
            _applyHit(ghost);
@@ -103,7 +102,7 @@ class ExplosiveWave extends PositionComponent with HasGameReference<ExpedienteKo
   void _applyHit(PositionComponent target) {
     _hitTargets.add(target);
     
-    // Aplicar Daño
+    // Aplicar DaÃ±o
     if (target is PlayerCharacter) {
       target.takeDamage(damage);
     } else if (target is RedeemedKijinAlly) {
@@ -111,7 +110,7 @@ class ExplosiveWave extends PositionComponent with HasGameReference<ExpedienteKo
     } else if (target is AlliedEnemy) {
       target.takeDamage(damage);
     } else if (target is YakuzaGhost) {
-       // YakuzaGhost podría no tener takeDamage expuesto igual, intentamos dynamic o cast
+       // YakuzaGhost podrÃ­a no tener takeDamage expuesto igual, intentamos dynamic o cast
        // Si YakuzaGhost hereda de Enemy o tiene takeDamage
        try {
          (target as dynamic).takeDamage(damage);
@@ -122,10 +121,10 @@ class ExplosiveWave extends PositionComponent with HasGameReference<ExpedienteKo
     }
     
     // Aplicar Knockback (Reducido y seguro)
-    // Usamos una fuerza pequeña para evitar atravesar paredes
+    // Usamos una fuerza pequeÃ±a para evitar atravesar paredes
     final dir = (target.position - position).normalized();
     
-    // Si es el jugador, verificar límites básicos o aplicar fuerza menor
+    // Si es el jugador, verificar lÃ­mites bÃ¡sicos o aplicar fuerza menor
     if (target is PlayerCharacter) {
       target.position += dir * knockbackForce;
     } else {
@@ -133,7 +132,7 @@ class ExplosiveWave extends PositionComponent with HasGameReference<ExpedienteKo
     }
     
     // Debug visual (opcional)
-    debugPrint('💥 Onda Explosiva golpeó a ${target.runtimeType}');
+    debugPrint('ðŸ’¥ Onda Explosiva golpeÃ³ a ${target.runtimeType}');
   }
   
   @override
@@ -143,9 +142,9 @@ class ExplosiveWave extends PositionComponent with HasGameReference<ExpedienteKo
     final progress = (_timer / duration).clamp(0.0, 1.0);
     final opacity = (1.0 - progress).clamp(0.0, 1.0);
     
-    // Círculo de onda
+    // CÃ­rculo de onda
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.5 * opacity)
+      ..color = Colors.white.withValues(alpha: 0.5 * opacity)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 10 * (1 - progress)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
@@ -154,9 +153,10 @@ class ExplosiveWave extends PositionComponent with HasGameReference<ExpedienteKo
     
     // Relleno tenue
     final fillPaint = Paint()
-      ..color = Colors.red.withOpacity(0.2 * opacity)
+      ..color = Colors.red.withValues(alpha: 0.2 * opacity)
       ..style = PaintingStyle.fill;
       
     canvas.drawCircle(Offset.zero, _currentRadius, fillPaint);
   }
 }
+

@@ -1,0 +1,66 @@
+﻿Analyzing Sector4...                                            
+
+warning - The value of the field '_originalTint' isn't used - lib\components\enemy_character.dart:128:15 - unused_field
+warning - The value of the field '_lastPlayerUpdateTime' isn't used - lib\components\enemy_character.dart:140:10 - unused_field
+warning - The value of the field '_recentDamage' isn't used - lib\components\enemy_character.dart:183:10 - unused_field
+warning - The value of the field '_detectionPaint' isn't used - lib\components\enemy_character.dart:190:20 - unused_field
+warning - The declaration '_getFlankingPosition' isn't referenced - lib\components\enemy_character.dart:282:11 - unused_element
+warning - The declaration '_startDash' isn't referenced - lib\components\enemy_character.dart:748:8 - unused_element
+warning - The value of the field '_random' isn't used - lib\components\infinite_world.dart:110:21 - unused_field
+   info - Invalid use of a private type in a public API - lib\components\particle_effect.dart:10:14 - library_private_types_in_public_api
+warning - The declaration '_startCombo' isn't referenced - lib\game\components\bosses\on_oyabun_boss.dart:1097:8 - unused_element
+warning - The value of the local variable 'player' isn't used - lib\game\components\bosses\on_oyabun_boss.dart:1139:11 - unused_local_variable
+warning - The declaration '_startDuelStance' isn't referenced - lib\game\components\bosses\on_oyabun_boss.dart:1322:8 - unused_element
+warning - The value of the local variable 'offsetY' isn't used - lib\game\components\bosses\on_oyabun_boss.dart:1512:15 - unused_local_variable
+warning - The value of the field '_tacticalTimer' isn't used - lib\game\components\enemies\redeemed_kijin_ally.dart:48:16 - unused_field
+warning - The value of the field '_tacticalInterval' isn't used - lib\game\components\enemies\redeemed_kijin_ally.dart:49:16 - unused_field
+warning - The value of the field '_currentTactic' isn't used - lib\game\components\enemies\redeemed_kijin_ally.dart:50:10 - unused_field
+warning - The value of the local variable 'enemiesHit' isn't used - lib\game\components\enemies\redeemed_kijin_ally.dart:629:9 - unused_local_variable
+warning - The value of the field '_canRegenerate' isn't used - lib\game\components\enemies\yurei_kohaa.dart:44:14 - unused_field
+warning - The value of the field '_regenerationCooldown' isn't used - lib\game\components\enemies\yurei_kohaa.dart:45:16 - unused_field
+warning - The value of the field '_dashIndicatorPaint' isn't used - lib\game\components\enemies\yurei_kohaa.dart:89:20 - unused_field
+warning - The value of the local variable 'remaining' isn't used - lib\game\components\enemies\yurei_kohaa.dart:416:17 - unused_local_variable
+warning - The value of the local variable 'companionName' isn't used - lib\game\expediente_game.dart:289:11 - unused_local_variable
+warning - The declaration '_setupEnemySpawner' isn't referenced - lib\game\levels\exterior_map_level.dart:346:16 - unused_element
+warning - The declaration '_drawWeaponHotbar' isn't referenced - lib\game\ui\game_hud.dart:39:8 - unused_element
+warning - The declaration '_drawLivesCounter' isn't referenced - lib\game\ui\game_hud.dart:126:8 - unused_element
+warning - The declaration '_drawHealthBar' isn't referenced - lib\game\ui\game_hud.dart:246:8 - unused_element
+warning - The declaration '_drawCooldownBar' isn't referenced - lib\game\ui\game_hud.dart:288:8 - unused_element
+warning - The declaration '_drawResurrectionCounter' isn't referenced - lib\game\ui\game_hud.dart:315:8 - unused_element
+warning - The value of the field '_totalFrames' isn't used - lib\narrative\components\animated_tree.dart:26:20 - unused_field
+warning - The value of the field '_frameDuration' isn't used - lib\narrative\components\animated_tree.dart:27:23 - unused_field
+warning - The stack trace variable 'stackTrace' isn't used and can be removed - lib\narrative\components\skip_button.dart:148:17 - unused_catch_stack
+  error - Expected to find ';' - lib\narrative\screens\bunker_scene.dart:465:88 - expected_token
+  error - Expected an identifier - lib\narrative\screens\bunker_scene.dart:465:89 - missing_identifier
+  error - Expected to find ';' - lib\narrative\screens\bunker_scene.dart:465:89 - expected_token
+  error - Unexpected text ',' - lib\narrative\screens\bunker_scene.dart:465:89 - unexpected_token
+  error - Expected an identifier - lib\narrative\screens\bunker_scene.dart:466:9 - missing_identifier
+  error - Unexpected text ')' - lib\narrative\screens\bunker_scene.dart:466:9 - unexpected_token
+   info - Unnecessary empty statement - lib\narrative\screens\bunker_scene.dart:466:10 - empty_statements
+  error - Expected to find ';' - lib\narrative\screens\bunker_scene.dart:485:124 - expected_token
+  error - Expected an identifier - lib\narrative\screens\bunker_scene.dart:485:125 - missing_identifier
+  error - Expected to find ';' - lib\narrative\screens\bunker_scene.dart:485:125 - expected_token
+  error - Unexpected text ',' - lib\narrative\screens\bunker_scene.dart:485:125 - unexpected_token
+  error - Expected an identifier - lib\narrative\screens\bunker_scene.dart:486:9 - missing_identifier
+  error - Unexpected text ')' - lib\narrative\screens\bunker_scene.dart:486:9 - unexpected_token
+   info - Unnecessary empty statement - lib\narrative\screens\bunker_scene.dart:486:10 - empty_statements
+  error - Expected to find ';' - lib\narrative\screens\bunker_scene.dart:505:87 - expected_token
+  error - Expected an identifier - lib\narrative\screens\bunker_scene.dart:505:88 - missing_identifier
+  error - Expected to find ';' - lib\narrative\screens\bunker_scene.dart:505:88 - expected_token
+  error - Unexpected text ',' - lib\narrative\screens\bunker_scene.dart:505:88 - unexpected_token
+  error - Expected an identifier - lib\narrative\screens\bunker_scene.dart:506:9 - missing_identifier
+  error - Unexpected text ')' - lib\narrative\screens\bunker_scene.dart:506:9 - unexpected_token
+   info - Unnecessary empty statement - lib\narrative\screens\bunker_scene.dart:506:10 - empty_statements
+  error - Expected to find ';' - lib\narrative\screens\bunker_scene.dart:525:127 - expected_token
+  error - Expected an identifier - lib\narrative\screens\bunker_scene.dart:525:128 - missing_identifier
+  error - Expected to find ';' - lib\narrative\screens\bunker_scene.dart:525:128 - expected_token
+  error - Unexpected text ',' - lib\narrative\screens\bunker_scene.dart:525:128 - unexpected_token
+  error - Expected an identifier - lib\narrative\screens\bunker_scene.dart:526:9 - missing_identifier
+  error - Unexpected text ')' - lib\narrative\screens\bunker_scene.dart:526:9 - unexpected_token
+   info - Unnecessary empty statement - lib\narrative\screens\bunker_scene.dart:526:10 - empty_statements
+   info - Unnecessary instance of 'Container' - lib\narrative\screens\bunker_scene.dart:1040:18 - avoid_unnecessary_containers
+warning - The value of the field '_stairsDownSprite' isn't used - lib\narrative\screens\house_scene.dart:67:19 - unused_field
+warning - The declaration '_buildBottomEntranceWalls' isn't referenced - lib\narrative\screens\house_scene.dart:1459:16 - unused_element
+   info - Unnecessary instance of 'Container' - lib\narrative\screens\house_scene.dart:1948:18 - avoid_unnecessary_containers
+warning - The declaration '_createTree' isn't referenced - lib\narrative\systems\tree_generator.dart:67:27 - unused_element
+

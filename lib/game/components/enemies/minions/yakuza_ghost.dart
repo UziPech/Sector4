@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flutter/material.dart';
@@ -59,11 +58,11 @@ class YakuzaGhost extends PositionComponent
   void _updateAI(double dt) {
     final player = game.player;
     
-    // Buscar objetivo más cercano (Prioridad: Enfermeros > Kohaa > Jugador)
+    // Buscar objetivo mÃ¡s cercano (Prioridad: Enfermeros > Kohaa > Jugador)
     PositionComponent? target = player.isDead ? null : player;
     double minDistance = player.isDead ? double.infinity : position.distanceTo(player.position);
     
-    // PRIORIDAD 1: Enfermeros (fáciles de matar)
+    // PRIORIDAD 1: Enfermeros (fÃ¡ciles de matar)
     game.world.children.query<AlliedEnemy>().forEach((nurse) {
       if (!nurse.isDead) {
         final dist = position.distanceTo(nurse.position);
@@ -100,17 +99,17 @@ class YakuzaGhost extends PositionComponent
     
     if (target == null) return;
     
-    // Lógica de movimiento con separación (Steering Behavior)
+    // LÃ³gica de movimiento con separaciÃ³n (Steering Behavior)
     Vector2 direction = (target!.position - position).normalized();
     
-    // Fuerza de separación para evitar agruparse
+    // Fuerza de separaciÃ³n para evitar agruparse
     Vector2 separation = Vector2.zero();
     int neighbors = 0;
     
     game.world.children.query<YakuzaGhost>().forEach((other) {
       if (other != this && !other.isDead) {
         final dist = position.distanceTo(other.position);
-        if (dist < _size * 1.5) { // Radio de separación
+        if (dist < _size * 1.5) { // Radio de separaciÃ³n
           separation += (position - other.position).normalized() / dist;
           neighbors++;
         }
@@ -118,7 +117,7 @@ class YakuzaGhost extends PositionComponent
     });
     
     if (neighbors > 0) {
-      separation = separation.normalized() * 1.5; // Peso de la separación
+      separation = separation.normalized() * 1.5; // Peso de la separaciÃ³n
       direction = (direction + separation).normalized();
     }
     
@@ -126,7 +125,7 @@ class YakuzaGhost extends PositionComponent
     if (minDistance > _attackRange) {
       position += direction * _speed * dt;
     } else {
-      // Atacar si está en rango
+      // Atacar si estÃ¡ en rango
       _tryAttack();
     }
   }
@@ -139,16 +138,16 @@ class YakuzaGhost extends PositionComponent
     if (distance <= _attackRange) {
       if (_currentTarget is AlliedEnemy) {
         (_currentTarget as AlliedEnemy).takeDamage(_damage);
-        debugPrint('👻 Fantasma Yakuza ataca ENFERMERO: $_damage daño');
+        debugPrint('ðŸ‘» Fantasma Yakuza ataca ENFERMERO: $_damage daÃ±o');
       } else if (_currentTarget is PlayerCharacter) {
         (_currentTarget as PlayerCharacter).takeDamage(_damage);
-        debugPrint('👻 Fantasma Yakuza ataca Jugador: $_damage daño');
+        debugPrint('ðŸ‘» Fantasma Yakuza ataca Jugador: $_damage daÃ±o');
       } else if (_currentTarget is RedeemedKijinAlly) {
         (_currentTarget as RedeemedKijinAlly).takeDamage(_damage);
-        debugPrint('👻 Fantasma Yakuza ataca Kohaa ALIADA: $_damage daño');
+        debugPrint('ðŸ‘» Fantasma Yakuza ataca Kohaa ALIADA: $_damage daÃ±o');
       } else if (_currentTarget is YureiKohaa) {
         (_currentTarget as YureiKohaa).takeDamage(_damage);
-        debugPrint('👻 Fantasma Yakuza ataca Kohaa: $_damage daño');
+        debugPrint('ðŸ‘» Fantasma Yakuza ataca Kohaa: $_damage daÃ±o');
       }
       
       _attackTimer = _attackCooldown;
@@ -168,7 +167,7 @@ class YakuzaGhost extends PositionComponent
   
   void _die() {
     _isDead = true;
-    debugPrint('👻 Fantasma Yakuza eliminado');
+    debugPrint('ðŸ‘» Fantasma Yakuza eliminado');
     removeFromParent();
   }
   
@@ -178,7 +177,7 @@ class YakuzaGhost extends PositionComponent
     
     // Aura fantasmal (semi-transparente)
     final auraPaint = Paint()
-      ..color = Colors.grey.withOpacity(0.2)
+      ..color = Colors.grey.withValues(alpha: 0.2)
       ..style = PaintingStyle.fill;
     
     canvas.drawCircle(
@@ -189,7 +188,7 @@ class YakuzaGhost extends PositionComponent
     
     // Cuerpo del fantasma (gris oscuro)
     final bodyPaint = Paint()
-      ..color = const Color(0xFF505050).withOpacity(0.7)
+      ..color = const Color(0xFF505050).withValues(alpha: 0.7)
       ..style = PaintingStyle.fill;
     
     canvas.drawCircle(
@@ -200,7 +199,7 @@ class YakuzaGhost extends PositionComponent
     
     // Borde rojo (yakuza)
     final borderPaint = Paint()
-      ..color = Colors.red.withOpacity(0.5)
+      ..color = Colors.red.withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
     
@@ -222,7 +221,7 @@ class YakuzaGhost extends PositionComponent
     
     // Fondo
     final bgPaint = Paint()
-      ..color = Colors.black.withOpacity(0.5)
+      ..color = Colors.black.withValues(alpha: 0.5)
       ..style = PaintingStyle.fill;
     
     canvas.drawRect(
@@ -233,7 +232,7 @@ class YakuzaGhost extends PositionComponent
     // HP
     final healthPercent = (_health / _maxHealth).clamp(0.0, 1.0);
     final healthPaint = Paint()
-      ..color = Colors.red.withOpacity(0.7)
+      ..color = Colors.red.withValues(alpha: 0.7)
       ..style = PaintingStyle.fill;
     
     canvas.drawRect(
@@ -246,3 +245,4 @@ class YakuzaGhost extends PositionComponent
   bool get isDead => _isDead;
   double get health => _health;
 }
+

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/room_data.dart';
 import '../models/interactable_data.dart';
 import '../models/dialogue_data.dart';
-import 'tree_generator.dart';
 
 /// Gestor de habitaciones del búnker (Capítulo 2)
 class BunkerRoomManager {
@@ -375,7 +374,7 @@ class BunkerRoomManager {
                     'Reportes sobre Resonantes. Entidades que se alimentan de emociones...',
                 type: DialogueType.internal,
               ),
-              const DialogueData(
+              DialogueData(
                 speakerName: 'Dan',
                 text:
                     'Necesitan un "ancla" física. Un objeto obsesivo que los mantiene en este plano.',

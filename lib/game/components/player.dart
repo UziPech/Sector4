@@ -1,5 +1,4 @@
-import 'dart:ui' as ui;
-import 'dart:math';
+﻿import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/palette.dart';
@@ -13,13 +12,12 @@ import '../models/player_role.dart';
 import '../systems/resurrection_system.dart';
 import '../../narrative/models/dialogue_data.dart';
 import 'enemy_tomb.dart';
-import '../audio_manager.dart';
 import 'enemies/allied_enemy.dart';
 import 'enemies/redeemed_kijin_ally.dart';
 import 'tiled_wall.dart';
 
 /// Dan/Mel - El jugador principal
-/// Representa la culpa, vulnerabilidad y determinación del protagonista
+/// Representa la culpa, vulnerabilidad y determinaciÃƒÂ³n del protagonista
 class PlayerCharacter extends PositionComponent
     with
         KeyboardHandler,
@@ -48,34 +46,37 @@ class PlayerCharacter extends PositionComponent
   final Vector2 _velocity = Vector2.zero();
   final Set<LogicalKeyboardKey> _pressedKeys = {};
   Vector2 _previousPosition = Vector2.zero();
-  Vector2 lastMoveDirection = Vector2(1, 0); // Dirección por defecto (derecha)
+  Vector2 lastMoveDirection = Vector2(1, 0); // DirecciÃƒÂ³n por defecto (derecha)
 
   // Sistema de combate
   late final WeaponInventory weaponInventory;
 
-  // Invencibilidad temporal (al recibir daño)
+  // Invencibilidad temporal (al recibir daÃƒÂ±o)
   bool _isInvulnerable = false;
   double _invulnerabilityTimer = 0.0;
   static const double _invulnerabilityDuration = 1.0;
 
-  // Regeneración (solo Mel)
+  // RegeneraciÃƒÂ³n (solo Mel)
   double _regenTimer = 0.0;
 
   // Habilidad compartida: Dash (solo Mel con Kijin activo)
   bool _isDashing = false;
   bool _isPreparingDash = false;
-  double _dashPreparationTime = 0.6;
+  final double _dashPreparationTime = 0.6;
   double _dashPreparationTimer = 0.0;
-  double _dashDuration = 0.3;
+  final double _dashDuration = 0.3;
   double _dashTime = 0.0;
   Vector2 _dashDirection = Vector2.zero();
-  final double _dashSpeed = 600.0; // Más rápido que el Kijin
+  final double _dashSpeed = 600.0; // MÃƒÂ¡s rÃƒÂ¡pido que el Kijin
   final double _dashCooldown = 8.0; // Cooldown de 8 segundos
   double _dashTimer = 0.0;
 
   // Getters
+  @override
   double get health => _health;
+  @override
   double get maxHealth => _maxHealth;
+  @override
   bool get isDead => _isDead;
   bool get isInvulnerable => _isInvulnerable;
   PlayerRole get playerRole => role;
@@ -109,7 +110,7 @@ class PlayerCharacter extends PositionComponent
       // Agregar armas iniciales
       weaponInventory.addWeapon(
         MeleeWeapon(
-          name: 'Cuchillo del Diente Caótico',
+          name: 'Cuchillo del Diente CaÃƒÂ³tico',
           damage: 100.0,
           cooldown: 0.5,
         ),
@@ -117,7 +118,7 @@ class PlayerCharacter extends PositionComponent
 
       weaponInventory.addWeapon(
         RangedWeapon(
-          name: 'Pistola Estándar',
+          name: 'Pistola EstÃƒÂ¡ndar',
           damage: 20.0,
           maxAmmo: 20,
           cooldown: 0.25,
@@ -165,7 +166,7 @@ class PlayerCharacter extends PositionComponent
       final frameHeight = northImage.height / rows;
       final textureSize = Vector2(frameWidth, frameHeight);
 
-      // Animación Norte (Caminata)
+      // AnimaciÃƒÂ³n Norte (Caminata)
       final northAnim = SpriteAnimation.fromFrameData(
         northImage,
         SpriteAnimationData.sequenced(
@@ -176,7 +177,7 @@ class PlayerCharacter extends PositionComponent
         ),
       );
 
-      // Animación Sur (Caminata)
+      // AnimaciÃƒÂ³n Sur (Caminata)
       final southAnim = SpriteAnimation.fromFrameData(
         southImage,
         SpriteAnimationData.sequenced(
@@ -187,14 +188,14 @@ class PlayerCharacter extends PositionComponent
         ),
       );
 
-      // Animación Idle Norte (Usamos el primer frame de la animación norte)
+      // AnimaciÃƒÂ³n Idle Norte (Usamos el primer frame de la animaciÃƒÂ³n norte)
       final idleNorthAnim = SpriteAnimation.spriteList(
         [northAnim.frames[0].sprite],
         stepTime: 1.0,
         loop: false,
       );
 
-      // Animación Idle Sur (Usamos el primer frame de la animación sur)
+      // AnimaciÃƒÂ³n Idle Sur (Usamos el primer frame de la animaciÃƒÂ³n sur)
       final idleSouthAnim = SpriteAnimation.spriteList(
         [southAnim.frames[0].sprite],
         stepTime: 1.0,
@@ -210,7 +211,7 @@ class PlayerCharacter extends PositionComponent
         },
         current: 'idle_south',
         anchor: Anchor.center,
-        // El tamaño visual es 80x80 como en el capítulo 1
+        // El tamaÃƒÂ±o visual es 80x80 como en el capÃƒÂ­tulo 1
         size: Vector2(80, 80),
         // Centrado respecto al componente Player (que es 32x32)
         position: Vector2(16, 16),
@@ -236,7 +237,7 @@ class PlayerCharacter extends PositionComponent
       }
     }
 
-    // Regeneración (solo Mel)
+    // RegeneraciÃƒÂ³n (solo Mel)
     if (stats.hasRegeneration && !_isDead) {
       _regenTimer += dt;
       if (_regenTimer >= stats.regenerationInterval) {
@@ -248,19 +249,19 @@ class PlayerCharacter extends PositionComponent
     // Actualizar dash timer
     if (_dashTimer > 0) _dashTimer -= dt;
 
-    // Lógica de preparación del dash
+    // LÃƒÂ³gica de preparaciÃƒÂ³n del dash
     if (_isPreparingDash) {
       _dashPreparationTimer += dt;
       if (_dashPreparationTimer >= _dashPreparationTime) {
         _isPreparingDash = false;
         _isDashing = true;
         _dashPreparationTimer = 0.0;
-        print('⚡ ¡Mel usa DASH compartido del Kijin!');
+        // print('Ã¢Å¡Â¡ Ã‚Â¡Mel usa DASH compartido del Kijin!');
       }
-      return; // No movimiento normal durante preparación
+      return; // No movimiento normal durante preparaciÃƒÂ³n
     }
 
-    // Lógica de dash
+    // LÃƒÂ³gica de dash
     if (_isDashing) {
       _dashTime += dt;
       if (_dashTime >= _dashDuration) {
@@ -270,7 +271,7 @@ class PlayerCharacter extends PositionComponent
         final newPosition = position + (_dashDirection * _dashSpeed * dt);
         position = _constrainToWorldBounds(
           newPosition,
-        ); // Aplicar límites durante dash
+        ); // Aplicar lÃƒÂ­mites durante dash
         return; // No movimiento normal durante dash
       }
     }
@@ -278,7 +279,7 @@ class PlayerCharacter extends PositionComponent
     // Movimiento normal
     _updateMovement(dt);
 
-    // Actualizar animación de Dan
+    // Actualizar animaciÃƒÂ³n de Dan
     if (_danSprite != null) {
       _updateDanAnimation();
     }
@@ -292,7 +293,7 @@ class PlayerCharacter extends PositionComponent
       } else if (_velocity.y > 0.1) {
         _danSprite!.current = 'south';
       } else {
-        // Movimiento horizontal: mantener dirección vertical previa o usar sur
+        // Movimiento horizontal: mantener direcciÃƒÂ³n vertical previa o usar sur
         final current = _danSprite!.current;
         if (current == 'north' || current == 'idle_north') {
           _danSprite!.current = 'north';
@@ -346,32 +347,32 @@ class PlayerCharacter extends PositionComponent
     // Aplicar velocidad
     _velocity.setFrom(inputVelocity * stats.speed);
 
-    // Actualizar dirección de mirada
+    // Actualizar direcciÃƒÂ³n de mirada
     if (_velocity.length > 0) {
       lastMoveDirection = _velocity.normalized();
       _previousPosition = position.clone();
 
-      // Calcular nueva posición
+      // Calcular nueva posiciÃƒÂ³n
       final newPosition = position + (_velocity * dt);
 
-      // Aplicar límites del mundo con deslizamiento
+      // Aplicar lÃƒÂ­mites del mundo con deslizamiento
       position = _constrainToWorldBounds(newPosition);
     }
   }
 
   Vector2 _constrainToWorldBounds(Vector2 newPos) {
-    // Límites dinámicos según el tamaño del mundo
-    // Obtener tamaño del mundo desde la cámara o usar valores por defecto
+    // LÃƒÂ­mites dinÃƒÂ¡micos segÃƒÂºn el tamaÃƒÂ±o del mundo
+    // Obtener tamaÃƒÂ±o del mundo desde la cÃƒÂ¡mara o usar valores por defecto
     final worldSize = game.camera.visibleWorldRect;
 
-    // Si no hay worldSize, usar límites por defecto (mapa grande)
-    // Ajustado para el mapa del Búnker (Min X: -700, Max X: 2100, Min Y: 0, Max Y: 2000)
+    // Si no hay worldSize, usar lÃƒÂ­mites por defecto (mapa grande)
+    // Ajustado para el mapa del BÃƒÂºnker (Min X: -700, Max X: 2100, Min Y: 0, Max Y: 2000)
     double worldMinX = -1000.0;
     double worldMaxX = 2500.0;
     double worldMinY = -100.0;
     double worldMaxY = 2500.0;
 
-    // Ajustar según el tamaño real del mundo si está disponible
+    // Ajustar segÃƒÂºn el tamaÃƒÂ±o real del mundo si estÃƒÂ¡ disponible
     if (worldSize.width > 3000) {
       // Mapa grande (3000x3000)
       worldMinX = 250.0;
@@ -380,10 +381,10 @@ class PlayerCharacter extends PositionComponent
       worldMaxY = 2750.0;
     }
 
-    // Crear copia de la nueva posición
+    // Crear copia de la nueva posiciÃƒÂ³n
     final constrainedPos = newPos.clone();
 
-    // Aplicar límites con deslizamiento
+    // Aplicar lÃƒÂ­mites con deslizamiento
     // Si golpeas un borde en X, puedes seguir moviendo en Y
     if (newPos.x < worldMinX) {
       constrainedPos.x = worldMinX;
@@ -420,7 +421,7 @@ class PlayerCharacter extends PositionComponent
         weaponInventory.nextWeapon();
       }
 
-      // Recargar con R (solo armas con munición)
+      // Recargar con R (solo armas con municiÃƒÂ³n)
       if (event.logicalKey == LogicalKeyboardKey.keyR) {
         final currentWeapon = weaponInventory.currentWeapon;
         if (currentWeapon is RangedWeapon) {
@@ -434,13 +435,13 @@ class PlayerCharacter extends PositionComponent
         tryResurrect();
       }
 
-      // Curar con E (solo Dan) — activa la habilidad de Mel companion
+      // Curar con E (solo Dan) Ã¢â‚¬â€ activa la habilidad de Mel companion
       if (event.logicalKey == LogicalKeyboardKey.keyE &&
           role == PlayerRole.dan) {
         game.mel.activateHeal();
       }
 
-      // Curar con F (solo Mel) — auto-curación via Mel companion (E ya es resurrect)
+      // Curar con F (solo Mel) Ã¢â‚¬â€ auto-curaciÃƒÂ³n via Mel companion (E ya es resurrect)
       if (event.logicalKey == LogicalKeyboardKey.keyF &&
           role == PlayerRole.mel) {
         game.mel.activateHeal();
@@ -553,11 +554,11 @@ class PlayerCharacter extends PositionComponent
         .query<ResurrectionManager>()
         .firstOrNull;
 
-    // Consumir resurrección según tipo
+    // Consumir resurrecciÃƒÂ³n segÃƒÂºn tipo
     if (tomb.isKijin) {
       manager.registerKijinAlly();
 
-      // Crear KIJIN REDIMIDO (sin expiración por tiempo)
+      // Crear KIJIN REDIMIDO (sin expiraciÃƒÂ³n por tiempo)
       final kijinAlly = RedeemedKijinAlly(
         position: tomb.position.clone(),
         resurrectionManager: resurrectionManager,
@@ -579,30 +580,30 @@ class PlayerCharacter extends PositionComponent
     // Remover la tumba
     tomb.removeFromParent();
 
-    // Crear efecto visual de resurrección
+    // Crear efecto visual de resurrecciÃƒÂ³n
     _createResurrectionEffect(tomb.position);
 
-    // MOSTRAR DIÁLOGO VISUAL PARA KOHAA
+    // MOSTRAR DIÃƒÂLOGO VISUAL PARA KOHAA
     if (tomb.enemyType.contains('kohaa') || tomb.enemyType.contains('kijin')) {
       _showKohaaGratitudeDialogue();
     }
   }
 
-  /// Muestra diálogo visual de agradecimiento de Kohaa
+  /// Muestra diÃƒÂ¡logo visual de agradecimiento de Kohaa
   void _showKohaaGratitudeDialogue() {
     final isDan = role == PlayerRole.dan;
 
-    // Mensaje personalizado según quien resucite
+    // Mensaje personalizado segÃƒÂºn quien resucite
     final kohaaThanksMessage = isDan
-        ? "Tú... me liberaste. No con muerte, sino con comprensión. Lucharé a tu lado, Dan. Por primera vez en siglos... tengo un propósito."
-        : "Mel... puedo sentir tu dolor. Es como el mío. Gracias por darme una segunda oportunidad. Protegeré tu luz.";
+        ? "TÃƒÂº... me liberaste. No con muerte, sino con comprensiÃƒÂ³n. LucharÃƒÂ© a tu lado, Dan. Por primera vez en siglos... tengo un propÃƒÂ³sito."
+        : "Mel... puedo sentir tu dolor. Es como el mÃƒÂ­o. Gracias por darme una segunda oportunidad. ProtegerÃƒÂ© tu luz.";
 
     // Mensaje adicional para Mel sobre habilidad compartida
     final sharedAbilityMessage = isDan
         ? null // Dan no tiene habilidad compartida
-        : "Mi poder ahora es tuyo, Mel. Presiona SHIFT para usar mi dash. Siente la velocidad que una vez usé para sembrar terror... ahora al servicio de la esperanza.";
+        : "Mi poder ahora es tuyo, Mel. Presiona SHIFT para usar mi dash. Siente la velocidad que una vez usÃƒÂ© para sembrar terror... ahora al servicio de la esperanza.";
 
-    // Crear secuencia de diálogo
+    // Crear secuencia de diÃƒÂ¡logo
     final dialogues = [
       DialogueData(
         speakerName: 'Yurei Kohaa',
@@ -632,27 +633,27 @@ class PlayerCharacter extends PositionComponent
       id: 'kohaa_resurrection',
       dialogues: dialogues,
       onComplete: () {
-        debugPrint('💮 Diálogo de Kohaa completado');
+        debugPrint('Ã°Å¸â€™Â® DiÃƒÂ¡logo de Kohaa completado');
       },
     );
 
-    // Mostrar diálogo a través del juego
+    // Mostrar diÃƒÂ¡logo a travÃƒÂ©s del juego
     game.showDialogue(dialogueSequence);
   }
 
-  /// Crea efecto visual de resurrección
+  /// Crea efecto visual de resurrecciÃƒÂ³n
   void _createResurrectionEffect(Vector2 position) {
     final effect = _ResurrectionEffect(position: position.clone());
     game.world.add(effect);
   }
 
-  /// Recibe daño
+  /// Recibe daÃƒÂ±o
   void takeDamage(double damage) {
     if (_isDead || _isInvulnerable) return;
 
-    // INVULNERABLE durante preparación del dash
+    // INVULNERABLE durante preparaciÃƒÂ³n del dash
     if (_isPreparingDash) {
-      print('🛡️ ¡Mel es INVULNERABLE! (Preparando dash del Kijin)');
+      // print('Ã°Å¸â€ºÂ¡Ã¯Â¸Â Ã‚Â¡Mel es INVULNERABLE! (Preparando dash del Kijin)');
       return;
     }
 
@@ -667,6 +668,7 @@ class PlayerCharacter extends PositionComponent
   }
 
   /// Cura al jugador
+  @override
   void heal(double amount) {
     if (_isDead) return;
 
@@ -691,7 +693,7 @@ class PlayerCharacter extends PositionComponent
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
 
-    // Colisión con paredes - retroceder
+    // ColisiÃƒÂ³n con paredes - retroceder
     if (other is TiledWall ||
         other.runtimeType.toString().contains('SimpleWall')) {
       position = _previousPosition.clone();
@@ -707,7 +709,7 @@ class PlayerCharacter extends PositionComponent
       return; // No renderizar (parpadeo)
     }
 
-    // Indicador de preparación de dash (AMARILLO brillante) - Habilidad compartida
+    // Indicador de preparaciÃƒÂ³n de dash (AMARILLO brillante) - Habilidad compartida
     if (_isPreparingDash) {
       final preparePaint = Paint()
         ..color = Colors.amber
@@ -719,7 +721,7 @@ class PlayerCharacter extends PositionComponent
       // Segundo anillo pulsante
       final pulse = (sin(_dashPreparationTimer * 10) * 0.5 + 0.5);
       final pulsePaint = Paint()
-        ..color = Colors.white.withOpacity(pulse)
+        ..color = Colors.white.withValues(alpha: pulse)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2;
 
@@ -736,17 +738,17 @@ class PlayerCharacter extends PositionComponent
       canvas.drawCircle((size / 2).toOffset(), _size / 2 + 10, dashPaint);
     }
 
-    // Dibujar círculo del jugador (color según rol) - SOLO SI NO HAY SPRITE
+    // Dibujar cÃƒÂ­rculo del jugador (color segÃƒÂºn rol) - SOLO SI NO HAY SPRITE
     if (_danSprite == null) {
       final paint = role == PlayerRole.dan ? _paintDan : _paintMel;
       canvas.drawCircle((size / 2).toOffset(), _size / 2, paint);
     }
 
-    // Efecto visual de regeneración para Mel
+    // Efecto visual de regeneraciÃƒÂ³n para Mel
     if (stats.hasRegeneration && _regenTimer > 0) {
       final regenProgress = _regenTimer / stats.regenerationInterval;
       final regenPaint = Paint()
-        ..color = Colors.green.withOpacity(0.3 * regenProgress)
+        ..color = Colors.green.withValues(alpha: 0.3 * regenProgress)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2;
 
@@ -755,9 +757,9 @@ class PlayerCharacter extends PositionComponent
   }
 } // CIERRE DE LA CLASE PlayerCharacter
 
-/// Efecto visual de resurrección
+/// Efecto visual de resurrecciÃƒÂ³n
 class _ResurrectionEffect extends PositionComponent {
-  double _lifetime = 1.0;
+  final double _lifetime = 1.0;
   double _timer = 0.0;
 
   _ResurrectionEffect({required Vector2 position})
@@ -780,7 +782,7 @@ class _ResurrectionEffect extends PositionComponent {
     final progress = _timer / _lifetime;
     final opacity = (1.0 - progress).clamp(0.0, 1.0);
 
-    // Círculos expansivos verdes
+    // CÃƒÂ­rculos expansivos verdes
     for (int i = 0; i < 3; i++) {
       final delay = i * 0.2;
       final adjustedProgress = ((progress - delay) / (1.0 - delay)).clamp(
@@ -790,16 +792,16 @@ class _ResurrectionEffect extends PositionComponent {
       final radius = 20.0 + (adjustedProgress * 40.0);
 
       final paint = Paint()
-        ..color = Colors.green.withOpacity(opacity * 0.6)
+        ..color = Colors.green.withValues(alpha: opacity * 0.6)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3;
 
       canvas.drawCircle((size / 2).toOffset(), radius, paint);
     }
 
-    // Partículas ascendentes
+    // PartÃƒÂ­culas ascendentes
     final particlePaint = Paint()
-      ..color = Colors.green.withOpacity(opacity * 0.8)
+      ..color = Colors.green.withValues(alpha: opacity * 0.8)
       ..style = PaintingStyle.fill;
 
     for (int i = 0; i < 8; i++) {
@@ -811,13 +813,13 @@ class _ResurrectionEffect extends PositionComponent {
       canvas.drawCircle(Offset(x, y), 5.0 * (1.0 - progress), particlePaint);
     }
 
-    // Texto "RESURRECCIÓN"
+    // Texto "RESURRECCIÃƒâ€œN"
     if (progress < 0.7) {
       final textPainter = TextPainter(
         text: TextSpan(
-          text: 'RESURRECCIÓN',
+          text: 'RESURRECCIÃƒâ€œN',
           style: TextStyle(
-            color: Colors.green.withOpacity(opacity),
+            color: Colors.green.withValues(alpha: opacity),
             fontSize: 16,
             fontWeight: FontWeight.bold,
             fontFamily: 'monospace',
@@ -837,3 +839,5 @@ class _ResurrectionEffect extends PositionComponent {
   @override
   int get priority => 100;
 }
+
+

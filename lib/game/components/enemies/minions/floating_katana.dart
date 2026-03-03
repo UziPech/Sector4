@@ -1,4 +1,4 @@
-import 'dart:math';
+﻿import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +8,7 @@ import '../yurei_kohaa.dart'; // Para atacar a Kohaa
 import '../redeemed_kijin_ally.dart'; // Para atacar a Kohaa aliada
 import '../allied_enemy.dart'; // Para atacar enfermeros
 
-/// Katana flotante autónoma que ataca al jugador
+/// Katana flotante autÃ³noma que ataca al jugador
 /// Aparece a 40% HP en Fase 2 del jefe
 class FloatingKatana extends PositionComponent 
     with CollisionCallbacks, HasGameReference<ExpedienteKorinGame> {
@@ -65,11 +65,11 @@ class FloatingKatana extends PositionComponent
   void _updateAI(double dt) {
     final player = game.player;
     
-    // Buscar objetivo más cercano (Prioridad: Enfermeros > Kohaa > Jugador)
+    // Buscar objetivo mÃ¡s cercano (Prioridad: Enfermeros > Kohaa > Jugador)
     PositionComponent? target = player.isDead ? null : player;
     double minDistance = player.isDead ? double.infinity : position.distanceTo(player.position);
     
-    // PRIORIDAD 1: Enfermeros (fáciles de matar)
+    // PRIORIDAD 1: Enfermeros (fÃ¡ciles de matar)
     game.world.children.query<AlliedEnemy>().forEach((nurse) {
       if (!nurse.isDead) {
         final dist = position.distanceTo(nurse.position);
@@ -134,16 +134,16 @@ class FloatingKatana extends PositionComponent
     if (distance <= _attackRange) {
       if (_currentTarget is AlliedEnemy) {
         (_currentTarget as AlliedEnemy).takeDamage(_damage);
-        debugPrint('⚔️ Katana flotante ataca ENFERMERO: $_damage daño');
+        debugPrint('âš”ï¸ Katana flotante ataca ENFERMERO: $_damage daÃ±o');
       } else if (_currentTarget is PlayerCharacter) {
         (_currentTarget as PlayerCharacter).takeDamage(_damage);
-        debugPrint('⚔️ Katana flotante ataca Jugador: $_damage daño');
+        debugPrint('âš”ï¸ Katana flotante ataca Jugador: $_damage daÃ±o');
       } else if (_currentTarget is RedeemedKijinAlly) {
         (_currentTarget as RedeemedKijinAlly).takeDamage(_damage);
-        debugPrint('⚔️ Katana flotante ataca Kohaa ALIADA: $_damage daño');
+        debugPrint('âš”ï¸ Katana flotante ataca Kohaa ALIADA: $_damage daÃ±o');
       } else if (_currentTarget is YureiKohaa) {
         (_currentTarget as YureiKohaa).takeDamage(_damage);
-        debugPrint('⚔️ Katana flotante ataca Kohaa: $_damage daño');
+        debugPrint('âš”ï¸ Katana flotante ataca Kohaa: $_damage daÃ±o');
       }
       
       _attackTimer = _attackCooldown;
@@ -163,7 +163,7 @@ class FloatingKatana extends PositionComponent
   
   void _die() {
     _isDead = true;
-    debugPrint('⚔️ Katana flotante destruida');
+    debugPrint('âš”ï¸ Katana flotante destruida');
     removeFromParent();
   }
   
@@ -173,7 +173,7 @@ class FloatingKatana extends PositionComponent
     
     // Aura flotante (brillante)
     final auraPaint = Paint()
-      ..color = Colors.cyan.withOpacity(0.3)
+      ..color = Colors.cyan.withValues(alpha: 0.3)
       ..style = PaintingStyle.fill;
     
     canvas.drawCircle(
@@ -197,7 +197,7 @@ class FloatingKatana extends PositionComponent
     
     canvas.drawRect(size.toRect(), edgePaint);
     
-    // Barra de vida pequeña
+    // Barra de vida pequeÃ±a
     _drawHealthBar(canvas);
   }
   
@@ -209,7 +209,7 @@ class FloatingKatana extends PositionComponent
     
     // Fondo
     final bgPaint = Paint()
-      ..color = Colors.black.withOpacity(0.5)
+      ..color = Colors.black.withValues(alpha: 0.5)
       ..style = PaintingStyle.fill;
     
     canvas.drawRect(
@@ -220,7 +220,7 @@ class FloatingKatana extends PositionComponent
     // HP
     final healthPercent = (_health / _maxHealth).clamp(0.0, 1.0);
     final healthPaint = Paint()
-      ..color = Colors.cyan.withOpacity(0.8)
+      ..color = Colors.cyan.withValues(alpha: 0.8)
       ..style = PaintingStyle.fill;
     
     canvas.drawRect(
@@ -233,3 +233,4 @@ class FloatingKatana extends PositionComponent
   bool get isDead => _isDead;
   double get health => _health;
 }
+

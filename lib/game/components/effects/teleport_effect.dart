@@ -1,14 +1,14 @@
-import 'dart:math';
+﻿import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../expediente_game.dart';
 
-/// Efecto visual de teletransportación del boss
-/// Círculo de sombras que se expande/contrae
+/// Efecto visual de teletransportaciÃ³n del boss
+/// CÃ­rculo de sombras que se expande/contrae
 class TeleportEffect extends PositionComponent 
     with HasGameReference<ExpedienteKorinGame> {
   
-  final bool isFadeOut; // true = desaparición, false = aparición
+  final bool isFadeOut; // true = desapariciÃ³n, false = apariciÃ³n
   final double duration;
   double _timer = 0.0;
   
@@ -21,7 +21,7 @@ class TeleportEffect extends PositionComponent
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    size = Vector2.all(150); // Tamaño del efecto
+    size = Vector2.all(150); // TamaÃ±o del efecto
   }
   
   @override
@@ -41,7 +41,7 @@ class TeleportEffect extends PositionComponent
     
     final progress = (_timer / duration).clamp(0.0, 1.0);
     
-    // Radio del círculo según si es fade out o fade in
+    // Radio del cÃ­rculo segÃºn si es fade out o fade in
     final radius = isFadeOut 
         ? 75 * (1 - progress) // Se contrae
         : 75 * progress; // Se expande
@@ -51,9 +51,9 @@ class TeleportEffect extends PositionComponent
         ? 0.8 * (1 - progress)
         : 0.8 * (1 - progress);
     
-    // Círculo principal (negro/rojo)
+    // CÃ­rculo principal (negro/rojo)
     final mainPaint = Paint()
-      ..color = Colors.black.withOpacity(opacity)
+      ..color = Colors.black.withValues(alpha: opacity)
       ..style = PaintingStyle.fill;
     
     canvas.drawCircle(
@@ -64,7 +64,7 @@ class TeleportEffect extends PositionComponent
     
     // Anillo rojo exterior
     final ringPaint = Paint()
-      ..color = Colors.red.withOpacity(opacity * 0.6)
+      ..color = Colors.red.withValues(alpha: opacity * 0.6)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
     
@@ -74,13 +74,13 @@ class TeleportEffect extends PositionComponent
       ringPaint,
     );
     
-    // Partículas de sombra (pequeños círculos)
+    // PartÃ­culas de sombra (pequeÃ±os cÃ­rculos)
     final particlePaint = Paint()
-      ..color = Colors.grey.withOpacity(opacity * 0.4)
+      ..color = Colors.grey.withValues(alpha: opacity * 0.4)
       ..style = PaintingStyle.fill;
     
     for (int i = 0; i < 8; i++) {
-      final angle = (i / 8) * 2 * 3.14159 + (_timer * 3); // Rotación
+      final angle = (i / 8) * 2 * 3.14159 + (_timer * 3); // RotaciÃ³n
       final particleRadius = radius * 0.8;
       final x = size.x / 2 + particleRadius * cos(angle);
       final y = size.y / 2 + particleRadius * sin(angle);
@@ -93,3 +93,4 @@ class TeleportEffect extends PositionComponent
     }
   }
 }
+

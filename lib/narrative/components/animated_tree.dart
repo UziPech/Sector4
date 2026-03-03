@@ -7,30 +7,26 @@ class AnimatedTree extends StatefulWidget {
   final String spritePath;
   final double width;
   final double height;
-  
+
   const AnimatedTree({
-    Key? key,
+    super.key,
     required this.spritePath,
     required this.width,
     required this.height,
-  }) : super(key: key);
+  });
 
   @override
   State<AnimatedTree> createState() => _AnimatedTreeState();
 }
 
 class _AnimatedTreeState extends State<AnimatedTree> {
-  int _currentFrame = 0;
+  final int _currentFrame = 0;
   Timer? _animationTimer;
-  
-  static const int _totalFrames = 4;
-  static const double _frameDuration = 0.4; // 400ms por frame = 2.5 FPS
-  
+
   @override
   void initState() {
     super.initState();
     // Animación deshabilitada temporalmente - mostrar solo frame 0
-    // TODO: Habilitar cuando tengamos sprite sheet con árbol estático y hojas cayendo
     /*
     _animationTimer = Timer.periodic(
       Duration(milliseconds: (_frameDuration * 1000).toInt()),
@@ -44,13 +40,13 @@ class _AnimatedTreeState extends State<AnimatedTree> {
     );
     */
   }
-  
+
   @override
   void dispose() {
     _animationTimer?.cancel();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     // Calcular el sourceRect basado en el frame actual
@@ -60,7 +56,7 @@ class _AnimatedTreeState extends State<AnimatedTree> {
       128,
       128,
     );
-    
+
     return FutureBuilder<ui.Image>(
       future: _loadImage(widget.spritePath),
       builder: (context, snapshot) {
@@ -74,23 +70,22 @@ class _AnimatedTreeState extends State<AnimatedTree> {
           );
         }
         // Placeholder mientras carga
-        return SizedBox(
-          width: widget.width,
-          height: widget.height,
-        );
+        return SizedBox(width: widget.width, height: widget.height);
       },
     );
   }
-  
+
   Future<ui.Image> _loadImage(String path) async {
     final completer = Completer<ui.Image>();
     final image = AssetImage(path);
     final stream = image.resolve(const ImageConfiguration());
-    
-    stream.addListener(ImageStreamListener((info, _) {
-      completer.complete(info.image);
-    }));
-    
+
+    stream.addListener(
+      ImageStreamListener((info, _) {
+        completer.complete(info.image);
+      }),
+    );
+
     return completer.future;
   }
 }
@@ -99,18 +94,15 @@ class _AnimatedTreeState extends State<AnimatedTree> {
 class _TreeSpritePainter extends CustomPainter {
   final ui.Image image;
   final Rect sourceRect;
-  
-  _TreeSpritePainter({
-    required this.image,
-    required this.sourceRect,
-  });
-  
+
+  _TreeSpritePainter({required this.image, required this.sourceRect});
+
   @override
   void paint(Canvas canvas, Size size) {
     final destRect = Rect.fromLTWH(0, 0, size.width, size.height);
     canvas.drawImageRect(image, sourceRect, destRect, Paint());
   }
-  
+
   @override
   bool shouldRepaint(_TreeSpritePainter oldDelegate) {
     return oldDelegate.sourceRect != sourceRect;

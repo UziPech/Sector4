@@ -1,5 +1,4 @@
 import 'package:flame/components.dart';
-import 'package:flame/palette.dart';
 import 'package:flame/collisions.dart';
 import 'package:flutter/material.dart';
 import '../expediente_game.dart';
@@ -21,7 +20,7 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
   Future<void> onLoad() async {
     await super.onLoad();
     
-    // 1. Crear paredes del búnker (Layout Completo)
+    // 1. Crear paredes del bÃºnker (Layout Completo)
     _createBunkerLayout();
     
     // 2.Spawnear al Jugador (Centro de Comando)
@@ -29,10 +28,10 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
     // Adjusted to (350, 250) to be safely inside the room with 100px thick walls
     game.player.position = Vector2(350, 250); 
     
-    // 3. Spawnear al Stalker (VESTÍBULO - Salida)
-    // El Stalker bloquea la salida, añadiendo tensión
+    // 3. Spawnear al Stalker (VESTÃBULO - Salida)
+    // El Stalker bloquea la salida, aÃ±adiendo tensiÃ³n
     _stalker = StalkerEnemy();
-    _stalker!.position = Vector2(350, 1750); // Vestíbulo (salida del bunker)
+    _stalker!.position = Vector2(350, 1750); // VestÃ­bulo (salida del bunker)
     _stalker!.playerToTrack = game.player;
     game.world.add(_stalker!);
     
@@ -45,20 +44,20 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
       Vector2(1250, 850),  // Lab - centro-derecha
       
       // CAFETERIA (1400-2100, 500-1000)
-      Vector2(1600, 700),  // Cafetería - izquierda
-      Vector2(1900, 850),  // Cafetería - centro
+      Vector2(1600, 700),  // CafeterÃ­a - izquierda
+      Vector2(1900, 850),  // CafeterÃ­a - centro
       
       // DORMITORIOS (0-700, 1000-1500)
       Vector2(350, 1250),  // Dormitorios - centro
       
       // ARMERIA (-700-0, 500-1000)
-      Vector2(-350, 750),  // Armería - centro
+      Vector2(-350, 750),  // ArmerÃ­a - centro
       
       // BIBLIOTECA (-700-0, 0-500)
       Vector2(-350, 250),  // Biblioteca - centro
     ];
     
-    // Randomizar cuál es el real
+    // Randomizar cuÃ¡l es el real
     final random = math.Random();
     final realObjectIndex = random.nextInt(objectPositions.length);
     
@@ -87,11 +86,11 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
     
     // 5.5. Mensaje de advertencia de zona peligrosa
     game.notificationSystem.show(
-      '⚠️ ZONA PELIGROSA ⚠️',
-      'ENTIDAD HOSTIL DETECTADA - NIVEL DE AMENAZA: CRÍTICO',
+      'âš ï¸ ZONA PELIGROSA âš ï¸',
+      'ENTIDAD HOSTIL DETECTADA - NIVEL DE AMENAZA: CRÃTICO',
     );
     
-    // 6. Pantalla Negra de Transición
+    // 6. Pantalla Negra de TransiciÃ³n
     final blackScreen = BlackScreenOverlay();
     game.camera.viewport.add(blackScreen);
     
@@ -116,7 +115,7 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
   void onMount() {
     super.onMount();
     // Mostrar tutorial al iniciar
-    // Usamos un pequeño delay para asegurar que el contexto esté listo
+    // Usamos un pequeÃ±o delay para asegurar que el contexto estÃ© listo
     Future.delayed(const Duration(milliseconds: 500), () {
       _showTutorial();
     });
@@ -132,12 +131,12 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
       dialogues: [
         const DialogueData(
           speakerName: 'Sistema',
-          text: 'ALERTA: Entidad Hostil "The Stalker" detectada. Nivel de amenaza: CRÍTICO.',
+          text: 'ALERTA: Entidad Hostil "The Stalker" detectada. Nivel de amenaza: CRÃTICO.',
           type: DialogueType.system,
         ),
         const DialogueData(
           speakerName: 'Dan',
-          text: 'Maldición, es rápido. Y mis armas no le hacen nada.',
+          text: 'MaldiciÃ³n, es rÃ¡pido. Y mis armas no le hacen nada.',
           avatarPath: 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
         ),
         const DialogueData(
@@ -147,22 +146,22 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
         ),
         const DialogueData(
           speakerName: 'Mel',
-          text: 'He detectado una firma de energía en el LABORATORIO (Derecha). Encuentra el objeto y destrúyelo.',
+          text: 'He detectado una firma de energÃ­a en el LABORATORIO (Derecha). Encuentra el objeto y destrÃºyelo.',
           avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
         ),
         const DialogueData(
           speakerName: 'Sistema',
-          text: 'TUTORIAL DE COMBATE:\n1. HUD Inferior: Muestra tus armas y munición.\n2. Presiona "Q" para cambiar entre Cuchillo y Pistola.',
+          text: 'TUTORIAL DE COMBATE:\n1. HUD Inferior: Muestra tus armas y municiÃ³n.\n2. Presiona "Q" para cambiar entre Cuchillo y Pistola.',
           type: DialogueType.system,
         ),
         const DialogueData(
           speakerName: 'Sistema',
-          text: '3. Mel (Barra Azul) te curará automáticamente si sufres daño crítico.\n4. ¡Sobrevive y destruye el objeto!',
+          text: '3. Mel (Barra Azul) te curarÃ¡ automÃ¡ticamente si sufres daÃ±o crÃ­tico.\n4. Â¡Sobrevive y destruye el objeto!',
           type: DialogueType.system,
         ),
       ],
       onComplete: () {
-        _blackScreen.fadeOut(); // Desvanecer pantalla negra al terminar diálogos
+        _blackScreen.fadeOut(); // Desvanecer pantalla negra al terminar diÃ¡logos
         game.resumeEngine();
       },
     );
@@ -193,7 +192,7 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
     // Bounds: Rect(-700, 500, 700, 500)
     _addRoomWalls(Vector2(-700, 500), Vector2(700, 500), doors: [DoorPos.right, DoorPos.top]);
     _addFloor(Vector2(-700, 500), Vector2(700, 500), const Color(0xFF4A4A3A), textureFile: 'metal_floor_dark.png');
-    _addLabel(Vector2(-350, 750), "ARMERÍA");
+    _addLabel(Vector2(-350, 750), "ARMERÃA");
 
     // --- LIBRARY (Left-Top of Hallway) ---
     // Bounds: Rect(-700, 0, 700, 500)
@@ -223,7 +222,7 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
     // Bounds: Rect(0, 1500, 700, 500)
     _addRoomWalls(Vector2(0, 1500), Vector2(700, 500), doors: [DoorPos.top]);
     _addFloor(Vector2(0, 1500), Vector2(700, 500), const Color(0xFF3A3A4A), textureFile: 'metal_floor_dark.png');
-    _addLabel(Vector2(350, 1750), "VESTÍBULO (SALIDA)");
+    _addLabel(Vector2(350, 1750), "VESTÃBULO (SALIDA)");
   }
   
   void _addRoomWalls(Vector2 pos, Vector2 size, {required List<DoorPos> doors}) {
@@ -274,7 +273,7 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
       anchor: Anchor.center,
       textRenderer: TextPaint(
         style: TextStyle(
-          color: Colors.white.withOpacity(0.3),
+          color: Colors.white.withValues(alpha: 0.3),
           fontSize: 24,
           fontWeight: FontWeight.bold,
           fontFamily: 'monospace',
@@ -283,19 +282,19 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
     ));
   }
   
-  /// Método llamado cuando el Stalker es derrotado
+  /// MÃ©todo llamado cuando el Stalker es derrotado
   void _onBossDefeated() {
     if (game.buildContext == null) return;
     
-    // Verificar que realmente destruyó el objeto real
+    // Verificar que realmente destruyÃ³ el objeto real
     if (_stalker!.isInvincible) {
       debugPrint('WARNING: Stalker defeated but still invincible! This should not happen.');
-      return; // No activar diálogos si aún es invencible
+      return; // No activar diÃ¡logos si aÃºn es invencible
     }
     
     game.pauseEngine();
     
-    // Diálogos inmediatos post-derrota (Mel urge a salir)
+    // DiÃ¡logos inmediatos post-derrota (Mel urge a salir)
     final immediateDialogue = DialogueSequence(
       id: 'immediate_post_defeat',
       dialogues: const [
@@ -306,13 +305,13 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
         ),
         DialogueData(
           speakerName: 'Mel',
-          text: '¡Dan! Los sensores detectan más firmas biológicas convergiendo en nuestra posición. ¡Debemos salir del búnker AHORA!',
+          text: 'Â¡Dan! Los sensores detectan mÃ¡s firmas biolÃ³gicas convergiendo en nuestra posiciÃ³n. Â¡Debemos salir del bÃºnker AHORA!',
           avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
           type: DialogueType.normal,
         ),
         DialogueData(
           speakerName: 'Dan',
-          text: 'Entendido. Vamos al vestíbulo, la salida está cerca.',
+          text: 'Entendido. Vamos al vestÃ­bulo, la salida estÃ¡ cerca.',
           avatarPath: 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
           type: DialogueType.normal,
         ),
@@ -326,12 +325,12 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
     DialogueOverlay.show(game.buildContext!, immediateDialogue);
   }
   
-  /// Activa la zona de salida del búnker
+  /// Activa la zona de salida del bÃºnker
   void _activateExitDoor() {
     // Crear trigger zone en la puerta de salida
-    // Posición: En el centro del vestíbulo, fácil de alcanzar
+    // PosiciÃ³n: En el centro del vestÃ­bulo, fÃ¡cil de alcanzar
     final exitTrigger = ExitDoorTrigger(
-      position: Vector2(200, 1850), // Más arriba, centrado en el vestíbulo
+      position: Vector2(200, 1850), // MÃ¡s arriba, centrado en el vestÃ­bulo
       onPlayerEnter: _onPlayerExitBunker,
     );
     game.world.add(exitTrigger);
@@ -350,9 +349,9 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
     debugPrint('Adding fade overlay (NOT pausing engine so it can update)');
     
     // NO pausar el engine para que el overlay pueda actualizarse
-    // El overlay bloqueará visualmente la pantalla
+    // El overlay bloquearÃ¡ visualmente la pantalla
     
-    // Efecto de transición (fade to black + texto)
+    // Efecto de transiciÃ³n (fade to black + texto)
     final fadeOverlay = ExitTransitionOverlay(
       onComplete: _showRoleSelectionDialogues,
     );
@@ -360,27 +359,27 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
     debugPrint('Fade overlay added successfully');
   }
   
-  /// Muestra los diálogos completos de selección de rol
+  /// Muestra los diÃ¡logos completos de selecciÃ³n de rol
   void _showRoleSelectionDialogues() {
     if (game.buildContext == null) return;
     
-    // Diálogos post-resonante completos (del documento ROLE_SELECTION_DIALOGUES.md)
+    // DiÃ¡logos post-resonante completos (del documento ROLE_SELECTION_DIALOGUES.md)
     final postResonanteSequence = DialogueSequence(
       id: 'post_resonante',
       dialogues: const [
         DialogueData(
           speakerName: 'Sistema',
-          text: 'UBICACIÓN: Exterior del Búnker. Escaneando perímetro...',
+          text: 'UBICACIÃ“N: Exterior del BÃºnker. Escaneando perÃ­metro...',
           type: DialogueType.system,
         ),
         DialogueData(
           speakerName: 'Dan',
-          text: 'Por supuesto. Nunca es solo uno. La Caída no funciona así. Es como una infección... se propaga.',
+          text: 'Por supuesto. Nunca es solo uno. La CaÃ­da no funciona asÃ­. Es como una infecciÃ³n... se propaga.',
           type: DialogueType.internal,
         ),
         DialogueData(
           speakerName: 'Mel',
-          text: 'Son irracionales. Mutados de bajo nivel, pero en número. Necesitamos aguantar mientras preparo la ruta de evacuación.',
+          text: 'Son irracionales. Mutados de bajo nivel, pero en nÃºmero. Necesitamos aguantar mientras preparo la ruta de evacuaciÃ³n.',
           avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
           type: DialogueType.normal,
         ),
@@ -391,41 +390,41 @@ class BunkerBossLevel extends Component with HasGameReference<ExpedienteKorinGam
         ),
         DialogueData(
           speakerName: 'Mel',
-          text: 'Dan, escúchame. Podemos hacer esto de dos formas.',
+          text: 'Dan, escÃºchame. Podemos hacer esto de dos formas.',
           avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
           type: DialogueType.normal,
         ),
         DialogueData(
           speakerName: 'Mel',
-          text: 'Tú puedes liderar con tus armas, tu entrenamiento. O... yo puedo usar esto.',
-          avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
-          type: DialogueType.normal,
-        ),
-        DialogueData(
-          speakerName: 'Dan',
-          text: 'Su brazo. Esa cosa que crece en ella. Parte orgánica, parte... otra cosa. La Caída la marcó, pero no la destruyó.',
-          type: DialogueType.internal,
-        ),
-        DialogueData(
-          speakerName: 'Mel',
-          text: 'He estado aprendiendo a controlarlo. Puedo absorber energía vital, incluso... traer de vuelta a los caídos. Temporalmente.',
+          text: 'TÃº puedes liderar con tus armas, tu entrenamiento. O... yo puedo usar esto.',
           avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
           type: DialogueType.normal,
         ),
         DialogueData(
           speakerName: 'Dan',
-          text: 'Resurrección. Qué ironía. Yo que no pude salvar a nadie, y ella puede devolver la vida. Aunque sea por un momento.',
+          text: 'Su brazo. Esa cosa que crece en ella. Parte orgÃ¡nica, parte... otra cosa. La CaÃ­da la marcÃ³, pero no la destruyÃ³.',
           type: DialogueType.internal,
         ),
         DialogueData(
           speakerName: 'Mel',
-          text: 'La decisión es tuya, Dan. ¿Quién toma el punto?',
+          text: 'He estado aprendiendo a controlarlo. Puedo absorber energÃ­a vital, incluso... traer de vuelta a los caÃ­dos. Temporalmente.',
+          avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
+          type: DialogueType.normal,
+        ),
+        DialogueData(
+          speakerName: 'Dan',
+          text: 'ResurrecciÃ³n. QuÃ© ironÃ­a. Yo que no pude salvar a nadie, y ella puede devolver la vida. Aunque sea por un momento.',
+          type: DialogueType.internal,
+        ),
+        DialogueData(
+          speakerName: 'Mel',
+          text: 'La decisiÃ³n es tuya, Dan. Â¿QuiÃ©n toma el punto?',
           avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
           type: DialogueType.normal,
         ),
       ],
       onComplete: () {
-        // Navegar a la pantalla de selección de rol
+        // Navegar a la pantalla de selecciÃ³n de rol
         Navigator.of(game.buildContext!).pushReplacement(
           MaterialPageRoute(
             builder: (context) => const RoleSelectionScreen(),
@@ -459,7 +458,7 @@ class Wall extends TiledWall with HasGameReference<ExpedienteKorinGame> {
     await super.onLoad();
     add(RectangleHitbox()..collisionType = CollisionType.passive);
     
-    // Cargar textura según orientación
+    // Cargar textura segÃºn orientaciÃ³n
     final isHorizontal = side == WallSide.top || side == WallSide.bottom;
     final panelFile = isHorizontal ? 'wall_panel_horizontal.png' : 'wall_panel_vertical.png';
     
@@ -477,8 +476,8 @@ class Wall extends TiledWall with HasGameReference<ExpedienteKorinGame> {
       final imgWidth = image.width.toDouble();
       final imgHeight = image.height.toDouble();
       
-      // Definir el recorte (slice) según el lado de la pared
-      // Asumimos que el grosor visual de la pared en la textura es igual al grosor físico (100px)
+      // Definir el recorte (slice) segÃºn el lado de la pared
+      // Asumimos que el grosor visual de la pared en la textura es igual al grosor fÃ­sico (100px)
       Rect srcRect;
       
       switch (side) {
@@ -557,13 +556,13 @@ class Floor extends PositionComponent with HasGameReference<ExpedienteKorinGame>
   @override
   void render(Canvas canvas) {
     if (textureFile != null && _floorSprite != null) {
-      // Renderizar textura escalada para cubrir el área
+      // Renderizar textura escalada para cubrir el Ã¡rea
       _floorSprite!.render(
         canvas,
         size: size,
       );
     } else {
-      // Fallback a color sólido
+      // Fallback a color sÃ³lido
       canvas.drawRect(size.toRect(), Paint()..color = color);
     }
   }
@@ -577,7 +576,7 @@ class RedAlertOverlay extends Component with HasGameReference<ExpedienteKorinGam
     final opacity = (0.1 + 0.1 * (_timer % 1.0)).clamp(0.0, 0.3);
     canvas.drawRect(
       Rect.fromLTWH(0, 0, game.size.x, game.size.y),
-      Paint()..color = Colors.red.withOpacity(opacity),
+      Paint()..color = Colors.red.withValues(alpha: opacity),
     );
   }
   
@@ -612,13 +611,13 @@ class BlackScreenOverlay extends Component with HasGameReference<ExpedienteKorin
     if (opacity > 0) {
       canvas.drawRect(
         Rect.fromLTWH(0, 0, game.size.x, game.size.y),
-        Paint()..color = Colors.black.withOpacity(opacity),
+        Paint()..color = Colors.black.withValues(alpha: opacity),
       );
     }
   }
 }
 
-/// Trigger zone para detectar cuando el jugador sale del búnker
+/// Trigger zone para detectar cuando el jugador sale del bÃºnker
 class ExitDoorTrigger extends PositionComponent with CollisionCallbacks, HasGameReference<ExpedienteKorinGame> {
   final VoidCallback onPlayerEnter;
   bool _triggered = false;
@@ -626,7 +625,7 @@ class ExitDoorTrigger extends PositionComponent with CollisionCallbacks, HasGame
   ExitDoorTrigger({
     required Vector2 position,
     required this.onPlayerEnter,
-  }) : super(position: position, size: Vector2(300, 150)); // Zona más grande
+  }) : super(position: position, size: Vector2(300, 150)); // Zona mÃ¡s grande
   
   @override
   Future<void> onLoad() async {
@@ -663,30 +662,30 @@ class ExitDoorTrigger extends PositionComponent with CollisionCallbacks, HasGame
     
     // Renderizar indicador visual de la salida con pulso
     final paint = Paint()
-      ..color = Colors.green.withOpacity(0.2 + pulse * 0.3)
+      ..color = Colors.green.withValues(alpha: 0.2 + pulse * 0.3)
       ..style = PaintingStyle.fill;
     
     canvas.drawRect(size.toRect(), paint);
     
     // Borde brillante
     final borderPaint = Paint()
-      ..color = Colors.greenAccent.withOpacity(0.5 + pulse * 0.5)
+      ..color = Colors.greenAccent.withValues(alpha: 0.5 + pulse * 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0;
     
     canvas.drawRect(size.toRect(), borderPaint);
     
-    // Texto "SALIDA ►" con pulso
+    // Texto "SALIDA â–º" con pulso
     final textPainter = TextPainter(
       text: TextSpan(
-        text: '► SALIDA ►',
+        text: 'â–º SALIDA â–º',
         style: TextStyle(
-          color: Colors.white.withOpacity(0.7 + pulse * 0.3),
+          color: Colors.white.withValues(alpha: 0.7 + pulse * 0.3),
           fontSize: 28,
           fontWeight: FontWeight.bold,
           shadows: [
             Shadow(
-              color: Colors.green.withOpacity(pulse),
+              color: Colors.green.withValues(alpha: pulse),
               blurRadius: 10,
             ),
           ],
@@ -705,7 +704,7 @@ class ExitDoorTrigger extends PositionComponent with CollisionCallbacks, HasGame
   }
 }
 
-/// Overlay de transición al salir del búnker
+/// Overlay de transiciÃ³n al salir del bÃºnker
 class ExitTransitionOverlay extends Component with HasGameReference<ExpedienteKorinGame> {
   final VoidCallback onComplete;
   double _timer = 0.0;
@@ -752,17 +751,17 @@ class ExitTransitionOverlay extends Component with HasGameReference<ExpedienteKo
     // Fondo negro
     canvas.drawRect(
       Rect.fromLTWH(0, 0, game.size.x, game.size.y),
-      Paint()..color = Colors.black.withOpacity(opacity),
+      Paint()..color = Colors.black.withValues(alpha: opacity),
     );
     
-    // Texto "SALIENDO DEL BÚNKER..."
+    // Texto "SALIENDO DEL BÃšNKER..."
     if (_timer > fadeDuration && _timer < fadeDuration + textDisplayDuration) {
       final textOpacity = (opacity * 0.9).clamp(0.0, 1.0);
       final textPainter = TextPainter(
         text: TextSpan(
-          text: 'SALIENDO DEL BÚNKER...',
+          text: 'SALIENDO DEL BÃšNKER...',
           style: TextStyle(
-            color: Colors.white.withOpacity(textOpacity),
+            color: Colors.white.withValues(alpha: textOpacity),
             fontSize: 32,
             fontWeight: FontWeight.bold,
             fontFamily: 'monospace',
@@ -781,3 +780,4 @@ class ExitTransitionOverlay extends Component with HasGameReference<ExpedienteKo
     }
   }
 }
+

@@ -1,15 +1,15 @@
-import 'dart:math';
+﻿import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
-/// Efecto de círculo de invocación para On-Oyabun
+/// Efecto de cÃ­rculo de invocaciÃ³n para On-Oyabun
 /// Se dibuja en el suelo antes de que aparezca el jefe
 class SummoningCircle extends PositionComponent {
   double animationProgress = 0.0;
-  final double animationDuration = 5.0; // 5 segundos de invocación
+  final double animationDuration = 5.0; // 5 segundos de invocaciÃ³n
   final double circleRadius = 200.0;
   
-  // Callback cuando se completa la invocación
+  // Callback cuando se completa la invocaciÃ³n
   final VoidCallback? onSummoningComplete;
   
   SummoningCircle({
@@ -24,7 +24,7 @@ class SummoningCircle extends PositionComponent {
     animationProgress += dt / animationDuration;
     
     if (animationProgress >= 1.0) {
-      // Completar invocación
+      // Completar invocaciÃ³n
       onSummoningComplete?.call();
       removeFromParent();
     }
@@ -36,30 +36,30 @@ class SummoningCircle extends PositionComponent {
     
     final progress = animationProgress.clamp(0.0, 1.0);
     
-    // Círculo exterior expansivo (rojo)
+    // CÃ­rculo exterior expansivo (rojo)
     final outerRadius = circleRadius * progress;
     final outerPaint = Paint()
-      ..color = Colors.red.withOpacity(0.3 * (1.0 - progress * 0.5))
+      ..color = Colors.red.withValues(alpha: 0.3 * (1.0 - progress * 0.5))
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0;
     
     canvas.drawCircle(Offset.zero, outerRadius, outerPaint);
     
-    // Círculo interior (más intenso)
+    // CÃ­rculo interior (mÃ¡s intenso)
     final innerRadius = circleRadius * 0.7 * progress;
     final innerPaint = Paint()
-      ..color = Colors.red.withOpacity(0.5)
+      ..color = Colors.red.withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
     
     canvas.drawCircle(Offset.zero, innerRadius, innerPaint);
     
-    // Símbolos yakuza rotando (28 símbolos para las 28 víctimas)
+    // SÃ­mbolos yakuza rotando (28 sÃ­mbolos para las 28 vÃ­ctimas)
     if (progress > 0.3) {
       _drawRotatingSymbols(canvas, progress);
     }
     
-    // Partículas rojas ascendentes
+    // PartÃ­culas rojas ascendentes
     if (progress > 0.5) {
       _drawParticles(canvas, progress);
     }
@@ -71,7 +71,7 @@ class SummoningCircle extends PositionComponent {
     final symbolRadius = circleRadius * 0.85;
     
     final symbolPaint = Paint()
-      ..color = Colors.red.withOpacity(0.7)
+      ..color = Colors.red.withValues(alpha: 0.7)
       ..style = PaintingStyle.fill;
     
     for (int i = 0; i < symbolCount; i++) {
@@ -79,7 +79,7 @@ class SummoningCircle extends PositionComponent {
       final x = cos(angle) * symbolRadius;
       final y = sin(angle) * symbolRadius;
       
-      // Dibujar pequeño símbolo (círculo como placeholder)
+      // Dibujar pequeÃ±o sÃ­mbolo (cÃ­rculo como placeholder)
       canvas.drawCircle(Offset(x, y), 3.0, symbolPaint);
     }
   }
@@ -89,7 +89,7 @@ class SummoningCircle extends PositionComponent {
     final random = Random(42); // Seed fijo para consistencia
     
     final particlePaint = Paint()
-      ..color = Colors.red.withOpacity(0.4)
+      ..color = Colors.red.withValues(alpha: 0.4)
       ..style = PaintingStyle.fill;
     
     for (int i = 0; i < particleCount; i++) {
@@ -108,3 +108,4 @@ class SummoningCircle extends PositionComponent {
   @override
   int get priority => -50; // Renderizar debajo del jefe pero encima del fondo
 }
+

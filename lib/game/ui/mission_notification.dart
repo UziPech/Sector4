@@ -1,4 +1,4 @@
-import 'package:flame/components.dart';
+﻿import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../expediente_game.dart';
 
@@ -49,7 +49,7 @@ class MissionNotification extends PositionComponent with HasGameReference<Expedi
 
     // Background Strip
     final bgPaint = Paint()
-      ..color = Colors.black.withOpacity(0.6 * alpha)
+      ..color = Colors.black.withValues(alpha: 0.6 * alpha)
       ..style = PaintingStyle.fill;
     
     // Draw a strip across the screen
@@ -60,7 +60,7 @@ class MissionNotification extends PositionComponent with HasGameReference<Expedi
     
     // Borders
     final borderPaint = Paint()
-      ..color = Colors.red.withOpacity(0.8 * alpha)
+      ..color = Colors.red.withValues(alpha: 0.8 * alpha)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
       
@@ -81,7 +81,7 @@ class MissionNotification extends PositionComponent with HasGameReference<Expedi
       text: TextSpan(
         text: _title,
         style: TextStyle(
-          color: Colors.redAccent.withOpacity(alpha),
+          color: Colors.redAccent.withValues(alpha: alpha),
           fontSize: 32,
           fontWeight: FontWeight.bold,
           fontFamily: 'monospace',
@@ -105,7 +105,7 @@ class MissionNotification extends PositionComponent with HasGameReference<Expedi
       text: TextSpan(
         text: _subtitle,
         style: TextStyle(
-          color: Colors.white.withOpacity(alpha),
+          color: Colors.white.withValues(alpha: alpha),
           fontSize: 16,
           fontStyle: FontStyle.italic,
           fontFamily: 'monospace',
@@ -120,3 +120,4 @@ class MissionNotification extends PositionComponent with HasGameReference<Expedi
     );
   }
 }
+

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/dialogue_data.dart';
 
-/// Widget de caja de diálogo estilo RPG clásico
+/// Widget de caja de diÃ¡logo estilo RPG clÃ¡sico
 class DialogueBox extends StatefulWidget {
   final DialogueData dialogue;
   final VoidCallback onComplete;
@@ -9,12 +9,12 @@ class DialogueBox extends StatefulWidget {
   final bool showHintText; // Si mostrar el texto de ayuda
 
   const DialogueBox({
-    Key? key,
+    super.key,
     required this.dialogue,
     required this.onComplete,
     this.typewriterSpeed = 20.0, // Reducido de 30 a 20 para mejor legibilidad
     this.showHintText = true, // Por defecto mostrar
-  }) : super(key: key);
+  });
 
   @override
   State<DialogueBox> createState() => _DialogueBoxState();
@@ -32,7 +32,7 @@ class _DialogueBoxState extends State<DialogueBox>
   void initState() {
     super.initState();
     
-    // Animación de pulso para el indicador
+    // AnimaciÃ³n de pulso para el indicador
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
@@ -76,7 +76,7 @@ class _DialogueBoxState extends State<DialogueBox>
     debugPrint('DialogueBox: Tap detected - isComplete: $_isComplete');
     
     if (!_isComplete) {
-      // Si no terminó, completar inmediatamente
+      // Si no terminÃ³, completar inmediatamente
       debugPrint('DialogueBox: Completing text immediately');
       _controller.stop();
       setState(() {
@@ -84,7 +84,7 @@ class _DialogueBoxState extends State<DialogueBox>
         _displayedText = widget.dialogue.text;
       });
     } else {
-      // Si ya terminó, avanzar al siguiente diálogo
+      // Si ya terminÃ³, avanzar al siguiente diÃ¡logo
       debugPrint('DialogueBox: Advancing to next dialogue');
       widget.onComplete();
     }
@@ -107,16 +107,16 @@ class _DialogueBoxState extends State<DialogueBox>
           width: double.infinity,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.90),
+            color: Colors.black.withValues(alpha: 0.90),
             border: Border.all(
               color: _isComplete 
-                  ? Colors.yellow.withOpacity(0.4)
-                  : Colors.white.withOpacity(0.3),
+                  ? Colors.yellow.withValues(alpha: 0.4)
+                  : Colors.white.withValues(alpha: 0.3),
               width: 2,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.5),
+                color: Colors.black.withValues(alpha: 0.5),
                 blurRadius: 10,
                 spreadRadius: 2,
               ),
@@ -125,20 +125,20 @@ class _DialogueBoxState extends State<DialogueBox>
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Avatar pequeño (si existe)
+            // Avatar pequeÃ±o (si existe)
             if (widget.dialogue.avatarPath != null) ...[
               Container(
                 width: 70,
                 height: 70,
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
+                      color: Colors.black.withValues(alpha: 0.3),
                       blurRadius: 5,
                       spreadRadius: 1,
                     ),
@@ -181,7 +181,7 @@ class _DialogueBoxState extends State<DialogueBox>
                         ),
                       ),
                     ),
-                  // Texto del diálogo
+                  // Texto del diÃ¡logo
                   Text(
                     _displayedText,
                     style: TextStyle(
@@ -194,7 +194,7 @@ class _DialogueBoxState extends State<DialogueBox>
                           : FontStyle.normal,
                     ),
                   ),
-                  // Indicador de "presiona para continuar" con animación (solo primeros diálogos)
+                  // Indicador de "presiona para continuar" con animaciÃ³n (solo primeros diÃ¡logos)
                   if (_isComplete && widget.dialogue.canSkip && widget.showHintText)
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
@@ -205,14 +205,14 @@ class _DialogueBoxState extends State<DialogueBox>
                           children: [
                             Icon(
                               Icons.touch_app,
-                              color: Colors.yellow.withOpacity(0.9),
+                              color: Colors.yellow.withValues(alpha: 0.9),
                               size: 16,
                             ),
                             const SizedBox(width: 8),
                             Text(
                               'Toca para continuar',
                               style: TextStyle(
-                                color: Colors.yellow.withOpacity(0.9),
+                                color: Colors.yellow.withValues(alpha: 0.9),
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'monospace',
@@ -232,3 +232,4 @@ class _DialogueBoxState extends State<DialogueBox>
     );
   }
 }
+

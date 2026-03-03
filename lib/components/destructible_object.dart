@@ -1,10 +1,10 @@
-import 'package:flame/components.dart';
+﻿import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
 import '../game/expediente_game.dart';
 
-/// Objeto destructible decorativo (señuelo)
+/// Objeto destructible decorativo (seÃ±uelo)
 /// Se ve igual al ObsessionObject pero no afecta al Stalker
 class DestructibleObject extends PositionComponent 
     with HasGameReference<ExpedienteKorinGame>, CollisionCallbacks {
@@ -14,7 +14,7 @@ class DestructibleObject extends PositionComponent
   
   static final _paint = BasicPalette.red.paint()..style = PaintingStyle.fill;
   static final _glowPaint = Paint()
-    ..color = Colors.red.withOpacity(0.5)
+    ..color = Colors.red.withValues(alpha: 0.5)
     ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10);
 
   DestructibleObject({
@@ -50,7 +50,7 @@ class DestructibleObject extends PositionComponent
   
   @override
   void render(Canvas canvas) {
-    // Efecto de brillo pulsante (idéntico al ObsessionObject)
+    // Efecto de brillo pulsante (idÃ©ntico al ObsessionObject)
     final double pulse = (game.currentTime() % 1.0);
     canvas.drawCircle(
       (size / 2).toOffset(),
@@ -79,3 +79,4 @@ class DestructibleObject extends PositionComponent
     canvas.drawRect(size.toRect(), _paint);
   }
 }
+

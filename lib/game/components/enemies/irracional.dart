@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flutter/material.dart';
@@ -56,10 +55,10 @@ class IrrationalEnemy extends PositionComponent
       collisionType: CollisionType.passive,
     ));
 
-    // Inicializar painter de stun (estático)
+    // Inicializar painter de stun (estÃ¡tico)
     _stunIndicatorPainter = TextPainter(
       text: const TextSpan(
-        text: '★',
+        text: 'â˜…',
         style: TextStyle(
           color: Colors.yellow,
           fontSize: 20,
@@ -94,11 +93,11 @@ class IrrationalEnemy extends PositionComponent
     _updateTarget();
     _chaseTarget(dt);
     
-    // Intentar atacar si está en rango
+    // Intentar atacar si estÃ¡ en rango
     _tryAttack();
   }
   
-  /// Actualiza el objetivo (jugador o Kohaa, el más cercano)
+  /// Actualiza el objetivo (jugador o Kohaa, el mÃ¡s cercano)
   void _updateTarget() {
     final player = game.player;
     
@@ -111,7 +110,7 @@ class IrrationalEnemy extends PositionComponent
       return;
     }
     
-    // Si hay Kohaa, atacar al más cercano
+    // Si hay Kohaa, atacar al mÃ¡s cercano
     final distToPlayer = player.isDead ? double.infinity : position.distanceTo(player.position);
     final distToKohaa = position.distanceTo(kohaa.position);
     
@@ -123,7 +122,7 @@ class IrrationalEnemy extends PositionComponent
     
     final distanceToTarget = position.distanceTo(_currentTarget!.position);
     
-    // Si está lejos, acercarse
+    // Si estÃ¡ lejos, acercarse
     if (distanceToTarget > _attackRange) {
       final direction = (_currentTarget!.position - position).normalized();
       position += direction * _speed * dt;
@@ -131,14 +130,14 @@ class IrrationalEnemy extends PositionComponent
     }
   }
   
-  /// Restringe la posición a los límites del mundo (con deslizamiento)
+  /// Restringe la posiciÃ³n a los lÃ­mites del mundo (con deslizamiento)
   void _constrainToWorldBounds() {
     const double worldMinX = 150.0; // Ajustado para coincidir con paredes
     const double worldMaxX = 2850.0;
     const double worldMinY = 150.0; // Ajustado para coincidir con paredes
     const double worldMaxY = 2850.0;
     
-    // Solo aplicar límites, sin modificar velocidad (permite deslizamiento natural)
+    // Solo aplicar lÃ­mites, sin modificar velocidad (permite deslizamiento natural)
     position.x = position.x.clamp(worldMinX, worldMaxX);
     position.y = position.y.clamp(worldMinY, worldMaxY);
   }
@@ -148,7 +147,7 @@ class IrrationalEnemy extends PositionComponent
     
     final distanceToTarget = position.distanceTo(_currentTarget!.position);
     
-    // Si está en rango, atacar
+    // Si estÃ¡ en rango, atacar
     if (distanceToTarget <= _attackRange) {
       _attack(_currentTarget!);
       _attackTimer = _attackCooldown;
@@ -163,7 +162,7 @@ class IrrationalEnemy extends PositionComponent
     }
   }
   
-  /// Recibe daño
+  /// Recibe daÃ±o
   void takeDamage(double damage) {
     if (_isDead) return;
     
@@ -188,7 +187,7 @@ class IrrationalEnemy extends PositionComponent
   void _die() {
     _isDead = true;
     
-    // Crear tumba en la posición del enemigo
+    // Crear tumba en la posiciÃ³n del enemigo
     final tomb = EnemyTomb(
       position: position.clone(),
       enemyType: 'irracional',
@@ -203,7 +202,7 @@ class IrrationalEnemy extends PositionComponent
   void render(Canvas canvas) {
     super.render(canvas);
     
-    // Color según estado
+    // Color segÃºn estado
     Color enemyColor;
     if (_isStunned) {
       enemyColor = Colors.yellow;
@@ -213,9 +212,9 @@ class IrrationalEnemy extends PositionComponent
       enemyColor = Colors.red;
     }
     
-    // Cuerpo del enemigo (círculo)
+    // Cuerpo del enemigo (cÃ­rculo)
     final bodyPaint = Paint()
-      ..color = enemyColor.withOpacity(0.8)
+      ..color = enemyColor.withValues(alpha: 0.8)
       ..style = PaintingStyle.fill;
     
     canvas.drawCircle(
@@ -226,7 +225,7 @@ class IrrationalEnemy extends PositionComponent
     
     // Borde
     final borderPaint = Paint()
-      ..color = Colors.white.withOpacity(0.5)
+      ..color = Colors.white.withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
     
@@ -253,7 +252,7 @@ class IrrationalEnemy extends PositionComponent
     
     // Fondo
     final bgPaint = Paint()
-      ..color = Colors.black.withOpacity(0.5)
+      ..color = Colors.black.withValues(alpha: 0.5)
       ..style = PaintingStyle.fill;
     
     canvas.drawRect(
@@ -288,3 +287,4 @@ class IrrationalEnemy extends PositionComponent
   bool get isStunned => _isStunned;
   double get health => _health;
 }
+

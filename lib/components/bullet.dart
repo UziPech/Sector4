@@ -1,12 +1,9 @@
-import 'dart:math' as math;
-import 'dart:ui';
+﻿import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
-import 'package:flame/palette.dart';
 import '../game/expediente_game.dart';
 import 'enemy_character.dart';
-import 'character_component.dart';
 import 'particle_effect.dart';
 import '../game/components/player.dart';
 import 'obsession_object.dart';
@@ -36,7 +33,7 @@ class Bullet extends PositionComponent with CollisionCallbacks, HasGameReference
   final int _maxTrailLength = 8;
   double _trailTimer = 0.0;
   
-  // Rotación para efecto visual
+  // RotaciÃ³n para efecto visual
   double _rotation = 0.0;
 
   Bullet({
@@ -252,7 +249,7 @@ class Bullet extends PositionComponent with CollisionCallbacks, HasGameReference
           other.takeDamage(damage);
           _createImpactEffect();
           removeFromParent();
-          print('🔫 Bala golpeó a KOHAA: $damage daño');
+          // print('ðŸ”« Bala golpeÃ³ a KOHAA: $damage daÃ±o');
         } catch (e) {
           // Error
         }
@@ -264,7 +261,7 @@ class Bullet extends PositionComponent with CollisionCallbacks, HasGameReference
           other.takeDamage(damage);
           _createImpactEffect();
           removeFromParent();
-          print('🔫 Bala golpeó a ON-OYABUN: $damage daño');
+          // print('ðŸ”« Bala golpeÃ³ a ON-OYABUN: $damage daÃ±o');
         } catch (e) {
           // Error
         }
@@ -332,3 +329,4 @@ class Bullet extends PositionComponent with CollisionCallbacks, HasGameReference
     add(CircleHitbox()..collisionType = CollisionType.active);
   }
 }
+

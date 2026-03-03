@@ -3,20 +3,19 @@ import 'package:flutter/services.dart';
 import 'package:flame/game.dart';
 // import 'package:vector_math/vector_math_64.dart' hide Colors; // YA NO ES NECESARIO, Flame lo exporta
 
-import 'narrative/screens/menu_screen.dart';
 import 'narrative/screens/splash_screen.dart'; // Importar Splash Screen
 import 'game/expediente_game.dart';
 import 'game/ui/game_over_with_advice.dart'; // Nuevo import
-import 'narrative/components/dialogue_system.dart'; // Importar sistema de diálogos
+import 'narrative/components/dialogue_system.dart'; // Importar sistema de diÃ¡logos
 import 'game/ui/game_ui.dart'; // Importar nueva UI
 import 'narrative/components/flashlight_overlay.dart'; // Efecto linterna
 
 
 void main() async {
-  // Asegurar que Flutter esté inicializado
+  // Asegurar que Flutter estÃ© inicializado
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Forzar orientación horizontal (landscape)
+  // Forzar orientaciÃ³n horizontal (landscape)
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
@@ -25,13 +24,13 @@ void main() async {
   // Ocultar la barra de estado para experiencia inmersiva
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   
-  // Inicializa y corre la aplicación (empieza en el menú)
+  // Inicializa y corre la aplicaciÃ³n (empieza en el menÃº)
   runApp(const ExpedienteKorinApp());
 }
 
-/// Aplicación principal - Inicia en el menú
+/// AplicaciÃ³n principal - Inicia en el menÃº
 class ExpedienteKorinApp extends StatelessWidget {
-  const ExpedienteKorinApp({Key? key}) : super(key: key);
+  const ExpedienteKorinApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,11 +41,11 @@ class ExpedienteKorinApp extends StatelessWidget {
   }
 }
 
-/// Widget para el juego de combate (usado después de las escenas narrativas)
+/// Widget para el juego de combate (usado despuÃ©s de las escenas narrativas)
 class MyApp extends StatefulWidget {
   final bool startInBossMode;
   
-  const MyApp({Key? key, this.startInBossMode = false}) : super(key: key);
+  const MyApp({super.key, this.startInBossMode = false});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -79,7 +78,7 @@ class _MyAppState extends State<MyApp> {
               onSequenceComplete: korinGame.onDialogueComplete,
             );
           },
-          // Linterna con parpadeo — capa propia, debajo de GameUI
+          // Linterna con parpadeo â€” capa propia, debajo de GameUI
           'FlashlightLayer': (context, game) => const IgnorePointer(
             child: _CombatFlashlightWidget(),
           ),
@@ -97,14 +96,14 @@ class GameOverOverlay extends StatelessWidget {
   final ExpedienteKorinGame game;
 
   const GameOverOverlay({
-    Key? key,
+    super.key,
     required this.game,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black.withOpacity(0.8),
+      color: Colors.black.withValues(alpha: 0.8),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -120,7 +119,7 @@ class GameOverOverlay extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             const Text(
-              'La Caída fue inevitable',
+              'La CaÃ­da fue inevitable',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24,
@@ -166,7 +165,7 @@ class GameOverOverlay extends StatelessWidget {
                 ),
               ),
               child: const Text(
-                'MENÚ PRINCIPAL',
+                'MENÃš PRINCIPAL',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -181,9 +180,9 @@ class GameOverOverlay extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Linterna de combate con parpadeo atmosférico y radios adaptativos
-// ─────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Linterna de combate con parpadeo atmosfÃ©rico y radios adaptativos
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _CombatFlashlightWidget extends StatefulWidget {
   const _CombatFlashlightWidget();
 
@@ -198,7 +197,7 @@ class _CombatFlashlightWidgetState extends State<_CombatFlashlightWidget>
   @override
   void initState() {
     super.initState();
-    // Ciclo rápido para update continuo del flicker
+    // Ciclo rÃ¡pido para update continuo del flicker
     _flickerCtrl = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 10),
@@ -212,8 +211,8 @@ class _CombatFlashlightWidgetState extends State<_CombatFlashlightWidget>
   }
 
   /// Combina dos senos a frecuencias ligeramente distintas
-  /// para producir un parpadeo no periódico, similar a una vela real.
-  /// t ∈ [0.0, 1.0] — valor del AnimationController
+  /// para producir un parpadeo no periÃ³dico, similar a una vela real.
+  /// t âˆˆ [0.0, 1.0] â€” valor del AnimationController
   double _flickerOpacity(double t) {
     final v1 = 0.5 + 0.5 * _sinApprox(t * 1.7 * 6.2832);
     final v2 = 0.5 + 0.5 * _sinApprox(t * 2.9 * 6.2832 + 1.1);
@@ -221,9 +220,9 @@ class _CombatFlashlightWidgetState extends State<_CombatFlashlightWidget>
     return 0.88 + 0.09 * (v1 * 0.6 + v2 * 0.4);
   }
 
-  /// Aproximación de sin usando identidades angulares sin importar dart:math
+  /// AproximaciÃ³n de sin usando identidades angulares sin importar dart:math
   double _sinApprox(double x) {
-    // Normalizar a [-π, π]
+    // Normalizar a [-Ï€, Ï€]
     x = x % 6.2832;
     if (x > 3.14159) x -= 6.2832;
     // Polinomio de Bhaskara (muy preciso para este uso)
@@ -256,3 +255,4 @@ class _CombatFlashlightWidgetState extends State<_CombatFlashlightWidget>
     );
   }
 }
+

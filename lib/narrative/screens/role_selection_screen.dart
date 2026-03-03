@@ -7,9 +7,9 @@ import '../models/dialogue_data.dart';
 import '../components/dialogue_system.dart';
 import '../../game/ui/game_ui.dart';
 
-/// Pantalla de selección de rol (Dan vs Mel)
+/// Pantalla de selecciÃ³n de rol (Dan vs Mel)
 class RoleSelectionScreen extends StatefulWidget {
-  const RoleSelectionScreen({Key? key}) : super(key: key);
+  const RoleSelectionScreen({super.key});
 
   @override
   State<RoleSelectionScreen> createState() => _RoleSelectionScreenState();
@@ -36,13 +36,13 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // Título
+              // TÃ­tulo
               Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
                   children: [
                     Text(
-                      'SELECCIÓN DE OPERADOR',
+                      'SELECCIÃ“N DE OPERADOR',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 28,
@@ -51,7 +51,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                         letterSpacing: 3,
                         shadows: [
                           Shadow(
-                            color: Colors.red.withOpacity(0.5),
+                            color: Colors.red.withValues(alpha: 0.5),
                             blurRadius: 10,
                           ),
                         ],
@@ -59,9 +59,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '¿Quién toma el punto?',
+                      'Â¿QuiÃ©n toma el punto?',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         fontSize: 16,
                         fontFamily: 'monospace',
                         letterSpacing: 1,
@@ -105,7 +105,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                 ),
               ),
               
-              // Botón confirmar
+              // BotÃ³n confirmar
               if (_selectedRole != null)
                 Padding(
                   padding: const EdgeInsets.all(24.0),
@@ -122,13 +122,13 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(4),
                               side: BorderSide(
-                                color: Colors.red.withOpacity(0.5),
+                                color: Colors.red.withValues(alpha: 0.5),
                                 width: 2,
                               ),
                             ),
                           ),
                           child: const Text(
-                            'CONFIRMAR SELECCIÓN',
+                            'CONFIRMAR SELECCIÃ“N',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -159,10 +159,10 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
       _isConfirming = true;
     });
 
-    // Guardar selección
+    // Guardar selecciÃ³n
     RoleSelection.selectRole(_selectedRole!);
 
-    // Mostrar diálogo post-selección
+    // Mostrar diÃ¡logo post-selecciÃ³n
     _showPostSelectionDialogue();
   }
 
@@ -176,7 +176,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
             ),
             DialogueData(
               speakerName: 'Mel',
-              text: 'Te cubro desde atrás. No dejes que te rodeen.',
+              text: 'Te cubro desde atrÃ¡s. No dejes que te rodeen.',
               avatarPath: 'assets/avatars/mel.png',
               type: DialogueType.normal,
             ),
@@ -184,13 +184,13 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
         : const [
             DialogueData(
               speakerName: 'Mel',
-              text: 'Está bien. Puedo hacer esto. Siento cada latido, cada movimiento. Estoy lista.',
+              text: 'EstÃ¡ bien. Puedo hacer esto. Siento cada latido, cada movimiento. Estoy lista.',
               avatarPath: 'assets/avatars/mel.png',
               type: DialogueType.normal,
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: 'Ella es más fuerte de lo que cree. Más fuerte de lo que yo jamás fui. Quizás la Caída eligió a la persona correcta.',
+              text: 'Ella es mÃ¡s fuerte de lo que cree. MÃ¡s fuerte de lo que yo jamÃ¡s fui. QuizÃ¡s la CaÃ­da eligiÃ³ a la persona correcta.',
               type: DialogueType.internal,
             ),
           ];
@@ -264,18 +264,18 @@ class _RoleCard extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.7),
+            color: Colors.black.withValues(alpha: 0.7),
             border: Border.all(
               color: isSelected
                   ? (isDan ? Colors.green : Colors.cyan)
-                  : Colors.white.withOpacity(0.3),
+                  : Colors.white.withValues(alpha: 0.3),
               width: isSelected ? 3 : 2,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
                       color: (isDan ? Colors.green : Colors.cyan)
-                          .withOpacity(0.5),
+                          .withValues(alpha: 0.5),
                       blurRadius: 20,
                       spreadRadius: 2,
                     ),
@@ -285,7 +285,7 @@ class _RoleCard extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Título
+              // TÃ­tulo
               Text(
                 isDan ? 'DAN' : 'MEL',
                 style: TextStyle(
@@ -298,9 +298,9 @@ class _RoleCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                isDan ? 'OPERADOR TÁCTICO' : 'PORTADORA DE LA CAÍDA',
+                isDan ? 'OPERADOR TÃCTICO' : 'PORTADORA DE LA CAÃDA',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                   fontSize: 12,
                   fontFamily: 'monospace',
                   letterSpacing: 1,
@@ -308,14 +308,14 @@ class _RoleCard extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               
-              // Descripción
+              // DescripciÃ³n
               Text(
                 isDan
                     ? 'Entrenamiento militar. Armas convencionales. Sin margen de error.'
-                    : 'Mutación controlada. Regeneración. Dominio sobre la vida y la muerte.',
+                    : 'MutaciÃ³n controlada. RegeneraciÃ³n. Dominio sobre la vida y la muerte.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   fontSize: 14,
                   fontFamily: 'monospace',
                   height: 1.5,
@@ -327,9 +327,9 @@ class _RoleCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withValues(alpha: 0.5),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Column(
@@ -381,19 +381,19 @@ class _RoleCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   border: Border.all(
                     color: (isDan ? Colors.green : Colors.cyan)
-                        .withOpacity(0.3),
+                        .withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
                   isDan
-                      ? '"El peso del metal. El olor de la pólvora. Esto es lo que conozco. Esto es lo que soy. Un soldado sin guerra, un fantasma con un propósito."'
-                      : '"Siento el pulso de la Caída en mis venas. No es una maldición. Es una herramienta. Y voy a usarla para proteger lo que queda."',
+                      ? '"El peso del metal. El olor de la pÃ³lvora. Esto es lo que conozco. Esto es lo que soy. Un soldado sin guerra, un fantasma con un propÃ³sito."'
+                      : '"Siento el pulso de la CaÃ­da en mis venas. No es una maldiciÃ³n. Es una herramienta. Y voy a usarla para proteger lo que queda."',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                     fontSize: 12,
                     fontStyle: FontStyle.italic,
                     fontFamily: 'monospace',
@@ -409,7 +409,7 @@ class _RoleCard extends StatelessWidget {
   }
 }
 
-/// Widget para mostrar una fila de estadística
+/// Widget para mostrar una fila de estadÃ­stica
 class _StatRow extends StatelessWidget {
   final String label;
   final String value;
@@ -427,7 +427,7 @@ class _StatRow extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.6),
+            color: Colors.white.withValues(alpha: 0.6),
             fontSize: 12,
             fontFamily: 'monospace',
           ),
@@ -445,3 +445,4 @@ class _StatRow extends StatelessWidget {
     );
   }
 }
+

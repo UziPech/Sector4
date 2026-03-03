@@ -1,4 +1,4 @@
-import 'dart:math';
+﻿import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'weapon_system.dart';
@@ -21,12 +21,12 @@ class MutantHandWeapon extends Weapon {
   double _timeSinceLastAttack = 0;
   
   MutantHandWeapon({
-    required String name,
-    required double damage,
-    required double cooldown,
+    required super.name,
+    required super.damage,
+    required super.cooldown,
     this.lifeStealPercent = 0.3, // 30% de drenaje de vida
     this.attackRadius = 60.0,
-  }) : super(name: name, damage: damage, cooldown: cooldown);
+  });
   
   @override
   void update(double dt) {
@@ -67,13 +67,13 @@ class MutantHandWeapon extends Weapon {
       
       final distance = player.position.distanceTo(enemy.position);
       if (distance <= attackRadius) {
-        // Aplicar daño al enemigo
+        // Aplicar daÃƒÂ±o al enemigo
         enemy.takeDamage(damage);
         totalDamageDealt += damage;
         hitAnyEnemy = true;
-        print('🖐️ Mano Mutante golpeó Irracional: $damage daño');
+        // print('Ã°Å¸â€“ÂÃ¯Â¸Â Mano Mutante golpeÃƒÂ³ Irracional: $damage daÃƒÂ±o');
         
-        // Crear efecto visual en la posición del enemigo
+        // Crear efecto visual en la posiciÃƒÂ³n del enemigo
         _createHitEffect(game, enemy.position);
       }
     }
@@ -84,13 +84,13 @@ class MutantHandWeapon extends Weapon {
       
       final distance = player.position.distanceTo(boss.position);
       if (distance <= attackRadius) {
-        // Aplicar daño al boss
+        // Aplicar daÃƒÂ±o al boss
         boss.takeDamage(damage);
         totalDamageDealt += damage;
         hitAnyEnemy = true;
-        print('🖐️ Mano Mutante golpeó KOHAA: $damage daño + DRENAJE');
+        // print('Ã°Å¸â€“ÂÃ¯Â¸Â Mano Mutante golpeÃƒÂ³ KOHAA: $damage daÃƒÂ±o + DRENAJE');
         
-        // Crear efecto visual en la posición del boss
+        // Crear efecto visual en la posiciÃƒÂ³n del boss
         _createHitEffect(game, boss.position);
       }
     }
@@ -101,13 +101,13 @@ class MutantHandWeapon extends Weapon {
       
       final distance = player.position.distanceTo(boss.position);
       if (distance <= attackRadius) {
-        // Aplicar daño al boss
+        // Aplicar daÃƒÂ±o al boss
         boss.takeDamage(damage);
         totalDamageDealt += damage;
         hitAnyEnemy = true;
-        print('🖐️ Mano Mutante golpeó ON-OYABUN: $damage daño + DRENAJE');
+        // print('Ã°Å¸â€“ÂÃ¯Â¸Â Mano Mutante golpeÃƒÂ³ ON-OYABUN: $damage daÃƒÂ±o + DRENAJE');
         
-        // Crear efecto visual en la posición del boss
+        // Crear efecto visual en la posiciÃƒÂ³n del boss
         _createHitEffect(game, boss.position);
       }
     }
@@ -140,7 +140,7 @@ class MutantHandWeapon extends Weapon {
       }
     }
     
-    // Drenar vida si golpeó a alguien
+    // Drenar vida si golpeÃƒÂ³ a alguien
     if (hitAnyEnemy) {
       final lifeStolen = totalDamageDealt * lifeStealPercent;
       player.heal(lifeStolen);
@@ -165,7 +165,7 @@ class MutantHandWeapon extends Weapon {
 
 /// Efecto visual del golpe de la mano mutante
 class _MutantHandHitEffect extends PositionComponent {
-  double _lifetime = 0.3;
+  final double _lifetime = 0.3;
   double _timer = 0.0;
   
   _MutantHandHitEffect({required Vector2 position})
@@ -189,9 +189,9 @@ class _MutantHandHitEffect extends PositionComponent {
     final opacity = (1.0 - progress).clamp(0.0, 1.0);
     final radius = 20.0 + (progress * 20.0);
     
-    // Círculo de impacto púrpura
+    // CÃƒÂ­rculo de impacto pÃƒÂºrpura
     final paint = Paint()
-      ..color = Colors.purple.withOpacity(opacity * 0.8)
+      ..color = Colors.purple.withValues(alpha: opacity * 0.8)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 4;
     
@@ -201,9 +201,9 @@ class _MutantHandHitEffect extends PositionComponent {
       paint,
     );
     
-    // Círculo interior
+    // CÃƒÂ­rculo interior
     final innerPaint = Paint()
-      ..color = Colors.purple.withOpacity(opacity * 0.3)
+      ..color = Colors.purple.withValues(alpha: opacity * 0.3)
       ..style = PaintingStyle.fill;
     
     canvas.drawCircle(
@@ -219,7 +219,7 @@ class _MutantHandHitEffect extends PositionComponent {
 
 /// Efecto visual del drenaje de vida
 class _LifeDrainEffect extends PositionComponent {
-  double _lifetime = 0.5;
+  final double _lifetime = 0.5;
   double _timer = 0.0;
   
   _LifeDrainEffect({required Vector2 position})
@@ -242,12 +242,12 @@ class _LifeDrainEffect extends PositionComponent {
     final progress = _timer / _lifetime;
     final opacity = (1.0 - progress).clamp(0.0, 1.0);
     
-    // Partículas verdes ascendentes (drenaje de vida)
+    // PartÃƒÂ­culas verdes ascendentes (drenaje de vida)
     final paint = Paint()
-      ..color = Colors.green.withOpacity(opacity * 0.9)
+      ..color = Colors.green.withValues(alpha: opacity * 0.9)
       ..style = PaintingStyle.fill;
     
-    // Dibujar varias partículas
+    // Dibujar varias partÃƒÂ­culas
     for (int i = 0; i < 5; i++) {
       final angle = (i / 5) * pi * 2;
       final distance = progress * 20.0;
@@ -267,7 +267,7 @@ class _LifeDrainEffect extends PositionComponent {
         text: TextSpan(
           text: '+HP',
           style: TextStyle(
-            color: Colors.green.withOpacity(opacity),
+            color: Colors.green.withValues(alpha: opacity),
             fontSize: 14,
             fontWeight: FontWeight.bold,
             fontFamily: 'monospace',
@@ -290,3 +290,5 @@ class _LifeDrainEffect extends PositionComponent {
   @override
   int get priority => 50;
 }
+
+

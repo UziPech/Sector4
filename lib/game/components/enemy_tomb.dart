@@ -1,4 +1,4 @@
-import 'dart:math';
+﻿import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +34,7 @@ class EnemyTomb extends PositionComponent
     size = Vector2.all(_tombRadius * 2);
     anchor = Anchor.center;
     
-    // Agregar hitbox para detección de proximidad
+    // Agregar hitbox para detecciÃ³n de proximidad
     add(CircleHitbox(
       radius: _tombRadius,
       collisionType: CollisionType.passive,
@@ -52,7 +52,7 @@ class EnemyTomb extends PositionComponent
       return;
     }
     
-    // Actualizar animación de pulso
+    // Actualizar animaciÃ³n de pulso
     _pulseTimer += dt * 2;
     
     // Verificar proximidad del jugador
@@ -73,13 +73,13 @@ class EnemyTomb extends PositionComponent
     // Efecto de pulso
     final pulseScale = 1.0 + sin(_pulseTimer) * 0.1;
     
-    // Color según tipo de enemigo
+    // Color segÃºn tipo de enemigo
     final tombColor = isKijin ? Colors.red : Colors.purple;
     final promptColor = isKijin ? Colors.red : Colors.green;
     
-    // Círculo base (tumba)
+    // CÃ­rculo base (tumba)
     final basePaint = Paint()
-      ..color = tombColor.withOpacity(0.3 * opacity)
+      ..color = tombColor.withValues(alpha: 0.3 * opacity)
       ..style = PaintingStyle.fill;
     
     canvas.drawCircle(
@@ -90,7 +90,7 @@ class EnemyTomb extends PositionComponent
     
     // Borde luminoso
     final borderPaint = Paint()
-      ..color = tombColor.withOpacity(0.8 * opacity)
+      ..color = tombColor.withValues(alpha: 0.8 * opacity)
       ..style = PaintingStyle.stroke
       ..strokeWidth = isKijin ? 3 : 2;
     
@@ -100,9 +100,9 @@ class EnemyTomb extends PositionComponent
       borderPaint,
     );
     
-    // Holograma central (cruz o símbolo)
+    // Holograma central (cruz o sÃ­mbolo)
     final symbolPaint = Paint()
-      ..color = Colors.white.withOpacity(0.9 * opacity)
+      ..color = Colors.white.withValues(alpha: 0.9 * opacity)
       ..style = PaintingStyle.stroke
       ..strokeWidth = isKijin ? 3 : 2;
     
@@ -121,7 +121,7 @@ class EnemyTomb extends PositionComponent
       symbolPaint,
     );
     
-    // Indicador de interacción si el jugador está cerca
+    // Indicador de interacciÃ³n si el jugador estÃ¡ cerca
     if (_isPlayerNearby) {
       final promptText = isKijin ? 'E - Revivir (2 slots)' : 'E - Revivir';
       
@@ -130,13 +130,13 @@ class EnemyTomb extends PositionComponent
       // Podemos actualizar el painter solo cuando cambia el texto, y aplicar opacidad al pintarlo o 
       // si usamos TextSpan con color base, solo necesitamos layout una vez si el texto no cambia.
       // Pero TextPainter no tiene "setOpacity". Recrear TextPainter es costoso por el layout.
-      // Solución: Crear el painter con color sólido y usar saveLayer/opacity en el canvas si fuera necesario,
+      // SoluciÃ³n: Crear el painter con color sÃ³lido y usar saveLayer/opacity en el canvas si fuera necesario,
       // pero TextPainter usa el color del estilo. 
-      // Optimizacion: Solo hacer layout si el texto cambia. El estilo lo podemos actualizar? No fácilmente.
+      // Optimizacion: Solo hacer layout si el texto cambia. El estilo lo podemos actualizar? No fÃ¡cilmente.
       // Mejor: Cachear el layout. Si la opacidad cambia, lamentablemente hay que repintar, pero podemos
       // al menos evitar instanciar el objeto si la opacidad no cambia mucho (aunque cambia cada frame por lifetime).
       // COMPROMISO: Crear el painter una sola vez (layout) con color blanco solido, y pintar con opacidad en el canvas? No, TextPainter ignora tint.
-      // Solución practica: Cachear el painter con el color base, y solo actualizarlo si la opacidad cambia > 0.1 o así? Descartado.
+      // SoluciÃ³n practica: Cachear el painter con el color base, y solo actualizarlo si la opacidad cambia > 0.1 o asÃ­? Descartado.
       // MEJOR: Usar un color fijo en el painter y pintar en un layer con opacidad? 
       // Vamos a simplemente cachear el objeto y el layout y solo recrearlo, ya que el texto es lo que importa.
       
@@ -148,7 +148,7 @@ class EnemyTomb extends PositionComponent
           text: TextSpan(
             text: promptText,
             style: TextStyle(
-              color: promptColor.withOpacity(opacity),
+              color: promptColor.withValues(alpha: opacity),
               fontSize: isKijin ? 11 : 12,
               fontWeight: FontWeight.bold,
               fontFamily: 'monospace',
@@ -172,9 +172,10 @@ class EnemyTomb extends PositionComponent
     }
   }
   
-  /// Verifica si el jugador está en rango de interacción
+  /// Verifica si el jugador estÃ¡ en rango de interacciÃ³n
   bool isPlayerInRange() => _isPlayerNearby;
   
   /// Obtiene el tipo de enemigo para resucitar
   String getEnemyType() => enemyType;
 }
+
