@@ -394,7 +394,9 @@ class ExteriorMapLevel extends Component
     );
 
     // Crear colisiones de objetos visibles en el mapa
-    await _createMapObjectCollisions();
+    // APROBADO: Estas colisiones fantasmas se han removido a petición del usuario
+    // ya que la nueva imagen pre-diseñada incluye sus propios límites visuales marcados en rojo.
+    // await _createMapObjectCollisions();
   }
 
   Future<void> _createMapObjectCollisions() async {
