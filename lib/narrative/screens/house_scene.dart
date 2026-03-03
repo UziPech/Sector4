@@ -25,7 +25,8 @@ class HouseScene extends StatefulWidget {
   State<HouseScene> createState() => _HouseSceneState();
 }
 
-class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateMixin {
+class _HouseSceneState extends State<HouseScene>
+    with SingleTickerProviderStateMixin {
   // Posición del jugador
   Vector2 _playerPosition = Vector2(350, 250);
   final double _playerSpeed = 3.0;
@@ -50,15 +51,15 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
   bool _isTransitioning = false;
   double _transitionCooldown = 0.0;
   static const double _cooldownDuration = 0.5;
-  
+
   // Animación de transición
   late AnimationController _transitionController;
   late Animation<double> _fadeAnimation;
-  
+
   // Focus y timer para movimiento
   late FocusNode _focusNode;
   Timer? _movementTimer;
-  
+
   // Animación de sprite
   AnimatedSprite? _danSprite;
   AnimatedSprite? _danSpriteNorth;
@@ -85,7 +86,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
     super.initState();
     _focusNode = FocusNode();
     _roomManager = RoomManager();
-    
+
     _transitionController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
@@ -93,28 +94,32 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _transitionController, curve: Curves.easeInOut),
     );
-    
+
     _loadDanSprite();
-    _showIntroDialogue();
+    _showControlsMenu();
     _startMovementLoop();
-    
+
     // Iniciar música del capítulo
     AudioManager().playHouseMusic();
 
     // Iniciar temporizador del HUD
     WidgetsBinding.instance.addPostFrameCallback((_) => _resetHudTimer());
   }
-  
+
   Future<void> _loadDanSprite() async {
     try {
-      final spriteNorth = await AnimatedSprite.load('assets/sprites/dan_walk_north.png');
-      final spriteSouth = await AnimatedSprite.load('assets/sprites/dan_walk_south.png');
+      final spriteNorth = await AnimatedSprite.load(
+        'assets/sprites/dan_walk_north.png',
+      );
+      final spriteSouth = await AnimatedSprite.load(
+        'assets/sprites/dan_walk_south.png',
+      );
       final doorSprite = await AnimatedSprite.load(
         'assets/images/doors_sprite_sheet.png',
         columns: 2,
         rows: 1,
       );
-      
+
       // Intentar cargar sprite de escaleras (si existe)
       AnimatedSprite? stairsDown;
       try {
@@ -126,7 +131,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
       } catch (e) {
         print('Warning: stairs_down.png not found yet.');
       }
-      
+
       if (mounted) {
         setState(() {
           _danSpriteNorth = spriteNorth;
@@ -140,7 +145,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
       print('Error loading sprites: $e');
     }
   }
-  
+
   @override
   void dispose() {
     _focusNode.dispose();
@@ -164,18 +169,18 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
       }
     });
   }
-  
+
   void _startMovementLoop() {
     _movementTimer = Timer.periodic(const Duration(milliseconds: 16), (timer) {
       if (mounted) {
         if (_transitionCooldown > 0) {
           _transitionCooldown -= 0.016;
         }
-        
+
         if (_transitionCooldown > 0) {
           _transitionCooldown -= 0.016;
         }
-        
+
         // Pausar lógica si el juego está pausado
         if (_isPaused) return;
 
@@ -184,6 +189,209 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           _checkInteractions();
         }
       }
+    });
+  }
+
+  void _showControlsMenu() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _isPaused = true;
+      });
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.all(20),
+            child: Container(
+              width: 800,
+              height: 520,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/wood_card_bg.png'),
+                  fit: BoxFit.fill,
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 120,
+                vertical: 60,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'CONTROLES DE JUEGO',
+                    style: TextStyle(
+                      color: Color(0xFFFFF9C4), // Light yellow/cream
+                      fontSize: 24,
+                      fontFamily: 'monospace',
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  _buildControlItem(
+                    Icons.games,
+                    'Movimiento',
+                    'Teclas W, A, S, D / Flechas / Joystick táctil',
+                  ),
+                  const SizedBox(height: 20),
+                  _buildControlItem(
+                    Icons.touch_app,
+                    'Interacción',
+                    'Acércate y presiona E o el botón táctil inferior',
+                  ),
+                  const SizedBox(height: 20),
+                  _buildControlItem(
+                    Icons.fast_forward,
+                    'Saltar Diálogos',
+                    'Presiona ESC para omitir conversaciones',
+                  ),
+                  const SizedBox(height: 20),
+                  _buildControlItem(
+                    Icons.settings,
+                    'Menú / Pausa',
+                    'Toca el ícono superior derecho',
+                  ),
+                  const Spacer(),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      setState(() {
+                        _isPaused = false;
+                      });
+                      _showIntroDialogue();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4E342E), // Brown dark
+                      side: const BorderSide(
+                        color: Color(0xFF3E2723),
+                        width: 1.5,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 40,
+                        vertical: 15,
+                      ),
+                    ),
+                    child: const Text(
+                      'INICIAR MISIÓN',
+                      style: TextStyle(
+                        color: Color(0xFFFFECB3), // Light cream/yellowish
+                        fontSize: 16,
+                        fontFamily: 'monospace',
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    });
+  }
+
+  Widget _buildControlItem(IconData icon, String title, String desc) {
+    return Row(
+      children: [
+        Icon(icon, color: const Color(0xFFFFCC80), size: 32), // Light Orange
+        const SizedBox(width: 15),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Color(0xFFFFF59D), // Yellowish cream
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  fontFamily: 'monospace',
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                desc,
+                style: const TextStyle(
+                  color: Color(0xFFE0E0E0), // Light grey/white
+                  fontSize: 13,
+                  fontFamily: 'monospace',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showTutorialDialogue() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _isDialogueActive = true;
+      });
+      DialogueOverlay.show(
+        context,
+        DialogueSequence(
+          id: 'tutorial_controles',
+          dialogues: const [
+            DialogueData(
+              speakerName: 'SISTEMA',
+              text: 'INICIANDO MÓDULO DE ENTRENAMIENTO BÁSICO...',
+              type: DialogueType.system,
+            ),
+            DialogueData(
+              speakerName: 'SISTEMA',
+              text:
+                  'MOVIMIENTO: Utiliza las teclas [W, A, S, D] o las [FLECHAS] para desplazar a tu personaje.',
+              type: DialogueType.system,
+            ),
+            DialogueData(
+              speakerName: 'SISTEMA',
+              text:
+                  'PANTALLA TÁCTIL: Si juegas en móvil, desliza el dedo en la mitad izquierda de la pantalla para usar el Joystick Virtual.',
+              type: DialogueType.system,
+            ),
+            DialogueData(
+              speakerName: 'SISTEMA',
+              text:
+                  'INTERACCIÓN: Acércate a objetos o puertas y presiona la tecla [E] o toca el [BOTÓN INFERIOR DERECHO].',
+              type: DialogueType.system,
+            ),
+            DialogueData(
+              speakerName: 'SISTEMA',
+              text:
+                  'DIÁLOGOS: Puedes presionar [ESC] para saltar rápidamente conversaciones en curso.',
+              type: DialogueType.system,
+            ),
+            DialogueData(
+              speakerName: 'SISTEMA',
+              text:
+                  'INTERFAZ: Toca el icono superior izquierdo para ocultar/mostrar tu objetivo actual.',
+              type: DialogueType.system,
+            ),
+            DialogueData(
+              speakerName: 'SISTEMA',
+              text:
+                  'OPCIONES: El botón del engranaje (arriba a la derecha) abre los ajustes de audio y pausa el juego.',
+              type: DialogueType.system,
+            ),
+            DialogueData(
+              speakerName: 'SISTEMA',
+              text: 'FIN DEL INSTRUCTIVO. Buena suerte.',
+              type: DialogueType.system,
+            ),
+          ],
+        ),
+        onComplete: () {
+          setState(() {
+            _isDialogueActive = false;
+          });
+        },
+      );
     });
   }
 
@@ -200,17 +408,20 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           dialogues: const [
             DialogueData(
               speakerName: 'Dan',
-              text: 'El silencio. Es más ensordecedor que cualquier explosión en una operación encubierta.',
+              text:
+                  'El silencio. Es más ensordecedor que cualquier explosión en una operación encubierta.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: 'Irónico, ¿no? Yo, que pasé años persiguiendo sombras, protegiendo fronteras, un investigador de élite...',
+              text:
+                  'Irónico, ¿no? Yo, que pasé años persiguiendo sombras, protegiendo fronteras, un investigador de élite...',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: '...y mi propia mente se convirtió en la zona de exclusión más peligrosa que jamás pisé.',
+              text:
+                  '...y mi propia mente se convirtió en la zona de exclusión más peligrosa que jamás pisé.',
               type: DialogueType.internal,
             ),
             DialogueData(
@@ -220,22 +431,26 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: 'Cuando perdí a mi esposa, no perdí solo una persona; perdí el suelo, la gravedad que me mantenía anclado a la realidad.',
+              text:
+                  'Cuando perdí a mi esposa, no perdí solo una persona; perdí el suelo, la gravedad que me mantenía anclado a la realidad.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: 'Fui, en el campo, una responsabilidad, un riesgo de seguridad de proporciones épicas.',
+              text:
+                  'Fui, en el campo, una responsabilidad, un riesgo de seguridad de proporciones épicas.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: 'El duelo me convirtió en un desecho, un Yūrei sin misión. ¿De qué sirve la brillantez táctica cuando la voluntad de vivir se ha desvanecido?',
+              text:
+                  'El duelo me convirtió en un desecho, un Yūrei sin misión. ¿De qué sirve la brillantez táctica cuando la voluntad de vivir se ha desvanecido?',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: 'Y luego estaba ella. Mi hija. La única luz que atravesaba esta niebla gris que se asentó sobre mí.',
+              text:
+                  'Y luego estaba ella. Mi hija. La única luz que atravesaba esta niebla gris que se asentó sobre mí.',
               type: DialogueType.internal,
             ),
             DialogueData(
@@ -245,37 +460,44 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: 'Cuando me dijo que le habían aceptado el intercambio a Japón, que su nivel académico era excepcional...',
+              text:
+                  'Cuando me dijo que le habían aceptado el intercambio a Japón, que su nivel académico era excepcional...',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: 'Sentí el pánico, ese egoísmo crudo que me gritaba que la encadenara aquí, que la obligara a ser mi enfermera emocional.',
+              text:
+                  'Sentí el pánico, ese egoísmo crudo que me gritaba que la encadenara aquí, que la obligara a ser mi enfermera emocional.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: 'Era la lucha más difícil que había tenido, muy lejos de cualquier misión antiterrorista.',
+              text:
+                  'Era la lucha más difícil que había tenido, muy lejos de cualquier misión antiterrorista.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: 'Pero mi amor por ella, heredado de su madre, era más grande que mi miseria.',
+              text:
+                  'Pero mi amor por ella, heredado de su madre, era más grande que mi miseria.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: 'No iba a permitir que mi tragedia se convirtiera en su ancla.',
+              text:
+                  'No iba a permitir que mi tragedia se convirtiera en su ancla.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: 'Su futuro es brillante. Kioto, esa universidad que tanto deseaba. Ella es una estudiante excepcional.',
+              text:
+                  'Su futuro es brillante. Kioto, esa universidad que tanto deseaba. Ella es una estudiante excepcional.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: 'Es un orgullo. Es una prueba de que aún existe algo puro en este mundo corrompido que yo patrullaba.',
+              text:
+                  'Es un orgullo. Es una prueba de que aún existe algo puro en este mundo corrompido que yo patrullaba.',
               type: DialogueType.internal,
             ),
             DialogueData(
@@ -285,7 +507,8 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: 'La mandé al otro lado del planeta para que pudiera florecer lejos de esta sombra que me consume.',
+              text:
+                  'La mandé al otro lado del planeta para que pudiera florecer lejos de esta sombra que me consume.',
               type: DialogueType.internal,
             ),
           ],
@@ -294,6 +517,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           setState(() {
             _isDialogueActive = false;
           });
+          _showTutorialDialogue();
         },
       );
     });
@@ -301,9 +525,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
 
   void _transitionToCombat() async {
     await SaveSystem.markChapterCompleted(1);
-    
+
     if (!mounted) return;
-    
+
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => const BunkerScene()),
     );
@@ -343,19 +567,19 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
       } else {
         velocity = velocity.normalized();
       }
-      
+
       velocity = velocity * _playerSpeed;
 
       final room = _roomManager.currentRoom;
-      
+
       final newX = (_playerPosition.x + velocity.x);
       final newY = (_playerPosition.y + velocity.y);
       final newPos = Vector2(newX, newY);
-      
+
       if (_isValidPosition(newPos, room)) {
         setState(() {
           _playerPosition = newPos;
-          
+
           if (velocity.y < -0.1) {
             _currentDirection = 'NORTH';
             _danSprite = _danSpriteNorth;
@@ -363,7 +587,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             _currentDirection = 'SOUTH';
             _danSprite = _danSpriteSouth;
           }
-          
+
           _animationTimer += 0.016;
           if (_animationTimer >= _frameRate) {
             _animationTimer = 0.0;
@@ -378,17 +602,18 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
         });
       }
     }
-      
-      
-      // We don't set _canInteract here anymore, we will do it in _checkInteractions instead
+
+    // We don't set _canInteract here anymore, we will do it in _checkInteractions instead
   }
 
   bool _isValidPosition(Vector2 pos, RoomData room) {
     // Aumentamos un poco el padding para evitar que el sprite se salga visualmente
-    final padding = _playerSize / 1.8; 
-    
-    if (pos.x < padding || pos.x > room.roomSize.width - padding ||
-        pos.y < padding || pos.y > room.roomSize.height - padding) {
+    final padding = _playerSize / 1.8;
+
+    if (pos.x < padding ||
+        pos.x > room.roomSize.width - padding ||
+        pos.y < padding ||
+        pos.y > room.roomSize.height - padding) {
       return false;
     }
 
@@ -396,130 +621,135 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
       final hallwayWidth = room.roomSize.width * 0.25;
       final hallwayHeight = room.roomSize.height * 0.25;
       final hallwayY = room.roomSize.height * 0.4;
-      
+
       // Bloquear SOLO las esquinas cortadas, NO el pasillo lateral
       // Esquina superior izquierda (arriba del pasillo)
       // Ajuste visual: incluir la altura de la pared (aprox 50-60px) para no caminar sobre ella
       if (pos.x < hallwayWidth + padding && pos.y < hallwayY + 50) {
         return false;
       }
-      
+
       // Esquina inferior izquierda (abajo del pasillo)
       // ELIMINADO padding vertical para permitir paso fluido al pasillo
       if (pos.x < hallwayWidth + padding && pos.y > hallwayY + hallwayHeight) {
         return false;
       }
     }
-    
+
     // Colisiones para habitaciones hexagonales (esquinas cortadas diagonalmente)
     if (room.shape == RoomShape.hexagon) {
       final cornerCut = room.roomSize.height * 0.15;
-      
+
       // Esquina superior izquierda
       if (pos.y < cornerCut + padding && pos.x < cornerCut + padding) {
         return false;
       }
-      
+
       // Esquina superior derecha
-      if (pos.y < cornerCut + padding && pos.x > room.roomSize.width - cornerCut - padding) {
+      if (pos.y < cornerCut + padding &&
+          pos.x > room.roomSize.width - cornerCut - padding) {
         return false;
       }
-      
+
       // Esquina inferior izquierda
-      if (pos.y > room.roomSize.height - cornerCut - padding && pos.x < cornerCut + padding) {
+      if (pos.y > room.roomSize.height - cornerCut - padding &&
+          pos.x < cornerCut + padding) {
         return false;
       }
-      
+
       // Esquina inferior derecha
-      if (pos.y > room.roomSize.height - cornerCut - padding && 
+      if (pos.y > room.roomSize.height - cornerCut - padding &&
           pos.x > room.roomSize.width - cornerCut - padding) {
         return false;
       }
     }
-    
+
     // Colisiones para habitaciones en forma de L
     if (room.shape == RoomShape.lShape) {
       final cutWidth = room.roomSize.width * 0.4;
       final cutHeight = room.roomSize.height * 0.4;
-      
+
       // Bloquear la esquina inferior DERECHA (área cortada)
       // El corte está en X > (width - cutWidth) y Y > (height - cutHeight)
-      if (pos.x > room.roomSize.width - cutWidth - padding && 
+      if (pos.x > room.roomSize.width - cutWidth - padding &&
           pos.y > room.roomSize.height - cutHeight - padding) {
         return false;
       }
     }
-    
+
     // Colisiones para habitaciones en forma de U
     if (room.shape == RoomShape.uShape) {
-      final towerWidth = room.roomSize.width * 0.17; 
-      final towerHeight = room.roomSize.height * 0.2; 
-      
+      final towerWidth = room.roomSize.width * 0.17;
+      final towerHeight = room.roomSize.height * 0.2;
+
       // 1. Pared Central (Detrás del sofá)
       if (pos.x > towerWidth && pos.x < room.roomSize.width - towerWidth) {
-         // Ajuste visual: La pared tiene 60px de alto. El límite debe estar cerca de eso.
-         double wallLimitY = towerHeight + 55; 
-         
-         // Verificar si hay una puerta en esta sección para permitir el paso
-         bool isNearDoor = false;
-         for (final door in room.doors) {
-            // Si la puerta está en la pared norte (o cerca de la pared central)
-            if (door.position.dy < towerHeight + 50) {
-               // Si estamos alineados horizontalmente con la puerta
-               if ((pos.x - (door.position.dx + door.size.x/2)).abs() < door.size.x / 2) {
-                  isNearDoor = true;
-                  break;
-               }
-            }
-         }
-         
-         // Si hay puerta, permitimos subir más (el límite es la puerta misma, no la pared)
-         if (isNearDoor) {
-            wallLimitY = towerHeight - 20; // Permitir entrar al pasillo de la puerta
-         }
+        // Ajuste visual: La pared tiene 60px de alto. El límite debe estar cerca de eso.
+        double wallLimitY = towerHeight + 55;
 
-         if (pos.y < wallLimitY) {
-           return false;
-         }
+        // Verificar si hay una puerta en esta sección para permitir el paso
+        bool isNearDoor = false;
+        for (final door in room.doors) {
+          // Si la puerta está en la pared norte (o cerca de la pared central)
+          if (door.position.dy < towerHeight + 50) {
+            // Si estamos alineados horizontalmente con la puerta
+            if ((pos.x - (door.position.dx + door.size.x / 2)).abs() <
+                door.size.x / 2) {
+              isNearDoor = true;
+              break;
+            }
+          }
+        }
+
+        // Si hay puerta, permitimos subir más (el límite es la puerta misma, no la pared)
+        if (isNearDoor) {
+          wallLimitY =
+              towerHeight - 20; // Permitir entrar al pasillo de la puerta
+        }
+
+        if (pos.y < wallLimitY) {
+          return false;
+        }
       }
-      
+
       // 2. Paredes Laterales Superiores (Torres)
       // Torre Izquierda: X < towerWidth, Y < padding (solo pared norte)
       // Torre Derecha: X > width - towerWidth, Y < padding
       // Las paredes verticales internas de las torres ya están cubiertas por los límites generales o lógica específica si fuera necesario.
-      
+
       // Excepción para puertas:
       // Si hay una puerta en la pared norte de las torres, permitir paso.
       // Pero aquí estamos definiendo PAREDES SÓLIDAS.
-      
+
       // Pared superior de torre izquierda
       // Ajuste visual: pared de 60px de alto
       if (pos.x < towerWidth && pos.y < 55) {
-         // Verificar si hay puerta aquí antes de bloquear?
-         // Simplificación: Bloquear pared norte siempre, las puertas suelen tener su propia lógica o estar desplazadas.
-         // Pero si la puerta está en (x, 0), necesitamos permitir paso.
-         bool isDoorHere = false;
-         for (final door in room.doors) {
-            if (door.position.dy < 50 && door.position.dx < towerWidth) {
-               if ((pos.x - door.position.dx).abs() < 40) isDoorHere = true;
-            }
-         }
-         if (!isDoorHere) return false;
+        // Verificar si hay puerta aquí antes de bloquear?
+        // Simplificación: Bloquear pared norte siempre, las puertas suelen tener su propia lógica o estar desplazadas.
+        // Pero si la puerta está en (x, 0), necesitamos permitir paso.
+        bool isDoorHere = false;
+        for (final door in room.doors) {
+          if (door.position.dy < 50 && door.position.dx < towerWidth) {
+            if ((pos.x - door.position.dx).abs() < 40) isDoorHere = true;
+          }
+        }
+        if (!isDoorHere) return false;
       }
-      
+
       // Pared superior de torre derecha
       // Ajuste visual: pared de 60px de alto
       if (pos.x > room.roomSize.width - towerWidth && pos.y < 55) {
-         bool isDoorHere = false;
-         for (final door in room.doors) {
-            if (door.position.dy < 50 && door.position.dx > room.roomSize.width - towerWidth) {
-               if ((pos.x - door.position.dx).abs() < 40) isDoorHere = true;
-            }
-         }
-         if (!isDoorHere) return false;
+        bool isDoorHere = false;
+        for (final door in room.doors) {
+          if (door.position.dy < 50 &&
+              door.position.dx > room.roomSize.width - towerWidth) {
+            if ((pos.x - door.position.dx).abs() < 40) isDoorHere = true;
+          }
+        }
+        if (!isDoorHere) return false;
       }
     }
-    
+
     // Colisiones con MUEBLES (Interactables tipo furniture)
     for (final interactable in room.interactables) {
       if (interactable.type == InteractableType.furniture) {
@@ -530,7 +760,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           interactable.size.x,
           interactable.size.y,
         );
-        
+
         // Hitbox del jugador (pies)
         final playerRect = Rect.fromLTWH(
           pos.x - _playerSize / 4,
@@ -541,56 +771,58 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
 
         // Lógica específica para el SOFÁ
         if (interactable.id == 'sofa') {
-           // Crear una hitbox MUY ajustada al centro visual del sofá
-           final sofaHitbox = Rect.fromLTWH(
-             interactable.position.dx + 50, // +50 margen izq
-             interactable.position.dy + 90, // +90 margen sup (casi todo el respaldo libre)
-             interactable.size.x - 100,  // -100 ancho total
-             interactable.size.y - 130, // -130 alto total (muy delgado, solo el asiento)
-           );
-           
-           if (sofaHitbox.overlaps(playerRect)) {
-             return false;
-           }
+          // Crear una hitbox MUY ajustada al centro visual del sofá
+          final sofaHitbox = Rect.fromLTWH(
+            interactable.position.dx + 50, // +50 margen izq
+            interactable.position.dy +
+                90, // +90 margen sup (casi todo el respaldo libre)
+            interactable.size.x - 100, // -100 ancho total
+            interactable.size.y -
+                130, // -130 alto total (muy delgado, solo el asiento)
+          );
+
+          if (sofaHitbox.overlaps(playerRect)) {
+            return false;
+          }
         } else if (interactable.id == 'emma_desk') {
-           // Hitbox ajustada para el escritorio (menos permisiva que muebles genéricos)
-           final deskHitbox = furnitureRect.deflate(10.0);
-           if (deskHitbox.overlaps(playerRect)) {
-             return false;
-           }
+          // Hitbox ajustada para el escritorio (menos permisiva que muebles genéricos)
+          final deskHitbox = furnitureRect.deflate(10.0);
+          if (deskHitbox.overlaps(playerRect)) {
+            return false;
+          }
         } else if (interactable.id == 'emma_bed') {
-           // Hitbox ajustada para la cama
-           final bedHitbox = furnitureRect.deflate(10.0);
-           if (bedHitbox.overlaps(playerRect)) {
-             return false;
-           }
+          // Hitbox ajustada para la cama
+          final bedHitbox = furnitureRect.deflate(10.0);
+          if (bedHitbox.overlaps(playerRect)) {
+            return false;
+          }
         } else if (interactable.id == 'furniture_1') {
-           // Mueble 1 (grande): Deflate mayor para no bloquear (compensando aumento de tamaño)
-           final itemHitbox = furnitureRect.deflate(30.0);
-           if (itemHitbox.overlaps(playerRect)) {
-             return false;
-           }
+          // Mueble 1 (grande): Deflate mayor para no bloquear (compensando aumento de tamaño)
+          final itemHitbox = furnitureRect.deflate(30.0);
+          if (itemHitbox.overlaps(playerRect)) {
+            return false;
+          }
         } else if (interactable.id == 'furniture_2') {
-           // Mueble 2 (delgado): Deflate ajustado
-           final itemHitbox = furnitureRect.deflate(15.0);
-           if (itemHitbox.overlaps(playerRect)) {
-             return false;
-           }
+          // Mueble 2 (delgado): Deflate ajustado
+          final itemHitbox = furnitureRect.deflate(15.0);
+          if (itemHitbox.overlaps(playerRect)) {
+            return false;
+          }
         } else if (interactable.id == 'furniture_3') {
-           // Mueble 3 (pequeño): Deflate menor para no perder colisión
-           final itemHitbox = furnitureRect.deflate(5.0);
-           if (itemHitbox.overlaps(playerRect)) {
-             return false;
-           }
+          // Mueble 3 (pequeño): Deflate menor para no perder colisión
+          final itemHitbox = furnitureRect.deflate(5.0);
+          if (itemHitbox.overlaps(playerRect)) {
+            return false;
+          }
         } else {
-           // Muebles genéricos
-           // Reducir un poco la hitbox del mueble para ser permisivos
-           final collisionPadding = 30.0; 
-           final paddedRect = furnitureRect.deflate(collisionPadding);
-           
-           if (paddedRect.overlaps(playerRect)) {
-             return false;
-           }
+          // Muebles genéricos
+          // Reducir un poco la hitbox del mueble para ser permisivos
+          final collisionPadding = 30.0;
+          final paddedRect = furnitureRect.deflate(collisionPadding);
+
+          if (paddedRect.overlaps(playerRect)) {
+            return false;
+          }
         }
       }
     }
@@ -598,22 +830,26 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
     return true;
   }
 
-  Future<void> _transitionToRoom(String targetRoomId, {Vector2? spawnPosition}) async {
+  Future<void> _transitionToRoom(
+    String targetRoomId, {
+    Vector2? spawnPosition,
+  }) async {
     if (_isTransitioning || _transitionCooldown > 0) return;
-    
+
     setState(() {
       _isTransitioning = true;
     });
 
     await _transitionController.forward();
-    
+
     setState(() {
       _roomManager.changeRoom(targetRoomId);
-      _playerPosition = spawnPosition ?? _roomManager.currentRoom.playerSpawnPosition;
+      _playerPosition =
+          spawnPosition ?? _roomManager.currentRoom.playerSpawnPosition;
     });
 
     await _transitionController.reverse();
-    
+
     setState(() {
       _isTransitioning = false;
       _transitionCooldown = _cooldownDuration;
@@ -627,7 +863,10 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
     // Prioridad: Puertas
     for (final door in room.doors) {
       if (door.isPlayerInRange(_playerPosition, _playerSize)) {
-        _transitionToRoom(door.targetRoomId, spawnPosition: door.targetSpawnPosition);
+        _transitionToRoom(
+          door.targetRoomId,
+          spawnPosition: door.targetSpawnPosition,
+        );
         return;
       }
     }
@@ -635,7 +874,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
     for (final interactable in room.interactables) {
       if (interactable.isInRange(_playerPosition, interactionRadius)) {
         debugPrint('Interacting with: ${interactable.id}');
-        
+
         if (interactable.isOneTime && interactable.hasBeenInteracted) {
           debugPrint('Already interacted with ${interactable.id}');
           return;
@@ -655,10 +894,12 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             onComplete: () {
               setState(() {
                 _isDialogueActive = false;
-                
+
                 if (interactable.id == 'phone') {
                   _phoneCallCompleted = true;
-                  debugPrint('Phone call completed, transitioning to combat...');
+                  debugPrint(
+                    'Phone call completed, transitioning to combat...',
+                  );
                   Future.delayed(const Duration(seconds: 2), () {
                     _transitionToCombat();
                   });
@@ -667,11 +908,11 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             },
           );
         }
-        
+
         return;
       }
     }
-    
+
     debugPrint('No interactable in range');
   }
 
@@ -681,11 +922,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
       height: height,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Colors.grey[800]!,
-            Colors.grey[400]!,
-            Colors.grey[800]!,
-          ],
+          colors: [Colors.grey[800]!, Colors.grey[400]!, Colors.grey[800]!],
           begin: isVertical ? Alignment.centerLeft : Alignment.topCenter,
           end: isVertical ? Alignment.centerRight : Alignment.bottomCenter,
         ),
@@ -719,7 +956,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
         child: Container(
           decoration: BoxDecoration(
             color: Colors.brown[900],
-            border: const Border(top: BorderSide(color: Colors.black, width: 2)),
+            border: const Border(
+              top: BorderSide(color: Colors.black, width: 2),
+            ),
             boxShadow: const [
               BoxShadow(
                 color: Colors.black54,
@@ -738,7 +977,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
         child: Container(
           decoration: BoxDecoration(
             color: Colors.brown[900],
-            border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+            border: const Border(
+              right: BorderSide(color: Colors.black, width: 2),
+            ),
             boxShadow: const [
               BoxShadow(
                 color: Colors.black54,
@@ -757,7 +998,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
         child: Container(
           decoration: BoxDecoration(
             color: Colors.brown[900],
-            border: const Border(left: BorderSide(color: Colors.black, width: 2)),
+            border: const Border(
+              left: BorderSide(color: Colors.black, width: 2),
+            ),
             boxShadow: const [
               BoxShadow(
                 color: Colors.black54,
@@ -773,9 +1016,10 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
 
   List<Widget> _buildCutCornersWalls(RoomData room) {
     final hallwayWidth = room.roomSize.width * 0.25;
-    final hallwayHeight = room.roomSize.height * 0.25; // Coincidir con RoomShapeClipper
+    final hallwayHeight =
+        room.roomSize.height * 0.25; // Coincidir con RoomShapeClipper
     final hallwayY = room.roomSize.height * 0.4;
-    
+
     const wallHeight = 60.0;
     const wallThickness = 20.0;
     const pipeThickness = 8.0;
@@ -812,7 +1056,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                   repeat: ImageRepeat.repeatX,
                   alignment: Alignment.bottomCenter,
                 ),
-                border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+                border: Border(
+                  bottom: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -835,7 +1081,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+                border: const Border(
+                  right: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -862,7 +1110,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                   repeat: ImageRepeat.repeatX,
                   alignment: Alignment.bottomCenter,
                 ),
-                border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+                border: Border(
+                  bottom: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -885,10 +1135,12 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(top: BorderSide(color: Colors.black, width: 2)),
+                border: const Border(
+                  top: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
-             Positioned(
+            Positioned(
               top: 0,
               left: 0,
               right: 0,
@@ -908,7 +1160,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+                border: const Border(
+                  right: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -931,7 +1185,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(left: BorderSide(color: Colors.black, width: 2)),
+                border: const Border(
+                  left: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -954,10 +1210,12 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(top: BorderSide(color: Colors.black, width: 2)),
+                border: const Border(
+                  top: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
-             Positioned(
+            Positioned(
               top: 0,
               left: 0,
               right: 0,
@@ -970,14 +1228,16 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
       Positioned(
         top: hallwayY,
         left: 0,
-        width: wallThickness, 
+        width: wallThickness,
         height: hallwayHeight + wallThickness,
         child: Stack(
           children: [
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+                border: const Border(
+                  right: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1032,7 +1292,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                   repeat: ImageRepeat.repeatX,
                   alignment: Alignment.bottomCenter,
                 ),
-                border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+                border: Border(
+                  bottom: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1045,7 +1307,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           ],
         ),
       ),
-      
+
       // Pared inferior (con cortes en esquinas)
       Positioned(
         bottom: 0,
@@ -1057,7 +1319,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(top: BorderSide(color: Colors.black, width: 2)),
+                border: const Border(
+                  top: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1070,7 +1334,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           ],
         ),
       ),
-      
+
       // Pared izquierda (con cortes en esquinas)
       Positioned(
         top: cornerCut,
@@ -1082,7 +1346,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+                border: const Border(
+                  right: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1095,7 +1361,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           ],
         ),
       ),
-      
+
       // Pared derecha (con cortes en esquinas)
       Positioned(
         top: cornerCut,
@@ -1107,7 +1373,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(left: BorderSide(color: Colors.black, width: 2)),
+                border: const Border(
+                  left: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1120,7 +1388,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           ],
         ),
       ),
-      
+
       // Esquinas diagonales (4 bloques sólidos)
       // Esquina superior izquierda
       Positioned(
@@ -1138,7 +1406,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           ),
         ),
       ),
-      
+
       // Esquina superior derecha
       Positioned(
         top: 0,
@@ -1155,7 +1423,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           ),
         ),
       ),
-      
+
       // Esquina inferior izquierda
       Positioned(
         bottom: 0,
@@ -1172,7 +1440,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           ),
         ),
       ),
-      
+
       // Esquina inferior derecha
       Positioned(
         bottom: 0,
@@ -1232,7 +1500,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                   repeat: ImageRepeat.repeatX,
                   alignment: Alignment.bottomCenter,
                 ),
-                border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+                border: Border(
+                  bottom: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1257,7 +1527,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+                border: const Border(
+                  right: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1282,7 +1554,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(left: BorderSide(color: Colors.black, width: 2)),
+                border: const Border(
+                  left: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1319,7 +1593,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
       ),
 
       // 5. Paredes del Corte (Esquina Inferior Derecha)
-      
+
       // Pared Vertical del Corte (baja desde el techo del corte hasta el suelo)
       Positioned(
         top: room.roomSize.height - cutHeight,
@@ -1331,10 +1605,12 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(right: BorderSide(color: Colors.black, width: 2)), // Borde derecho porque es pared externa del cuarto
+                border: const Border(
+                  right: BorderSide(color: Colors.black, width: 2),
+                ), // Borde derecho porque es pared externa del cuarto
               ),
             ),
-             Positioned(
+            Positioned(
               top: 0,
               bottom: 0,
               right: 0,
@@ -1360,33 +1636,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                   repeat: ImageRepeat.repeatX,
                   alignment: Alignment.bottomCenter,
                 ),
-                border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
-              ),
-            ),
-             Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: pipeThickness,
-              child: buildPipe(height: pipeThickness),
-            ),
-          ],
-        ),
-      ),
-
-      
-      // Pared inferior (solo la parte derecha, desde el corte)
-      Positioned(
-        bottom: 0,
-        left: cutWidth,
-        right: 0,
-        height: wallThickness,
-        child: Stack(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.brown[900],
-                border: const Border(top: BorderSide(color: Colors.black, width: 2)),
+                border: Border(
+                  bottom: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1399,7 +1651,34 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           ],
         ),
       ),
-      
+
+      // Pared inferior (solo la parte derecha, desde el corte)
+      Positioned(
+        bottom: 0,
+        left: cutWidth,
+        right: 0,
+        height: wallThickness,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.brown[900],
+                border: const Border(
+                  top: BorderSide(color: Colors.black, width: 2),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: pipeThickness,
+              child: buildPipe(height: pipeThickness),
+            ),
+          ],
+        ),
+      ),
+
       // Pared vertical interna (borde del corte, lado derecho)
       Positioned(
         top: room.roomSize.height - cutHeight,
@@ -1426,7 +1705,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           ],
         ),
       ),
-      
+
       // Pared horizontal interna (borde del corte, lado superior)
       Positioned(
         top: room.roomSize.height - cutHeight,
@@ -1459,7 +1738,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
   List<Widget> _buildBottomEntranceWalls(RoomData room) {
     final wallThickness = 60.0;
     final pipeThickness = 10.0;
-    
+
     // Dimensiones del pasillo (mismas que en RoomShapeClipper)
     final hallwayWidth = 120.0;
     final hallwayHeight = 150.0;
@@ -1482,7 +1761,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
         ),
       );
     }
-    
+
     return [
       // 1. Pared Norte (Top) - Completa
       Positioned(
@@ -1499,7 +1778,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                   repeat: ImageRepeat.repeatX,
                   alignment: Alignment.bottomCenter,
                 ),
-                border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+                border: Border(
+                  bottom: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1512,7 +1793,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           ],
         ),
       ),
-      
+
       // 2. Pared Oeste (Izquierda) - Completa hasta mainRoomHeight
       Positioned(
         top: 0,
@@ -1524,7 +1805,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+                border: const Border(
+                  right: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1537,7 +1820,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           ],
         ),
       ),
-      
+
       // 3. Pared Este (Derecha) - Completa hasta mainRoomHeight
       Positioned(
         top: 0,
@@ -1549,7 +1832,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(left: BorderSide(color: Colors.black, width: 2)),
+                border: const Border(
+                  left: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1562,7 +1847,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           ],
         ),
       ),
-      
+
       // 4. Pared Sur Izquierda (Main Room)
       Positioned(
         top: mainRoomHeight - wallThickness,
@@ -1584,7 +1869,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           ],
         ),
       ),
-      
+
       // 5. Pared Sur Derecha (Main Room)
       Positioned(
         top: mainRoomHeight - wallThickness,
@@ -1606,7 +1891,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           ],
         ),
       ),
-      
+
       // 6. Paredes del Pasillo (Verticales)
       // Izquierda del pasillo
       Positioned(
@@ -1617,11 +1902,13 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
         child: Container(
           decoration: BoxDecoration(
             color: Colors.brown[900],
-            border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+            border: const Border(
+              right: BorderSide(color: Colors.black, width: 2),
+            ),
           ),
         ),
       ),
-      
+
       // Derecha del pasillo
       Positioned(
         top: mainRoomHeight,
@@ -1631,11 +1918,13 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
         child: Container(
           decoration: BoxDecoration(
             color: Colors.brown[900],
-            border: const Border(left: BorderSide(color: Colors.black, width: 2)),
+            border: const Border(
+              left: BorderSide(color: Colors.black, width: 2),
+            ),
           ),
         ),
       ),
-      
+
       // 7. Fondo del pasillo (Sur final) - Donde irán las escaleras
       // No dibujamos pared aquí para dejar que las escaleras "salgan"
     ];
@@ -1667,7 +1956,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
 
     return [
       // --- PAREDES EXTERIORES ---
-      
+
       // Pared superior izquierda (Torre Izq Top)
       Positioned(
         top: 0,
@@ -1683,7 +1972,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                   repeat: ImageRepeat.repeatX,
                   alignment: Alignment.bottomCenter,
                 ),
-                border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+                border: Border(
+                  bottom: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1712,7 +2003,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                   repeat: ImageRepeat.repeatX,
                   alignment: Alignment.bottomCenter,
                 ),
-                border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+                border: Border(
+                  bottom: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1737,7 +2030,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+                border: const Border(
+                  right: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1762,7 +2057,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(left: BorderSide(color: Colors.black, width: 2)),
+                border: const Border(
+                  left: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1787,7 +2084,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(top: BorderSide(color: Colors.black, width: 2)),
+                border: const Border(
+                  top: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1814,7 +2113,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(left: BorderSide(color: Colors.black, width: 2)),
+                border: const Border(
+                  left: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1839,7 +2140,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             Container(
               decoration: BoxDecoration(
                 color: Colors.brown[900],
-                border: const Border(right: BorderSide(color: Colors.black, width: 2)),
+                border: const Border(
+                  right: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1869,7 +2172,9 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                   repeat: ImageRepeat.repeatX,
                   alignment: Alignment.bottomCenter,
                 ),
-                border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+                border: Border(
+                  bottom: BorderSide(color: Colors.black, width: 2),
+                ),
               ),
             ),
             Positioned(
@@ -1888,7 +2193,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
   void _checkInteractions() {
     final room = _roomManager.currentRoom;
     bool canInteractNow = false;
-    
+
     // Check doors
     for (final door in room.doors) {
       if (door.isPlayerInRange(_playerPosition, _playerSize)) {
@@ -1896,7 +2201,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
         break;
       }
     }
-    
+
     // Check objects if not near a door
     if (!canInteractNow) {
       for (final interactable in room.interactables) {
@@ -1908,7 +2213,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
         }
       }
     }
-    
+
     if (_canInteract != canInteractNow) {
       setState(() {
         _canInteract = canInteractNow;
@@ -1919,7 +2224,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     final room = _roomManager.currentRoom;
-    
+
     return PopScope(
       canPop: false,
       child: Scaffold(
@@ -1929,17 +2234,19 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
           autofocus: true,
           onKeyEvent: (event) {
             if (event is KeyDownEvent) {
-              if (event.logicalKey == LogicalKeyboardKey.escape && _isDialogueActive) {
+              if (event.logicalKey == LogicalKeyboardKey.escape &&
+                  _isDialogueActive) {
                 debugPrint('ESC pressed - skipping dialogue');
                 DialogueOverlay.skipCurrent();
                 return;
               }
-              
-              if (event.logicalKey == LogicalKeyboardKey.keyE && !_isDialogueActive) {
+
+              if (event.logicalKey == LogicalKeyboardKey.keyE &&
+                  !_isDialogueActive) {
                 _tryInteract();
                 return;
               }
-              
+
               _pressedKeys.add(event.logicalKey);
             } else if (event is KeyUpEvent) {
               _pressedKeys.remove(event.logicalKey);
@@ -1965,9 +2272,11 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                               decoration: BoxDecoration(
                                 color: room.backgroundColor,
                                 image: const DecorationImage(
-                                  image: AssetImage('assets/images/wood_floor.jpg'),
+                                  image: AssetImage(
+                                    'assets/images/wood_floor.jpg',
+                                  ),
                                   repeat: ImageRepeat.repeat,
-                                  scale: 4.0, 
+                                  scale: 4.0,
                                 ),
                               ),
                             ),
@@ -1985,52 +2294,70 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                             ..._buildRectangularWalls(room),
 
                           ...room.doors.map((door) {
-                            final dist = _playerPosition.distanceTo(Vector2(
-                              door.position.dx + door.size.x / 2,
-                              door.position.dy + door.size.y / 2,
-                            ));
+                            final dist = _playerPosition.distanceTo(
+                              Vector2(
+                                door.position.dx + door.size.x / 2,
+                                door.position.dy + door.size.y / 2,
+                              ),
+                            );
                             final isOpen = dist < 80.0;
-                            
+
                             // LÓGICA ESPECIAL PARA SALA DE ESTAR
                             final isLivingRoom = room.id == 'living_room';
                             final isHorizontal = door.size.x > door.size.y;
-                              
+
                             if (isHorizontal && _doorSprite != null) {
                               final visualWidth = door.size.x * 1.2;
                               // Altura ajustada para que la puerta quepa sin salirse del mapa
-                              final visualHeight = door.size.y * 4.5; 
-                              
-                              final isNorth = door.position.dy < room.roomSize.height / 2;
-                              final isSouth = door.position.dy > room.roomSize.height / 2;
-                              
+                              final visualHeight = door.size.y * 4.5;
+
+                              final isNorth =
+                                  door.position.dy < room.roomSize.height / 2;
+                              final isSouth =
+                                  door.position.dy > room.roomSize.height / 2;
+
                               double topPos;
-                              
+
                               if (isNorth) {
                                 // Lógica específica para sala en U
                                 if (isLivingRoom && door.position.dy > 50) {
                                   // Puerta central (Hallway) - La pared está más abajo (y=120)
-                                  topPos = 120.0 + 60.0 - visualHeight + door.size.y;
+                                  topPos =
+                                      120.0 + 60.0 - visualHeight + door.size.y;
                                 } else if (door.position.dy < 100) {
                                   // Puertas norte estándar
                                   topPos = 60.0 - visualHeight + door.size.y;
                                 } else {
-                                  topPos = door.position.dy - visualHeight + door.size.y;
+                                  topPos =
+                                      door.position.dy -
+                                      visualHeight +
+                                      door.size.y;
                                 }
                               } else if (isSouth) {
                                 // Puerta en pared sur (abajo)
-                                topPos = room.roomSize.height - visualHeight + 5; 
+                                topPos =
+                                    room.roomSize.height - visualHeight + 5;
                               } else {
                                 // Puertas en paredes internas
-                                topPos = door.position.dy - visualHeight + door.size.y;
-                                
-                                if (room.shape == RoomShape.cutCorners && door.position.dy > 100 && door.position.dy < room.roomSize.height / 2) {
-                                   topPos -= 10.0; 
+                                topPos =
+                                    door.position.dy -
+                                    visualHeight +
+                                    door.size.y;
+
+                                if (room.shape == RoomShape.cutCorners &&
+                                    door.position.dy > 100 &&
+                                    door.position.dy <
+                                        room.roomSize.height / 2) {
+                                  topPos -= 10.0;
                                 }
                               }
 
                               return Positioned(
-                                left: door.position.x - (visualWidth - door.size.x) / 2, // Centrar horizontalmente
-                                top: topPos, 
+                                left:
+                                    door.position.x -
+                                    (visualWidth - door.size.x) /
+                                        2, // Centrar horizontalmente
+                                top: topPos,
                                 child: SizedBox(
                                   width: visualWidth,
                                   height: visualHeight,
@@ -2046,33 +2373,51 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                               // Puertas verticales (izquierda/derecha)
                               if (_doorSprite != null) {
                                 // Para puertas verticales, intercambiamos dimensiones porque rotaremos 90°
-                                final spriteWidth = door.size.y * 4.5; // Aumentado para que la puerta sea alta
-                                final spriteHeight = door.size.x * 1.2; // El ancho del sprite (después de rotar)
-                                
-                                final isWest = door.position.dx < room.roomSize.width / 2;
-                                final isEast = door.position.dx > room.roomSize.width / 2;
-                                
+                                final spriteWidth =
+                                    door.size.y *
+                                    4.5; // Aumentado para que la puerta sea alta
+                                final spriteHeight =
+                                    door.size.x *
+                                    1.2; // El ancho del sprite (después de rotar)
+
+                                final isWest =
+                                    door.position.dx < room.roomSize.width / 2;
+                                final isEast =
+                                    door.position.dx > room.roomSize.width / 2;
+
                                 double leftPos;
-                                
+
                                 if (isWest && door.position.dx < 100) {
                                   // Puerta en pared oeste (izquierda) - pegada a la pared
-                                  leftPos = 20.0 - spriteHeight + door.size.x; 
+                                  leftPos = 20.0 - spriteHeight + door.size.x;
                                 } else if (isEast) {
                                   // Puerta en pared este (derecha) - PEGADA A LA PARED
-                                  leftPos = room.roomSize.width - 20.0 - spriteHeight + door.size.x;
+                                  leftPos =
+                                      room.roomSize.width -
+                                      20.0 -
+                                      spriteHeight +
+                                      door.size.x;
                                 } else {
                                   // Puertas internas
-                                  leftPos = door.position.x - (spriteHeight - door.size.x) / 2;
+                                  leftPos =
+                                      door.position.x -
+                                      (spriteHeight - door.size.x) / 2;
                                 }
-                                
+
                                 return Positioned(
                                   left: leftPos,
-                                  top: door.position.y - (spriteWidth - door.size.y) / 2, // Centrar verticalmente
+                                  top:
+                                      door.position.y -
+                                      (spriteWidth - door.size.y) /
+                                          2, // Centrar verticalmente
                                   child: SizedBox(
-                                    width: spriteHeight, // Ancho del contenedor (antes de rotar)
-                                    height: spriteWidth, // Alto del contenedor (antes de rotar)
+                                    width:
+                                        spriteHeight, // Ancho del contenedor (antes de rotar)
+                                    height:
+                                        spriteWidth, // Alto del contenedor (antes de rotar)
                                     child: Transform.rotate(
-                                      angle: 1.5708, // 90 grados en radianes (π/2)
+                                      angle:
+                                          1.5708, // 90 grados en radianes (π/2)
                                       child: AnimatedSpriteWidget(
                                         sprite: _doorSprite!,
                                         direction: 'DOOR',
@@ -2091,8 +2436,13 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                                     width: door.size.x,
                                     height: door.size.y,
                                     decoration: BoxDecoration(
-                                      color: isOpen ? Colors.black : Colors.brown[800],
-                                      border: Border.all(color: Colors.brown[900]!, width: 2),
+                                      color: isOpen
+                                          ? Colors.black
+                                          : Colors.brown[800],
+                                      border: Border.all(
+                                        color: Colors.brown[900]!,
+                                        width: 2,
+                                      ),
                                     ),
                                   ),
                                 );
@@ -2110,9 +2460,12 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                                   _isDialogueActive = false;
                                   if (interactable.id == 'phone') {
                                     _phoneCallCompleted = true;
-                                    Future.delayed(const Duration(seconds: 2), () {
-                                      _transitionToCombat();
-                                    });
+                                    Future.delayed(
+                                      const Duration(seconds: 2),
+                                      () {
+                                        _transitionToCombat();
+                                      },
+                                    );
                                   }
                                 });
                               },
@@ -2135,7 +2488,10 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                                     child: Container(
                                       decoration: BoxDecoration(
                                         color: Colors.blue,
-                                        border: Border.all(color: Colors.white, width: 2),
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 2,
+                                        ),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(
@@ -2213,16 +2569,16 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                             currentPos.dx - _joystickOrigin!.dx,
                             currentPos.dy - _joystickOrigin!.dy,
                           );
-                          
+
                           if (delta.length > _joystickRadius) {
                             delta = delta.normalized() * _joystickRadius;
                           }
-                          
+
                           _joystickPosition = Offset(
                             _joystickOrigin!.dx + delta.x,
                             _joystickOrigin!.dy + delta.y,
                           );
-                          
+
                           _joystickInput = delta / _joystickRadius;
                         });
                       }
@@ -2238,7 +2594,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                     child: Container(color: Colors.transparent),
                   ),
                 ),
-                
+
                 if (_isTransitioning)
                   AnimatedBuilder(
                     animation: _fadeAnimation,
@@ -2248,106 +2604,118 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                       );
                     },
                   ),
-                  
-                // HUD Dinámico y Ocultable (Top Left)
-                 AnimatedPositioned(
-                   duration: const Duration(milliseconds: 300),
-                   curve: Curves.easeInOut,
-                   top: 16,
-                   left: _isHudVisible ? 16 : -250,
-                   child: GestureDetector(
-                     onTap: () {
-                       if (_isHudVisible) {
-                         setState(() { _isHudVisible = false; });
-                         _hudTimer?.cancel();
-                       } else {
-                         _resetHudTimer();
-                       }
-                     },
-                     child: Builder(
-                       builder: (context) {
-                         final maxW = MediaQuery.of(context).size.width;
-                         final hudW = (maxW * 0.65).clamp(180.0, 260.0);
-                         return Container(
-                           width: hudW,
-                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                           decoration: BoxDecoration(
-                             gradient: LinearGradient(
-                               colors: [
-                                 Colors.black.withOpacity(0.85),
-                                 Colors.black.withOpacity(0.4),
-                               ],
-                               begin: Alignment.centerLeft,
-                               end: Alignment.centerRight,
-                             ),
-                             border: Border(
-                               left: BorderSide(
-                                 color: Colors.amber.withOpacity(0.5),
-                                 width: 3,
-                               ),
-                             ),
-                             borderRadius: const BorderRadius.only(
-                               topRight: Radius.circular(8),
-                               bottomRight: Radius.circular(8),
-                             ),
-                           ),
-                           child: Column(
-                             crossAxisAlignment: CrossAxisAlignment.start,
-                             children: [
-                               Row(
-                                 children: [
-                                   const Icon(Icons.bookmark, color: Colors.amber, size: 14),
-                                   const SizedBox(width: 4),
-                                   const Text(
-                                     'CAPÍTULO 1: EL LLAMADO',
-                                     style: TextStyle(
-                                       color: Colors.white,
-                                       fontSize: 12,
-                                       fontWeight: FontWeight.bold,
-                                       fontFamily: 'monospace',
-                                     ),
-                                   ),
-                                 ],
-                               ),
-                               const SizedBox(height: 6),
-                               Text(
-                                 room.name,
-                                 style: TextStyle(
-                                   color: Colors.amber[200],
-                                   fontSize: 14,
-                                   fontWeight: FontWeight.bold,
-                                   fontFamily: 'monospace',
-                                   letterSpacing: 1.2,
-                                 ),
-                               ),
-                               const SizedBox(height: 4),
-                               Row(
-                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                 children: [
-                                   Icon(Icons.gps_fixed, color: Colors.yellow[700], size: 14),
-                                   const SizedBox(width: 6),
-                                   Expanded(
-                                     child: Text(
-                                       _phoneCallCompleted
-                                           ? 'Objetivo: Ir a Japón'
-                                           : 'Objetivo: Explorar la casa',
-                                       style: TextStyle(
-                                         color: Colors.yellow[700],
-                                         fontSize: 12,
-                                         fontFamily: 'monospace',
-                                       ),
-                                     ),
-                                   ),
-                                 ],
-                               ),
-                             ],
-                           ),
-                         );
-                       },
-                     ),
-                   ),
-                 ),
 
+                // HUD Dinámico y Ocultable (Top Left)
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  top: 16,
+                  left: _isHudVisible ? 16 : -250,
+                  child: GestureDetector(
+                    onTap: () {
+                      if (_isHudVisible) {
+                        setState(() {
+                          _isHudVisible = false;
+                        });
+                        _hudTimer?.cancel();
+                      } else {
+                        _resetHudTimer();
+                      }
+                    },
+                    child: Builder(
+                      builder: (context) {
+                        final maxW = MediaQuery.of(context).size.width;
+                        final hudW = (maxW * 0.65).clamp(180.0, 260.0);
+                        return Container(
+                          width: hudW,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.black.withOpacity(0.85),
+                                Colors.black.withOpacity(0.4),
+                              ],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                            border: Border(
+                              left: BorderSide(
+                                color: Colors.amber.withOpacity(0.5),
+                                width: 3,
+                              ),
+                            ),
+                            borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(8),
+                              bottomRight: Radius.circular(8),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.bookmark,
+                                    color: Colors.amber,
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Text(
+                                    'CAPÍTULO 1: EL LLAMADO',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'monospace',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                room.name,
+                                style: TextStyle(
+                                  color: Colors.amber[200],
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'monospace',
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.gps_fixed,
+                                    color: Colors.yellow[700],
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      _phoneCallCompleted
+                                          ? 'Objetivo: Ir a Japón'
+                                          : 'Objetivo: Explorar la casa',
+                                      style: TextStyle(
+                                        color: Colors.yellow[700],
+                                        fontSize: 12,
+                                        fontFamily: 'monospace',
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
 
                 // Pestaña para reabrir el HUD cuando está oculto
                 if (!_isHudVisible && !_isDialogueActive)
@@ -2370,13 +2738,16 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                               width: 1.5,
                             ),
                           ),
-                          child: Icon(Icons.menu_open, color: Colors.amber[300], size: 20),
+                          child: Icon(
+                            Icons.menu_open,
+                            color: Colors.amber[300],
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
                   ),
 
-                
                 // Hint de teclado SOLO en escritorio nativo (no web, no móvil)
                 if (!kIsWeb &&
                     defaultTargetPlatform != TargetPlatform.android &&
@@ -2402,8 +2773,10 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                       ),
                     ),
                   ),
-                  
-                if (_isJoystickActive && _joystickOrigin != null && _joystickPosition != null) ...[
+
+                if (_isJoystickActive &&
+                    _joystickOrigin != null &&
+                    _joystickPosition != null) ...[
                   Positioned(
                     left: _joystickOrigin!.dx - _joystickRadius,
                     top: _joystickOrigin!.dy - _joystickRadius,
@@ -2413,7 +2786,10 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white.withOpacity(0.5), width: 2),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.5),
+                          width: 2,
+                        ),
                       ),
                     ),
                   ),
@@ -2437,7 +2813,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                     ),
                   ),
                 ],
-                
+
                 if (_canInteract && !_isDialogueActive)
                   Positioned(
                     bottom: 80,
@@ -2456,14 +2832,17 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                     onTap: () {
                       setState(() {
                         _isConfigOpen = !_isConfigOpen;
-                        _isPaused = _isConfigOpen; // Pausar si se abre, reanudar si se cierra
+                        _isPaused =
+                            _isConfigOpen; // Pausar si se abre, reanudar si se cierra
                       });
                     },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeOutBack,
                       width: _isConfigOpen ? 280 : 50,
-                      height: _isConfigOpen ? 340 : 50, // Aumentado para caber SFX
+                      height: _isConfigOpen
+                          ? 340
+                          : 50, // Aumentado para caber SFX
                       padding: EdgeInsets.zero,
                       clipBehavior: Clip.hardEdge,
                       decoration: BoxDecoration(
@@ -2485,7 +2864,8 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                           ? OverflowBox(
                               minWidth: 276,
                               maxWidth: 276,
-                              minHeight: 336, // Ajustado a nueva altura (340 - 4)
+                              minHeight:
+                                  336, // Ajustado a nueva altura (340 - 4)
                               maxHeight: 336,
                               alignment: Alignment.center,
                               child: Container(
@@ -2551,7 +2931,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
         const SizedBox(height: 10),
         const Divider(color: Colors.white24, height: 1),
         const SizedBox(height: 20),
-        
+
         // Control de Volumen
         Row(
           children: [
@@ -2559,7 +2939,11 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             const SizedBox(width: 10),
             const Text(
               'AUDIO',
-              style: TextStyle(color: Colors.white70, fontSize: 12, fontFamily: 'monospace'),
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+                fontFamily: 'monospace',
+              ),
             ),
           ],
         ),
@@ -2597,7 +2981,11 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             const SizedBox(width: 10),
             const Text(
               'EFECTOS (SFX)',
-              style: TextStyle(color: Colors.white70, fontSize: 12, fontFamily: 'monospace'),
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+                fontFamily: 'monospace',
+              ),
             ),
           ],
         ),
@@ -2648,7 +3036,10 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                         fit: BoxFit.fill,
                       ),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 85, vertical: 50),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 85,
+                      vertical: 50,
+                    ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -2706,22 +3097,34 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 30), // Espacio fijo entre botones
+                            const SizedBox(
+                              width: 30,
+                            ), // Espacio fijo entre botones
                             ElevatedButton(
                               onPressed: () {
                                 Navigator.pop(context);
                                 Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(builder: (context) => MenuScreen()),
+                                  MaterialPageRoute(
+                                    builder: (context) => MenuScreen(),
+                                  ),
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.redAccent.withOpacity(0.8),
+                                backgroundColor: Colors.redAccent.withOpacity(
+                                  0.8,
+                                ),
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 15,
+                                  vertical: 8,
+                                ),
                                 minimumSize: Size.zero,
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
-                              child: const Text('CONFIRMAR', style: TextStyle(fontSize: 12)),
+                              child: const Text(
+                                'CONFIRMAR',
+                                style: TextStyle(fontSize: 12),
+                              ),
                             ),
                           ],
                         ),
@@ -2743,7 +3146,7 @@ class _HouseSceneState extends State<HouseScene> with SingleTickerProviderStateM
             child: const Text(
               'SALIR AL MENÚ',
               style: TextStyle(
-                fontSize: 14, 
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.2,
                 fontFamily: 'monospace',
@@ -2778,9 +3181,10 @@ class _InteractButtonState extends State<_InteractButton>
       vsync: this,
       duration: const Duration(milliseconds: 900),
     )..repeat(reverse: true);
-    _pulseAnim = Tween<double>(begin: 0.55, end: 0.85).animate(
-      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
-    );
+    _pulseAnim = Tween<double>(
+      begin: 0.55,
+      end: 0.85,
+    ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -2805,7 +3209,9 @@ class _InteractButtonState extends State<_InteractButton>
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFD4A96A).withOpacity(_pulseAnim.value * 0.35),
+              color: const Color(
+                0xFFD4A96A,
+              ).withOpacity(_pulseAnim.value * 0.35),
               blurRadius: 14,
               spreadRadius: 2,
             ),
@@ -2815,7 +3221,9 @@ class _InteractButtonState extends State<_InteractButton>
           child: Text(
             'E',
             style: TextStyle(
-              color: const Color(0xFFD4A96A).withOpacity(_pulseAnim.value + 0.1),
+              color: const Color(
+                0xFFD4A96A,
+              ).withOpacity(_pulseAnim.value + 0.1),
               fontSize: 22,
               fontWeight: FontWeight.bold,
               fontFamily: 'monospace',

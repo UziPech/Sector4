@@ -42,7 +42,7 @@ class _BunkerSceneState extends State<BunkerScene>
   late AnimationController _transitionController;
   late Animation<double> _fadeAnimation;
   final FocusNode _focusNode = FocusNode();
-  
+
   // Variables UX (UI HUD)
   bool _isHudVisible = true;
   Timer? _hudTimer;
@@ -199,6 +199,73 @@ class _BunkerSceneState extends State<BunkerScene>
     });
   }
 
+  void _showTutorialDialogue() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _isDialogueActive = true;
+      });
+      DialogueOverlay.show(
+        context,
+        DialogueSequence(
+          id: 'tutorial_controles',
+          dialogues: const [
+            DialogueData(
+              speakerName: 'SISTEMA',
+              text: 'INICIANDO MÓDULO DE ENTRENAMIENTO BÁSICO...',
+              type: DialogueType.system,
+            ),
+            DialogueData(
+              speakerName: 'SISTEMA',
+              text:
+                  'MOVIMIENTO: Utiliza las teclas [W, A, S, D] o las [FLECHAS] para desplazar a tu personaje.',
+              type: DialogueType.system,
+            ),
+            DialogueData(
+              speakerName: 'SISTEMA',
+              text:
+                  'PANTALLA TÁCTIL: Si juegas en móvil, desliza el dedo en la mitad izquierda de la pantalla para usar el Joystick Virtual.',
+              type: DialogueType.system,
+            ),
+            DialogueData(
+              speakerName: 'SISTEMA',
+              text:
+                  'INTERACCIÓN: Acércate a objetos o puertas y presiona la tecla [E] o toca el [BOTÓN INFERIOR DERECHO].',
+              type: DialogueType.system,
+            ),
+            DialogueData(
+              speakerName: 'SISTEMA',
+              text:
+                  'DIÁLOGOS: Puedes presionar [ESC] para saltar rápidamente conversaciones en curso.',
+              type: DialogueType.system,
+            ),
+            DialogueData(
+              speakerName: 'SISTEMA',
+              text:
+                  'INTERFAZ: Toca el icono superior izquierdo para ocultar/mostrar tu objetivo actual.',
+              type: DialogueType.system,
+            ),
+            DialogueData(
+              speakerName: 'SISTEMA',
+              text:
+                  'OPCIONES: El botón del engranaje (arriba a la derecha) abre los ajustes de audio y pausa el juego.',
+              type: DialogueType.system,
+            ),
+            DialogueData(
+              speakerName: 'SISTEMA',
+              text: 'FIN DEL INSTRUCTIVO. Buena suerte.',
+              type: DialogueType.system,
+            ),
+          ],
+        ),
+        onComplete: () {
+          setState(() {
+            _isDialogueActive = false;
+          });
+        },
+      );
+    });
+  }
+
   void _showArrivalMonologue() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
@@ -230,6 +297,8 @@ class _BunkerSceneState extends State<BunkerScene>
           setState(() {
             _isDialogueActive = false;
           });
+          // Iniciar tutorial tras el monólogo
+          _showTutorialDialogue();
         },
       );
     });
@@ -241,7 +310,7 @@ class _BunkerSceneState extends State<BunkerScene>
 
   void _transitionToRoom(String targetRoomId, {Vector2? spawnPosition}) async {
     if (_isTransitioning) return; // Prevenir transiciones múltiples
-    
+
     // Lógica de cambio de audio según la habitación
     if (targetRoomId == 'exterior' || targetRoomId == 'exterior_large') {
       AudioManager().playForestMusic();
@@ -274,7 +343,10 @@ class _BunkerSceneState extends State<BunkerScene>
     // Prioridad: Puertas
     for (final door in room.doors) {
       if (door.isPlayerInRange(_playerPosition, _playerSize)) {
-        _transitionToRoom(door.targetRoomId, spawnPosition: door.targetSpawnPosition);
+        _transitionToRoom(
+          door.targetRoomId,
+          spawnPosition: door.targetSpawnPosition,
+        );
         return;
       }
     }
@@ -543,9 +615,9 @@ class _BunkerSceneState extends State<BunkerScene>
       if (room.id == 'exterior_large' &&
           (defaultTargetPlatform == TargetPlatform.android ||
               defaultTargetPlatform == TargetPlatform.iOS)) {
-         mapScale = 1.25; 
+        mapScale = 1.25;
       }
-      
+
       final scaledWidth = screenSize.width / mapScale;
       final scaledHeight = screenSize.height / mapScale;
 
@@ -1140,7 +1212,9 @@ class _BunkerSceneState extends State<BunkerScene>
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
                   top: 16,
-                  left: _isHudVisible ? 16 : -250, // Lo oculta moviéndolo a la izquierda
+                  left: _isHudVisible
+                      ? 16
+                      : -250, // Lo oculta moviéndolo a la izquierda
                   child: GestureDetector(
                     onTap: () {
                       if (_isHudVisible) {
@@ -1151,12 +1225,15 @@ class _BunkerSceneState extends State<BunkerScene>
                         _hudTimer?.cancel();
                       } else {
                         // Si está oculto, volver a mostrar
-                        _resetHudTimer(); 
+                        _resetHudTimer();
                       }
                     },
                     child: Container(
                       width: 280,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
@@ -1182,7 +1259,11 @@ class _BunkerSceneState extends State<BunkerScene>
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.bookmark, color: Colors.cyan, size: 14),
+                              const Icon(
+                                Icons.bookmark,
+                                color: Colors.cyan,
+                                size: 14,
+                              ),
                               const SizedBox(width: 4),
                               const Text(
                                 'CAPÍTULO 2: EL BÚNKER',
@@ -1210,7 +1291,11 @@ class _BunkerSceneState extends State<BunkerScene>
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(Icons.gps_fixed, color: Colors.yellow[700], size: 14),
+                              Icon(
+                                Icons.gps_fixed,
+                                color: Colors.yellow[700],
+                                size: 14,
+                              ),
                               const SizedBox(width: 6),
                               Expanded(
                                 child: Text(
@@ -1229,7 +1314,7 @@ class _BunkerSceneState extends State<BunkerScene>
                     ),
                   ),
                 ),
-                
+
                 // Botón Pestaña para reabrir el menú colapsado
                 if (!_isHudVisible && !_isDialogueActive)
                   Positioned(
@@ -1253,7 +1338,11 @@ class _BunkerSceneState extends State<BunkerScene>
                               width: 1.5,
                             ),
                           ),
-                          child: Icon(Icons.menu_open, color: Colors.cyan[300], size: 20),
+                          child: Icon(
+                            Icons.menu_open,
+                            color: Colors.cyan[300],
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
@@ -1369,7 +1458,8 @@ class _BunkerSceneState extends State<BunkerScene>
                     onTap: () {
                       setState(() {
                         _isConfigOpen = !_isConfigOpen;
-                        _isPaused = _isConfigOpen; // Pausar si se abre, reanudar si se cierra
+                        _isPaused =
+                            _isConfigOpen; // Pausar si se abre, reanudar si se cierra
                       });
                     },
                     child: AnimatedContainer(
@@ -1431,6 +1521,7 @@ class _BunkerSceneState extends State<BunkerScene>
       return 'Objetivo: Entrar al búnker';
     return 'Objetivo: Encontrar a Mel';
   }
+
   Widget _buildConfigPanel() {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -1471,7 +1562,7 @@ class _BunkerSceneState extends State<BunkerScene>
         const SizedBox(height: 10),
         const Divider(color: Colors.white24, height: 1),
         const SizedBox(height: 20),
-        
+
         // Control de Volumen
         Row(
           children: [
@@ -1479,7 +1570,11 @@ class _BunkerSceneState extends State<BunkerScene>
             const SizedBox(width: 10),
             const Text(
               'AUDIO',
-              style: TextStyle(color: Colors.white70, fontSize: 12, fontFamily: 'monospace'),
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+                fontFamily: 'monospace',
+              ),
             ),
           ],
         ),
@@ -1517,7 +1612,11 @@ class _BunkerSceneState extends State<BunkerScene>
             const SizedBox(width: 10),
             const Text(
               'EFECTOS (SFX)',
-              style: TextStyle(color: Colors.white70, fontSize: 12, fontFamily: 'monospace'),
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+                fontFamily: 'monospace',
+              ),
             ),
           ],
         ),
@@ -1568,7 +1667,10 @@ class _BunkerSceneState extends State<BunkerScene>
                         fit: BoxFit.fill,
                       ),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 85, vertical: 50),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 85,
+                      vertical: 50,
+                    ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -1626,22 +1728,34 @@ class _BunkerSceneState extends State<BunkerScene>
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 30), // Espacio fijo entre botones
+                            const SizedBox(
+                              width: 30,
+                            ), // Espacio fijo entre botones
                             ElevatedButton(
                               onPressed: () {
                                 Navigator.pop(context);
                                 Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(builder: (context) => const MenuScreen()),
+                                  MaterialPageRoute(
+                                    builder: (context) => const MenuScreen(),
+                                  ),
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.redAccent.withOpacity(0.8),
+                                backgroundColor: Colors.redAccent.withOpacity(
+                                  0.8,
+                                ),
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 15,
+                                  vertical: 8,
+                                ),
                                 minimumSize: Size.zero,
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
-                              child: const Text('CONFIRMAR', style: TextStyle(fontSize: 12)),
+                              child: const Text(
+                                'CONFIRMAR',
+                                style: TextStyle(fontSize: 12),
+                              ),
                             ),
                           ],
                         ),
@@ -1663,7 +1777,7 @@ class _BunkerSceneState extends State<BunkerScene>
             child: const Text(
               'SALIR AL MENÚ',
               style: TextStyle(
-                fontSize: 14, 
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.2,
                 fontFamily: 'monospace',

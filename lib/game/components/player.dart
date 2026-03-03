@@ -300,6 +300,14 @@ class PlayerCharacter extends PositionComponent
           _danSprite!.current = 'south';
         }
       }
+
+      // Girar el sprite al moverse a la izquierda
+      if (_velocity.x < -0.1 && _danSprite!.isFlippedHorizontally == false) {
+        _danSprite!.flipHorizontallyAroundCenter();
+      } else if (_velocity.x > 0.1 &&
+          _danSprite!.isFlippedHorizontally == true) {
+        _danSprite!.flipHorizontallyAroundCenter();
+      }
     } else {
       // Idle
       final current = _danSprite!.current;
