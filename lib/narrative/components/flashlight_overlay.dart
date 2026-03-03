@@ -29,17 +29,14 @@ class FlashlightOverlay extends StatelessWidget {
   });
 
   /// Calcula el radio interno global estandarizado para la linterna, basado en una dimensión de referencia.
-  /// Se ha reducido ligeramente a petición del usuario.
+  /// Se ha aumentado a petición del usuario para más luz.
   static double globalInnerRadius(double referenceDimension) {
-    // Anteriormente ~0.18 - 0.20. Ahora 0.15 para hacerlo más pequeño.
-    return (referenceDimension * 0.15).clamp(70.0, 180.0);
+    return (referenceDimension * 0.18).clamp(110.0, 200.0);
   }
 
   /// Calcula el radio externo global estandarizado para la linterna, basado en una dimensión de referencia.
-  /// Se ha reducido ligeramente a petición del usuario.
   static double globalOuterRadius(double referenceDimension) {
-    // Anteriormente ~0.42 - 0.48. Ahora 0.38 para hacerlo más pequeño.
-    return (referenceDimension * 0.38).clamp(140.0, 360.0);
+    return (referenceDimension * 0.60).clamp(240.0, 400.0);
   }
 
   @override
@@ -83,21 +80,27 @@ class _FlashlightPainter extends CustomPainter {
     // Así evitamos que se convierta en una elipse por el aspecto de la pantalla
     final rectGradient = Rect.fromCircle(center: center, radius: outerRadius);
 
+    // ratio: qué fracción del outerRadius representa el innerRadius
+    final ratio = (innerRadius / outerRadius).clamp(0.0, 0.9);
+
     final gradient = RadialGradient(
       center: Alignment.center,
-      radius: 1.0,
+      // 0.5 = el gradiente llena exactamente el rectGradient (círculo perfecto).
+      // Antes era 1.0, lo que hacía el degradado el DOBLE de grande y
+      // empujaba el negro completamente fuera de la pantalla.
+      radius: 0.5,
       colors: [
-        const Color(0x12FFA040),
+        const Color(0x18FFA040), // Tinte cálido muy sutil en el centro
         Colors.transparent,
         shadowColor.withValues(alpha: 0.0),
-        shadowColor.withValues(alpha: shadowOpacity * 0.5),
+        shadowColor.withValues(alpha: shadowOpacity * 0.6),
         shadowColor.withValues(alpha: shadowOpacity),
       ],
       stops: [
         0.0,
-        innerRadius / outerRadius * 0.5,
-        innerRadius / outerRadius,
-        (innerRadius / outerRadius) + 0.25,
+        ratio * 0.55,           // Fin de la zona central cálida
+        ratio,                   // Inicio del negro (borde del círculo de luz)
+        ratio + 0.15,           // Transición rápida al negro total
         1.0,
       ],
     );

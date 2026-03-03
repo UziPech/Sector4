@@ -6,7 +6,7 @@ import '../../game/ui/game_over_with_advice.dart';
 import '../models/dialogue_data.dart';
 import '../components/dialogue_system.dart';
 import '../../game/ui/game_ui.dart';
-
+import '../../game/ui/combat_flashlight_widget.dart';
 /// Pantalla de selección de rol (Dan vs Mel)
 class RoleSelectionScreen extends StatefulWidget {
   const RoleSelectionScreen({super.key});
@@ -230,9 +230,12 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                 onSequenceComplete: korinGame.onDialogueComplete,
               );
             },
+            'FlashlightLayer': (context, game) => IgnorePointer(
+              child: CombatFlashlightWidget(game: game as ExpedienteKorinGame),
+            ),
             'GameUI': (context, game) => GameUI(game: game as ExpedienteKorinGame),
           },
-          initialActiveOverlays: const ['GameUI'],
+          initialActiveOverlays: const ['FlashlightLayer', 'GameUI'],
         ),
       ),
     );

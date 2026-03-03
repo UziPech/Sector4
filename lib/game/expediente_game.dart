@@ -39,6 +39,9 @@ class ExpedienteKorinGame extends FlameGame
   final bool startInExteriorMap;
   final PlayerRole? selectedRole;
 
+  /// Notificador para decirle a la UI si estamos en el mapa exterior abierto
+  final ValueNotifier<bool> isExteriorNotifier = ValueNotifier<bool>(false);
+
   // SISTEMA DE VIDAS
   int remainingLives = 3;
   static const int maxLives = 3;
@@ -139,6 +142,7 @@ class ExpedienteKorinGame extends FlameGame
     chapterNameNotifier.value = 'MODO BOSS: THE STALKER';
     locationNotifier.value = 'Búnker Subterráneo';
     objectiveNotifier.value = 'Eliminar la amenaza';
+    isExteriorNotifier.value = false;
 
     await world.add(BunkerBossLevel());
     // El mensaje de advertencia se muestra desde BunkerBossLevel.onLoad()
@@ -149,6 +153,7 @@ class ExpedienteKorinGame extends FlameGame
     chapterNameNotifier.value = 'ZONA EXTERIOR';
     locationNotifier.value = 'Perímetro del Búnker';
     objectiveNotifier.value = 'Sobrevivir a la horda';
+    isExteriorNotifier.value = true;
 
     await world.add(ExteriorMapLevel());
     notificationSystem.show(
@@ -163,6 +168,8 @@ class ExpedienteKorinGame extends FlameGame
     if (currentMap != null) {
       world.remove(currentMap!);
     }
+    
+    isExteriorNotifier.value = false;
 
     // Cargar nuevo mapa
     currentMap = await mapLoader.loadMap(chapter);

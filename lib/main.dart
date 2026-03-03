@@ -9,6 +9,7 @@ import 'game/ui/game_over_with_advice.dart'; // Nuevo import
 import 'narrative/components/dialogue_system.dart'; // Importar sistema de diálogos
 import 'game/ui/game_ui.dart'; // Importar nueva UI
 import 'narrative/components/flashlight_overlay.dart'; // Efecto linterna
+import 'game/ui/combat_flashlight_widget.dart'; // Linterna centralizada
 
 
 void main() async {
@@ -79,8 +80,8 @@ class _MyAppState extends State<MyApp> {
             );
           },
           // Linterna con parpadeo — capa propia, debajo de GameUI
-          'FlashlightLayer': (context, game) => const IgnorePointer(
-            child: _CombatFlashlightWidget(),
+          'FlashlightLayer': (context, game) => IgnorePointer(
+            child: CombatFlashlightWidget(game: game as ExpedienteKorinGame),
           ),
           'GameUI': (context, game) => GameUI(game: game as ExpedienteKorinGame),
         },
@@ -103,7 +104,7 @@ class GameOverOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black.withValues(alpha: 0.8),
+      color: Colors.black.withOpacity(0.8),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -179,79 +180,3 @@ class GameOverOverlay extends StatelessWidget {
     );
   }
 }
-
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Linterna de combate con parpadeo atmosférico y radios adaptativos
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-class _CombatFlashlightWidget extends StatefulWidget {
-  const _CombatFlashlightWidget();
-
-  @override
-  State<_CombatFlashlightWidget> createState() => _CombatFlashlightWidgetState();
-}
-
-class _CombatFlashlightWidgetState extends State<_CombatFlashlightWidget>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _flickerCtrl;
-
-  @override
-  void initState() {
-    super.initState();
-    // Ciclo rápido para update continuo del flicker
-    _flickerCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 10),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _flickerCtrl.dispose();
-    super.dispose();
-  }
-
-  /// Combina dos senos a frecuencias ligeramente distintas
-  /// para producir un parpadeo no periódico, similar a una vela real.
-  /// t ∈ [0.0, 1.0] — valor del AnimationController
-  double _flickerOpacity(double t) {
-    final v1 = 0.5 + 0.5 * _sinApprox(t * 1.7 * 6.2832);
-    final v2 = 0.5 + 0.5 * _sinApprox(t * 2.9 * 6.2832 + 1.1);
-    // Opacidad de sombra oscila suavemente entre 0.88 y 0.97
-    return 0.88 + 0.09 * (v1 * 0.6 + v2 * 0.4);
-  }
-
-  /// Aproximación de sin usando identidades angulares sin importar dart:math
-  double _sinApprox(double x) {
-    // Normalizar a [-π, π]
-    x = x % 6.2832;
-    if (x > 3.14159) x -= 6.2832;
-    // Polinomio de Bhaskara (muy preciso para este uso)
-    final x2 = x * x;
-    return x * (1 - x2 * (1 / 6 - x2 / 120));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _flickerCtrl,
-      builder: (_, __) {
-        final size = MediaQuery.of(context).size;
-
-        // Radios adaptativos globales (usando el ancho de la pantalla para mantener consistencia con otras escenas)
-        final innerR = FlashlightOverlay.globalInnerRadius(size.width);
-        final outerR = FlashlightOverlay.globalOuterRadius(size.width);
-
-        // Opacidad de sombra con parpadeo sutil
-        final opacity = _flickerOpacity(_flickerCtrl.value);
-
-        return FlashlightOverlay(
-          center: Offset(size.width / 2, size.height / 2),
-          innerRadius: innerR,
-          outerRadius: outerR,
-          shadowOpacity: opacity,
-        );
-      },
-    );
-  }
-}
-
