@@ -579,7 +579,7 @@ class _SimpleWall extends PositionComponent {
 
       canvas.drawRect(size.toRect(), borderPaint);
     }
-
+    // Obstacles are invisible — collision only, no render.
     // DEBUG: Ver hitboxes de objetos
     if (isObstacle) {
       final debugPaint = Paint()
