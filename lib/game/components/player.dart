@@ -434,6 +434,18 @@ class PlayerCharacter extends PositionComponent
         tryResurrect();
       }
 
+      // Curar con E (solo Dan) — activa la habilidad de Mel companion
+      if (event.logicalKey == LogicalKeyboardKey.keyE &&
+          role == PlayerRole.dan) {
+        game.mel.activateHeal();
+      }
+
+      // Curar con F (solo Mel) — auto-curación via Mel companion (E ya es resurrect)
+      if (event.logicalKey == LogicalKeyboardKey.keyF &&
+          role == PlayerRole.mel) {
+        game.mel.activateHeal();
+      }
+
       // Dash con Shift (solo Mel con Kijin activo)
       if (event.logicalKey == LogicalKeyboardKey.shiftLeft ||
           event.logicalKey == LogicalKeyboardKey.shiftRight) {

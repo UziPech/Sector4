@@ -16,6 +16,7 @@ import 'components/enemies/yurei_kohaa.dart'; // Para reset de HP
 import 'components/bosses/on_oyabun_boss.dart'; // Para reset del boss
 import '../narrative/models/dialogue_data.dart'; // Para sistema de diálogos
 import 'audio_manager.dart'; // Importar AudioManager
+import '../combat/weapon_system.dart'; // Para RangedWeapon en isRangedWeaponNotifier
 
 /// Motor principal del juego Expediente Kōrin
 /// Gestiona el mundo, carga de mapas por capítulo y sistemas de juego
@@ -64,6 +65,7 @@ class ExpedienteKorinGame extends FlameGame
   final ValueNotifier<int> livesNotifier = ValueNotifier<int>(3);
   final ValueNotifier<double> melCooldownNotifier = ValueNotifier<double>(1.0); // 1.0 = listo, 0.0 = ocupado
   final ValueNotifier<bool> melReadyNotifier = ValueNotifier<bool>(true);
+  final ValueNotifier<bool> isRangedWeaponNotifier = ValueNotifier<bool>(false); // true cuando pistola equipada
   
   ExpedienteKorinGame({
     this.startInBossMode = false,
@@ -207,6 +209,9 @@ class ExpedienteKorinGame extends FlameGame
     livesNotifier.value = remainingLives;
     melReadyNotifier.value = mel.canHeal;
     melCooldownNotifier.value = mel.healCooldownProgress;
+    // Actualizar si el arma actual es de rango (para mostrar botón R)
+    isRangedWeaponNotifier.value =
+        player.weaponInventory.currentWeapon is RangedWeapon;
   }
   
   void _showCompanionReviveDialogue() {

@@ -424,10 +424,11 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            // Fila 1: Cambio arma (Q) / Resurrección (E)
+            // Fila 1: Acciones secundarias
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // [Dan] Cambiar arma Q  |  [Mel] Resurrect E
                 if (isDan)
                   _actionBtn(
                     label: 'Q',
@@ -440,14 +441,15 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                     color: const Color(0xFF2A1A3A),
                     onTap: () => game.player.tryResurrect(),
                   ),
-                const SizedBox(width: 10),
-                // Recarga (R) / Dash (Shift)
+                const SizedBox(width: 8),
+                // Botón de curación de Mel (dinámico según cooldown)
+                _buildMelHealButton(game, isDan),
+                const SizedBox(width: 8),
+                // [Dan] Recarga R (solo con pistola)  |  [Mel] Dash ››
                 isDan
-                    ? ValueListenableBuilder<double>(
-                        valueListenable: game.playerHealthNotifier,
-                        builder: (_, __, ___) {
-                          final w = game.player.weaponInventory.currentWeapon;
-                          final isRanged = w is RangedWeapon;
+                    ? ValueListenableBuilder<bool>(
+                        valueListenable: game.isRangedWeaponNotifier,
+                        builder: (_, isRanged, __) {
                           return isRanged
                               ? _actionBtn(
                                   label: 'R',
@@ -468,7 +470,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
               ],
             ),
             const SizedBox(height: 10),
-            // Fila 2: Ataque
+            // Fila 2: Ataque principal
             _actionBtn(
               label: '⚡',
               color: _redDim,
@@ -478,6 +480,81 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
           ],
         ),
       ),
+    );
+  }
+
+  /// Botón de curación de Mel — cambia de color según disponibilidad
+  Widget _buildMelHealButton(ExpedienteKorinGame game, bool isDan) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: game.melReadyNotifier,
+      builder: (_, ready, __) {
+        return ValueListenableBuilder<double>(
+          valueListenable: game.melCooldownNotifier,
+          builder: (_, progress, __) {
+            final btnColor = ready ? _greenDim : _brown700;
+            final label = isDan ? 'MEL\n♥' : 'CURAR\n♥';
+
+            return GestureDetector(
+              onTapDown: (_) => game.mel.activateHeal(),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Fondo con cooldown visual (arco)
+                  SizedBox(
+                    width: 52,
+                    height: 52,
+                    child: CircularProgressIndicator(
+                      value: ready ? 1.0 : progress,
+                      strokeWidth: 3,
+                      backgroundColor: _brown700,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        ready ? _greenDim : _amber,
+                      ),
+                    ),
+                  ),
+                  // Botón principal
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: btnColor.withOpacity(ready ? 0.75 : 0.45),
+                      border: Border.all(
+                        color: ready
+                            ? _greenDim.withOpacity(0.8)
+                            : _white60.withOpacity(0.15),
+                        width: 1.5,
+                      ),
+                      boxShadow: ready
+                          ? [
+                              BoxShadow(
+                                color: _greenDim.withOpacity(0.35),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                              ),
+                            ]
+                          : [],
+                    ),
+                    child: Center(
+                      child: Text(
+                        label,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: ready ? _white60 : _white60.withOpacity(0.4),
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'monospace',
+                          height: 1.1,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
