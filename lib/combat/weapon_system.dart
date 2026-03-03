@@ -39,7 +39,7 @@ abstract class Weapon {
   bool tryAttack(CharacterComponent owner, ExpedienteKorinGame game);
 }
 
-/// Arma cuerpo a cuerpo (Cuchillo del Diente CaÃƒÂ³tico)
+/// Arma cuerpo a cuerpo (Cuchillo del Diente Caótico)
 class MeleeWeapon extends Weapon {
   final double range;
   final double arcAngle;
@@ -57,11 +57,11 @@ class MeleeWeapon extends Weapon {
     if (!_canAttack) return false;
     _canAttack = false;
 
-    // LÃƒÂ³gica de hitbox melee
-    // Buscamos enemigos cercanos en la direcciÃƒÂ³n que mira el jugador
+    // Lógica de hitbox melee
+    // Buscamos enemigos cercanos en la dirección que mira el jugador
     final ownerPos = (owner as PositionComponent).position;
     
-    // Obtener direcciÃƒÂ³n de ataque
+    // Obtener dirección de ataque
     Vector2 attackDirection = Vector2(1, 0);
     if (owner is PlayerCharacter) {
       attackDirection = owner.lastMoveDirection;
@@ -77,11 +77,11 @@ class MeleeWeapon extends Weapon {
     
     bool hitSomething = false;
     
-    // DaÃƒÂ±ar enemigos (EnemyCharacter)
+    // Dañar enemigos (EnemyCharacter)
     game.world.children.query<EnemyCharacter>().forEach((enemy) {
       final distance = enemy.position.distanceTo(ownerPos);
       if (distance <= range) {
-        // Aplicar daÃƒÂ±o completo a enemigos
+        // Aplicar daño completo a enemigos
         enemy.receiveDamage(damage);
         hitSomething = true;
       }
@@ -95,13 +95,13 @@ class MeleeWeapon extends Weapon {
       }
     });
     
-    // DaÃƒÂ±ar bosses (YureiKohaa y OnOyabunBoss)
+    // Dañar bosses (YureiKohaa y OnOyabunBoss)
     game.world.children.query<YureiKohaa>().forEach((boss) {
       final distance = boss.position.distanceTo(ownerPos);
       if (distance <= range) {
         boss.takeDamage(damage);
         hitSomething = true;
-        // print('Ã¢Å¡â€Ã¯Â¸Â Cuchillo golpeÃƒÂ³ a KOHAA: $damage daÃƒÂ±o');
+        // print('âÅ¡â€ïÂ¸Â Cuchillo golpeó a KOHAA: $damage daño');
       }
     });
 
@@ -110,11 +110,11 @@ class MeleeWeapon extends Weapon {
       if (distance <= range) {
         boss.takeDamage(damage);
         hitSomething = true;
-        // print('Ã¢Å¡â€Ã¯Â¸Â Cuchillo golpeÃƒÂ³ a ON-OYABUN: $damage daÃƒÂ±o');
+        // print('âÅ¡â€ïÂ¸Â Cuchillo golpeó a ON-OYABUN: $damage daño');
       }
     });
     
-    // DaÃƒÂ±ar minions del jefe
+    // Dañar minions del jefe
     game.world.children.query<YakuzaGhost>().forEach((minion) {
       final distance = minion.position.distanceTo(ownerPos);
       if (distance <= range) {
@@ -131,8 +131,8 @@ class MeleeWeapon extends Weapon {
       }
     });
     
-    // DaÃƒÂ±ar objetos destructibles (ObsessionObject y DestructibleObject)
-    // El cuchillo hace 50% del daÃƒÂ±o a objetos (tarda el doble)
+    // Dañar objetos destructibles (ObsessionObject y DestructibleObject)
+    // El cuchillo hace 50% del daño a objetos (tarda el doble)
     final objectDamage = damage * 0.5;
     
     for (final child in game.world.children) {
@@ -140,22 +140,22 @@ class MeleeWeapon extends Weapon {
         final distance = child.position.distanceTo(ownerPos);
         
         if (distance <= range) {
-          // Intentar daÃƒÂ±ar ObsessionObject
+          // Intentar dañar ObsessionObject
           if (child.runtimeType.toString().contains('ObsessionObject')) {
             try {
               (child as dynamic).takeDamage(objectDamage);
               hitSomething = true;
             } catch (e) {
-              // Error al daÃƒÂ±ar objeto
+              // Error al dañar objeto
             }
           }
-          // Intentar daÃƒÂ±ar DestructibleObject
+          // Intentar dañar DestructibleObject
           else if (child.runtimeType.toString().contains('DestructibleObject')) {
             try {
               (child as dynamic).takeDamage(objectDamage);
               hitSomething = true;
             } catch (e) {
-              // Error al  daÃƒÂ±ar objeto
+              // Error al  dañar objeto
             }
           }
         }
@@ -170,7 +170,7 @@ class MeleeWeapon extends Weapon {
   }
 }
 
-/// Arma a distancia (Pistola EstÃƒÂ¡ndar)
+/// Arma a distancia (Pistola Estándar)
 class RangedWeapon extends Weapon {
   int maxAmmo;
   int currentAmmo;
@@ -190,12 +190,12 @@ class RangedWeapon extends Weapon {
     _canAttack = false;
     currentAmmo--;
 
-    // Calcular direcciÃƒÂ³n (hacia el mouse o joystick)
-    // Por ahora, usaremos una direcciÃƒÂ³n por defecto o la ÃƒÂºltima direcciÃƒÂ³n de movimiento
-    // Necesitamos acceso a la direcciÃƒÂ³n de apuntado del jugador.
+    // Calcular dirección (hacia el mouse o joystick)
+    // Por ahora, usaremos una dirección por defecto o la última dirección de movimiento
+    // Necesitamos acceso a la dirección de apuntado del jugador.
     Vector2 direction = Vector2(1, 0); // Placeholder
     if (owner is PlayerCharacter) {
-       // Intentar obtener direcciÃƒÂ³n del joystick o movimiento
+       // Intentar obtener dirección del joystick o movimiento
        if (owner.lastMoveDirection != Vector2.zero()) {
          direction = owner.lastMoveDirection;
        }
@@ -261,7 +261,7 @@ class MeleeSlashEffect extends PositionComponent {
   final Vector2 direction;
   final double range;
   double _lifetime = 0.0;
-  static const double _duration = 0.15; // DuraciÃƒÂ³n del efecto
+  static const double _duration = 0.15; // Duración del efecto
   
   MeleeSlashEffect({
     required Vector2 position,
@@ -288,7 +288,7 @@ class MeleeSlashEffect extends PositionComponent {
     // Calcular opacidad basada en el tiempo de vida
     final opacity = (1.0 - (_lifetime / _duration)).clamp(0.0, 1.0);
     
-    // Calcular ÃƒÂ¡ngulo de la direcciÃƒÂ³n
+    // Calcular ángulo de la dirección
     final angle = direction.angleToSigned(Vector2(1, 0));
     
     canvas.save();
@@ -309,13 +309,13 @@ class MeleeSlashEffect extends PositionComponent {
     // Arco de 120 grados
     canvas.drawArc(
       rect,
-      -1.0, // ÃƒÂngulo inicial
-      2.0,  // ÃƒÂngulo de barrido
+      -1.0, // ÃÂngulo inicial
+      2.0,  // ÃÂngulo de barrido
       false,
       paint,
     );
     
-    // LÃƒÂ­neas de efecto adicionales
+    // Líneas de efecto adicionales
     final linePaint = Paint()
       ..color = Colors.white.withValues(alpha: opacity * 0.5)
       ..style = PaintingStyle.stroke

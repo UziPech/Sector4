@@ -12,7 +12,7 @@ class AutomaticDoorWidget extends StatefulWidget {
     super.key,
     required this.doorData,
     required this.playerPosition,
-    this.activationDistance = 120.0, // Aumentado a 120 para asegurar que abra ANTES de la colisiÃ³n
+    this.activationDistance = 120.0, // Aumentado a 120 para asegurar que abra ANTES de la colisión
   });
 
   @override

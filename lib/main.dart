@@ -6,16 +6,16 @@ import 'package:flame/game.dart';
 import 'narrative/screens/splash_screen.dart'; // Importar Splash Screen
 import 'game/expediente_game.dart';
 import 'game/ui/game_over_with_advice.dart'; // Nuevo import
-import 'narrative/components/dialogue_system.dart'; // Importar sistema de diÃ¡logos
+import 'narrative/components/dialogue_system.dart'; // Importar sistema de diálogos
 import 'game/ui/game_ui.dart'; // Importar nueva UI
 import 'narrative/components/flashlight_overlay.dart'; // Efecto linterna
 
 
 void main() async {
-  // Asegurar que Flutter estÃ© inicializado
+  // Asegurar que Flutter esté inicializado
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Forzar orientaciÃ³n horizontal (landscape)
+  // Forzar orientación horizontal (landscape)
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
@@ -24,11 +24,11 @@ void main() async {
   // Ocultar la barra de estado para experiencia inmersiva
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   
-  // Inicializa y corre la aplicaciÃ³n (empieza en el menÃº)
+  // Inicializa y corre la aplicación (empieza en el menú)
   runApp(const ExpedienteKorinApp());
 }
 
-/// AplicaciÃ³n principal - Inicia en el menÃº
+/// Aplicación principal - Inicia en el menú
 class ExpedienteKorinApp extends StatelessWidget {
   const ExpedienteKorinApp({super.key});
 
@@ -41,7 +41,7 @@ class ExpedienteKorinApp extends StatelessWidget {
   }
 }
 
-/// Widget para el juego de combate (usado despuÃ©s de las escenas narrativas)
+/// Widget para el juego de combate (usado después de las escenas narrativas)
 class MyApp extends StatefulWidget {
   final bool startInBossMode;
   
@@ -119,7 +119,7 @@ class GameOverOverlay extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             const Text(
-              'La CaÃ­da fue inevitable',
+              'La Caída fue inevitable',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24,
@@ -165,7 +165,7 @@ class GameOverOverlay extends StatelessWidget {
                 ),
               ),
               child: const Text(
-                'MENÃš PRINCIPAL',
+                'MENÚ PRINCIPAL',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -181,7 +181,7 @@ class GameOverOverlay extends StatelessWidget {
 }
 
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Linterna de combate con parpadeo atmosfÃ©rico y radios adaptativos
+// Linterna de combate con parpadeo atmosférico y radios adaptativos
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _CombatFlashlightWidget extends StatefulWidget {
   const _CombatFlashlightWidget();
@@ -197,7 +197,7 @@ class _CombatFlashlightWidgetState extends State<_CombatFlashlightWidget>
   @override
   void initState() {
     super.initState();
-    // Ciclo rÃ¡pido para update continuo del flicker
+    // Ciclo rápido para update continuo del flicker
     _flickerCtrl = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 10),
@@ -211,7 +211,7 @@ class _CombatFlashlightWidgetState extends State<_CombatFlashlightWidget>
   }
 
   /// Combina dos senos a frecuencias ligeramente distintas
-  /// para producir un parpadeo no periÃ³dico, similar a una vela real.
+  /// para producir un parpadeo no periódico, similar a una vela real.
   /// t âˆˆ [0.0, 1.0] â€” valor del AnimationController
   double _flickerOpacity(double t) {
     final v1 = 0.5 + 0.5 * _sinApprox(t * 1.7 * 6.2832);
@@ -220,7 +220,7 @@ class _CombatFlashlightWidgetState extends State<_CombatFlashlightWidget>
     return 0.88 + 0.09 * (v1 * 0.6 + v2 * 0.4);
   }
 
-  /// AproximaciÃ³n de sin usando identidades angulares sin importar dart:math
+  /// Aproximación de sin usando identidades angulares sin importar dart:math
   double _sinApprox(double x) {
     // Normalizar a [-Ï€, Ï€]
     x = x % 6.2832;

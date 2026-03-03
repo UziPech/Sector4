@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 
-/// Joystick dinÃ¡mico que aparece donde el usuario toca (lado izquierdo)
-/// Basado en la implementaciÃ³n de HouseScene (CapÃ­tulo 1)
+/// Joystick dinámico que aparece donde el usuario toca (lado izquierdo)
+/// Basado en la implementación de HouseScene (Capítulo 1)
 class DynamicJoystickOverlay extends StatefulWidget {
   final Function(Vector2) onInput;
 
@@ -25,7 +25,7 @@ class _DynamicJoystickOverlayState extends State<DynamicJoystickOverlay> {
 
     return Stack(
       children: [
-        // 1. Ãrea sensible al tacto (Solo mitad izquierda)
+        // 1. Área sensible al tacto (Solo mitad izquierda)
         Positioned(
           left: 0,
           top: 0,
@@ -34,7 +34,7 @@ class _DynamicJoystickOverlayState extends State<DynamicJoystickOverlay> {
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
             onPanStart: (details) {
-              // Ya no es necesario verificar dx < width / 2 porque el widget estÃ¡ limitado
+              // Ya no es necesario verificar dx < width / 2 porque el widget está limitado
               setState(() {
                 _isJoystickActive = true;
                 _joystickOrigin = details.globalPosition;
@@ -76,7 +76,7 @@ class _DynamicJoystickOverlayState extends State<DynamicJoystickOverlay> {
           ),
         ),
 
-        // 2. VisualizaciÃ³n del Joystick (Global, para no ser recortado)
+        // 2. Visualización del Joystick (Global, para no ser recortado)
         if (_isJoystickActive && _joystickOrigin != null && _joystickPosition != null) ...[
           // Base
           Positioned(

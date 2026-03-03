@@ -67,13 +67,13 @@ class MutantHandWeapon extends Weapon {
       
       final distance = player.position.distanceTo(enemy.position);
       if (distance <= attackRadius) {
-        // Aplicar daÃƒÂ±o al enemigo
+        // Aplicar daño al enemigo
         enemy.takeDamage(damage);
         totalDamageDealt += damage;
         hitAnyEnemy = true;
-        // print('Ã°Å¸â€“ÂÃ¯Â¸Â Mano Mutante golpeÃƒÂ³ Irracional: $damage daÃƒÂ±o');
+        // print('💀“ÂïÂ¸Â Mano Mutante golpeó Irracional: $damage daño');
         
-        // Crear efecto visual en la posiciÃƒÂ³n del enemigo
+        // Crear efecto visual en la posición del enemigo
         _createHitEffect(game, enemy.position);
       }
     }
@@ -84,13 +84,13 @@ class MutantHandWeapon extends Weapon {
       
       final distance = player.position.distanceTo(boss.position);
       if (distance <= attackRadius) {
-        // Aplicar daÃƒÂ±o al boss
+        // Aplicar daño al boss
         boss.takeDamage(damage);
         totalDamageDealt += damage;
         hitAnyEnemy = true;
-        // print('Ã°Å¸â€“ÂÃ¯Â¸Â Mano Mutante golpeÃƒÂ³ KOHAA: $damage daÃƒÂ±o + DRENAJE');
+        // print('💀“ÂïÂ¸Â Mano Mutante golpeó KOHAA: $damage daño + DRENAJE');
         
-        // Crear efecto visual en la posiciÃƒÂ³n del boss
+        // Crear efecto visual en la posición del boss
         _createHitEffect(game, boss.position);
       }
     }
@@ -101,13 +101,13 @@ class MutantHandWeapon extends Weapon {
       
       final distance = player.position.distanceTo(boss.position);
       if (distance <= attackRadius) {
-        // Aplicar daÃƒÂ±o al boss
+        // Aplicar daño al boss
         boss.takeDamage(damage);
         totalDamageDealt += damage;
         hitAnyEnemy = true;
-        // print('Ã°Å¸â€“ÂÃ¯Â¸Â Mano Mutante golpeÃƒÂ³ ON-OYABUN: $damage daÃƒÂ±o + DRENAJE');
+        // print('💀“ÂïÂ¸Â Mano Mutante golpeó ON-OYABUN: $damage daño + DRENAJE');
         
-        // Crear efecto visual en la posiciÃƒÂ³n del boss
+        // Crear efecto visual en la posición del boss
         _createHitEffect(game, boss.position);
       }
     }
@@ -140,7 +140,7 @@ class MutantHandWeapon extends Weapon {
       }
     }
     
-    // Drenar vida si golpeÃƒÂ³ a alguien
+    // Drenar vida si golpeó a alguien
     if (hitAnyEnemy) {
       final lifeStolen = totalDamageDealt * lifeStealPercent;
       player.heal(lifeStolen);
@@ -189,7 +189,7 @@ class _MutantHandHitEffect extends PositionComponent {
     final opacity = (1.0 - progress).clamp(0.0, 1.0);
     final radius = 20.0 + (progress * 20.0);
     
-    // CÃƒÂ­rculo de impacto pÃƒÂºrpura
+    // Círculo de impacto púrpura
     final paint = Paint()
       ..color = Colors.purple.withValues(alpha: opacity * 0.8)
       ..style = PaintingStyle.stroke
@@ -201,7 +201,7 @@ class _MutantHandHitEffect extends PositionComponent {
       paint,
     );
     
-    // CÃƒÂ­rculo interior
+    // Círculo interior
     final innerPaint = Paint()
       ..color = Colors.purple.withValues(alpha: opacity * 0.3)
       ..style = PaintingStyle.fill;
@@ -242,12 +242,12 @@ class _LifeDrainEffect extends PositionComponent {
     final progress = _timer / _lifetime;
     final opacity = (1.0 - progress).clamp(0.0, 1.0);
     
-    // PartÃƒÂ­culas verdes ascendentes (drenaje de vida)
+    // Partículas verdes ascendentes (drenaje de vida)
     final paint = Paint()
       ..color = Colors.green.withValues(alpha: opacity * 0.9)
       ..style = PaintingStyle.fill;
     
-    // Dibujar varias partÃƒÂ­culas
+    // Dibujar varias partículas
     for (int i = 0; i < 5; i++) {
       final angle = (i / 5) * pi * 2;
       final distance = progress * 20.0;

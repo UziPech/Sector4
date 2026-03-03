@@ -20,7 +20,7 @@ import 'package:flame_audio/flame_audio.dart';
 import 'menu_screen.dart';
 import '../components/flashlight_overlay.dart';
 
-/// CapÃƒÂ­tulo 2: El BÃƒÂºnker - Sistema de habitaciones
+/// Capítulo 2: El Búnker - Sistema de habitaciones
 class BunkerScene extends StatefulWidget {
   const BunkerScene({super.key});
 
@@ -55,7 +55,7 @@ class _BunkerSceneState extends State<BunkerScene>
   static const double _joystickKnobRadius = 25.0;
   bool _canInteract = false;
 
-  // ConfiguraciÃƒÂ³n
+  // Configuración
   bool _isConfigOpen = false;
   bool _isPaused = false;
   double _volume = 1.0;
@@ -63,10 +63,10 @@ class _BunkerSceneState extends State<BunkerScene>
 
   Timer? _updateTimer;
 
-  // AnimaciÃƒÂ³n de sprite
+  // Animación de sprite
   AnimatedSprite? _danSpriteNorth;
   AnimatedSprite? _danSpriteSouth;
-  ui.Image? _treeSprite; // Sprite sheet para los ÃƒÂ¡rboles
+  ui.Image? _treeSprite; // Sprite sheet para los árboles
   ui.Image? _wallHorizontal;
   ui.Image? _wallVertical;
 
@@ -95,12 +95,12 @@ class _BunkerSceneState extends State<BunkerScene>
       _updateCooldown();
     });
 
-    // Iniciar mÃƒÂºsica del bosque (Exterior)
+    // Iniciar música del bosque (Exterior)
     AudioManager().playForestMusic();
 
     // Cargar sprites de Dan (Norte y Sur)
     _loadDanSprites();
-    // Cargar sprite sheet de ÃƒÂ¡rboles
+    // Cargar sprite sheet de árboles
     _loadTreeSprite();
     // Cargar texturas de paredes
     _loadWallTextures();
@@ -110,7 +110,7 @@ class _BunkerSceneState extends State<BunkerScene>
     // Inicializar temporizador del HUD
     _resetHudTimer();
 
-    // Inicializar volÃƒÂºmenes
+    // Inicializar volúmenes
     _volume = AudioManager().musicVolume;
     _sfxVolume = AudioManager().sfxVolume;
   }
@@ -136,7 +136,7 @@ class _BunkerSceneState extends State<BunkerScene>
   }
 
   Future<void> _loadTreeSprite() async {
-    // Sprite de ÃƒÂ¡rbol eliminado temporalmente
+    // Sprite de árbol eliminado temporalmente
   }
 
   Future<void> _loadWallTextures() async {
@@ -201,18 +201,18 @@ class _BunkerSceneState extends State<BunkerScene>
           dialogues: const [
             DialogueData(
               speakerName: 'Dan',
-              text: 'El camino al bÃƒÂºnker. Zona restringida.',
+              text: 'El camino al búnker. Zona restringida.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'Hace aÃƒÂ±os que no venÃƒÂ­a por aquÃƒÂ­. Todo estÃƒÂ¡ abandonado.',
+                  'Hace años que no venía por aquí. Todo está abandonado.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: 'Mel me estÃƒÂ¡ esperando. Necesito llegar a la entrada.',
+              text: 'Mel me está esperando. Necesito llegar a la entrada.',
               type: DialogueType.internal,
             ),
           ],
@@ -231,13 +231,13 @@ class _BunkerSceneState extends State<BunkerScene>
   }
 
   void _transitionToRoom(String targetRoomId, {Vector2? spawnPosition}) async {
-    if (_isTransitioning) return; // Prevenir transiciones mÃƒÂºltiples
+    if (_isTransitioning) return; // Prevenir transiciones múltiples
 
-    // LÃƒÂ³gica de cambio de audio segÃƒÂºn la habitaciÃƒÂ³n
+    // Lógica de cambio de audio según la habitación
     if (targetRoomId == 'exterior' || targetRoomId == 'exterior_large') {
       AudioManager().playForestMusic();
     } else {
-      // Cualquier otra habitaciÃƒÂ³n es interior del bÃƒÂºnker
+      // Cualquier otra habitación es interior del búnker
       AudioManager().playBunkerMusic();
     }
 
@@ -308,10 +308,10 @@ class _BunkerSceneState extends State<BunkerScene>
   void _transitionToCombat() async {
     await SaveSystem.markChapterCompleted(2);
 
-    // Detener mÃƒÂºsica de fondo actual (Bosque)
+    // Detener música de fondo actual (Bosque)
     AudioManager().stopMusic();
 
-    // Iniciar secuencia de mÃƒÂºsica de combate
+    // Iniciar secuencia de música de combate
     AudioManager().playCombatMusicSequence();
 
     if (!mounted) return;
@@ -374,7 +374,7 @@ class _BunkerSceneState extends State<BunkerScene>
       }
 
       setState(() {
-        // Calcular direcciÃƒÂ³n
+        // Calcular dirección
         _currentDirection = AnimatedSprite.calculateDirection(
           velocity.x,
           velocity.y,
@@ -429,16 +429,16 @@ class _BunkerSceneState extends State<BunkerScene>
   }
 
   bool _isPositionValid(Vector2 pos) {
-    // Si estamos en exterior_large (mapa abierto), usar lÃƒÂ³gica simple o lÃƒÂ­mites del mapa
+    // Si estamos en exterior_large (mapa abierto), usar lógica simple o límites del mapa
     if (_roomManager.currentRoom.id == 'exterior_large') return true;
 
     final room = _roomManager.currentRoom;
     const double thickness = 100.0;
     final double halfSize =
         _playerSize /
-        4; // Usar un hitbox mÃƒÂ¡s pequeÃƒÂ±o (20px) para los pies/centro, no todo el sprite (80px)
+        4; // Usar un hitbox más pequeño (20px) para los pies/centro, no todo el sprite (80px)
 
-    // LÃƒÂ­mites del cuarto (hard bounds) ya manejados por clamp, pero doble check
+    // Límites del cuarto (hard bounds) ya manejados por clamp, pero doble check
     if (pos.x < 0 ||
         pos.x > room.roomSize.width ||
         pos.y < 0 ||
@@ -447,7 +447,7 @@ class _BunkerSceneState extends State<BunkerScene>
       return false;
     }
 
-    // Chequear colisiÃƒÂ³n con paredes
+    // Chequear colisión con paredes
     // Izquierda
     if (pos.x - halfSize < thickness) {
       bool inDoor = false;
@@ -534,10 +534,10 @@ class _BunkerSceneState extends State<BunkerScene>
 
   Widget _buildRoomWithCamera(RoomData room, Size screenSize) {
     if (room.cameraMode == CameraMode.follow) {
-      // CÃƒÂ¡mara que sigue al jugador (Desktop y MÃƒÂ³vil)
+      // Cámara que sigue al jugador (Desktop y Móvil)
       double mapScale = 1.0;
 
-      // En mÃƒÂ³vil, agregamos un ligero zoom para visualizar un poco mÃƒÂ¡s sin alejar excesivamente la cÃƒÂ¡mara.
+      // En móvil, agregamos un ligero zoom para visualizar un poco más sin alejar excesivamente la cámara.
       if (room.id == 'exterior_large' &&
           (defaultTargetPlatform == TargetPlatform.android ||
               defaultTargetPlatform == TargetPlatform.iOS)) {
@@ -587,7 +587,7 @@ class _BunkerSceneState extends State<BunkerScene>
         ),
       );
     } else {
-      // CÃƒÂ¡mara fija
+      // Cámara fija
       return Center(
         child: FittedBox(
           fit: BoxFit.contain,
@@ -609,7 +609,7 @@ class _BunkerSceneState extends State<BunkerScene>
   }
 
   List<Widget> _buildRoomContent(RoomData room) {
-    // Separar ÃƒÂ¡rboles de otros interactables
+    // Separar árboles de otros interactables
     final trees = room.interactables
         .where((i) => i.type == InteractableType.decoration)
         .toList();
@@ -631,7 +631,7 @@ class _BunkerSceneState extends State<BunkerScene>
           ),
         )
       else if (room.id == 'laboratory' || room.id == 'command')
-        // Piso metÃƒÂ¡lico limpio para laboratorio y centro de comando
+        // Piso metálico limpio para laboratorio y centro de comando
         Positioned.fill(
           child: Image.asset(
             'assets/images/metal_floor_clean.png',
@@ -646,7 +646,7 @@ class _BunkerSceneState extends State<BunkerScene>
           room.id == 'armory' ||
           room.id == 'vestibule' ||
           room.id == 'cafeteria')
-        // Piso metÃƒÂ¡lico oscuro para pasillo, armerÃƒÂ­a, vestÃƒÂ­bulo y comedor
+        // Piso metálico oscuro para pasillo, armería, vestíbulo y comedor
         Positioned.fill(
           child: Image.asset(
             'assets/images/metal_floor_dark.png',
@@ -658,7 +658,7 @@ class _BunkerSceneState extends State<BunkerScene>
           ),
         )
       else if (room.id == 'quarters')
-        // Piso metÃƒÂ¡lico envejecido para dormitorios
+        // Piso metálico envejecido para dormitorios
         Positioned.fill(
           child: Image.asset(
             'assets/images/metal_floor_quarters.png',
@@ -670,7 +670,7 @@ class _BunkerSceneState extends State<BunkerScene>
           ),
         )
       else if (room.id == 'exterior')
-        // Piso de hierba oscura para el exterior del bÃƒÂºnker
+        // Piso de hierba oscura para el exterior del búnker
         Positioned.fill(
           child: Image.asset(
             'assets/images/exterior_floor.png',
@@ -688,7 +688,7 @@ class _BunkerSceneState extends State<BunkerScene>
           painter: GridPainter(),
         ),
 
-      // Renderizado optimizado de ÃƒÂ¡rboles (ForestPainter)
+      // Renderizado optimizado de árboles (ForestPainter)
       if (_treeSprite != null && trees.isNotEmpty)
         Positioned.fill(
           child: CustomPaint(
@@ -714,7 +714,7 @@ class _BunkerSceneState extends State<BunkerScene>
           ),
         ),
       ),
-      // Interactables (Solo los que NO son decoraciÃƒÂ³n/ÃƒÂ¡rboles)
+      // Interactables (Solo los que NO son decoración/árboles)
       ...otherInteractables.map(
         (interactable) => InteractableObject(
           data: interactable,
@@ -733,7 +733,7 @@ class _BunkerSceneState extends State<BunkerScene>
         top: _playerPosition.y - _playerSize / 2,
         child: Builder(
           builder: (context) {
-            // Seleccionar sprite basado en direcciÃƒÂ³n
+            // Seleccionar sprite basado en dirección
             AnimatedSprite? spriteToUse;
 
             if (_currentDirection.contains('NORTH')) {
@@ -749,7 +749,7 @@ class _BunkerSceneState extends State<BunkerScene>
               return AnimatedSpriteWidget(
                 sprite: spriteToUse,
                 direction:
-                    _currentDirection, // AnimatedSprite ignorarÃƒÂ¡ esto si rows=1
+                    _currentDirection, // AnimatedSprite ignorará esto si rows=1
                 frameIndex: _currentFrame,
                 size: _playerSize,
               );
@@ -1051,7 +1051,7 @@ class _BunkerSceneState extends State<BunkerScene>
                     Offset screenCenter;
 
                     if (room.cameraMode == CameraMode.follow) {
-                      // En modo follow, el jugador siempre estÃƒÂ¡ en el centro
+                      // En modo follow, el jugador siempre está en el centro
                       screenCenter = Offset(screenW / 2, screenH / 2);
                     } else {
                       // Modo fijo: replicar BoxFit.contain
@@ -1077,7 +1077,7 @@ class _BunkerSceneState extends State<BunkerScene>
                   },
                 ),
 
-                // CAPA DE INPUT (JOYSTICK) - DetrÃƒÂ¡s de la UI
+                // CAPA DE INPUT (JOYSTICK) - Detrás de la UI
                 Positioned.fill(
                   child: Listener(
                     behavior: HitTestBehavior.translucent,
@@ -1135,24 +1135,24 @@ class _BunkerSceneState extends State<BunkerScene>
                       ),
                     ),
                   ),
-                // Nuevo HUD DinÃƒÂ¡mico y Ocultable (Top Left)
+                // Nuevo HUD Dinámico y Ocultable (Top Left)
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
                   top: 16,
                   left: _isHudVisible
                       ? 16
-                      : -250, // Lo oculta moviÃƒÂ©ndolo a la izquierda
+                      : -250, // Lo oculta moviéndolo a la izquierda
                   child: GestureDetector(
                     onTap: () {
                       if (_isHudVisible) {
-                        // Si estÃƒÂ¡ visible, forzar el ocultamiento
+                        // Si está visible, forzar el ocultamiento
                         setState(() {
                           _isHudVisible = false;
                         });
                         _hudTimer?.cancel();
                       } else {
-                        // Si estÃƒÂ¡ oculto, volver a mostrar
+                        // Si está oculto, volver a mostrar
                         _resetHudTimer();
                       }
                     },
@@ -1194,7 +1194,7 @@ class _BunkerSceneState extends State<BunkerScene>
                               ),
                               const SizedBox(width: 4),
                               const Text(
-                                'CAPÃƒÂTULO 2: EL BÃƒÅ¡NKER',
+                                'CAPÍTULO 2: EL BÚNKER',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -1243,7 +1243,7 @@ class _BunkerSceneState extends State<BunkerScene>
                   ),
                 ),
 
-                // BotÃƒÂ³n PestaÃƒÂ±a para reabrir el menÃƒÂº colapsado
+                // Botón Pestaña para reabrir el menú colapsado
                 if (!_isHudVisible && !_isDialogueActive)
                   Positioned(
                     top: 24,
@@ -1291,7 +1291,7 @@ class _BunkerSceneState extends State<BunkerScene>
                       ),
                       child: Text(
                         _isDialogueActive
-                            ? 'ESC: Saltar diÃƒÂ¡logo'
+                            ? 'ESC: Saltar diálogo'
                             : 'WASD/Flechas: Mover\nE: Interactuar',
                         style: const TextStyle(
                           color: Colors.white,
@@ -1378,7 +1378,7 @@ class _BunkerSceneState extends State<BunkerScene>
                     ),
                   ),
 
-                // BOTÃƒâ€œN DE CONFIGURACIÃƒâ€œN (Top Right)
+                // BOTÓN DE CONFIGURACIÓN (Top Right)
                 Positioned(
                   top: MediaQuery.of(context).padding.top + 16,
                   right: 16,
@@ -1444,10 +1444,10 @@ class _BunkerSceneState extends State<BunkerScene>
     if (_briefingCompleted) return 'Objetivo: Prepararse para el combate';
     if (_melMetCompleted) return 'Objetivo: Ir al Centro de Comando';
     if (_roomManager.currentRoom.id == 'exterior_large') {
-      return 'Objetivo: Llegar a la entrada del bÃƒÂºnker';
+      return 'Objetivo: Llegar a la entrada del búnker';
     }
     if (_roomManager.currentRoom.id == 'exterior') {
-      return 'Objetivo: Entrar al bÃƒÂºnker';
+      return 'Objetivo: Entrar al búnker';
     }
     return 'Objetivo: Encontrar a Mel';
   }
@@ -1457,7 +1457,7 @@ class _BunkerSceneState extends State<BunkerScene>
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header con botÃƒÂ³n de cerrar
+        // Header con botón de cerrar
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -1576,7 +1576,7 @@ class _BunkerSceneState extends State<BunkerScene>
 
         const Spacer(),
 
-        // BotÃƒÂ³n Salir
+        // Botón Salir
         SizedBox(
           width: double.infinity,
           height: 45,
@@ -1605,7 +1605,7 @@ class _BunkerSceneState extends State<BunkerScene>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text(
-                          'Ã‚Â¿ABORTAR MISIÃƒâ€œN?',
+                          '¿ABORTAR MISIÓN?',
                           style: TextStyle(
                             color: Colors.redAccent,
                             fontSize: 18,
@@ -1623,7 +1623,7 @@ class _BunkerSceneState extends State<BunkerScene>
                         ),
                         const SizedBox(height: 15),
                         const Text(
-                          'El progreso no guardado se perderÃƒÂ¡.',
+                          'El progreso no guardado se perderá.',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 13,
@@ -1705,7 +1705,7 @@ class _BunkerSceneState extends State<BunkerScene>
               elevation: 0,
             ),
             child: const Text(
-              'SALIR AL MENÃƒÅ¡',
+              'SALIR AL MENÚ',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -1730,12 +1730,12 @@ class GridPainter extends CustomPainter {
 
     const gridSize = 50.0;
 
-    // LÃƒÂ­neas verticales
+    // Líneas verticales
     for (double x = 0; x < size.width; x += gridSize) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
     }
 
-    // LÃƒÂ­neas horizontales
+    // Líneas horizontales
     for (double y = 0; y < size.height; y += gridSize) {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
     }

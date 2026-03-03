@@ -17,7 +17,7 @@ import '../../game/audio_manager.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'menu_screen.dart';
 
-/// Escena de la casa de Dan (CapÃƒÂ­tulo 1) - Con sistema de habitaciones
+/// Escena de la casa de Dan (Capítulo 1) - Con sistema de habitaciones
 class HouseScene extends StatefulWidget {
   const HouseScene({super.key});
 
@@ -27,7 +27,7 @@ class HouseScene extends StatefulWidget {
 
 class _HouseSceneState extends State<HouseScene>
     with SingleTickerProviderStateMixin {
-  // PosiciÃƒÂ³n del jugador
+  // Posición del jugador
   Vector2 _playerPosition = Vector2(350, 250);
   final double _playerSpeed = 3.0;
   final double _playerSize = 80.0;
@@ -52,7 +52,7 @@ class _HouseSceneState extends State<HouseScene>
   double _transitionCooldown = 0.0;
   static const double _cooldownDuration = 0.5;
 
-  // AnimaciÃƒÂ³n de transiciÃƒÂ³n
+  // Animación de transición
   late AnimationController _transitionController;
   late Animation<double> _fadeAnimation;
 
@@ -60,7 +60,7 @@ class _HouseSceneState extends State<HouseScene>
   late FocusNode _focusNode;
   Timer? _movementTimer;
 
-  // AnimaciÃƒÂ³n de sprite
+  // Animación de sprite
   AnimatedSprite? _danSprite;
   AnimatedSprite? _danSpriteNorth;
   AnimatedSprite? _danSpriteSouth;
@@ -70,13 +70,13 @@ class _HouseSceneState extends State<HouseScene>
   double _animationTimer = 0.0;
   static const double _frameRate = 0.15;
 
-  // ConfiguraciÃƒÂ³n In-Game
+  // Configuración In-Game
   bool _isConfigOpen = false;
   bool _isPaused = false; // Estado de pausa
   double _volume = 0.5; // Default music volume
   double _sfxVolume = 0.8; // Default SFX volume
 
-  // HUD dinÃƒÂ¡mico
+  // HUD dinámico
   bool _isHudVisible = true;
   Timer? _hudTimer;
 
@@ -98,7 +98,7 @@ class _HouseSceneState extends State<HouseScene>
     _showIntroDialogue();
     _startMovementLoop();
 
-    // Iniciar mÃƒÂºsica del capÃƒÂ­tulo
+    // Iniciar música del capítulo
     AudioManager().playHouseMusic();
 
     // Iniciar temporizador del HUD
@@ -167,7 +167,7 @@ class _HouseSceneState extends State<HouseScene>
           _transitionCooldown -= 0.016;
         }
 
-        // Pausar lÃƒÂ³gica si el juego estÃƒÂ¡ pausado
+        // Pausar lógica si el juego está pausado
         if (_isPaused) return;
 
         if (!_isTransitioning) {
@@ -192,79 +192,79 @@ class _HouseSceneState extends State<HouseScene>
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'El silencio. Es mÃƒÂ¡s ensordecedor que cualquier explosiÃƒÂ³n en una operaciÃƒÂ³n encubierta.',
+                  'El silencio. Es más ensordecedor que cualquier explosión en una operación encubierta.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'IrÃƒÂ³nico, Ã‚Â¿no? Yo, que pasÃƒÂ© aÃƒÂ±os persiguiendo sombras, protegiendo fronteras, un investigador de ÃƒÂ©lite...',
+                  'Irónico, ¿no? Yo, que pasé años persiguiendo sombras, protegiendo fronteras, un investigador de élite...',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  '...y mi propia mente se convirtiÃƒÂ³ en la zona de exclusiÃƒÂ³n mÃƒÂ¡s peligrosa que jamÃƒÂ¡s pisÃƒÂ©.',
+                  '...y mi propia mente se convirtió en la zona de exclusión más peligrosa que jamás pisé.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'Me retirÃƒÂ©. No, seamos honestos. Fui forzado a retirarme.',
+                  'Me retiré. No, seamos honestos. Fui forzado a retirarme.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'Cuando perdÃƒÂ­ a mi esposa, no perdÃƒÂ­ solo una persona; perdÃƒÂ­ el suelo, la gravedad que me mantenÃƒÂ­a anclado a la realidad.',
+                  'Cuando perdí a mi esposa, no perdí solo una persona; perdí el suelo, la gravedad que me mantenía anclado a la realidad.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'Fui, en el campo, una responsabilidad, un riesgo de seguridad de proporciones ÃƒÂ©picas.',
+                  'Fui, en el campo, una responsabilidad, un riesgo de seguridad de proporciones épicas.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'El duelo me convirtiÃƒÂ³ en un desecho, un YÃ…Â«rei sin misiÃƒÂ³n. Ã‚Â¿De quÃƒÂ© sirve la brillantez tÃƒÂ¡ctica cuando la voluntad de vivir se ha desvanecido?',
+                  'El duelo me convirtió en un desecho, un YÅ«rei sin misión. ¿De qué sirve la brillantez táctica cuando la voluntad de vivir se ha desvanecido?',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'Y luego estaba ella. Mi hija. La ÃƒÂºnica luz que atravesaba esta niebla gris que se asentÃƒÂ³ sobre mÃƒÂ­.',
+                  'Y luego estaba ella. Mi hija. La única luz que atravesaba esta niebla gris que se asentó sobre mí.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'Era mi ÃƒÂºltima lÃƒÂ­nea de defensa contra la CaÃƒÂ­da total.',
+                  'Era mi última línea de defensa contra la Caída total.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'Cuando me dijo que le habÃƒÂ­an aceptado el intercambio a JapÃƒÂ³n, que su nivel acadÃƒÂ©mico era excepcional...',
+                  'Cuando me dijo que le habían aceptado el intercambio a Japón, que su nivel académico era excepcional...',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'SentÃƒÂ­ el pÃƒÂ¡nico, ese egoÃƒÂ­smo crudo que me gritaba que la encadenara aquÃƒÂ­, que la obligara a ser mi enfermera emocional.',
+                  'Sentí el pánico, ese egoísmo crudo que me gritaba que la encadenara aquí, que la obligara a ser mi enfermera emocional.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'Era la lucha mÃƒÂ¡s difÃƒÂ­cil que habÃƒÂ­a tenido, muy lejos de cualquier misiÃƒÂ³n antiterrorista.',
+                  'Era la lucha más difícil que había tenido, muy lejos de cualquier misión antiterrorista.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'Pero mi amor por ella, heredado de su madre, era mÃƒÂ¡s grande que mi miseria.',
+                  'Pero mi amor por ella, heredado de su madre, era más grande que mi miseria.',
               type: DialogueType.internal,
             ),
             DialogueData(
@@ -282,19 +282,19 @@ class _HouseSceneState extends State<HouseScene>
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'Es un orgullo. Es una prueba de que aÃƒÂºn existe algo puro en este mundo corrompido que yo patrullaba.',
+                  'Es un orgullo. Es una prueba de que aún existe algo puro en este mundo corrompido que yo patrullaba.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'AsÃƒÂ­ que la dejÃƒÂ© ir. ActuÃƒÂ© en contra de mi propio interÃƒÂ©s.',
+                  'Así que la dejé ir. Actué en contra de mi propio interés.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'La mandÃƒÂ© al otro lado del planeta para que pudiera florecer lejos de esta sombra que me consume.',
+                  'La mandé al otro lado del planeta para que pudiera florecer lejos de esta sombra que me consume.',
               type: DialogueType.internal,
             ),
           ],
@@ -454,8 +454,8 @@ class _HouseSceneState extends State<HouseScene>
       final cutWidth = room.roomSize.width * 0.4;
       final cutHeight = room.roomSize.height * 0.4;
 
-      // Bloquear la esquina inferior DERECHA (ÃƒÂ¡rea cortada)
-      // El corte estÃƒÂ¡ en X > (width - cutWidth) y Y > (height - cutHeight)
+      // Bloquear la esquina inferior DERECHA (área cortada)
+      // El corte está en X > (width - cutWidth) y Y > (height - cutHeight)
       if (pos.x > room.roomSize.width - cutWidth - padding &&
           pos.y > room.roomSize.height - cutHeight - padding) {
         return false;
@@ -467,15 +467,15 @@ class _HouseSceneState extends State<HouseScene>
       final towerWidth = room.roomSize.width * 0.17;
       final towerHeight = room.roomSize.height * 0.2;
 
-      // 1. Pared Central (DetrÃƒÂ¡s del sofÃƒÂ¡)
+      // 1. Pared Central (Detrás del sofá)
       if (pos.x > towerWidth && pos.x < room.roomSize.width - towerWidth) {
-        // Ajuste visual: La pared tiene 60px de alto. El lÃƒÂ­mite debe estar cerca de eso.
+        // Ajuste visual: La pared tiene 60px de alto. El límite debe estar cerca de eso.
         double wallLimitY = towerHeight + 55;
 
-        // Verificar si hay una puerta en esta secciÃƒÂ³n para permitir el paso
+        // Verificar si hay una puerta en esta sección para permitir el paso
         bool isNearDoor = false;
         for (final door in room.doors) {
-          // Si la puerta estÃƒÂ¡ en la pared norte (o cerca de la pared central)
+          // Si la puerta está en la pared norte (o cerca de la pared central)
           if (door.position.dy < towerHeight + 50) {
             // Si estamos alineados horizontalmente con la puerta
             if ((pos.x - (door.position.dx + door.size.x / 2)).abs() <
@@ -486,7 +486,7 @@ class _HouseSceneState extends State<HouseScene>
           }
         }
 
-        // Si hay puerta, permitimos subir mÃƒÂ¡s (el lÃƒÂ­mite es la puerta misma, no la pared)
+        // Si hay puerta, permitimos subir más (el límite es la puerta misma, no la pared)
         if (isNearDoor) {
           wallLimitY =
               towerHeight - 20; // Permitir entrar al pasillo de la puerta
@@ -500,18 +500,18 @@ class _HouseSceneState extends State<HouseScene>
       // 2. Paredes Laterales Superiores (Torres)
       // Torre Izquierda: X < towerWidth, Y < padding (solo pared norte)
       // Torre Derecha: X > width - towerWidth, Y < padding
-      // Las paredes verticales internas de las torres ya estÃƒÂ¡n cubiertas por los lÃƒÂ­mites generales o lÃƒÂ³gica especÃƒÂ­fica si fuera necesario.
+      // Las paredes verticales internas de las torres ya están cubiertas por los límites generales o lógica específica si fuera necesario.
 
-      // ExcepciÃƒÂ³n para puertas:
+      // Excepción para puertas:
       // Si hay una puerta en la pared norte de las torres, permitir paso.
-      // Pero aquÃƒÂ­ estamos definiendo PAREDES SÃƒâ€œLIDAS.
+      // Pero aquí estamos definiendo PAREDES SÓLIDAS.
 
       // Pared superior de torre izquierda
       // Ajuste visual: pared de 60px de alto
       if (pos.x < towerWidth && pos.y < 55) {
-        // Verificar si hay puerta aquÃƒÂ­ antes de bloquear?
-        // SimplificaciÃƒÂ³n: Bloquear pared norte siempre, las puertas suelen tener su propia lÃƒÂ³gica o estar desplazadas.
-        // Pero si la puerta estÃƒÂ¡ en (x, 0), necesitamos permitir paso.
+        // Verificar si hay puerta aquí antes de bloquear?
+        // Simplificación: Bloquear pared norte siempre, las puertas suelen tener su propia lógica o estar desplazadas.
+        // Pero si la puerta está en (x, 0), necesitamos permitir paso.
         bool isDoorHere = false;
         for (final door in room.doors) {
           if (door.position.dy < 50 && door.position.dx < towerWidth) {
@@ -554,9 +554,9 @@ class _HouseSceneState extends State<HouseScene>
           _playerSize / 2,
         );
 
-        // LÃƒÂ³gica especÃƒÂ­fica para el SOFÃƒÂ
+        // Lógica específica para el SOFÁ
         if (interactable.id == 'sofa') {
-          // Crear una hitbox MUY ajustada al centro visual del sofÃƒÂ¡
+          // Crear una hitbox MUY ajustada al centro visual del sofá
           final sofaHitbox = Rect.fromLTWH(
             interactable.position.dx + 50, // +50 margen izq
             interactable.position.dy +
@@ -570,7 +570,7 @@ class _HouseSceneState extends State<HouseScene>
             return false;
           }
         } else if (interactable.id == 'emma_desk') {
-          // Hitbox ajustada para el escritorio (menos permisiva que muebles genÃƒÂ©ricos)
+          // Hitbox ajustada para el escritorio (menos permisiva que muebles genéricos)
           final deskHitbox = furnitureRect.deflate(10.0);
           if (deskHitbox.overlaps(playerRect)) {
             return false;
@@ -582,7 +582,7 @@ class _HouseSceneState extends State<HouseScene>
             return false;
           }
         } else if (interactable.id == 'furniture_1') {
-          // Mueble 1 (grande): Deflate mayor para no bloquear (compensando aumento de tamaÃƒÂ±o)
+          // Mueble 1 (grande): Deflate mayor para no bloquear (compensando aumento de tamaño)
           final itemHitbox = furnitureRect.deflate(30.0);
           if (itemHitbox.overlaps(playerRect)) {
             return false;
@@ -594,13 +594,13 @@ class _HouseSceneState extends State<HouseScene>
             return false;
           }
         } else if (interactable.id == 'furniture_3') {
-          // Mueble 3 (pequeÃƒÂ±o): Deflate menor para no perder colisiÃƒÂ³n
+          // Mueble 3 (pequeño): Deflate menor para no perder colisión
           final itemHitbox = furnitureRect.deflate(5.0);
           if (itemHitbox.overlaps(playerRect)) {
             return false;
           }
         } else {
-          // Muebles genÃƒÂ©ricos
+          // Muebles genéricos
           // Reducir un poco la hitbox del mueble para ser permisivos
           final collisionPadding = 30.0;
           final paddedRect = furnitureRect.deflate(collisionPadding);
@@ -1174,7 +1174,7 @@ class _HouseSceneState extends State<HouseScene>
         ),
       ),
 
-      // Esquinas diagonales (4 bloques sÃƒÂ³lidos)
+      // Esquinas diagonales (4 bloques sólidos)
       // Esquina superior izquierda
       Positioned(
         top: 0,
@@ -1892,7 +1892,7 @@ class _HouseSceneState extends State<HouseScene>
                             );
                             final isOpen = dist < 80.0;
 
-                            // LÃƒâ€œGICA ESPECIAL PARA SALA DE ESTAR
+                            // LÓGICA ESPECIAL PARA SALA DE ESTAR
                             final isLivingRoom = room.id == 'living_room';
                             final isHorizontal = door.size.x > door.size.y;
 
@@ -1909,13 +1909,13 @@ class _HouseSceneState extends State<HouseScene>
                               double topPos;
 
                               if (isNorth) {
-                                // LÃƒÂ³gica especÃƒÂ­fica para sala en U
+                                // Lógica específica para sala en U
                                 if (isLivingRoom && door.position.dy > 50) {
-                                  // Puerta central (Hallway) - La pared estÃƒÂ¡ mÃƒÂ¡s abajo (y=120)
+                                  // Puerta central (Hallway) - La pared está más abajo (y=120)
                                   topPos =
                                       120.0 + 60.0 - visualHeight + door.size.y;
                                 } else if (door.position.dy < 100) {
-                                  // Puertas norte estÃƒÂ¡ndar
+                                  // Puertas norte estándar
                                   topPos = 60.0 - visualHeight + door.size.y;
                                 } else {
                                   topPos =
@@ -1962,13 +1962,13 @@ class _HouseSceneState extends State<HouseScene>
                             } else {
                               // Puertas verticales (izquierda/derecha)
                               if (_doorSprite != null) {
-                                // Para puertas verticales, intercambiamos dimensiones porque rotaremos 90Ã‚Â°
+                                // Para puertas verticales, intercambiamos dimensiones porque rotaremos 90Â°
                                 final spriteWidth =
                                     door.size.y *
                                     4.5; // Aumentado para que la puerta sea alta
                                 final spriteHeight =
                                     door.size.x *
-                                    1.2; // El ancho del sprite (despuÃƒÂ©s de rotar)
+                                    1.2; // El ancho del sprite (después de rotar)
 
                                 final isWest =
                                     door.position.dx < room.roomSize.width / 2;
@@ -2107,7 +2107,7 @@ class _HouseSceneState extends State<HouseScene>
                     final worldW = room.roomSize.width;
                     final worldH = room.roomSize.height;
 
-                    // Replicar el cÃƒÂ¡lculo de BoxFit.contain
+                    // Replicar el cálculo de BoxFit.contain
                     final scaleX = screenW / worldW;
                     final scaleY = screenH / worldH;
                     final scale = scaleX < scaleY ? scaleX : scaleY;
@@ -2121,8 +2121,8 @@ class _HouseSceneState extends State<HouseScene>
                       _playerPosition.y * scale + offsetY,
                     );
 
-                    // Radios adaptativos: proporcionales al tamaÃƒÂ±o renderizado del canvas
-                    // innerRadius Ã¢â€°Ë† 18% del ancho renderizado, outerRadius Ã¢â€°Ë† 42%
+                    // Radios adaptativos: proporcionales al tamaño renderizado del canvas
+                    // innerRadius â‰ˆ 18% del ancho renderizado, outerRadius â‰ˆ 42%
                     final renderedW = worldW * scale;
                     final innerR = (renderedW * 0.18).clamp(80.0, 200.0);
                     final outerR = (renderedW * 0.42).clamp(160.0, 400.0);
@@ -2136,7 +2136,7 @@ class _HouseSceneState extends State<HouseScene>
                   },
                 ),
 
-                // CAPA DE INPUT (JOYSTICK) - DetrÃƒÂ¡s de la UI
+                // CAPA DE INPUT (JOYSTICK) - Detrás de la UI
                 Positioned.fill(
                   child: GestureDetector(
                     behavior: HitTestBehavior.translucent,
@@ -2197,7 +2197,7 @@ class _HouseSceneState extends State<HouseScene>
                     },
                   ),
 
-                // HUD DinÃƒÂ¡mico y Ocultable (Top Left)
+                // HUD Dinámico y Ocultable (Top Left)
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
@@ -2256,7 +2256,7 @@ class _HouseSceneState extends State<HouseScene>
                                   ),
                                   const SizedBox(width: 4),
                                   const Text(
-                                    'CAPÃƒÂTULO 1: EL LLAMADO',
+                                    'CAPÍTULO 1: EL LLAMADO',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
@@ -2290,7 +2290,7 @@ class _HouseSceneState extends State<HouseScene>
                                   Expanded(
                                     child: Text(
                                       _phoneCallCompleted
-                                          ? 'Objetivo: Ir a JapÃƒÂ³n'
+                                          ? 'Objetivo: Ir a Japón'
                                           : 'Objetivo: Explorar la casa',
                                       style: TextStyle(
                                         color: Colors.yellow[700],
@@ -2309,7 +2309,7 @@ class _HouseSceneState extends State<HouseScene>
                   ),
                 ),
 
-                // PestaÃƒÂ±a para reabrir el HUD cuando estÃƒÂ¡ oculto
+                // Pestaña para reabrir el HUD cuando está oculto
                 if (!_isHudVisible && !_isDialogueActive)
                   Positioned(
                     top: 24,
@@ -2340,7 +2340,7 @@ class _HouseSceneState extends State<HouseScene>
                     ),
                   ),
 
-                // Hint de teclado SOLO en escritorio nativo (no web, no mÃƒÂ³vil)
+                // Hint de teclado SOLO en escritorio nativo (no web, no móvil)
                 if (!kIsWeb &&
                     defaultTargetPlatform != TargetPlatform.android &&
                     defaultTargetPlatform != TargetPlatform.iOS)
@@ -2355,7 +2355,7 @@ class _HouseSceneState extends State<HouseScene>
                       ),
                       child: Text(
                         _isDialogueActive
-                            ? 'ESC: Saltar diÃƒÂ¡logo'
+                            ? 'ESC: Saltar diálogo'
                             : 'WASD/Flechas: Mover\nE: Interactuar',
                         style: const TextStyle(
                           color: Colors.white,
@@ -2416,7 +2416,7 @@ class _HouseSceneState extends State<HouseScene>
                     ),
                   ),
 
-                // BOTÃƒâ€œN DE CONFIGURACIÃƒâ€œN (Top Right)
+                // BOTÓN DE CONFIGURACIÓN (Top Right)
                 Positioned(
                   top: MediaQuery.of(context).padding.top + 16,
                   right: 16,
@@ -2488,7 +2488,7 @@ class _HouseSceneState extends State<HouseScene>
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header con botÃƒÂ³n de cerrar
+        // Header con botón de cerrar
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -2607,7 +2607,7 @@ class _HouseSceneState extends State<HouseScene>
 
         const Spacer(),
 
-        // BotÃƒÂ³n Salir
+        // Botón Salir
         SizedBox(
           width: double.infinity,
           height: 45,
@@ -2636,7 +2636,7 @@ class _HouseSceneState extends State<HouseScene>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text(
-                          'Ã‚Â¿ABORTAR MISIÃƒâ€œN?',
+                          '¿ABORTAR MISIÓN?',
                           style: TextStyle(
                             color: Colors.redAccent,
                             fontSize: 18,
@@ -2654,7 +2654,7 @@ class _HouseSceneState extends State<HouseScene>
                         ),
                         const SizedBox(height: 15),
                         const Text(
-                          'El progreso no guardado se perderÃƒÂ¡.',
+                          'El progreso no guardado se perderá.',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 13,
@@ -2736,7 +2736,7 @@ class _HouseSceneState extends State<HouseScene>
               elevation: 0,
             ),
             child: const Text(
-              'SALIR AL MENÃƒÅ¡',
+              'SALIR AL MENÚ',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -2751,9 +2751,9 @@ class _HouseSceneState extends State<HouseScene>
   }
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-// BotÃƒÂ³n de interacciÃƒÂ³n Ã¢â‚¬â€ estilo horror ÃƒÂ¡mbar oscuro
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬
+// Botón de interacción ââ‚¬â€ estilo horror ámbar oscuro
+// ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬
 class _InteractButton extends StatefulWidget {
   const _InteractButton();
 

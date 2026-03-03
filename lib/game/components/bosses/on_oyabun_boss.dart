@@ -13,16 +13,16 @@ import '../../../narrative/components/dialogue_system.dart';
 import '../effects/screen_flash.dart';
 import '../effects/teleport_effect.dart';
 import '../effects/explosive_wave.dart'; // Importar onda explosiva
-import '../../levels/exterior_map_level.dart'; // Importar nivel exterior para lÃ­mites
+import '../../levels/exterior_map_level.dart'; // Importar nivel exterior para límites
 import '../../../narrative/models/dialogue_data.dart';
 import '../../models/player_role.dart';
 
 /// æ€¨è¦ªåˆ† ON-OYABUN - "El Padrino de la Venganza"
-/// Singularidad (CategorÃ­a 3) - Jefe final del exterior
+/// Singularidad (Categoría 3) - Jefe final del exterior
 ///
-/// FusiÃ³n de vÃ­ctima y verdugo, atrapado en un bucle eterno
-/// de culpa y venganza. LÃ­der del clan KÅga-gumi que ejecutÃ³
-/// la masacre del bÃºnker y las 28 vÃ­ctimas que se fusionaron con Ã©l.
+/// Fusión de víctima y verdugo, atrapado en un bucle eterno
+/// de culpa y venganza. Líder del clan KÅga-gumi que ejecutó
+/// la masacre del búnker y las 28 víctimas que se fusionaron con él.
 class OnOyabunBoss extends PositionComponent
     with CollisionCallbacks, HasGameReference<ExpedienteKorinGame> {
   // ==================== STATS BASE ====================
@@ -34,7 +34,7 @@ class OnOyabunBoss extends PositionComponent
 
   final double baseDamage = 40.0;
 
-  // Radio de colisiÃ³n
+  // Radio de colisión
   final double collisionRadius = 50.0;
 
   // Objetivo actual
@@ -49,7 +49,7 @@ class OnOyabunBoss extends PositionComponent
   // ==================== SISTEMA DE ARMAS ====================
   List<String> activeWeapons = ['katana']; // Solo katana en Fase 1
 
-  // ConfiguraciÃ³n de armas
+  // Configuración de armas
   final Map<String, WeaponConfig> weapons = {
     'katana': WeaponConfig(damage: 50, range: 80, cooldown: 1.2),
     'wakizashi': WeaponConfig(damage: 35, range: 60, cooldown: 0.8),
@@ -75,18 +75,18 @@ class OnOyabunBoss extends PositionComponent
   double comboTimer = 0.0;
   String currentCombo = '';
 
-  // Cooldowns de combos especiales (reducidos para mÃ¡s acciÃ³n)
+  // Cooldowns de combos especiales (reducidos para más acción)
   double tsukiCooldown = 0.0;
   double tsubameCooldown = 0.0;
   final double tsukiCooldownDuration = 5.0; // Reducido de 8s a 5s
   final double tsubameCooldownDuration = 4.0; // Reducido de 6s a 4s
 
-  // Duel Stance (mecÃ¡nica especial)
+  // Duel Stance (mecánica especial)
   bool inDuelStanceCharge = false;
   double duelStanceTimer = 0.0;
   final double duelStanceChargeDuration = 2.0; // Reducido de 2.8s a 2.0s
   final double duelStanceParryWindow =
-      0.25; // Aumentado de 0.2s a 0.25s (mÃ¡s justo)
+      0.25; // Aumentado de 0.2s a 0.25s (más justo)
   bool duelStanceParryWindowActive = false;
   double duelStanceCooldown = 0.0;
   final double duelStanceCooldownDuration = 10.0; // Reducido de 15s a 10s
@@ -94,23 +94,23 @@ class OnOyabunBoss extends PositionComponent
   // Fantasmas Yakuza (spawn a 80% HP)
   bool hasSpawnedYakuzaGhosts = false;
 
-  // Ataques especiales Fase 2 (reducidos para mÃ¡s acciÃ³n)
+  // Ataques especiales Fase 2 (reducidos para más acción)
   double cadenaCulpaCooldown = 0.0;
   final double cadenaCulpaCooldownDuration = 8.0; // Reducido de 12s a 8s
   double lluviaAceroCooldown = 0.0;
   final double lluviaAceroCooldownDuration = 10.0; // Reducido de 15s a 10s
 
-  // Onda de CuraciÃ³n (nueva habilidad)
+  // Onda de Curación (nueva habilidad)
   double healingWaveCooldown = 0.0;
   final double healingWaveCooldownDuration = 20.0; // Cada 20 segundos
   final double healingWaveAmount = 300.0; // Se cura 300 HP
-  final double healingWaveDamage = 60.0; // DaÃ±a 60 HP
+  final double healingWaveDamage = 60.0; // Daña 60 HP
   final double healingWaveRadius =
       800.0; // Aumentado de 250 a 800 para mapa exterior
   final double healingWavePushForce =
       80.0; // Reducido de 200 a 80 para evitar bugs
 
-  // Grito de Guerra (habilidad Ã©pica)
+  // Grito de Guerra (habilidad épica)
   double warCryCooldown = 0.0;
   final double warCryCooldownDuration = 35.0; // Cada 35 segundos
   final int warCryGhostCount = 4; // Spawn 4 fantasmas
@@ -120,7 +120,7 @@ class OnOyabunBoss extends PositionComponent
   bool hasSpawnedVictimas = false; // 50% HP
   bool hasSpawnedKatanas = false; // 40% HP
 
-  // ==================== SISTEMA DE TELETRANSPORTACIÃ“N INTELIGENTE ====================
+  // ==================== SISTEMA DE TELETRANSPORTACIÓN INTELIGENTE ====================
   // Detecta cuando el jugador huye y se teletransporta
   double _previousDistanceToTarget = 0.0;
   int _consecutiveDistanceIncreases = 0;
@@ -141,7 +141,7 @@ class OnOyabunBoss extends PositionComponent
   bool isKneeling = false;
   bool honorableDeathAvailable = false;
 
-  // Flags de transiciÃ³n
+  // Flags de transición
   bool hasTransitionedToPhase2 = false;
   bool hasTransitionedToPhase3 = false;
 
@@ -165,12 +165,12 @@ class OnOyabunBoss extends PositionComponent
   OnOyabunBoss({required Vector2 position})
     : super(position: position, anchor: Anchor.center);
 
-  // ==================== INICIALIZACIÃ“N ====================
+  // ==================== INICIALIZACIÓN ====================
   @override
   Future<void> onLoad() async {
     await super.onLoad();
 
-    // TamaÃ±o del jefe (3 metros de alto, el doble del jugador)
+    // Tamaño del jefe (3 metros de alto, el doble del jugador)
     size = Vector2(60, 90); // Width x Height
 
     // Cargar sprites del boss
@@ -202,13 +202,13 @@ class OnOyabunBoss extends PositionComponent
       );
       // [PERF] print('ðŸ” [Oyabun] SpriteSheet cargado: ${spriteSheet.width}x${spriteSheet.height}');
 
-      // ConfiguraciÃ³n del spritesheet
+      // Configuración del spritesheet
       // Dimensiones confirmadas: 672x420px = 8x5 frames de 84x84px
       const frameWidth = 84.0;
       const frameHeight = 84.0;
       const framesPerRow = 8;
 
-      // AnimaciÃ³n idle (primera fila)
+      // Animación idle (primera fila)
       _idleAnimation = SpriteAnimation.fromFrameData(
         spriteSheet,
         SpriteAnimationData.sequenced(
@@ -219,7 +219,7 @@ class OnOyabunBoss extends PositionComponent
         ),
       );
 
-      // AnimaciÃ³n walk (segunda fila)
+      // Animación walk (segunda fila)
       _walkAnimation = SpriteAnimation.fromFrameData(
         spriteSheet,
         SpriteAnimationData.sequenced(
@@ -230,7 +230,7 @@ class OnOyabunBoss extends PositionComponent
         ),
       );
 
-      // AnimaciÃ³n attack (tercera fila)
+      // Animación attack (tercera fila)
       _attackAnimation = SpriteAnimation.fromFrameData(
         spriteSheet,
         SpriteAnimationData.sequenced(
@@ -259,8 +259,8 @@ class OnOyabunBoss extends PositionComponent
     }
   }
 
-  /// Recibe daÃ±o de cualquier fuente
-  // (Este mÃ©todo fue movido a la secciÃ³n de DAÃ‘O Y MUERTE mÃ¡s abajo)
+  /// Recibe daño de cualquier fuente
+  // (Este método fue movido a la sección de DAÑO Y MUERTE más abajo)
 
   // ==================== UPDATE LOOP ====================
   @override
@@ -269,9 +269,9 @@ class OnOyabunBoss extends PositionComponent
 
     if (isDead) return;
 
-    // Actualizar animaciÃ³n de sprites segÃºn estado
+    // Actualizar animación de sprites según estado
     if (_spriteComponent != null) {
-      // Determinar animaciÃ³n segÃºn acciÃ³n
+      // Determinar animación según acción
       if (currentAction == 'attacking' || isPerformingCombo) {
         _spriteComponent!.animation = _attackAnimation;
       } else if (velocity.length > 10) {
@@ -293,7 +293,7 @@ class OnOyabunBoss extends PositionComponent
     if (healingWaveCooldown > 0) healingWaveCooldown -= dt;
     if (warCryCooldown > 0) warCryCooldown -= dt;
 
-    // Actualizar cooldown de teletransportaciÃ³n
+    // Actualizar cooldown de teletransportación
     if (_teleportCooldown > 0) {
       _teleportCooldown -= dt;
       if (_teleportCooldown <= 0) {
@@ -320,7 +320,7 @@ class OnOyabunBoss extends PositionComponent
       }
     }
 
-    // Verificar spawn de VÃ­ctimas Espectrales (50% HP en Fase 2)
+    // Verificar spawn de Víctimas Espectrales (50% HP en Fase 2)
     if (currentPhase == BossPhase.phase2 && !hasSpawnedVictimas) {
       final hpPercent = health / maxHealth;
       if (hpPercent <= 0.50) {
@@ -336,7 +336,7 @@ class OnOyabunBoss extends PositionComponent
       }
     }
 
-    // Actualizar Duel Stance si estÃ¡ activo
+    // Actualizar Duel Stance si está activo
     if (inDuelStanceCharge) {
       _updateDuelStance(dt);
       return; // No ejecutar IA normal durante Duel Stance
@@ -349,10 +349,10 @@ class OnOyabunBoss extends PositionComponent
       return; // No ejecutar IA normal durante combo
     }
 
-    // IA del jefe (segÃºn la fase) - MÃ¡s agresiva
+    // IA del jefe (según la fase) - Más agresiva
     if (!inDuelStance && !isKneeling) {
       aiTimer += dt;
-      // Actualizar IA mÃ¡s frecuentemente para ser mÃ¡s reactivo
+      // Actualizar IA más frecuentemente para ser más reactivo
       final aiSpeed = currentPhase == BossPhase.phase1 ? 0.3 : 0.2;
       if (aiTimer >= aiSpeed) {
         _updateAI();
@@ -360,13 +360,13 @@ class OnOyabunBoss extends PositionComponent
       }
     }
 
-    // Actualizar posiciÃ³n basada en velocidad
+    // Actualizar posición basada en velocidad
     position += velocity * dt;
 
-    // Aplicar lÃ­mites del mundo
+    // Aplicar límites del mundo
     position = _constrainPositionToWorldBounds(position);
 
-    // Reducir velocidad gradualmente (fricciÃ³n)
+    // Reducir velocidad gradualmente (fricción)
     velocity *= 0.95;
   }
 
@@ -375,14 +375,14 @@ class OnOyabunBoss extends PositionComponent
   void render(Canvas canvas) {
     super.render(canvas);
 
-    // Renderizar aura segÃºn fase (MANTENER)
+    // Renderizar aura según fase (MANTENER)
     _renderAura(canvas);
 
-    // FALLBACK: Si sprites no cargaron, renderizar rectÃ¡ngulo
+    // FALLBACK: Si sprites no cargaron, renderizar rectángulo
     if (_spriteComponent == null) {
       _renderBodyFallback(canvas);
     }
-    // NOTA: Si sprites cargaron, se renderizan automÃ¡ticamente por SpriteAnimationComponent
+    // NOTA: Si sprites cargaron, se renderizan automáticamente por SpriteAnimationComponent
 
     // Renderizar barra de HP
     _renderHealthBar(canvas);
@@ -422,7 +422,7 @@ class OnOyabunBoss extends PositionComponent
   }
 
   void _renderBodyFallback(Canvas canvas) {
-    // FALLBACK: RectÃ¡ngulo segÃºn fase si sprites no cargaron
+    // FALLBACK: Rectángulo según fase si sprites no cargaron
     Color bodyColor = const Color(0xFF880000);
 
     switch (currentPhase) {
@@ -430,7 +430,7 @@ class OnOyabunBoss extends PositionComponent
         bodyColor = const Color(0xFF880000); // Rojo oscuro
         break;
       case BossPhase.phase2:
-        bodyColor = const Color(0xFFAA0000); // Rojo mÃ¡s brillante
+        bodyColor = const Color(0xFFAA0000); // Rojo más brillante
         break;
       case BossPhase.phase3:
         bodyColor = const Color(0xFF220000); // Negro rojizo
@@ -508,15 +508,15 @@ class OnOyabunBoss extends PositionComponent
   void _checkPhaseTransitions() {
     final hpPercent = health / maxHealth;
 
-    // TransiciÃ³n a Fase 2 (66% HP)
+    // Transición a Fase 2 (66% HP)
     if (hpPercent <= phase2Threshold && !hasTransitionedToPhase2) {
       transitionToPhase2();
     }
-    // TransiciÃ³n a Fase 3 (33% HP)
+    // Transición a Fase 3 (33% HP)
     else if (hpPercent <= phase3Threshold && !hasTransitionedToPhase3) {
       transitionToPhase3();
     }
-    // MecÃ¡nica final (10% HP)
+    // Mecánica final (10% HP)
     else if (hpPercent <= honorableDeathThreshold && !honorableDeathAvailable) {
       enterHonorableDeathState();
     }
@@ -535,13 +535,13 @@ class OnOyabunBoss extends PositionComponent
     debugPrint('âš”ï¸ On-Oyabun: FASE 2 - LA MASACRE');
     debugPrint('   Armas activas: ${activeWeapons.length}');
 
-    // FLASH BLANCO DRAMÃTICO
+    // FLASH BLANCO DRAMÁTICO
     _createScreenFlash();
 
     // ONDA EXPLOSIVA
     _triggerExplosiveWave();
 
-    // Pausar y mostrar diÃ¡logos de transiciÃ³n
+    // Pausar y mostrar diálogos de transición
     Future.delayed(const Duration(milliseconds: 300), () {
       _showPhase2Dialogue();
     });
@@ -571,11 +571,11 @@ class OnOyabunBoss extends PositionComponent
     _createScreenFlash(color: Colors.black.withValues(alpha: 0.9));
     Future.delayed(const Duration(milliseconds: 300), () {
       _createScreenFlash(color: Colors.red);
-      // ONDA EXPLOSIVA (mÃ¡s fuerte en fase 3 pero segura)
+      // ONDA EXPLOSIVA (más fuerte en fase 3 pero segura)
       _triggerExplosiveWave(damage: 50, force: 80, radius: 1000);
     });
 
-    // DiÃ¡logos
+    // Diálogos
     Future.delayed(const Duration(milliseconds: 600), () {
       _showPhase3Dialogue();
     });
@@ -589,7 +589,7 @@ class OnOyabunBoss extends PositionComponent
     // Solo queda la katana
     activeWeapons = ['katana'];
 
-    // InmÃ³vil
+    // Inmóvil
     velocity = Vector2.zero();
     currentSpeed = 0;
 
@@ -606,10 +606,10 @@ class OnOyabunBoss extends PositionComponent
         ? position.distanceTo(target!.position)
         : double.infinity;
 
-    // Sistema de detecciÃ³n de huida y teletransportaciÃ³n
+    // Sistema de detección de huida y teletransportación
     _checkForFleeingAndTeleport(dist);
 
-    // IA bÃ¡sica segÃºn fase
+    // IA básica según fase
     switch (currentPhase) {
       case BossPhase.phase1:
         _aiPhase1(dist);
@@ -639,7 +639,7 @@ class OnOyabunBoss extends PositionComponent
         );
       }
     } else {
-      // Buscar especÃ­ficamente a Kohaa (kijinType == 'kohaa')
+      // Buscar específicamente a Kohaa (kijinType == 'kohaa')
       for (final k in kohaaList) {
         if (!k.isDead && k.kijinType == 'kohaa') {
           kohaa = k;
@@ -656,35 +656,35 @@ class OnOyabunBoss extends PositionComponent
           : position.distanceTo(player.position);
       final distToKohaa = position.distanceTo(kohaa.position);
 
-      // Si Kohaa estÃ¡ huyendo, cambiar temporalmente al jugador
+      // Si Kohaa está huyendo, cambiar temporalmente al jugador
 
       if (kohaa.isRetreating) {
         target = player.isDead ? kohaa : player;
         if (previousTarget != target && target == player) {
           debugPrint(
-            'ðŸŽ¯ Boss cambiÃ³ objetivo â†’ JUGADOR (Kohaa estÃ¡ huyendo)',
+            'ðŸŽ¯ Boss cambió objetivo â†’ JUGADOR (Kohaa está huyendo)',
           );
         }
       }
-      // Priorizar al JUGADOR si estÃ¡ cerca (< 250u)
+      // Priorizar al JUGADOR si está cerca (< 250u)
       else if (distToPlayer < 250) {
         target = player;
         if (previousTarget != player) {
           debugPrint(
-            'ðŸŽ¯ Boss cambiÃ³ objetivo â†’ JUGADOR (Jugador estÃ¡ cerca)',
+            'ðŸŽ¯ Boss cambió objetivo â†’ JUGADOR (Jugador está cerca)',
           );
         }
       }
-      // Si no, priorizar a Kohaa si estÃ¡ MUY cerca (< 150u)
+      // Si no, priorizar a Kohaa si está MUY cerca (< 150u)
       else if (distToKohaa < 150) {
         target = kohaa;
         if (previousTarget != kohaa) {
           debugPrint(
-            'ðŸŽ¯ Boss cambiÃ³ objetivo â†’ KOHAA ALIADA (Kohaa estÃ¡ muy cerca)',
+            'ðŸŽ¯ Boss cambió objetivo â†’ KOHAA ALIADA (Kohaa está muy cerca)',
           );
         }
       }
-      // Si no, el mÃ¡s cercano
+      // Si no, el más cercano
       else if (distToKohaa < distToPlayer) {
         target = kohaa;
       } else {
@@ -703,16 +703,16 @@ class OnOyabunBoss extends PositionComponent
     }
   }
 
-  /// Detecta si el objetivo estÃ¡ huyendo y ejecuta teletransportaciÃ³n tÃ¡ctica
+  /// Detecta si el objetivo está huyendo y ejecuta teletransportación táctica
   void _checkForFleeingAndTeleport(double currentDistance) {
     if (target == null || !_canTeleport || isKneeling) return;
 
-    // CONDICIÃ“N ESPECIAL: Kohaa aliada estÃ¡ huyendo para recuperarse
+    // CONDICIÓN ESPECIAL: Kohaa aliada está huyendo para recuperarse
     if (target is RedeemedKijinAlly) {
       final kohaa = target as RedeemedKijinAlly;
       if (kohaa.isRetreating) {
         debugPrint(
-          'ðŸŒ€âš¡ Â¡Kohaa estÃ¡ HUYENDO! Boss se teletransporta para perseguirla',
+          'ðŸŒ€âš¡ ¡Kohaa está HUYENDO! Boss se teletransporta para perseguirla',
         );
         _executeTeleport();
         _consecutiveDistanceIncreases = 0;
@@ -720,19 +720,19 @@ class OnOyabunBoss extends PositionComponent
       }
     }
 
-    // CONDICIÃ“N 1: Objetivo muy lejos (kiting extremo)
+    // CONDICIÓN 1: Objetivo muy lejos (kiting extremo)
     if (currentDistance > 400) {
       debugPrint(
-        'âš ï¸ Objetivo demasiado lejos (${currentDistance.toInt()}u) - TeletransportaciÃ³n forzada',
+        'âš ï¸ Objetivo demasiado lejos (${currentDistance.toInt()}u) - Teletransportación forzada',
       );
       _executeTeleport();
       _consecutiveDistanceIncreases = 0;
       return;
     }
 
-    // CONDICIÃ“N 2: Detectar huida consistente
+    // CONDICIÓN 2: Detectar huida consistente
     if (currentDistance >= 200) {
-      // Detectar si la distancia estÃ¡ aumentando consistentemente
+      // Detectar si la distancia está aumentando consistentemente
       if (currentDistance > _previousDistanceToTarget + 5) {
         // Margen reducido de 10 a 5
         _consecutiveDistanceIncreases++;
@@ -745,7 +745,7 @@ class OnOyabunBoss extends PositionComponent
       // Si detectamos huida consistente, teletransportar
       if (_consecutiveDistanceIncreases >= _fleeingThreshold) {
         debugPrint(
-          'âš ï¸ Objetivo huyendo consistentemente - TeletransportaciÃ³n tÃ¡ctica',
+          'âš ï¸ Objetivo huyendo consistentemente - Teletransportación táctica',
         );
         _executeTeleport();
         _consecutiveDistanceIncreases = 0;
@@ -756,13 +756,13 @@ class OnOyabunBoss extends PositionComponent
     }
   }
 
-  /// Ejecuta la teletransportaciÃ³n tÃ¡ctica
+  /// Ejecuta la teletransportación táctica
   void _executeTeleport() {
     if (target == null) return;
 
-    debugPrint('ðŸŒ€ ON-OYABUN: Â¡TELETRANSPORTACIÃ“N TÃCTICA!');
+    debugPrint('ðŸŒ€ ON-OYABUN: ¡TELETRANSPORTACIÓN TÁCTICA!');
 
-    // Predecir posiciÃ³n futura del objetivo basado en historial
+    // Predecir posición futura del objetivo basado en historial
     Vector2 predictedPosition = target!.position.clone();
 
     if (_targetPositionHistory.length >= 3) {
@@ -774,13 +774,13 @@ class OnOyabunBoss extends PositionComponent
       predictedPosition = target!.position + (recentMovement * 0.5);
     }
 
-    // Calcular posiciÃ³n de teletransportaciÃ³n (cerca pero no encima)
+    // Calcular posición de teletransportación (cerca pero no encima)
     final directionToTarget = (predictedPosition - position).normalized();
     final teleportDistance = 100.0; // Aparecer a 100 unidades del objetivo
     Vector2 teleportPosition =
         predictedPosition - (directionToTarget * teleportDistance);
 
-    // APLICAR LÃMITES DEL MUNDO a la posiciÃ³n de teletransportaciÃ³n
+    // APLICAR LÍMITES DEL MUNDO a la posición de teletransportación
     teleportPosition = _constrainPositionToWorldBounds(teleportPosition);
 
     // Efecto visual ANTES de teletransportar
@@ -790,16 +790,16 @@ class OnOyabunBoss extends PositionComponent
     position = teleportPosition;
     velocity = Vector2.zero(); // Resetear velocidad
 
-    // Efecto visual DESPUÃ‰S de teletransportar
+    // Efecto visual DESPUÉS de teletransportar
     Future.delayed(const Duration(milliseconds: 100), () {
       _createTeleportEffect(position.clone(), isFadeOut: false);
     });
 
-    // Activar cooldown (mÃ¡s corto en fases avanzadas)
+    // Activar cooldown (más corto en fases avanzadas)
     _canTeleport = false;
     double cooldownTime = _teleportCooldownDuration;
 
-    // Reducir cooldown segÃºn la fase
+    // Reducir cooldown según la fase
     switch (currentPhase) {
       case BossPhase.phase1:
         cooldownTime = _teleportCooldownDuration; // 12s
@@ -817,14 +817,14 @@ class OnOyabunBoss extends PositionComponent
     // Mensaje de advertencia
     final targetName = target is PlayerCharacter ? 'jugador' : 'Kohaa';
     debugPrint(
-      '   âš¡ Teletransportado cerca de $targetName en posiciÃ³n predicha',
+      '   âš¡ Teletransportado cerca de $targetName en posición predicha',
     );
     debugPrint(
-      '   â±ï¸ Cooldown de teletransportaciÃ³n: ${cooldownTime.toStringAsFixed(1)}s',
+      '   â±ï¸ Cooldown de teletransportación: ${cooldownTime.toStringAsFixed(1)}s',
     );
   }
 
-  /// Restringe una posiciÃ³n a los lÃ­mites del mundo (dinÃ¡mico segÃºn tamaÃ±o del mapa)
+  /// Restringe una posición a los límites del mundo (dinámico según tamaño del mapa)
   Vector2 _constrainPositionToWorldBounds(Vector2 pos) {
     final worldSize = game.camera.visibleWorldRect;
 
@@ -840,7 +840,7 @@ class OnOyabunBoss extends PositionComponent
         .firstOrNull;
 
     if (exteriorMap != null) {
-      // LÃ­mites para ExteriorMapLevel (2000x1500)
+      // Límites para ExteriorMapLevel (2000x1500)
       // Dejamos 100px de margen por las paredes
       worldMinX = 100.0;
       worldMaxX = 1900.0;
@@ -860,19 +860,19 @@ class OnOyabunBoss extends PositionComponent
     );
   }
 
-  /// Crea efecto visual de teletransportaciÃ³n
+  /// Crea efecto visual de teletransportación
   void _createTeleportEffect(
     Vector2 effectPosition, {
     required bool isFadeOut,
   }) {
-    // Flash negro/rojo en la posiciÃ³n
+    // Flash negro/rojo en la posición
     final flashColor = isFadeOut
         ? Colors.black.withValues(alpha: 0.8)
         : Colors.red.withValues(alpha: 0.6);
 
     _createScreenFlash(color: flashColor);
 
-    // Agregar efecto visual de cÃ­rculo de sombras
+    // Agregar efecto visual de círculo de sombras
     final teleportEffect = TeleportEffect(
       position: effectPosition,
       isFadeOut: isFadeOut,
@@ -882,7 +882,7 @@ class OnOyabunBoss extends PositionComponent
 
   }
 
-  /// Genera una onda explosiva que daÃ±a y empuja
+  /// Genera una onda explosiva que daña y empuja
   void _triggerExplosiveWave({
     double damage = 30,
     double force = 50,
@@ -895,7 +895,7 @@ class OnOyabunBoss extends PositionComponent
       maxRadius: radius,
     );
     game.world.add(wave);
-    debugPrint('ðŸŒŠ ON-OYABUN: Â¡ONDA EXPLOSIVA ACTIVADA!');
+    debugPrint('ðŸŒŠ ON-OYABUN: ¡ONDA EXPLOSIVA ACTIVADA!');
   }
 
   void _aiPhase1(double distance) {
@@ -928,7 +928,7 @@ class OnOyabunBoss extends PositionComponent
     }
   }
 
-  /// Ataque bÃ¡sico con la katana
+  /// Ataque básico con la katana
   void _tryBasicAttack() {
     if (target == null) return;
 
@@ -945,11 +945,11 @@ class OnOyabunBoss extends PositionComponent
       if (target is PlayerCharacter) {
         (target as PlayerCharacter).takeDamage(damage);
         debugPrint(
-          'âš”ï¸ Boss atacÃ³ a ${(target as PlayerCharacter).role == PlayerRole.mel ? "Mel" : "Dan"}: $damage daÃ±o',
+          'âš”ï¸ Boss atacó a ${(target as PlayerCharacter).role == PlayerRole.mel ? "Mel" : "Dan"}: $damage daño',
         );
       } else if (target is RedeemedKijinAlly) {
         (target as RedeemedKijinAlly).takeDamage(damage);
-        debugPrint('âš”ï¸ Boss atacÃ³ a Kohaa aliada: $damage daÃ±o');
+        debugPrint('âš”ï¸ Boss atacó a Kohaa aliada: $damage daño');
       }
 
       // Cooldown
@@ -960,7 +960,7 @@ class OnOyabunBoss extends PositionComponent
   void _aiPhase2(double distance) {
     if (target == null) return;
 
-    // Fase 2: MUY agresivo con 3 armas simultÃ¡neas + ataques especiales
+    // Fase 2: MUY agresivo con 3 armas simultáneas + ataques especiales
 
     final healthPercent = health / maxHealth;
 
@@ -970,7 +970,7 @@ class OnOyabunBoss extends PositionComponent
       return;
     }
 
-    // Prioridad 0: Onda de CuraciÃ³n si HP < 40% y estÃ¡ disponible
+    // Prioridad 0: Onda de Curación si HP < 40% y está disponible
     if (healthPercent < 0.4 &&
         healingWaveCooldown <= 0 &&
         Random().nextDouble() < 0.5) {
@@ -978,13 +978,13 @@ class OnOyabunBoss extends PositionComponent
       return;
     }
 
-    // Prioridad 1: Lluvia de Acero si estÃ¡ disponible (20% chance, mÃ¡s frecuente)
+    // Prioridad 1: Lluvia de Acero si está disponible (20% chance, más frecuente)
     if (lluviaAceroCooldown <= 0 && Random().nextDouble() < 0.20) {
       _ejecutarLluviaAcero();
       return;
     }
 
-    // Prioridad 2: Cadena de Culpa si objetivo estÃ¡ lejos (30% chance, mÃ¡s frecuente)
+    // Prioridad 2: Cadena de Culpa si objetivo está lejos (30% chance, más frecuente)
     if (distance > 150 &&
         distance < 300 &&
         cadenaCulpaCooldown <= 0 &&
@@ -997,7 +997,7 @@ class OnOyabunBoss extends PositionComponent
     if (distance > 80) {
       // Sprint agresivo hacia el objetivo
       final direction = (target!.position - position).normalized();
-      velocity = direction * currentSpeed * 1.6; // 60% mÃ¡s rÃ¡pido en fase 2
+      velocity = direction * currentSpeed * 1.6; // 60% más rápido en fase 2
 
       // Debug
       if (distance > 120) {
@@ -1009,12 +1009,12 @@ class OnOyabunBoss extends PositionComponent
         );
       }
     } else if (distance > 50) {
-      // Rango medio: Usar wakizashi o cadenas mÃ¡s frecuentemente
+      // Rango medio: Usar wakizashi o cadenas más frecuentemente
       velocity = Vector2.zero();
       final weapon = Random().nextBool() ? 'wakizashi' : 'cadenas';
       _attemptAttack(weapon);
     } else {
-      // Rango corto: Combos de 2-3 armas (mÃ¡s frecuentes)
+      // Rango corto: Combos de 2-3 armas (más frecuentes)
       velocity = Vector2.zero();
       if (Random().nextDouble() < 0.75) {
         // 75% chance de combo
@@ -1029,9 +1029,9 @@ class OnOyabunBoss extends PositionComponent
 
   /// Ejecuta un combo de Fase 2 (2-3 armas seguidas)
   void _executePhase2Combo() {
-    // PatrÃ³n 1: Katana â†’ Wakizashi (rÃ¡pido)
-    // PatrÃ³n 2: Katana â†’ Cadenas (control)
-    // PatrÃ³n 3: Triple: Katana â†’ Wakizashi â†’ Cadenas
+    // Patrón 1: Katana â†’ Wakizashi (rápido)
+    // Patrón 2: Katana â†’ Cadenas (control)
+    // Patrón 3: Triple: Katana â†’ Wakizashi â†’ Cadenas
 
     final pattern = Random().nextInt(3);
 
@@ -1070,9 +1070,9 @@ class OnOyabunBoss extends PositionComponent
 
     // Fase 3: BERSERKER total, extremadamente agresivo
     if (distance > 70) {
-      // Acercarse MUY rÃ¡pido
+      // Acercarse MUY rápido
       final direction = (target!.position - position).normalized();
-      velocity = direction * currentSpeed * 2.0; // 100% mÃ¡s rÃ¡pido en fase 3
+      velocity = direction * currentSpeed * 2.0; // 100% más rápido en fase 3
 
       // Debug
       if (distance > 100) {
@@ -1084,7 +1084,7 @@ class OnOyabunBoss extends PositionComponent
         );
       }
     } else {
-      // Combos constantes de mÃºltiples armas
+      // Combos constantes de múltiples armas
       velocity = Vector2.zero();
       _executeRandomCombo();
     }
@@ -1109,23 +1109,23 @@ class OnOyabunBoss extends PositionComponent
     if (target == null) return;
 
     debugPrint(
-      'âš”ï¸ On-Oyabun ataca con $weaponName (${weapon.damage} daÃ±o)',
+      'âš”ï¸ On-Oyabun ataca con $weaponName (${weapon.damage} daño)',
     );
 
-    // Por ahora, daÃ±o simple
+    // Por ahora, daño simple
     final distance = position.distanceTo(target!.position);
     if (distance <= weapon.range) {
       _dealDamageToTarget(target!, weapon.damage);
     }
   }
 
-  /// Helper para aplicar daÃ±o al objetivo actual (jugador o Kohaa)
+  /// Helper para aplicar daño al objetivo actual (jugador o Kohaa)
   void _dealDamageToTarget(PositionComponent target, double damage) {
     if (target is PlayerCharacter) {
       target.takeDamage(damage);
     } else if (target is RedeemedKijinAlly) {
       target.takeDamage(damage);
-      debugPrint('ðŸ’¥ Boss daÃ±Ã³ a Kohaa aliada: $damage daÃ±o');
+      debugPrint('ðŸ’¥ Boss dañó a Kohaa aliada: $damage daño');
     }
   }
 
@@ -1176,11 +1176,11 @@ class OnOyabunBoss extends PositionComponent
 
   // ==================== COMBO 1: SAN-DAN GIRI (Corte Triple) ====================
   // 3 cortes consecutivos: Horizontal derecho â†’ Horizontal izquierdo â†’ Vertical descendente
-  // DaÃ±o total: 150 (50+50+50)
+  // Daño total: 150 (50+50+50)
 
   void _updateSanDanGiri() {
     switch (comboStep) {
-      case 0: // InicializaciÃ³n
+      case 0: // Inicialización
         debugPrint('   San-Dan Giri: Preparando...');
         comboStep = 1;
         comboTimer = 0.0;
@@ -1212,8 +1212,8 @@ class OnOyabunBoss extends PositionComponent
   }
 
   // ==================== COMBO 2: TSUKI (Estocada Cargada) ====================
-  // PreparaciÃ³n (1.2s invulnerable) â†’ Estocada ultra-rÃ¡pida
-  // DaÃ±o: 100 + knockback
+  // Preparación (1.2s invulnerable) â†’ Estocada ultra-rápida
+  // Daño: 100 + knockback
 
   void _updateTsuki() {
     if (target == null) {
@@ -1222,7 +1222,7 @@ class OnOyabunBoss extends PositionComponent
     }
 
     switch (comboStep) {
-      case 0: // InicializaciÃ³n - Entrar en postura de carga
+      case 0: // Inicialización - Entrar en postura de carga
         debugPrint('   Tsuki: Cargando... (INVULNERABLE)');
         isInvulnerable = true;
         invulnerabilityTimer = 1.2;
@@ -1230,13 +1230,13 @@ class OnOyabunBoss extends PositionComponent
         comboTimer = 0.0;
         break;
 
-      case 1: // PreparaciÃ³n (1.2s)
+      case 1: // Preparación (1.2s)
         if (comboTimer >= 1.2) {
           // Telegraph completado, ejecutar estocada
           final direction = (target!.position - position).normalized();
-          velocity = direction * 300; // Ultra-rÃ¡pido
+          velocity = direction * 300; // Ultra-rápido
 
-          debugPrint('   âš¡ Tsuki: Â¡ESTOCADA!');
+          debugPrint('   âš¡ Tsuki: ¡ESTOCADA!');
           comboStep = 2;
           comboTimer = 0.0;
         }
@@ -1260,7 +1260,7 @@ class OnOyabunBoss extends PositionComponent
         }
         break;
 
-      case 3: // Recovery (si fallÃ³, vulnerable 2s)
+      case 3: // Recovery (si falló, vulnerable 2s)
         if (comboTimer >= 2.0) {
           tsukiCooldown = tsukiCooldownDuration;
           _endCombo();
@@ -1271,7 +1271,7 @@ class OnOyabunBoss extends PositionComponent
 
   // ==================== COMBO 3: TSUBAME GAESHI (Barrido 360Â°) ====================
   // Giro de 360Â° con katana extendida
-  // DaÃ±o: 80 AOE (100 unidades)
+  // Daño: 80 AOE (100 unidades)
 
   void _updateTsubame() {
     if (target == null) {
@@ -1280,7 +1280,7 @@ class OnOyabunBoss extends PositionComponent
     }
 
     switch (comboStep) {
-      case 0: // InicializaciÃ³n - Telegraph
+      case 0: // Inicialización - Telegraph
         debugPrint('   Tsubame Gaeshi: Preparando barrido...');
         comboStep = 1;
         comboTimer = 0.0;
@@ -1288,7 +1288,7 @@ class OnOyabunBoss extends PositionComponent
 
       case 1: // Giro (1.0s)
         if (comboTimer >= 1.0) {
-          // AOE damage al completar el giro - puede golpear a mÃºltiples objetivos
+          // AOE damage al completar el giro - puede golpear a múltiples objetivos
           final player = game.player;
           if (!player.isDead) {
             final distPlayer = position.distanceTo(player.position);
@@ -1300,7 +1300,7 @@ class OnOyabunBoss extends PositionComponent
             }
           }
 
-          // TambiÃ©n golpear a Kohaa ALIADA si estÃ¡ en rango
+          // También golpear a Kohaa ALIADA si está en rango
           game.world.children.query<RedeemedKijinAlly>().forEach((kohaa) {
             if (!kohaa.isDead && kohaa.kijinType == 'kohaa') {
               final distKohaa = position.distanceTo(kohaa.position);
@@ -1320,13 +1320,13 @@ class OnOyabunBoss extends PositionComponent
     }
   }
 
-  /// Ejecuta un slash/corte en direcciÃ³n al objetivo (AOE)
+  /// Ejecuta un slash/corte en dirección al objetivo (AOE)
   void _performSlash(double damage, double range, String direction) {
     debugPrint('   âš”ï¸ Ejecutando corte $direction (AOE: ${range}u)');
 
     bool hitSomething = false;
 
-    // DaÃ±ar al jugador si estÃ¡ en rango
+    // Dañar al jugador si está en rango
     final player = game.player;
     if (!player.isDead) {
       final distPlayer = position.distanceTo(player.position);
@@ -1337,7 +1337,7 @@ class OnOyabunBoss extends PositionComponent
       }
     }
 
-    // DaÃ±ar a Kohaa ALIADA si estÃ¡ en rango
+    // Dañar a Kohaa ALIADA si está en rango
     game.world.children.query<RedeemedKijinAlly>().forEach((kohaa) {
       if (!kohaa.isDead && kohaa.kijinType == 'kohaa') {
         final distKohaa = position.distanceTo(kohaa.position);
@@ -1354,10 +1354,10 @@ class OnOyabunBoss extends PositionComponent
     }
   }
 
-  // ==================== DUEL STANCE (MecÃ¡nica Especial) ====================
-  // PreparaciÃ³n: 2.8s (invulnerable, telegraph visual)
+  // ==================== DUEL STANCE (Mecánica Especial) ====================
+  // Preparación: 2.8s (invulnerable, telegraph visual)
   // Ventana de parry: 0.2s (jugador debe atacar para evitar)
-  // Si falla parry: Golpe mortal 200 daÃ±o
+  // Si falla parry: Golpe mortal 200 daño
 
   /// Actualiza el estado de Duel Stance
   void _updateDuelStance(double dt) {
@@ -1365,7 +1365,7 @@ class OnOyabunBoss extends PositionComponent
 
     // Fase de carga (2.0s)
     if (duelStanceTimer < duelStanceChargeDuration) {
-      // Telegraph visual - el jefe estÃ¡ preparando
+      // Telegraph visual - el jefe está preparando
       return;
     }
 
@@ -1378,7 +1378,7 @@ class OnOyabunBoss extends PositionComponent
       return;
     }
 
-    // Ventana expirÃ³ - Ejecutar golpe mortal
+    // Ventana expiró - Ejecutar golpe mortal
     if (duelStanceParryWindowActive) {
       _executeDuelStanceStrike();
       _endDuelStance();
@@ -1387,13 +1387,13 @@ class OnOyabunBoss extends PositionComponent
 
   /// Ejecuta el golpe del Duel Stance (AOE devastador)
   void _executeDuelStanceStrike() {
-    debugPrint('   ðŸ’€ DUEL STANCE: Â¡GOLPE MORTAL! (AOE 100u)');
+    debugPrint('   ðŸ’€ DUEL STANCE: ¡GOLPE MORTAL! (AOE 100u)');
 
     bool hitSomething = false;
     const double strikeRange = 100.0;
     const double strikeDamage = 200.0;
 
-    // DaÃ±ar al jugador si estÃ¡ en rango
+    // Dañar al jugador si está en rango
     final player = game.player;
     if (!player.isDead) {
       final distPlayer = position.distanceTo(player.position);
@@ -1401,12 +1401,12 @@ class OnOyabunBoss extends PositionComponent
         player.takeDamage(strikeDamage);
         hitSomething = true;
         debugPrint(
-          '   ðŸ’€ðŸ’¥ DUEL STANCE golpea al jugador! ($strikeDamage daÃ±o)',
+          '   ðŸ’€ðŸ’¥ DUEL STANCE golpea al jugador! ($strikeDamage daño)',
         );
       }
     }
 
-    // DaÃ±ar a Kohaa ALIADA si estÃ¡ en rango
+    // Dañar a Kohaa ALIADA si está en rango
     game.world.children.query<RedeemedKijinAlly>().forEach((kohaa) {
       if (!kohaa.isDead && kohaa.kijinType == 'kohaa') {
         final distKohaa = position.distanceTo(kohaa.position);
@@ -1414,7 +1414,7 @@ class OnOyabunBoss extends PositionComponent
           kohaa.takeDamage(strikeDamage);
           hitSomething = true;
           debugPrint(
-            '   ðŸ’€ðŸ’¥ DUEL STANCE golpea a Kohaa! ($strikeDamage daÃ±o)',
+            '   ðŸ’€ðŸ’¥ DUEL STANCE golpea a Kohaa! ($strikeDamage daño)',
           );
         }
       }
@@ -1457,7 +1457,7 @@ class OnOyabunBoss extends PositionComponent
     // Flash rojo
     _createScreenFlash(color: Colors.red.withValues(alpha: 0.8));
 
-    // Mostrar diÃ¡logo de invocaciÃ³n
+    // Mostrar diálogo de invocación
     Future.delayed(const Duration(milliseconds: 200), () {
       _showYakuzaGhostsDialogue();
     });
@@ -1493,7 +1493,7 @@ class OnOyabunBoss extends PositionComponent
 
     debugPrint('ðŸ”— CADENA DE CULPA!');
 
-    // DaÃ±o inicial
+    // Daño inicial
     _dealDamageToTarget(target!, 20);
 
     // Arrastrar al objetivo hacia el jefe
@@ -1522,26 +1522,26 @@ class OnOyabunBoss extends PositionComponent
 
     debugPrint('âš”ï¸ LLUVIA DE ACERO - 28 KATANAS!');
 
-    // Flash rojo brevÃ­simo
+    // Flash rojo brevísimo
     _createScreenFlash(color: Colors.red.withValues(alpha: 0.5));
 
     final random = Random();
     final player = game.player;
 
     // Spawn 28 katanas en posiciones aleatorias
-    // Concentradas cerca del jugador pero con dispersiÃ³n
+    // Concentradas cerca del jugador pero con dispersión
     for (int i = 0; i < 28; i++) {
       Future.delayed(Duration(milliseconds: i * 80), () {
-        // PosiciÃ³n aleatoria cerca del jugador
+        // Posición aleatoria cerca del jugador
         final offsetX = (random.nextDouble() - 0.5) * 400;
 
-        // Ajustar lÃ­mites segÃºn el mapa
+        // Ajustar límites según el mapa
         double maxSpawnX = 1550.0;
         final exteriorMap = game.world.children
             .query<ExteriorMapLevel>()
             .firstOrNull;
         if (exteriorMap != null) {
-          maxSpawnX = 1950.0; // Mapa exterior es mÃ¡s ancho
+          maxSpawnX = 1950.0; // Mapa exterior es más ancho
         }
 
         final spawnX = (player.position.x + offsetX).clamp(50.0, maxSpawnX);
@@ -1560,16 +1560,16 @@ class OnOyabunBoss extends PositionComponent
     debugPrint('   â˜” 28 katanas cayendo durante 2.2 segundos');
   }
 
-  /// Spawn de VÃ­ctimas Espectrales a 50% HP (Fase 2)
+  /// Spawn de Víctimas Espectrales a 50% HP (Fase 2)
   void _spawnVictimasEspectrales() {
     hasSpawnedVictimas = true;
 
-    debugPrint('ðŸ‘» VÃCTIMAS ESPECTRALES APARECEN!');
+    debugPrint('ðŸ‘» VÍCTIMAS ESPECTRALES APARECEN!');
 
     // Flash purpura
     _createScreenFlash(color: Colors.purple.withValues(alpha: 0.6));
 
-    // Spawn 5 Fantasmas Yakuza (versiÃ³n espectral)
+    // Spawn 5 Fantasmas Yakuza (versión espectral)
     final random = Random();
     for (int i = 0; i < 5; i++) {
       Future.delayed(Duration(milliseconds: i * 300), () {
@@ -1581,7 +1581,7 @@ class OnOyabunBoss extends PositionComponent
 
         final victima = YakuzaGhost(position: Vector2(x, y));
         game.world.add(victima);
-        debugPrint('   âš°ï¸ VÃ­ctima Espectral spawneada en ($x, $y)');
+        debugPrint('   âš°ï¸ Víctima Espectral spawneada en ($x, $y)');
       });
     }
   }
@@ -1590,7 +1590,7 @@ class OnOyabunBoss extends PositionComponent
   void _spawnKatanasFlotantes() {
     hasSpawnedKatanas = true;
 
-    debugPrint('âš”ï¸ KATANAS FLOTANTES AUTÃ“NOMAS!');
+    debugPrint('âš”ï¸ KATANAS FLOTANTES AUTÓNOMAS!');
 
     // Flash cyan
     _createScreenFlash(color: Colors.cyan.withValues(alpha: 0.6));
@@ -1612,11 +1612,11 @@ class OnOyabunBoss extends PositionComponent
     }
   }
 
-  /// ONDA DE CURACIÃ“N - Boss se cura y daÃ±a/empuja a todos los enemigos cercanos
+  /// ONDA DE CURACIÓN - Boss se cura y daña/empuja a todos los enemigos cercanos
   void _executeHealingWave() {
     if (healingWaveCooldown > 0) return;
 
-    debugPrint('ðŸŒŠðŸ’š Â¡ON-OYABUN USA ONDA DE CURACIÃ“N!');
+    debugPrint('ðŸŒŠðŸ’š ¡ON-OYABUN USA ONDA DE CURACIÓN!');
     debugPrint('   ðŸ’š Boss se cura ${healingWaveAmount.toInt()} HP');
 
     // Curarse
@@ -1630,7 +1630,7 @@ class OnOyabunBoss extends PositionComponent
     // Flash verde
     _createScreenFlash(color: Colors.green.withValues(alpha: 0.7));
 
-    // DaÃ±ar y empujar al jugador
+    // Dañar y empujar al jugador
     final player = game.player;
     if (!player.isDead) {
       final distToPlayer = position.distanceTo(player.position);
@@ -1642,12 +1642,12 @@ class OnOyabunBoss extends PositionComponent
         player.position += pushDir * healingWavePushForce;
 
         debugPrint(
-          '   ðŸŒŠ Onda golpea al JUGADOR: ${healingWaveDamage.toInt()} daÃ±o + EMPUJE',
+          '   ðŸŒŠ Onda golpea al JUGADOR: ${healingWaveDamage.toInt()} daño + EMPUJE',
         );
       }
     }
 
-    // DaÃ±ar y empujar a Kohaa aliada
+    // Dañar y empujar a Kohaa aliada
     game.world.children.query<RedeemedKijinAlly>().forEach((kohaa) {
       if (!kohaa.isDead && kohaa.kijinType == 'kohaa') {
         final distToKohaa = position.distanceTo(kohaa.position);
@@ -1659,13 +1659,13 @@ class OnOyabunBoss extends PositionComponent
           kohaa.position += pushDir * healingWavePushForce;
 
           debugPrint(
-            '   ðŸŒŠ Onda golpea a KOHAA ALIADA: ${healingWaveDamage.toInt()} daÃ±o + EMPUJE',
+            '   ðŸŒŠ Onda golpea a KOHAA ALIADA: ${healingWaveDamage.toInt()} daño + EMPUJE',
           );
         }
       }
     });
 
-    // DaÃ±ar y empujar a enfermeros
+    // Dañar y empujar a enfermeros
     game.world.children.query<AlliedEnemy>().forEach((nurse) {
       if (!nurse.isDead) {
         final distToNurse = position.distanceTo(nurse.position);
@@ -1677,7 +1677,7 @@ class OnOyabunBoss extends PositionComponent
           nurse.position += pushDir * healingWavePushForce;
 
           debugPrint(
-            '   ðŸŒŠ Onda golpea a ENFERMERO: ${healingWaveDamage.toInt()} daÃ±o + EMPUJE',
+            '   ðŸŒŠ Onda golpea a ENFERMERO: ${healingWaveDamage.toInt()} daño + EMPUJE',
           );
         }
       }
@@ -1693,7 +1693,7 @@ class OnOyabunBoss extends PositionComponent
     hasUsedWarCry = true;
     warCryCooldown = warCryCooldownDuration;
 
-    debugPrint('âš”ï¸ðŸ‘»ðŸ’€ Â¡ON-OYABUN USA GRITO DE GUERRA!');
+    debugPrint('âš”ï¸ðŸ‘»ðŸ’€ ¡ON-OYABUN USA GRITO DE GUERRA!');
 
     // Detener movimiento
     velocity = Vector2.zero();
@@ -1701,40 +1701,40 @@ class OnOyabunBoss extends PositionComponent
     // Flash rojo oscuro
     _createScreenFlash(color: Colors.red.withValues(alpha: 0.9));
 
-    // DiÃ¡logo del boss maldiciendo
+    // Diálogo del boss maldiciendo
     Future.delayed(const Duration(milliseconds: 300), () {
       _showWarCryDialogue();
     });
 
-    // Spawn fantasmas despuÃ©s del diÃ¡logo
+    // Spawn fantasmas después del diálogo
     Future.delayed(const Duration(milliseconds: 1500), () {
       _spawnWarCryGhosts();
     });
   }
 
-  /// Muestra el diÃ¡logo de maldiciÃ³n del boss
+  /// Muestra el diálogo de maldición del boss
   void _showWarCryDialogue() {
     final dialogue = DialogueSequence(
       id: 'oyabun_war_cry',
       dialogues: [
         const DialogueData(
           speakerName: 'On-Oyabun',
-          text: 'Â¡MALDITOS SEAN! Â¡MIS HERMANOS CAÃDOS VENGARÃN MI HONOR!',
+          text: '¡MALDITOS SEAN! ¡MIS HERMANOS CAÍDOS VENGARÁN MI HONOR!',
           type: DialogueType.normal,
         ),
         const DialogueData(
           speakerName: 'On-Oyabun',
-          text: 'Â¡QUE SUS ESPÃRITUS DEVOREN A TUS ALIADOS!',
+          text: '¡QUE SUS ESPÍRITUS DEVOREN A TUS ALIADOS!',
           type: DialogueType.normal,
         ),
         const DialogueData(
           speakerName: 'On-Oyabun',
-          text: 'Â¡NADIE ESCAPA DE LA VENGANZA DEL CLAN!',
+          text: '¡NADIE ESCAPA DE LA VENGANZA DEL CLAN!',
           type: DialogueType.normal,
         ),
       ],
       onComplete: () {
-        debugPrint('ðŸ’€ Boss completÃ³ su maldiciÃ³n');
+        debugPrint('ðŸ’€ Boss completó su maldición');
       },
     );
 
@@ -1743,12 +1743,12 @@ class OnOyabunBoss extends PositionComponent
 
   /// Spawn fantasmas del grito de guerra
   void _spawnWarCryGhosts() {
-    debugPrint('ðŸ‘»ðŸ’€ Â¡FANTASMAS DE LA VENGANZA APARECEN!');
+    debugPrint('ðŸ‘»ðŸ’€ ¡FANTASMAS DE LA VENGANZA APARECEN!');
 
     // Flash negro
     _createScreenFlash(color: Colors.black.withValues(alpha: 0.8));
 
-    // Spawn fantasmas en cÃ­rculo alrededor del boss
+    // Spawn fantasmas en círculo alrededor del boss
     for (int i = 0; i < warCryGhostCount; i++) {
       Future.delayed(Duration(milliseconds: i * 200), () {
         final angle = (i / warCryGhostCount) * 2 * pi;
@@ -1769,18 +1769,18 @@ class OnOyabunBoss extends PositionComponent
     debugPrint('   â±ï¸ Cooldown: ${warCryCooldownDuration.toInt()}s');
   }
 
-  // ==================== DAÃ‘O Y MUERTE ====================
+  // ==================== DAÑO Y MUERTE ====================
   void takeDamage(double damage) {
     if (isDead || isInvulnerable) return;
 
-    // Si recibe daÃ±o durante ventana de parry del Duel Stance, interrumpir
+    // Si recibe daño durante ventana de parry del Duel Stance, interrumpir
     if (duelStanceParryWindowActive) {
       interruptDuelStance();
-      return; // No recibe daÃ±o, solo interrumpe
+      return; // No recibe daño, solo interrumpe
     }
 
     health -= damage;
-    debugPrint('ðŸ’¥ On-Oyabun recibe $damage daÃ±o. HP: $health/$maxHealth');
+    debugPrint('ðŸ’¥ On-Oyabun recibe $damage daño. HP: $health/$maxHealth');
 
     if (health <= 0) {
       health = 0;
@@ -1796,7 +1796,7 @@ class OnOyabunBoss extends PositionComponent
     removeFromParent();
   }
 
-  /// Reinicia el boss cuando el jugador reintenta despuÃ©s de morir
+  /// Reinicia el boss cuando el jugador reintenta después de morir
   void resetBoss() {
     debugPrint('ðŸ”„ Reiniciando On-Oyabun Boss...');
 
@@ -1836,14 +1836,14 @@ class OnOyabunBoss extends PositionComponent
     currentSpeed = 150.0;
     velocity = Vector2.zero();
 
-    // Reiniciar teletransportaciÃ³n
+    // Reiniciar teletransportación
     _canTeleport = true;
     _teleportCooldown = 0.0;
     _consecutiveDistanceIncreases = 0;
     _previousDistanceToTarget = 0.0;
     _targetPositionHistory.clear();
 
-    // Reiniciar posiciÃ³n (centro del mapa)
+    // Reiniciar posición (centro del mapa)
     position = Vector2(1500, 1500);
 
     debugPrint('âœ… Boss reiniciado completamente');
@@ -1857,20 +1857,20 @@ class OnOyabunBoss extends PositionComponent
   ) {
     super.onCollisionStart(intersectionPoints, other);
 
-    // ColisiÃ³n con jugador (daÃ±o de contacto)
+    // Colisión con jugador (daño de contacto)
     if (other is PlayerCharacter) {
-      other.takeDamage(baseDamage * 0.5); // 50% daÃ±o de contacto
+      other.takeDamage(baseDamage * 0.5); // 50% daño de contacto
     }
-    // ColisiÃ³n con Kohaa ALIADA (daÃ±o de contacto)
+    // Colisión con Kohaa ALIADA (daño de contacto)
     else if (other is RedeemedKijinAlly && other.kijinType == 'kohaa') {
-      other.takeDamage(baseDamage * 0.5); // 50% daÃ±o de contacto
+      other.takeDamage(baseDamage * 0.5); // 50% daño de contacto
       debugPrint(
-        'ðŸ’¥ Boss colisionÃ³ con Kohaa aliada: ${baseDamage * 0.5} daÃ±o',
+        'ðŸ’¥ Boss colisionó con Kohaa aliada: ${baseDamage * 0.5} daño',
       );
     }
   }
 
-  // ==================== DIÃLOGOS Y EFECTOS ====================
+  // ==================== DIÁLOGOS Y EFECTOS ====================
 
   /// Crea un efecto de flash de pantalla
   void _createScreenFlash({Color? color}) {
@@ -1897,13 +1897,13 @@ class OnOyabunBoss extends PositionComponent
       dialogues: [
         const DialogueData(
           speakerName: 'On-Oyabun',
-          text: 'Hermanos caÃ­dos... LevÃ¡ntense una vez mÃ¡s. Por el clan.',
+          text: 'Hermanos caídos... Levántense una vez más. Por el clan.',
         ),
         DialogueData(
           speakerName: isDan ? 'Dan' : 'Mel',
           text: isDan
-              ? 'Â¡EstÃ¡ invocando refuerzos! Mel, Â¿puedes...?'
-              : 'Â¡Tres enemigos mÃ¡s! Dan, ten cuidado.',
+              ? '¡Está invocando refuerzos! Mel, ¿puedes...?'
+              : '¡Tres enemigos más! Dan, ten cuidado.',
           avatarPath: isDan
               ? 'assets/avatars/dialogue_icons/Dan_Dialogue.png'
               : 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
@@ -1917,7 +1917,7 @@ class OnOyabunBoss extends PositionComponent
     DialogueOverlay.show(game.buildContext!, sequence);
   }
 
-  /// DiÃ¡logo de transiciÃ³n a Fase 2
+  /// Diálogo de transición a Fase 2
   void _showPhase2Dialogue() {
     if (game.buildContext == null) return;
 
@@ -1930,18 +1930,18 @@ class OnOyabunBoss extends PositionComponent
       dialogues: [
         const DialogueData(
           speakerName: 'On-Oyabun',
-          text: 'El cÃ³digo... ya no importa. Solo queda... LA MASACRE.',
+          text: 'El código... ya no importa. Solo queda... LA MASACRE.',
         ),
         const DialogueData(
           speakerName: 'On-Oyabun',
           text:
-              '*Desenvaina dos armas mÃ¡s* VeintitrÃ©s inocentes. Cinco guerreros. Â¡TODOS GRITARON MI NOMBRE!',
+              '*Desenvaina dos armas más* Veintitrés inocentes. Cinco guerreros. ¡TODOS GRITARON MI NOMBRE!',
         ),
         DialogueData(
           speakerName: isDan ? 'Mel' : 'Dan',
           text: isDan
-              ? 'Â¡Dan, estÃ¡ cambiando! EstÃ¡ usando mÃºltiples armas ahora.'
-              : 'Mel, se ha vuelto mÃ¡s agresivo. Mantente en guardia.',
+              ? '¡Dan, está cambiando! Está usando múltiples armas ahora.'
+              : 'Mel, se ha vuelto más agresivo. Mantente en guardia.',
           avatarPath: isDan
               ? 'assets/avatars/dialogue_icons/Mel_Dialogue.png'
               : 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
@@ -1949,7 +1949,7 @@ class OnOyabunBoss extends PositionComponent
         DialogueData(
           speakerName: isDan ? 'Dan' : 'Mel',
           text: isDan
-              ? 'Esto se puso serio. Â¡Vamos!'
+              ? 'Esto se puso serio. ¡Vamos!'
               : 'No podemos retroceder ahora. Adelante, Dan.',
           avatarPath: isDan
               ? 'assets/avatars/dialogue_icons/Dan_Dialogue.png'
@@ -1964,7 +1964,7 @@ class OnOyabunBoss extends PositionComponent
     DialogueOverlay.show(game.buildContext!, sequence);
   }
 
-  /// DiÃ¡logo de transiciÃ³n a Fase 3
+  /// Diálogo de transición a Fase 3
   void _showPhase3Dialogue() {
     if (game.buildContext == null) return;
 
@@ -1983,13 +1983,13 @@ class OnOyabunBoss extends PositionComponent
         const DialogueData(
           speakerName: 'On-Oyabun',
           text:
-              'NO PUEDO MORIR. NO MEREZCO MORIR. Â¡TODOS USTEDES MORIRÃN PRIMERO!',
+              'NO PUEDO MORIR. NO MEREZCO MORIR. ¡TODOS USTEDES MORIRÁN PRIMERO!',
         ),
         DialogueData(
           speakerName: isDan ? 'Dan' : 'Mel',
           text: isDan
-              ? 'Â¡Se estÃ¡ haciendo harakiri pero sigue vivo! Â¿QuÃ© clase de monstruo es?'
-              : 'Imposible... estÃ¡ en modo berserker completo.',
+              ? '¡Se está haciendo harakiri pero sigue vivo! ¿Qué clase de monstruo es?'
+              : 'Imposible... está en modo berserker completo.',
           avatarPath: isDan
               ? 'assets/avatars/dialogue_icons/Dan_Dialogue.png'
               : 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
@@ -2006,7 +2006,7 @@ class OnOyabunBoss extends PositionComponent
 
 // ==================== ENUMS Y CONFIGS ====================
 enum BossPhase {
-  phase1, // El CÃ³digo
+  phase1, // El Código
   phase2, // La Masacre
   phase3, // Seppuku Eterno
 }

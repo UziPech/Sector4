@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/dialogue_data.dart';
 import 'dialogue_box.dart';
 
-/// Sistema gestor de secuencias de diÃ¡logo
+/// Sistema gestor de secuencias de diálogo
 class DialogueSystem extends StatefulWidget {
   final DialogueSequence sequence;
   final VoidCallback? onSequenceComplete;
@@ -19,7 +19,7 @@ class DialogueSystem extends StatefulWidget {
 
 class _DialogueSystemState extends State<DialogueSystem> {
   int _currentDialogueIndex = 0;
-  static int _totalDialoguesShown = 0; // Contador global de diÃ¡logos mostrados
+  static int _totalDialoguesShown = 0; // Contador global de diálogos mostrados
 
   void _advanceDialogue() {
     debugPrint('DialogueSystem: Advancing from index $_currentDialogueIndex to ${_currentDialogueIndex + 1}');
@@ -38,7 +38,7 @@ class _DialogueSystemState extends State<DialogueSystem> {
     }
   }
 
-  /// Saltar toda la secuencia de diÃ¡logo
+  /// Saltar toda la secuencia de diálogo
   void skipDialogue() {
     debugPrint('DialogueSystem: Skipping dialogue sequence');
     setState(() {
@@ -50,7 +50,7 @@ class _DialogueSystemState extends State<DialogueSystem> {
     widget.onSequenceComplete?.call();
   }
 
-  /// Convierte la ruta del avatar pequeÃ±o a la ruta de DialogueBody
+  /// Convierte la ruta del avatar pequeño a la ruta de DialogueBody
   String _getDialogueBodyPath(String avatarPath) {
     // Extraer el nombre del personaje (Dan, Mel, Marcus, Kohaa)
     if (avatarPath.contains('Dan')) {
@@ -66,7 +66,7 @@ class _DialogueSystemState extends State<DialogueSystem> {
     return avatarPath;
   }
 
-  /// Obtiene el offset vertical especÃ­fico para cada personaje
+  /// Obtiene el offset vertical específico para cada personaje
   double _getCharacterBottomOffset(String avatarPath) {
     if (avatarPath.contains('Dan')) {
       return 0;
@@ -78,45 +78,45 @@ class _DialogueSystemState extends State<DialogueSystem> {
     return 0;
   }
 
-  /// Obtiene el ancho especÃ­fico para cada personaje
+  /// Obtiene el ancho específico para cada personaje
   double _getCharacterWidth(String avatarPath) {
     if (avatarPath.contains('Dan')) {
-      return 350; // Dan mÃ¡s pequeÃ±o
+      return 350; // Dan más pequeño
     } else if (avatarPath.contains('Mel')) {
-      return 420; // Mel mÃ¡s grande
+      return 420; // Mel más grande
     } else if (avatarPath.contains('Marcus')) {
-      return 380; // Marcus tamaÃ±o medio
+      return 380; // Marcus tamaño medio
     }
     return 400;
   }
 
-  /// Obtiene la altura especÃ­fica para cada personaje
+  /// Obtiene la altura específica para cada personaje
   double _getCharacterHeight(String avatarPath) {
     if (avatarPath.contains('Dan')) {
-      return 450; // Dan mÃ¡s pequeÃ±o
+      return 450; // Dan más pequeño
     } else if (avatarPath.contains('Mel')) {
-      return 520; // Mel mÃ¡s grande
+      return 520; // Mel más grande
     } else if (avatarPath.contains('Marcus')) {
-      return 480; // Marcus tamaÃ±o medio
+      return 480; // Marcus tamaño medio
     }
     return 500;
   }
 
-  /// Obtiene el offset horizontal especÃ­fico para cada personaje
+  /// Obtiene el offset horizontal específico para cada personaje
   double _getCharacterRightOffset(String avatarPath) {
     if (avatarPath.contains('Dan')) {
-      return 50; // Dan mÃ¡s lejos
+      return 50; // Dan más lejos
     } else if (avatarPath.contains('Mel')) {
-      return 20; // Mel mÃ¡s cerca
+      return 20; // Mel más cerca
     } else if (avatarPath.contains('Marcus')) {
-      return 30; // Marcus posiciÃ³n media
+      return 30; // Marcus posición media
     }
     return 30;
   }
 
   @override
   Widget build(BuildContext context) {
-    // Si ya terminamos todos los diÃ¡logos, no mostrar nada
+    // Si ya terminamos todos los diálogos, no mostrar nada
     if (_currentDialogueIndex >= widget.sequence.dialogues.length) {
       return const SizedBox.shrink();
     }
@@ -126,7 +126,7 @@ class _DialogueSystemState extends State<DialogueSystem> {
 
     return Stack(
       children: [
-        // Overlay oscuro con vignette cuando hay diÃ¡logo
+        // Overlay oscuro con vignette cuando hay diálogo
         Positioned.fill(
           child: Container(
             decoration: BoxDecoration(
@@ -142,7 +142,7 @@ class _DialogueSystemState extends State<DialogueSystem> {
           ),
         ),
         
-        // Caja de diÃ¡logo en la parte inferior (primero para que estÃ© detrÃ¡s)
+        // Caja de diálogo en la parte inferior (primero para que esté detrás)
         Positioned(
           left: 0,
           right: currentDialogue.avatarPath != null ? 350 : 0, // Dejar espacio para el personaje
@@ -154,13 +154,13 @@ class _DialogueSystemState extends State<DialogueSystem> {
                 key: ValueKey('dialogue_$_currentDialogueIndex'),
                 dialogue: currentDialogue,
                 onComplete: _advanceDialogue,
-                showHintText: _totalDialoguesShown <= 3, // Solo mostrar en los primeros 3 diÃ¡logos
+                showHintText: _totalDialoguesShown <= 3, // Solo mostrar en los primeros 3 diálogos
               ),
             ),
           ),
         ),
         
-        // Personaje grande a la derecha (despuÃ©s para que estÃ© encima)
+        // Personaje grande a la derecha (después para que esté encima)
         if (currentDialogue.avatarPath != null)
           Positioned(
             right: _getCharacterRightOffset(currentDialogue.avatarPath!),
@@ -178,7 +178,7 @@ class _DialogueSystemState extends State<DialogueSystem> {
           ),
 
         
-        // BotÃ³n de saltar (Skip)
+        // Botón de saltar (Skip)
         Positioned(
           top: 16,
           right: 16,
@@ -225,12 +225,12 @@ class _DialogueSystemState extends State<DialogueSystem> {
   }
 }
 
-/// Overlay para mostrar diÃ¡logos sobre cualquier pantalla
+/// Overlay para mostrar diálogos sobre cualquier pantalla
 class DialogueOverlay {
   static OverlayEntry? _currentOverlay;
   static GlobalKey<_DialogueSystemState>? _dialogueKey;
 
-  /// Muestra una secuencia de diÃ¡logo
+  /// Muestra una secuencia de diálogo
   static void show(
     BuildContext context,
     DialogueSequence sequence, {
@@ -239,7 +239,7 @@ class DialogueOverlay {
     // Remover overlay anterior si existe
     dismiss();
 
-    // Crear nuevo key para este diÃ¡logo
+    // Crear nuevo key para este diálogo
     _dialogueKey = GlobalKey<_DialogueSystemState>();
 
     _currentOverlay = OverlayEntry(
@@ -263,7 +263,7 @@ class DialogueOverlay {
     Overlay.of(context).insert(_currentOverlay!);
   }
 
-  /// Saltar el diÃ¡logo actual
+  /// Saltar el diálogo actual
   static void skipCurrent() {
     debugPrint('DialogueOverlay.skipCurrent() called');
     if (_dialogueKey?.currentState != null) {
@@ -274,13 +274,13 @@ class DialogueOverlay {
     }
   }
 
-  /// Cierra el diÃ¡logo actual
+  /// Cierra el diálogo actual
   static void dismiss() {
     _currentOverlay?.remove();
     _currentOverlay = null;
   }
 
-  /// Verifica si hay un diÃ¡logo activo
+  /// Verifica si hay un diálogo activo
   static bool get isActive => _currentOverlay != null;
 }
 

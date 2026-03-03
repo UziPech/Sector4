@@ -7,9 +7,9 @@ import '../components/interactable_object.dart';
 import '../components/dialogue_system.dart';
 import '../components/skip_button.dart';
 import '../services/save_system.dart';
-import '../../main.dart'; // Para transiciÃ³n al juego de combate
+import '../../main.dart'; // Para transición al juego de combate
 
-/// Escena de la casa de Dan (CapÃ­tulo 1)
+/// Escena de la casa de Dan (Capítulo 1)
 class HouseScene extends StatefulWidget {
   const HouseScene({super.key});
 
@@ -18,7 +18,7 @@ class HouseScene extends StatefulWidget {
 }
 
 class _HouseSceneState extends State<HouseScene> {
-  // PosiciÃ³n del jugador
+  // Posición del jugador
   Vector2 _playerPosition = const Vector2(200, 300);
   final double _playerSpeed = 5.0;
   final double _playerSize = 40.0;
@@ -80,34 +80,34 @@ class _HouseSceneState extends State<HouseScene> {
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'Tres aÃ±os. Tres aÃ±os desde que el cÃ¡ncer te arrebatÃ³ de mÃ­. Y aÃºn duele como si fuera ayer.',
+                  'Tres años. Tres años desde que el cáncer te arrebató de mí. Y aún duele como si fuera ayer.',
               type: DialogueType.internal,
             ),
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'Eras mi ancla, mi brÃºjula moral en un mundo de grises. SabÃ­as exactamente quÃ© decir, cÃ³mo calmar mis demonios.',
+                  'Eras mi ancla, mi brújula moral en un mundo de grises. Sabías exactamente qué decir, cómo calmar mis demonios.',
               type: DialogueType.internal,
             ),
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'Si estuvieras aquÃ­ ahora, sabrÃ­as quÃ© hacer. SabrÃ­as cÃ³mo proteger a Emma sin asfixiarla.',
+                  'Si estuvieras aquí ahora, sabrías qué hacer. Sabrías cómo proteger a Emma sin asfixiarla.',
               type: DialogueType.internal,
             ),
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'Pero no estÃ¡s. Y yo... yo solo soy un cascarÃ³n vacÃ­o tratando de recordar cÃ³mo ser humano.',
+                  'Pero no estás. Y yo... yo solo soy un cascarón vacío tratando de recordar cómo ser humano.',
               type: DialogueType.internal,
             ),
           ],
         ),
       ),
-      // HabitaciÃ³n de la hija
+      // Habitación de la hija
       InteractableData(
         id: 'daughter_room',
-        name: 'HabitaciÃ³n de Emma',
+        name: 'Habitación de Emma',
         position: const Vector2(500, 150),
         size: const Vector2(80, 80),
         type: InteractableType.door,
@@ -117,31 +117,31 @@ class _HouseSceneState extends State<HouseScene> {
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'Su habitaciÃ³n... Intacta. Como un santuario a la vida que tenÃ­a antes de que yo la dejara ir.',
+                  'Su habitación... Intacta. Como un santuario a la vida que tenía antes de que yo la dejara ir.',
               type: DialogueType.internal,
             ),
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'Los pÃ³sters de bandas que nunca entendÃ­. Los libros de fÃ­sica cuÃ¡ntica que leÃ­a como si fueran novelas.',
+                  'Los pósters de bandas que nunca entendí. Los libros de física cuántica que leía como si fueran novelas.',
               type: DialogueType.internal,
             ),
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'Ella es tan brillante, tan llena de vida. Todo lo que su madre era, y mÃ¡s.',
+                  'Ella es tan brillante, tan llena de vida. Todo lo que su madre era, y más.',
               type: DialogueType.internal,
             ),
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'Cuando me dijo "PapÃ¡, es Kioto. Es mi sueÃ±o", vi en sus ojos la misma determinaciÃ³n que Sarah tenÃ­a.',
+                  'Cuando me dijo "Papá, es Kioto. Es mi sueño", vi en sus ojos la misma determinación que Sarah tenía.',
               type: DialogueType.internal,
             ),
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'Â¿CÃ³mo podÃ­a negarle eso? Â¿CÃ³mo podÃ­a ser tan egoÃ­sta de mantenerla aquÃ­, cuidando de un fantasma?',
+                  '¿Cómo podía negarle eso? ¿Cómo podía ser tan egoísta de mantenerla aquí, cuidando de un fantasma?',
               type: DialogueType.internal,
             ),
             const DialogueData(
@@ -166,31 +166,31 @@ class _HouseSceneState extends State<HouseScene> {
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'Reportes clasificados. AnÃ¡lisis tÃ¡cticos. Perfiles de amenazas.',
+                  'Reportes clasificados. Análisis tácticos. Perfiles de amenazas.',
               type: DialogueType.internal,
             ),
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'Todo abandonado. Polvo acumulÃ¡ndose sobre aÃ±os de servicio impecable.',
+                  'Todo abandonado. Polvo acumulándose sobre años de servicio impecable.',
               type: DialogueType.internal,
             ),
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'Fui el mejor en lo que hacÃ­a. DesmantelÃ© cÃ©lulas terroristas, previne ataques, salvÃ© vidas.',
+                  'Fui el mejor en lo que hacía. Desmantelé células terroristas, previne ataques, salvé vidas.',
               type: DialogueType.internal,
             ),
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'Pero no pude salvar a la Ãºnica persona que realmente importaba.',
+                  'Pero no pude salvar a la única persona que realmente importaba.',
               type: DialogueType.internal,
             ),
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'La agencia fue... comprensiva. "TÃ³mate el tiempo que necesites, Dan." Pero ambos sabÃ­amos la verdad.',
+                  'La agencia fue... comprensiva. "Tómate el tiempo que necesites, Dan." Pero ambos sabíamos la verdad.',
               type: DialogueType.internal,
             ),
             const DialogueData(
@@ -202,42 +202,42 @@ class _HouseSceneState extends State<HouseScene> {
           ],
         ),
       ),
-      // TELÃ‰FONO - Trigger principal
+      // TELÉFONO - Trigger principal
       InteractableData(
         id: 'phone',
-        name: 'TelÃ©fono',
+        name: 'Teléfono',
         position: const Vector2(400, 300),
         size: const Vector2(50, 50),
         type: InteractableType.phone,
         isOneTime: true,
         onInteract: () {
-          // Este callback se ejecuta ANTES del diÃ¡logo
-          debugPrint('TelÃ©fono sonando...');
+          // Este callback se ejecuta ANTES del diálogo
+          debugPrint('Teléfono sonando...');
         },
         dialogue: DialogueSequence(
           id: 'phone_call',
           dialogues: [
             const DialogueData(
               speakerName: 'Dan',
-              text: 'Â¿Hola?',
+              text: '¿Hola?',
               avatarPath: 'assets/avatars/dan.png',
             ),
             const DialogueData(
               speakerName: 'Marcus',
-              text: 'Dan, soy Marcus. Necesito que escuches con atenciÃ³n.',
+              text: 'Dan, soy Marcus. Necesito que escuches con atención.',
               avatarPath: 'assets/avatars/marcus.png',
               type: DialogueType.phone,
             ),
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'Marcus... Â¿QuÃ© pasa? Hace aÃ±os que no hablamos. Estoy fuera, lo sabes. Mi placa estÃ¡ oxidada.',
+                  'Marcus... ¿Qué pasa? Hace años que no hablamos. Estoy fuera, lo sabes. Mi placa está oxidada.',
               avatarPath: 'assets/avatars/dan.png',
             ),
             const DialogueData(
               speakerName: 'Marcus',
               text:
-                  'Esto no es una reincorporaciÃ³n por rutina. Es sobre Emma. Hay una situaciÃ³n en JapÃ³n.',
+                  'Esto no es una reincorporación por rutina. Es sobre Emma. Hay una situación en Japón.',
               avatarPath: 'assets/avatars/marcus.png',
               type: DialogueType.phone,
             ),
@@ -250,13 +250,13 @@ class _HouseSceneState extends State<HouseScene> {
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'Â¿Emma? Â¿QuÃ© quieres decir con situaciÃ³n? Â¡Â¿QuÃ© le pasÃ³ a mi hija?!',
+                  '¿Emma? ¿Qué quieres decir con situación? ¡¿Qué le pasó a mi hija?!',
               avatarPath: 'assets/avatars/dan.png',
             ),
             const DialogueData(
               speakerName: 'Marcus',
               text:
-                  'EstÃ¡ desaparecida. La universidad donde estudia es el epicentro de la actividad.',
+                  'Está desaparecida. La universidad donde estudia es el epicentro de la actividad.',
               avatarPath: 'assets/avatars/marcus.png',
               type: DialogueType.phone,
             ),
@@ -277,20 +277,20 @@ class _HouseSceneState extends State<HouseScene> {
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'Â¡ExplÃ­cate! Â¿Por quÃ© me llamas a mÃ­ y no a la fuerza local?',
+                  '¡Explícate! ¿Por qué me llamas a mí y no a la fuerza local?',
               avatarPath: 'assets/avatars/dan.png',
             ),
             const DialogueData(
               speakerName: 'Marcus',
               text:
-                  'La fuerza local estÃ¡ abrumada. La agencia estÃ¡ saturada.',
+                  'La fuerza local está abrumada. La agencia está saturada.',
               avatarPath: 'assets/avatars/marcus.png',
               type: DialogueType.phone,
             ),
             const DialogueData(
               speakerName: 'Marcus',
               text:
-                  'Tuvimos que crear una jerarquÃ­a para la contenciÃ³n, la CacerÃ­a de Ã‰lite.',
+                  'Tuvimos que crear una jerarquía para la contención, la Cacería de Élite.',
               avatarPath: 'assets/avatars/marcus.png',
               type: DialogueType.phone,
             ),
@@ -311,14 +311,14 @@ class _HouseSceneState extends State<HouseScene> {
             const DialogueData(
               speakerName: 'Marcus',
               text:
-                  'Sector 2 - ContenciÃ³n Menor: Eliminan a los mutados bÃ¡sicos. Enemigos de bajo nivel que atacan por instinto y carecen de estrategia.',
+                  'Sector 2 - Contención Menor: Eliminan a los mutados básicos. Enemigos de bajo nivel que atacan por instinto y carecen de estrategia.',
               avatarPath: 'assets/avatars/marcus.png',
               type: DialogueType.phone,
             ),
             const DialogueData(
               speakerName: 'Marcus',
               text:
-                  'Sector 3 - InvestigaciÃ³n: Enfrentan Objetivos de Sector 3, mutados impulsados por la obsesiÃ³n o la tristeza profunda.',
+                  'Sector 3 - Investigación: Enfrentan Objetivos de Sector 3, mutados impulsados por la obsesión o la tristeza profunda.',
               avatarPath: 'assets/avatars/marcus.png',
               type: DialogueType.phone,
             ),
@@ -332,14 +332,14 @@ class _HouseSceneState extends State<HouseScene> {
             const DialogueData(
               speakerName: 'Marcus',
               text:
-                  'Sector 4 - Asalto de Ã‰lite: Esta es la cÃºspide. Nos enfrentamos a las Amenazas de Sector 4.',
+                  'Sector 4 - Asalto de Élite: Esta es la cúspide. Nos enfrentamos a las Amenazas de Sector 4.',
               avatarPath: 'assets/avatars/marcus.png',
               type: DialogueType.phone,
             ),
             const DialogueData(
               speakerName: 'Marcus',
               text:
-                  'No son idiotas; son cazadores tÃ¡cticos, con la inteligencia de un humano, liberados y corrompidos por el odio.',
+                  'No son idiotas; son cazadores tácticos, con la inteligencia de un humano, liberados y corrompidos por el odio.',
               avatarPath: 'assets/avatars/marcus.png',
               type: DialogueType.phone,
             ),
@@ -353,44 +353,44 @@ class _HouseSceneState extends State<HouseScene> {
             const DialogueData(
               speakerName: 'Marcus',
               text:
-                  'Nadie sobrevive solo en Sector 4, Dan. Te asignaremos a Mel, nuestra mejor agente de recuperaciÃ³n.',
+                  'Nadie sobrevive solo en Sector 4, Dan. Te asignaremos a Mel, nuestra mejor agente de recuperación.',
               avatarPath: 'assets/avatars/marcus.png',
               type: DialogueType.phone,
             ),
             const DialogueData(
               speakerName: 'Marcus',
               text:
-                  'Ella es la Ãºnica razÃ³n por la que no sucumbirÃ¡s antes de encontrar a Emma.',
+                  'Ella es la única razón por la que no sucumbirás antes de encontrar a Emma.',
               avatarPath: 'assets/avatars/marcus.png',
               type: DialogueType.phone,
             ),
             const DialogueData(
               speakerName: 'Dan',
-              text: 'Emma estÃ¡ allÃ­.',
+              text: 'Emma está allí.',
               avatarPath: 'assets/avatars/dan.png',
             ),
             const DialogueData(
               speakerName: 'Marcus',
               text:
-                  'El brote estÃ¡ concentrado justo donde ella estaba estudiando. Necesitamos tu desesperaciÃ³n, Dan.',
+                  'El brote está concentrado justo donde ella estaba estudiando. Necesitamos tu desesperación, Dan.',
               avatarPath: 'assets/avatars/marcus.png',
               type: DialogueType.phone,
             ),
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'MÃ¡ndame los protocolos y la ubicaciÃ³n exacta de la universidad.',
+                  'Mándame los protocolos y la ubicación exacta de la universidad.',
               avatarPath: 'assets/avatars/dan.png',
             ),
             const DialogueData(
               speakerName: 'Dan',
               text:
-                  'Y envÃ­ame a ese apoyo. Â¿Mel, dijiste? No me importa quiÃ©n sea.',
+                  'Y envíame a ese apoyo. ¿Mel, dijiste? No me importa quién sea.',
               avatarPath: 'assets/avatars/dan.png',
             ),
             const DialogueData(
               speakerName: 'Dan',
-              text: 'Solo dime quÃ© tengo que hacer para traerla de vuelta.',
+              text: 'Solo dime qué tengo que hacer para traerla de vuelta.',
               avatarPath: 'assets/avatars/dan.png',
             ),
           ],
@@ -399,7 +399,7 @@ class _HouseSceneState extends State<HouseScene> {
             setState(() {
               _phoneCallCompleted = true;
             });
-            // TransiciÃ³n al juego de combate despuÃ©s de un delay
+            // Transición al juego de combate después de un delay
             Future.delayed(const Duration(seconds: 2), () {
               _transitionToCombat();
             });
@@ -410,7 +410,7 @@ class _HouseSceneState extends State<HouseScene> {
   }
 
   void _showIntroDialogue() {
-    // Mostrar monÃ³logo inicial de Dan
+    // Mostrar monólogo inicial de Dan
     WidgetsBinding.instance.addPostFrameCallback((_) {
       DialogueOverlay.show(
         context,
@@ -420,77 +420,77 @@ class _HouseSceneState extends State<HouseScene> {
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'El silencio. Es mÃ¡s ensordecedor que cualquier explosiÃ³n en una operaciÃ³n encubierta.',
+                  'El silencio. Es más ensordecedor que cualquier explosión en una operación encubierta.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'IrÃ³nico, Â¿no? Yo, que pasÃ© aÃ±os persiguiendo sombras, protegiendo fronteras, un investigador de Ã©lite...',
+                  'Irónico, ¿no? Yo, que pasé años persiguiendo sombras, protegiendo fronteras, un investigador de élite...',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  '...y mi propia mente se convirtiÃ³ en la zona de exclusiÃ³n mÃ¡s peligrosa que jamÃ¡s pisÃ©.',
+                  '...y mi propia mente se convirtió en la zona de exclusión más peligrosa que jamás pisé.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: 'Me retirÃ©. No, seamos honestos. Fui forzado a retirarme.',
-              type: DialogueType.internal,
-            ),
-            DialogueData(
-              speakerName: 'Dan',
-              text:
-                  'Cuando perdÃ­ a mi esposa, no perdÃ­ solo una persona; perdÃ­ el suelo, la gravedad que me mantenÃ­a anclado a la realidad.',
+              text: 'Me retiré. No, seamos honestos. Fui forzado a retirarme.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'Fui, en el campo, una responsabilidad, un riesgo de seguridad de proporciones Ã©picas.',
+                  'Cuando perdí a mi esposa, no perdí solo una persona; perdí el suelo, la gravedad que me mantenía anclado a la realidad.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'El duelo me convirtiÃ³ en un desecho, un YÅ«rei sin misiÃ³n. Â¿De quÃ© sirve la brillantez tÃ¡ctica cuando la voluntad de vivir se ha desvanecido?',
+                  'Fui, en el campo, una responsabilidad, un riesgo de seguridad de proporciones épicas.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'Y luego estaba ella. Mi hija. La Ãºnica luz que atravesaba esta niebla gris que se asentÃ³ sobre mÃ­.',
-              type: DialogueType.internal,
-            ),
-            DialogueData(
-              speakerName: 'Dan',
-              text: 'Era mi Ãºltima lÃ­nea de defensa contra la CaÃ­da total.',
+                  'El duelo me convirtió en un desecho, un YÅ«rei sin misión. ¿De qué sirve la brillantez táctica cuando la voluntad de vivir se ha desvanecido?',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'Cuando me dijo que le habÃ­an aceptado el intercambio a JapÃ³n, que su nivel acadÃ©mico era excepcional...',
+                  'Y luego estaba ella. Mi hija. La única luz que atravesaba esta niebla gris que se asentó sobre mí.',
+              type: DialogueType.internal,
+            ),
+            DialogueData(
+              speakerName: 'Dan',
+              text: 'Era mi última línea de defensa contra la Caída total.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'SentÃ­ el pÃ¡nico, ese egoÃ­smo crudo que me gritaba que la encadenara aquÃ­, que la obligara a ser mi enfermera emocional.',
+                  'Cuando me dijo que le habían aceptado el intercambio a Japón, que su nivel académico era excepcional...',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'Era la lucha mÃ¡s difÃ­cil que habÃ­a tenido, muy lejos de cualquier misiÃ³n antiterrorista.',
+                  'Sentí el pánico, ese egoísmo crudo que me gritaba que la encadenara aquí, que la obligara a ser mi enfermera emocional.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'Pero mi amor por ella, heredado de su madre, era mÃ¡s grande que mi miseria.',
+                  'Era la lucha más difícil que había tenido, muy lejos de cualquier misión antiterrorista.',
+              type: DialogueType.internal,
+            ),
+            DialogueData(
+              speakerName: 'Dan',
+              text:
+                  'Pero mi amor por ella, heredado de su madre, era más grande que mi miseria.',
               type: DialogueType.internal,
             ),
             DialogueData(
@@ -508,19 +508,19 @@ class _HouseSceneState extends State<HouseScene> {
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'Es un orgullo. Es una prueba de que aÃºn existe algo puro en este mundo corrompido que yo patrullaba.',
+                  'Es un orgullo. Es una prueba de que aún existe algo puro en este mundo corrompido que yo patrullaba.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'AsÃ­ que la dejÃ© ir. ActuÃ© en contra de mi propio interÃ©s.',
+                  'Así que la dejé ir. Actué en contra de mi propio interés.',
               type: DialogueType.internal,
             ),
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'La mandÃ© al otro lado del planeta para que pudiera florecer lejos de esta sombra que me consume.',
+                  'La mandé al otro lado del planeta para que pudiera florecer lejos de esta sombra que me consume.',
               type: DialogueType.internal,
             ),
           ],
@@ -530,10 +530,10 @@ class _HouseSceneState extends State<HouseScene> {
   }
 
   void _transitionToCombat() async {
-    // Marcar capÃ­tulo 1 como completado
+    // Marcar capítulo 1 como completado
     await SaveSystem.markChapterCompleted(1);
 
-    // TransiciÃ³n a la escena de combate (tu juego actual)
+    // Transición a la escena de combate (tu juego actual)
     if (mounted) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -552,7 +552,7 @@ class _HouseSceneState extends State<HouseScene> {
       _pressedKeys.remove(event.logicalKey);
     }
 
-    // InteracciÃ³n con E
+    // Interacción con E
     if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyE) {
       _tryInteract();
     }
@@ -575,7 +575,7 @@ class _HouseSceneState extends State<HouseScene> {
         // Ejecutar callback personalizado si existe
         interactable.onInteract?.call();
 
-        // Mostrar diÃ¡logo si existe
+        // Mostrar diálogo si existe
         if (interactable.dialogue != null) {
           DialogueOverlay.show(
             context,
@@ -621,7 +621,7 @@ class _HouseSceneState extends State<HouseScene> {
         dx += _playerSpeed;
       }
 
-      // Aplicar movimiento con lÃ­mites de pantalla
+      // Aplicar movimiento con límites de pantalla
       final newX = (_playerPosition.x + dx).clamp(0.0, 750.0);
       final newY = (_playerPosition.y + dy).clamp(0.0, 550.0);
       _playerPosition = Vector2(newX, newY);
@@ -698,7 +698,7 @@ class _HouseSceneState extends State<HouseScene> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'CAPÃTULO 1: EL LLAMADO',
+                      'CAPÍTULO 1: EL LLAMADO',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -721,7 +721,7 @@ class _HouseSceneState extends State<HouseScene> {
                 ),
               ),
             ),
-            // BotÃ³n de skip
+            // Botón de skip
             const SkipButton(chapterNumber: 1),
             // Controles
             Positioned(
@@ -781,8 +781,8 @@ class _HouseLayoutPainter extends CustomPainter {
     textPainter.layout();
     textPainter.paint(canvas, const Offset(200, 200));
 
-    // HabitaciÃ³n de Emma
-    textPainter.text = TextSpan(text: 'HABITACIÃ“N EMMA', style: textStyle);
+    // Habitación de Emma
+    textPainter.text = TextSpan(text: 'HABITACIÓN EMMA', style: textStyle);
     textPainter.layout();
     textPainter.paint(canvas, const Offset(450, 200));
 

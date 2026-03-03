@@ -65,36 +65,37 @@ class _FlashlightPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    // Gradiente radial en un cuadrado perfecto anclado al centro de la luz
+    // Así evitamos que se convierta en una elipse por el aspecto de la pantalla
+    final rectGradient = Rect.fromCircle(center: center, radius: outerRadius);
 
-    // Gradiente radial: transparente en el centro → opaco en el borde
     final gradient = RadialGradient(
-      center: Alignment(
-        (center.dx / size.width) * 2 - 1,
-        (center.dy / size.height) * 2 - 1,
-      ),
-      radius: outerRadius / (size.shortestSide * 0.5),
+      center: Alignment.center,
+      radius: 1.0,
       colors: [
-        const Color(0x12FFA040),                                      // Núcleo ámbar cálido (muy sutil)
-        Colors.transparent,                                           // Centro iluminado
-        shadowColor.withValues(alpha: 0.0),                           // Aún claro
-        shadowColor.withValues(alpha: shadowOpacity * 0.5),           // Transición suave
-        shadowColor.withValues(alpha: shadowOpacity),                 // Sombra completa
+        const Color(0x12FFA040),
+        Colors.transparent,
+        shadowColor.withValues(alpha: 0.0),
+        shadowColor.withValues(alpha: shadowOpacity * 0.5),
+        shadowColor.withValues(alpha: shadowOpacity),
       ],
       stops: [
         0.0,
-        innerRadius / outerRadius * 0.5,                              // Borde del núcleo cálido
-        innerRadius / outerRadius,                                    // Donde empieza la sombra
-        (innerRadius / outerRadius) + 0.25,                           // Zona de transición
+        innerRadius / outerRadius * 0.5,
+        innerRadius / outerRadius,
+        (innerRadius / outerRadius) + 0.25,
         1.0,
       ],
     );
 
     final paint = Paint()
-      ..shader = gradient.createShader(rect)
+      ..shader = gradient.createShader(rectGradient)
       ..blendMode = BlendMode.srcOver;
 
-    canvas.drawRect(rect, paint);
+    // Pintamos toda la pantalla. Gracias a TileMode.clamp (por defecto en RadialGradient),
+    // todo lo que quede fuera de `rectGradient` tomará el color del borde exterior de la sombra.
+    final screenRect = Rect.fromLTWH(0, 0, size.width, size.height);
+    canvas.drawRect(screenRect, paint);
   }
 
   @override

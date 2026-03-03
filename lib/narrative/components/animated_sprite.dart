@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 /// Componente para renderizar sprites animados desde un sprite sheet
-/// Soporta 8 direcciones de movimiento con mÃºltiples frames de animaciÃ³n
+/// Soporta 8 direcciones de movimiento con múltiples frames de animación
 class AnimatedSprite {
   final ui.Image spriteSheet;
   final double frameWidth;
@@ -45,14 +45,14 @@ class AnimatedSprite {
     );
   }
   
-  /// Calcula la direcciÃ³n basada en el vector de velocidad
+  /// Calcula la dirección basada en el vector de velocidad
   static String calculateDirection(double vx, double vy) {
     if (vx == 0 && vy == 0) return 'SOUTH'; // Idle por defecto
     
-    // Normalizar para obtener Ã¡ngulo
+    // Normalizar para obtener ángulo
     final angle = (atan2(vy, vx) * 180 / pi + 360) % 360;
     
-    // Mapear Ã¡ngulo a direcciÃ³n (8 direcciones, 45Â° cada una)
+    // Mapear ángulo a dirección (8 direcciones, 45Â° cada una)
     if (angle >= 337.5 || angle < 22.5) return 'EAST';
     if (angle >= 22.5 && angle < 67.5) return 'SOUTH-EAST';
     if (angle >= 67.5 && angle < 112.5) return 'SOUTH';
@@ -63,9 +63,9 @@ class AnimatedSprite {
     return 'NORTH-EAST'; // 292.5 - 337.5
   }
   
-  /// Obtiene el rectÃ¡ngulo del frame actual
+  /// Obtiene el rectángulo del frame actual
   Rect getFrameRect(String direction, int frameIndex) {
-    // Calcular fila y columna basado en el Ã­ndice lineal y el nÃºmero de columnas
+    // Calcular fila y columna basado en el índice lineal y el número de columnas
     final row = frameIndex ~/ columns; 
     final col = frameIndex % columns;
     
@@ -78,7 +78,7 @@ class AnimatedSprite {
   }
 }
 
-/// Painter para dibujar un frame especÃ­fico del sprite sheet
+/// Painter para dibujar un frame específico del sprite sheet
 class SpriteSheetPainter extends CustomPainter {
   final AnimatedSprite sprite;
   final String direction;

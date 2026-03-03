@@ -7,14 +7,14 @@ import '../../systems/resurrection_system.dart';
 import '../enemy_tomb.dart';
 import 'irracional.dart';
 import 'allied_enemy.dart';
-import 'yurei_kohaa.dart'; // AÃ±adido para poder atacar a Kohaa
+import 'yurei_kohaa.dart'; // Añadido para poder atacar a Kohaa
 import '../bosses/on_oyabun_boss.dart'; // Para atacar a On-Oyabun
 import 'minions/yakuza_ghost.dart'; // Para el llanto de Kohaa
 import 'minions/floating_katana.dart'; // Para el llanto de Kohaa
 
-/// Kijin Redimido - Aliado resucitado de categorÃ­a Kijin
+/// Kijin Redimido - Aliado resucitado de categoría Kijin
 /// NO expira por tiempo, solo por muerte
-/// MÃ¡s fuerte que aliados normales y con IA mejorada para evitar apilamiento
+/// Más fuerte que aliados normales y con IA mejorada para evitar apilamiento
 class RedeemedKijinAlly extends PositionComponent
     with HasGameReference<ExpedienteKorinGame>, CollisionCallbacks {
   late final double _maxHealth;
@@ -43,7 +43,7 @@ class RedeemedKijinAlly extends PositionComponent
   bool _isDead = false;
   PositionComponent? _currentTarget; // Cambiado para aceptar cualquier enemigo
 
-  // Sistema tÃ¡ctico para Kohaa aliada
+  // Sistema táctico para Kohaa aliada
   bool _isRetreating = false;
   double _retreatTimer = 0.0;
   final double _retreatDuration = 8.0; // Retirarse por 8s para recuperarse
@@ -51,21 +51,21 @@ class RedeemedKijinAlly extends PositionComponent
   double _retreatCooldown = 0.0;
   final double _retreatCooldownDuration = 30.0; // Cooldown de 30s entre huidas
 
-  // Sistema de curaciÃ³n durante huida
+  // Sistema de curación durante huida
   double _healingDuringRetreat = 0.0;
   final double _healingPerSecond = 15.0; // 15 HP/s durante huida
-  final double _maxHealingDuringRetreat = 150.0; // MÃ¡ximo 150 HP por huida
+  final double _maxHealingDuringRetreat = 150.0; // Máximo 150 HP por huida
 
-  // ExplosiÃ³n tÃ¡ctica (habilidad especial)
+  // Explosión táctica (habilidad especial)
   final double _tacticalExplosionCooldown = 15.0;
   double _tacticalExplosionTimer = 0.0;
-  final double _tacticalExplosionDamage = 100.0; // DaÃ±o significativo al boss
+  final double _tacticalExplosionDamage = 100.0; // Daño significativo al boss
   final double _tacticalExplosionRadius = 150.0;
 
   // Llanto de Kohaa (ondas de dolor)
   double _cryingWaveCooldown = 0.0;
   final double _cryingWaveCooldownDuration = 20.0; // Cada 20 segundos
-  final double _cryingWaveDamage = 100.0; // 100 daÃ±o
+  final double _cryingWaveDamage = 100.0; // 100 daño
   final double _cryingWaveRadius = 200.0; // Radio de 200 unidades
   final double _cryingWaveHealthThreshold = 0.25; // Solo si HP < 25%
 
@@ -78,7 +78,7 @@ class RedeemedKijinAlly extends PositionComponent
   // Spawn de enfermeros (a 50% HP)
   bool _hasSpawnedNurses = false;
 
-  static const double _size = 35.0; // MÃ¡s grande que aliados normales
+  static const double _size = 35.0; // Más grande que aliados normales
 
   RedeemedKijinAlly({
     required Vector2 position,
@@ -88,16 +88,16 @@ class RedeemedKijinAlly extends PositionComponent
     _configureStats();
   }
 
-  /// Configura las estadÃ­sticas segÃºn el tipo de Kijin
+  /// Configura las estadísticas según el tipo de Kijin
   void _configureStats() {
-    // ConfiguraciÃ³n segÃºn tipo
+    // Configuración según tipo
     if (kijinType == 'kohaa') {
-      _maxHealth = 2000.0; // Kohaa aliada SUPER resistente para duelo Ã©pico
+      _maxHealth = 2000.0; // Kohaa aliada SUPER resistente para duelo épico
       _health = _maxHealth;
-      _speed = 160.0; // RÃ¡pida
+      _speed = 160.0; // Rápida
       _attackRange = 80.0;
       _attackCooldown = 1.2;
-      _damage = 30.0; // DaÃ±o aumentado para duelo Ã©pico
+      _damage = 30.0; // Daño aumentado para duelo épico
     } else {
       _maxHealth = 100.0;
       _health = 100.0;
@@ -136,19 +136,19 @@ class RedeemedKijinAlly extends PositionComponent
     if (_retreatCooldown > 0) _retreatCooldown -= dt;
     if (_cryingWaveCooldown > 0) _cryingWaveCooldown -= dt;
 
-    // LÃ³gica de preparaciÃ³n del dash (INVULNERABLE)
+    // Lógica de preparación del dash (INVULNERABLE)
     if (_isPreparingDash) {
       _dashPreparationTimer += dt;
       if (_dashPreparationTimer >= _dashPreparationTime) {
         _isPreparingDash = false;
         _isDashing = true;
         _dashPreparationTimer = 0.0;
-        // [PERF] print('âš¡ Â¡Kijin Redimido EMBISTE!');
+        // [PERF] print('âš¡ ¡Kijin Redimido EMBISTE!');
       }
-      return; // No moverse durante preparaciÃ³n
+      return; // No moverse durante preparación
     }
 
-    // LÃ³gica de dash
+    // Lógica de dash
     if (_isDashing) {
       _dashTime += dt;
       if (_dashTime >= _dashDuration) {
@@ -158,18 +158,18 @@ class RedeemedKijinAlly extends PositionComponent
         final newPos = position + _dashDirection * _dashSpeed * dt;
         position = _constrainToWorldBounds(
           newPos,
-        ); // Aplicar lÃ­mites durante dash
+        ); // Aplicar límites durante dash
         _damageEnemiesInPath();
         return;
       }
     }
 
-    // IA mejorada: Buscar y atacar enemigos CON separaciÃ³n
+    // IA mejorada: Buscar y atacar enemigos CON separación
     _findAndAttackEnemies(dt);
   }
 
   void _findAndAttackEnemies(double dt) {
-    // TÃCTICA INTELIGENTE para Kohaa aliada
+    // TÁCTICA INTELIGENTE para Kohaa aliada
     if (kijinType == 'kohaa') {
       _smartKohaaTactics(dt);
       return;
@@ -187,29 +187,29 @@ class RedeemedKijinAlly extends PositionComponent
     if (_currentTarget != null) {
       final distanceToTarget = position.distanceTo(_currentTarget!.position);
 
-      // Intentar dash si estÃ¡ listo
+      // Intentar dash si está listo
       if (_dashTimer <= 0 && distanceToTarget > 100 && distanceToTarget < 300) {
         _executeDash();
         return;
       }
 
-      // Acercarse si estÃ¡ lejos
+      // Acercarse si está lejos
       if (distanceToTarget > _attackRange) {
         Vector2 direction = (_currentTarget!.position - position).normalized();
         direction = _applySeparation(direction);
         final newPos = position + direction * _speed * dt;
-        position = _constrainToWorldBounds(newPos); // Aplicar lÃ­mites
+        position = _constrainToWorldBounds(newPos); // Aplicar límites
       } else {
         _tryAttack();
       }
     }
   }
 
-  /// IA tÃ¡ctica inteligente para Kohaa aliada
+  /// IA táctica inteligente para Kohaa aliada
   void _smartKohaaTactics(double dt) {
     final healthPercent = _health / _maxHealth;
 
-    // PRIORIDAD 0: Llanto de Kohaa si HP crÃ­tico
+    // PRIORIDAD 0: Llanto de Kohaa si HP crítico
     if (healthPercent < _cryingWaveHealthThreshold &&
         _cryingWaveCooldown <= 0) {
       _executeCryingWave();
@@ -223,10 +223,10 @@ class RedeemedKijinAlly extends PositionComponent
       _retreatTimer = _retreatDuration;
       _retreatCooldown = _retreatCooldownDuration;
       _healingDuringRetreat = 0.0; // Reset healing counter
-      // [PERF] print('ðŸƒðŸ’¨ðŸ’š Â¡Kohaa aliada HUYE del combate para recuperarse! (HP: ${(_health).toInt()}/${_maxHealth.toInt()})');
+      // [PERF] print('ðŸƒðŸ’¨ðŸ’š ¡Kohaa aliada HUYE del combate para recuperarse! (HP: ${(_health).toInt()}/${_maxHealth.toInt()})');
     }
 
-    // Ejecutar retirada con curaciÃ³n
+    // Ejecutar retirada con curación
     if (_isRetreating && _retreatTimer > 0) {
       _executeRetreatWithHealing(dt);
       return;
@@ -244,7 +244,7 @@ class RedeemedKijinAlly extends PositionComponent
 
     final distanceToTarget = position.distanceTo(_currentTarget!.position);
 
-    // PRIORIDAD 3: ExplosiÃ³n tÃ¡ctica si el boss estÃ¡ cerca
+    // PRIORIDAD 3: Explosión táctica si el boss está cerca
     if (_tacticalExplosionTimer <= 0) {
       _tryTacticalExplosion();
     }
@@ -262,7 +262,7 @@ class RedeemedKijinAlly extends PositionComponent
         // EN RANGO: Atacar
         _tryAttack();
 
-        // Retroceder un poco despuÃ©s de atacar
+        // Retroceder un poco después de atacar
         if (_attackTimer <= 0) {
           final awayDirection = (position - _currentTarget!.position)
               .normalized();
@@ -276,16 +276,16 @@ class RedeemedKijinAlly extends PositionComponent
         Vector2 direction = (_currentTarget!.position - position).normalized();
         direction = _applySeparation(direction);
         final newPos = position + direction * _speed * dt;
-        position = _constrainToWorldBounds(newPos); // Aplicar lÃ­mites
+        position = _constrainToWorldBounds(newPos); // Aplicar límites
       } else {
         _tryAttack();
       }
     }
   }
 
-  /// Ejecuta la retirada tÃ¡ctica con curaciÃ³n
+  /// Ejecuta la retirada táctica con curación
   void _executeRetreatWithHealing(double dt) {
-    // Buscar el boss para alejarse de Ã©l
+    // Buscar el boss para alejarse de él
     final bosses = game.world.children.query<OnOyabunBoss>();
     Vector2 retreatDirection = Vector2.zero();
 
@@ -304,12 +304,12 @@ class RedeemedKijinAlly extends PositionComponent
           .normalized(); // Hacia el centro, no alejarse
     }
 
-    // Verificar si estÃ¡ cerca de los bordes y FORZAR hacia el centro
-    const double safeMargin = 400.0; // Margen mÃ¡s grande
+    // Verificar si está cerca de los bordes y FORZAR hacia el centro
+    const double safeMargin = 400.0; // Margen más grande
     const double dangerMargin = 300.0; // Zona de peligro
     final center = Vector2(1500, 1500);
 
-    // Si estÃ¡ en zona de peligro, ir directamente al centro
+    // Si está en zona de peligro, ir directamente al centro
     if (position.x < 250 + dangerMargin ||
         position.x > 2750 - dangerMargin ||
         position.y < 250 + dangerMargin ||
@@ -317,7 +317,7 @@ class RedeemedKijinAlly extends PositionComponent
       retreatDirection = (center - position).normalized();
       // [PERF] print('âš ï¸ Kohaa cerca del borde, huyendo al CENTRO');
     } else {
-      // Si estÃ¡ cerca pero no en peligro, ajustar direcciÃ³n
+      // Si está cerca pero no en peligro, ajustar dirección
       if (position.x < 250 + safeMargin) {
         retreatDirection.x = retreatDirection.x
             .abs(); // Forzar hacia la derecha
@@ -333,14 +333,14 @@ class RedeemedKijinAlly extends PositionComponent
       }
     }
 
-    // Moverse rÃ¡pido en direcciÃ³n de huida (controlada)
+    // Moverse rápido en dirección de huida (controlada)
     final newPos =
         position +
         retreatDirection.normalized() *
             _speed *
             dt *
             1.3; // Reducido de 1.5 a 1.3
-    position = _constrainToWorldBounds(newPos); // Respetar lÃ­mites del mundo
+    position = _constrainToWorldBounds(newPos); // Respetar límites del mundo
 
     // CURARSE mientras huye
     if (_healingDuringRetreat < _maxHealingDuringRetreat) {
@@ -355,7 +355,7 @@ class RedeemedKijinAlly extends PositionComponent
 
       // Debug cada segundo
       if (_retreatTimer.toInt() != (_retreatTimer + dt).toInt()) {
-        // [PERF] print('ðŸ’š Kohaa curÃ¡ndose: +${actualHeal.toInt()} HP (${_health.toInt()}/${_maxHealth.toInt()})');
+        // [PERF] print('ðŸ’š Kohaa curándose: +${actualHeal.toInt()} HP (${_health.toInt()}/${_maxHealth.toInt()})');
       }
     }
   }
@@ -373,28 +373,28 @@ class RedeemedKijinAlly extends PositionComponent
   }
 
   void _damageEnemiesInPath() {
-    final dashDamage = _damage * 2.0; // Doble daÃ±o en dash
+    final dashDamage = _damage * 2.0; // Doble daño en dash
     const dashRadius = 40.0;
 
-    // DaÃ±ar irracionales
+    // Dañar irracionales
     final irrationals = game.world.children.query<IrrationalEnemy>();
     for (final enemy in irrationals) {
       if (enemy.isDead) continue;
       final distance = position.distanceTo(enemy.position);
       if (distance <= dashRadius) {
         enemy.takeDamage(dashDamage);
-        // [PERF] print('âš¡ Dash golpeÃ³ irracional: $dashDamage daÃ±o');
+        // [PERF] print('âš¡ Dash golpeó irracional: $dashDamage daño');
       }
     }
 
-    // DaÃ±ar bosses
+    // Dañar bosses
     final bosses = game.world.children.query<YureiKohaa>();
     for (final boss in bosses) {
       if (boss.isDead) continue;
       final distance = position.distanceTo(boss.position);
       if (distance <= dashRadius) {
         boss.takeDamage(dashDamage);
-        // [PERF] print('âš¡ Dash golpeÃ³ a KOHAA: $dashDamage daÃ±o');
+        // [PERF] print('âš¡ Dash golpeó a KOHAA: $dashDamage daño');
       }
     }
 
@@ -404,7 +404,7 @@ class RedeemedKijinAlly extends PositionComponent
       final distance = position.distanceTo(boss.position);
       if (distance <= dashRadius) {
         boss.takeDamage(dashDamage);
-        // [PERF] print('âš¡ Dash golpeÃ³ a ON-OYABUN: $dashDamage daÃ±o');
+        // [PERF] print('âš¡ Dash golpeó a ON-OYABUN: $dashDamage daño');
       }
     }
   }
@@ -412,7 +412,7 @@ class RedeemedKijinAlly extends PositionComponent
   bool _isTargetValid() {
     if (_currentTarget == null) return false;
 
-    // Verificar si el objetivo sigue vivo segÃºn su tipo
+    // Verificar si el objetivo sigue vivo según su tipo
     if (_currentTarget is IrrationalEnemy) {
       return !(_currentTarget as IrrationalEnemy).isDead;
     } else if (_currentTarget is YureiKohaa) {
@@ -424,7 +424,7 @@ class RedeemedKijinAlly extends PositionComponent
     return false;
   }
 
-  /// Nueva funciÃ³n para evitar apilamiento con otros aliados
+  /// Nueva función para evitar apilamiento con otros aliados
   Vector2 _applySeparation(Vector2 desiredDirection) {
     Vector2 separationForce = Vector2.zero();
     int neighborCount = 0;
@@ -441,7 +441,7 @@ class RedeemedKijinAlly extends PositionComponent
       final distance = position.distanceTo((ally).position);
 
       if (distance < _separationRadius && distance > 0) {
-        // Fuerza de separaciÃ³n inversamente proporcional a la distancia
+        // Fuerza de separación inversamente proporcional a la distancia
         final awayDirection = (position - ally.position).normalized();
         final strength = (1.0 - distance / _separationRadius);
         separationForce += awayDirection * strength;
@@ -452,7 +452,7 @@ class RedeemedKijinAlly extends PositionComponent
     if (neighborCount > 0) {
       separationForce = separationForce / neighborCount.toDouble();
 
-      // Mezclar direcciÃ³n deseada con fuerza de separaciÃ³n (70% objetivo, 30% separaciÃ³n)
+      // Mezclar dirección deseada con fuerza de separación (70% objetivo, 30% separación)
       return (desiredDirection * 0.7 + separationForce * 0.3).normalized();
     }
 
@@ -460,7 +460,7 @@ class RedeemedKijinAlly extends PositionComponent
   }
 
   void _findNearestEnemy() {
-    // ESTRATEGIA TÃCTICA para Kohaa aliada
+    // ESTRATEGIA TÁCTICA para Kohaa aliada
     if (kijinType == 'kohaa') {
       _findTacticalTarget();
       return;
@@ -509,7 +509,7 @@ class RedeemedKijinAlly extends PositionComponent
     _currentTarget = nearest;
   }
 
-  /// Sistema tÃ¡ctico para Kohaa aliada - Prioriza minions sobre boss
+  /// Sistema táctico para Kohaa aliada - Prioriza minions sobre boss
   void _findTacticalTarget() {
     // Buscar minions del boss (Yakuza Ghosts y Floating Katanas)
     final minions = <PositionComponent>[];
@@ -550,7 +550,7 @@ class RedeemedKijinAlly extends PositionComponent
       }
     }
 
-    // PRIORIDAD 2: Si no hay minions, distraer al boss (pero con poco daÃ±o)
+    // PRIORIDAD 2: Si no hay minions, distraer al boss (pero con poco daño)
     final oyabuns = game.world.children.query<OnOyabunBoss>();
     for (final boss in oyabuns) {
       if (!boss.isDead) {
@@ -560,7 +560,7 @@ class RedeemedKijinAlly extends PositionComponent
       }
     }
 
-    // PRIORIDAD 3: Atacar irracionales si no hay nada mÃ¡s
+    // PRIORIDAD 3: Atacar irracionales si no hay nada más
     final irrationals = game.world.children.query<IrrationalEnemy>();
     PositionComponent? nearest;
     double nearestDistance = double.infinity;
@@ -580,22 +580,22 @@ class RedeemedKijinAlly extends PositionComponent
   void _tryAttack() {
     if (_attackTimer > 0 || _currentTarget == null) return;
 
-    // Atacar segÃºn el tipo de enemigo
+    // Atacar según el tipo de enemigo
     if (_currentTarget is IrrationalEnemy) {
       (_currentTarget as IrrationalEnemy).takeDamage(_damage);
-      // [PERF] print('âš”ï¸ Kijin Redimido atacÃ³ Irracional: $_damage daÃ±o');
+      // [PERF] print('âš”ï¸ Kijin Redimido atacó Irracional: $_damage daño');
     } else if (_currentTarget is YureiKohaa) {
       (_currentTarget as YureiKohaa).takeDamage(_damage);
-      // [PERF] print('âš”ï¸ Kijin Redimido atacÃ³ Kohaa: $_damage daÃ±o');
+      // [PERF] print('âš”ï¸ Kijin Redimido atacó Kohaa: $_damage daño');
     } else if (_currentTarget is OnOyabunBoss) {
       (_currentTarget as OnOyabunBoss).takeDamage(_damage);
-      // [PERF] print('âš”ï¸ Kijin Redimido atacÃ³ ON-OYABUN: $_damage daÃ±o');
+      // [PERF] print('âš”ï¸ Kijin Redimido atacó ON-OYABUN: $_damage daño');
     }
 
     _attackTimer = _attackCooldown;
   }
 
-  /// ExplosiÃ³n tÃ¡ctica - Habilidad especial de Kohaa aliada
+  /// Explosión táctica - Habilidad especial de Kohaa aliada
   void _tryTacticalExplosion() {
     // Buscar al boss
     final bosses = game.world.children.query<OnOyabunBoss>();
@@ -605,7 +605,7 @@ class RedeemedKijinAlly extends PositionComponent
 
       final distanceToBoss = position.distanceTo(boss.position);
 
-      // Solo explotar si el boss estÃ¡ cerca
+      // Solo explotar si el boss está cerca
       if (distanceToBoss <= _tacticalExplosionRadius) {
         _executeTacticalExplosion(boss);
         break;
@@ -613,17 +613,17 @@ class RedeemedKijinAlly extends PositionComponent
     }
   }
 
-  /// Ejecuta la explosiÃ³n tÃ¡ctica
+  /// Ejecuta la explosión táctica
   void _executeTacticalExplosion(OnOyabunBoss boss) {
-    // [PERF] print('ðŸ’¥ðŸ”¥ Â¡KOHAA ALIADA USA EXPLOSIÃ“N TÃCTICA!');
+    // [PERF] print('ðŸ’¥ðŸ”¥ ¡KOHAA ALIADA USA EXPLOSIÓN TÁCTICA!');
 
-    // DaÃ±o al boss
+    // Daño al boss
     boss.takeDamage(_tacticalExplosionDamage);
-    // [PERF] print('   ðŸ’¥ Boss recibe ${_tacticalExplosionDamage.toInt()} daÃ±o de la explosiÃ³n!');
+    // [PERF] print('   ðŸ’¥ Boss recibe ${_tacticalExplosionDamage.toInt()} daño de la explosión!');
 
     // Empujar al boss ligeramente
     final pushDirection = (boss.position - position).normalized();
-    boss.position += pushDirection * 50; // PequeÃ±o empuje
+    boss.position += pushDirection * 50; // Pequeño empuje
 
     // Cooldown
     _tacticalExplosionTimer = _tacticalExplosionCooldown;
@@ -632,23 +632,23 @@ class RedeemedKijinAlly extends PositionComponent
     // [PERF] print('   â±ï¸ Cooldown: ${_tacticalExplosionCooldown.toInt()}s');
   }
 
-  /// LLANTO DE KOHAA - Ondas de dolor que daÃ±an a todos los enemigos
+  /// LLANTO DE KOHAA - Ondas de dolor que dañan a todos los enemigos
   void _executeCryingWave() {
-    // [PERF] print('ðŸ˜­ðŸ’”ðŸŒŠ Â¡LLANTO DE KOHAA! Ondas de dolor devastadoras');
+    // [PERF] print('ðŸ˜­ðŸ’”ðŸŒŠ ¡LLANTO DE KOHAA! Ondas de dolor devastadoras');
     // [PERF] print('   ðŸ’” Kohaa llora por su dolor (HP: ${_health.toInt()}/${_maxHealth.toInt()})');
 
-    // DaÃ±ar al boss
+    // Dañar al boss
     game.world.children.query<OnOyabunBoss>().forEach((boss) {
       if (!boss.isDead) {
         final distance = position.distanceTo(boss.position);
         if (distance <= _cryingWaveRadius) {
           boss.takeDamage(_cryingWaveDamage);
-          // [PERF] print('   ðŸŒŠ Onda golpea a ON-OYABUN: ${_cryingWaveDamage.toInt()} daÃ±o');
+          // [PERF] print('   ðŸŒŠ Onda golpea a ON-OYABUN: ${_cryingWaveDamage.toInt()} daño');
         }
       }
     });
 
-    // DaÃ±ar a Yakuza Ghosts
+    // Dañar a Yakuza Ghosts
     game.world.children.query<YakuzaGhost>().forEach((ghost) {
       if (!ghost.isDead) {
         final distance = position.distanceTo(ghost.position);
@@ -658,7 +658,7 @@ class RedeemedKijinAlly extends PositionComponent
       }
     });
 
-    // DaÃ±ar a Floating Katanas
+    // Dañar a Floating Katanas
     game.world.children.query<FloatingKatana>().forEach((katana) {
       if (!katana.isDead) {
         final distance = position.distanceTo(katana.position);
@@ -668,7 +668,7 @@ class RedeemedKijinAlly extends PositionComponent
       }
     });
 
-    // DaÃ±ar a Irracionales
+    // Dañar a Irracionales
     game.world.children.query<IrrationalEnemy>().forEach((enemy) {
       if (!enemy.isDead) {
         final distance = position.distanceTo(enemy.position);
@@ -685,13 +685,13 @@ class RedeemedKijinAlly extends PositionComponent
     _cryingWaveCooldown = _cryingWaveCooldownDuration;
   }
 
-  /// Recibe daÃ±o (puede ser atacado por otros enemigos)
+  /// Recibe daño (puede ser atacado por otros enemigos)
   void takeDamage(double damage) {
     if (_isDead) return;
 
-    // INVULNERABLE durante preparaciÃ³n del dash
+    // INVULNERABLE durante preparación del dash
     if (_isPreparingDash) {
-      // [PERF] print('ðŸ›¡ï¸ Â¡Kijin Redimido es INVULNERABLE! (Preparando dash)');
+      // [PERF] print('ðŸ›¡ï¸ ¡Kijin Redimido es INVULNERABLE! (Preparando dash)');
       return;
     }
 
@@ -701,7 +701,7 @@ class RedeemedKijinAlly extends PositionComponent
     if (!_hasSpawnedNurses && _health <= _maxHealth * 0.5) {
       _spawnNurses();
       _hasSpawnedNurses = true;
-      // [PERF] print('ðŸ©¸ Â¡KIJIN REDIMIDO INVOCA ENFERMEROS AL 50% HP!');
+      // [PERF] print('ðŸ©¸ ¡KIJIN REDIMIDO INVOCA ENFERMEROS AL 50% HP!');
     }
 
     if (_health <= 0) {
@@ -711,7 +711,7 @@ class RedeemedKijinAlly extends PositionComponent
   }
 
   void _spawnNurses() {
-    // [PERF] print('ðŸ©¸ Â¡Kijin redimido invoca enfermeros para ayudar!');
+    // [PERF] print('ðŸ©¸ ¡Kijin redimido invoca enfermeros para ayudar!');
 
     // Spawn 2 enfermeros ALIADOS
     for (int i = 0; i < 2; i++) {
@@ -723,7 +723,7 @@ class RedeemedKijinAlly extends PositionComponent
       // Crear enfermero como aliado (SIN registrar slots - son parte del Kijin)
       final nurse = AlliedEnemy(
         position: position + offset,
-        lifetime: 600.0, // 10 MINUTOS de duraciÃ³n (solo mueren por daÃ±o)
+        lifetime: 600.0, // 10 MINUTOS de duración (solo mueren por daño)
         resurrectionManager:
             null, // NO registrar en manager (son parte del Kijin)
         enemyType: 'irracional', // Usa stats predefinidas
@@ -731,7 +731,7 @@ class RedeemedKijinAlly extends PositionComponent
 
       game.world.add(nurse);
       // NO llamar a registerAlly() - los enfermeros son parte del Kijin, no slots separados
-      // [PERF] print('ðŸ‘¥ Enfermero spawneado (10 min de duraciÃ³n, parte del Kijin)');
+      // [PERF] print('ðŸ‘¥ Enfermero spawneado (10 min de duración, parte del Kijin)');
     }
   }
 
@@ -749,7 +749,7 @@ class RedeemedKijinAlly extends PositionComponent
     final tomb = EnemyTomb(
       position: position.clone(),
       enemyType: 'redeemed_kijin',
-      lifetime: 300.0, // 5 MINUTOS - Permite revivir mÃºltiples veces
+      lifetime: 300.0, // 5 MINUTOS - Permite revivir múltiples veces
     );
     game.world.add(tomb);
   }
@@ -758,7 +758,7 @@ class RedeemedKijinAlly extends PositionComponent
   void render(Canvas canvas) {
     super.render(canvas);
 
-    // Aura pÃºrpura/rosa para indicar que es Kijin redimido
+    // Aura púrpura/rosa para indicar que es Kijin redimido
     final auraPaint = Paint()
       ..color = const Color(0xFFFF1493)
           .withValues(alpha: 0.3) // Deep pink
@@ -766,7 +766,7 @@ class RedeemedKijinAlly extends PositionComponent
 
     canvas.drawCircle((size / 2).toOffset(), _size / 2 + 7, auraPaint);
 
-    // Indicador de preparaciÃ³n de dash (AMARILLO brillante)
+    // Indicador de preparación de dash (AMARILLO brillante)
     if (_isPreparingDash) {
       final preparePaint = Paint()
         ..color = Colors.amber
@@ -862,7 +862,7 @@ class RedeemedKijinAlly extends PositionComponent
     textPainter.paint(canvas, Offset((size.x - textPainter.width) / 2, -28));
   }
 
-  /// Limita la posiciÃ³n a los bordes del mundo (dinÃ¡mico segÃºn tamaÃ±o del mapa)
+  /// Limita la posición a los bordes del mundo (dinámico según tamaño del mapa)
   Vector2 _constrainToWorldBounds(Vector2 pos) {
     final worldSize = game.camera.visibleWorldRect;
 
@@ -885,11 +885,11 @@ class RedeemedKijinAlly extends PositionComponent
       pos.y.clamp(worldMinY, worldMaxY),
     );
 
-    // Debug si se estÃ¡ saliendo
+    // Debug si se está saliendo
     if (pos.x != clampedPos.x || pos.y != clampedPos.y) {
       // [PERF] print('âš ï¸ Kohaa corregida: (${pos.x.toInt()}, ${pos.y.toInt()}) â†’ (${clampedPos.x.toInt()}, ${clampedPos.y.toInt()})');
 
-      // Si estÃ¡ MUY cerca del borde, detener movimiento completamente
+      // Si está MUY cerca del borde, detener movimiento completamente
       if (pos.x < worldMinX + 50 ||
           pos.x > worldMaxX - 50 ||
           pos.y < worldMinY + 50 ||
@@ -904,6 +904,6 @@ class RedeemedKijinAlly extends PositionComponent
   /// Getters
   bool get isDead => _isDead;
   bool get isRetreating =>
-      _isRetreating; // Para que el boss sepa si estÃ¡ huyendo
+      _isRetreating; // Para que el boss sepa si está huyendo
   double get health => _health;
 }

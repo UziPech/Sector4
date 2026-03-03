@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/dialogue_data.dart';
 
-/// Widget de caja de diÃ¡logo estilo RPG clÃ¡sico
+/// Widget de caja de diálogo estilo RPG clásico
 class DialogueBox extends StatefulWidget {
   final DialogueData dialogue;
   final VoidCallback onComplete;
@@ -32,7 +32,7 @@ class _DialogueBoxState extends State<DialogueBox>
   void initState() {
     super.initState();
     
-    // AnimaciÃ³n de pulso para el indicador
+    // Animación de pulso para el indicador
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
@@ -76,7 +76,7 @@ class _DialogueBoxState extends State<DialogueBox>
     debugPrint('DialogueBox: Tap detected - isComplete: $_isComplete');
     
     if (!_isComplete) {
-      // Si no terminÃ³, completar inmediatamente
+      // Si no terminó, completar inmediatamente
       debugPrint('DialogueBox: Completing text immediately');
       _controller.stop();
       setState(() {
@@ -84,7 +84,7 @@ class _DialogueBoxState extends State<DialogueBox>
         _displayedText = widget.dialogue.text;
       });
     } else {
-      // Si ya terminÃ³, avanzar al siguiente diÃ¡logo
+      // Si ya terminó, avanzar al siguiente diálogo
       debugPrint('DialogueBox: Advancing to next dialogue');
       widget.onComplete();
     }
@@ -125,7 +125,7 @@ class _DialogueBoxState extends State<DialogueBox>
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Avatar pequeÃ±o (si existe)
+            // Avatar pequeño (si existe)
             if (widget.dialogue.avatarPath != null) ...[
               Container(
                 width: 70,
@@ -181,7 +181,7 @@ class _DialogueBoxState extends State<DialogueBox>
                         ),
                       ),
                     ),
-                  // Texto del diÃ¡logo
+                  // Texto del diálogo
                   Text(
                     _displayedText,
                     style: TextStyle(
@@ -194,7 +194,7 @@ class _DialogueBoxState extends State<DialogueBox>
                           : FontStyle.normal,
                     ),
                   ),
-                  // Indicador de "presiona para continuar" con animaciÃ³n (solo primeros diÃ¡logos)
+                  // Indicador de "presiona para continuar" con animación (solo primeros diálogos)
                   if (_isComplete && widget.dialogue.canSkip && widget.showHintText)
                     Padding(
                       padding: const EdgeInsets.only(top: 8),

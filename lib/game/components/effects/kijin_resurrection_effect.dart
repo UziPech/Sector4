@@ -2,10 +2,10 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
-/// Efecto visual especial para resurrecciÃ³n de Kijin
-/// Usa colores rosa/pÃºrpura en vez de verde
+/// Efecto visual especial para resurrección de Kijin
+/// Usa colores rosa/púrpura en vez de verde
 class KijinResurrectionEffect extends PositionComponent {
-  final double _lifetime = 1.5; // MÃ¡s largo que normal
+  final double _lifetime = 1.5; // Más largo que normal
   double _timer = 0.0;
   
   KijinResurrectionEffect({required Vector2 position})
@@ -28,7 +28,7 @@ class KijinResurrectionEffect extends PositionComponent {
     final progress = _timer / _lifetime;
     final opacity = (1.0 - progress).clamp(0.0, 1.0);
     
-    // CÃ­rculos expansivos rosa/pÃºrpura
+    // Círculos expansivos rosa/púrpura
     for (int i = 0; i < 4; i++) {
       final delay = i * 0.15;
       final adjustedProgress = ((progress - delay) / (1.0 - delay)).clamp(0.0, 1.0);
@@ -49,7 +49,7 @@ class KijinResurrectionEffect extends PositionComponent {
       );
     }
     
-    // PartÃ­culas ascendentes (rosa)
+    // Partículas ascendentes (rosa)
     final particlePaint = Paint()
       ..color = const Color(0xFFFF69B4).withValues(alpha: opacity * 0.9)
       ..style = PaintingStyle.fill;

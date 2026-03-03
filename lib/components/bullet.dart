@@ -33,7 +33,7 @@ class Bullet extends PositionComponent with CollisionCallbacks, HasGameReference
   final int _maxTrailLength = 8;
   double _trailTimer = 0.0;
   
-  // RotaciÃ³n para efecto visual
+  // Rotación para efecto visual
   double _rotation = 0.0;
 
   Bullet({
@@ -249,7 +249,7 @@ class Bullet extends PositionComponent with CollisionCallbacks, HasGameReference
           other.takeDamage(damage);
           _createImpactEffect();
           removeFromParent();
-          // print('ðŸ”« Bala golpeÃ³ a KOHAA: $damage daÃ±o');
+          // print('ðŸ”« Bala golpeó a KOHAA: $damage daño');
         } catch (e) {
           // Error
         }
@@ -261,7 +261,7 @@ class Bullet extends PositionComponent with CollisionCallbacks, HasGameReference
           other.takeDamage(damage);
           _createImpactEffect();
           removeFromParent();
-          // print('ðŸ”« Bala golpeÃ³ a ON-OYABUN: $damage daÃ±o');
+          // print('ðŸ”« Bala golpeó a ON-OYABUN: $damage daño');
         } catch (e) {
           // Error
         }

@@ -10,7 +10,7 @@ import '../../narrative/components/dialogue_system.dart';
 import '../../narrative/models/dialogue_data.dart';
 
 /// Nivel de test para el jefe Yurei Kohaa
-/// Una arena simple para testear las mecÃ¡nicas del boss Kijin
+/// Una arena simple para testear las mecánicas del boss Kijin
 class KohaaTestLevel extends Component
     with HasGameReference<ExpedienteKorinGame> {
   YureiKohaa? _kohaa;
@@ -32,7 +32,7 @@ class KohaaTestLevel extends Component
     // Spawnear algunos irracionales para testing
     _spawnIrrationals();
 
-    // Kohaa aparecerÃ¡ despuÃ©s de derrotar a todos los irracionales
+    // Kohaa aparecerá después de derrotar a todos los irracionales
   }
 
   void _createArena() {
@@ -126,7 +126,7 @@ class KohaaTestLevel extends Component
       if (aliveCount == 0 && _aliveIrrationals > 0) {
         _aliveIrrationals = 0;
         _allIrrationalsDead = true;
-        // Mostrar diÃ¡logo de intro de Kohaa
+        // Mostrar diálogo de intro de Kohaa
         Future.delayed(const Duration(milliseconds: 1000), () {
           _showIntroDialogue();
         });
@@ -146,7 +146,7 @@ class KohaaTestLevel extends Component
 
     game.pauseEngine();
 
-    // Determinar diÃ¡logos segÃºn el rol actual
+    // Determinar diálogos según el rol actual
     final isDan = game.player.role == PlayerRole.dan;
 
     final introSequence = DialogueSequence(
@@ -154,14 +154,14 @@ class KohaaTestLevel extends Component
       dialogues: [
         const DialogueData(
           speakerName: 'Sistema',
-          text: 'ALERTA: Firma de energÃ­a anÃ³mala detectada. CategorÃ­a: KIJIN.',
+          text: 'ALERTA: Firma de energía anómala detectada. Categoría: KIJIN.',
           type: DialogueType.system,
         ),
         DialogueData(
           speakerName: isDan ? 'Mel' : 'Dan',
           text: isDan
               ? 'Dan... esta presencia es diferente. No es un elemental ni un irracional.'
-              : 'Mel, Â¿sientes eso? Es diferente a los otros.',
+              : 'Mel, ¿sientes eso? Es diferente a los otros.',
           avatarPath: isDan
               ? 'assets/avatars/dialogue_icons/Mel_Dialogue.png'
               : 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
@@ -169,8 +169,8 @@ class KohaaTestLevel extends Component
         DialogueData(
           speakerName: isDan ? 'Dan' : 'Mel',
           text: isDan
-              ? 'Â¿QuÃ© es? Se siente... triste. Como si el aire mismo estuviera llorando.'
-              : 'Es un Kijin. Nacido de muerte violenta y emociÃ³n intensa. Ten cuidado.',
+              ? '¿Qué es? Se siente... triste. Como si el aire mismo estuviera llorando.'
+              : 'Es un Kijin. Nacido de muerte violenta y emoción intensa. Ten cuidado.',
           avatarPath: isDan
               ? 'assets/avatars/dialogue_icons/Dan_Dialogue.png'
               : 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
@@ -179,24 +179,24 @@ class KohaaTestLevel extends Component
           const DialogueData(
             speakerName: 'Mel',
             text:
-                'Los Kijin son nacidos de muertes violentas cargadas de emociÃ³n. Odio, amor traicionado, venganza...',
+                'Los Kijin son nacidos de muertes violentas cargadas de emoción. Odio, amor traicionado, venganza...',
             avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
           ),
         const DialogueData(
           speakerName: '???',
-          text: 'Ã‰l... me prometiÃ³ eternidad. Pero me dio... esto.',
+          text: 'Él... me prometió eternidad. Pero me dio... esto.',
           avatarPath: 'assets/avatars/dialogue_icons/kohaa_avatar.png',
         ),
         const DialogueData(
           speakerName: 'Yurei Kohaa',
           text:
-              'Una novia que no puede morir. Un amor que se pudriÃ³ en mis venas. Â¿Vienes a liberarme... o a unirte a mi procesiÃ³n fÃºnebre?',
+              'Una novia que no puede morir. Un amor que se pudrió en mis venas. ¿Vienes a liberarme... o a unirte a mi procesión fúnebre?',
           avatarPath: 'assets/avatars/dialogue_icons/kohaa_avatar.png',
         ),
         DialogueData(
           speakerName: isDan ? 'Dan' : 'Mel',
           text: isDan
-              ? 'No quiero pelear contigo. Pero si no me dejas opciÃ³n...'
+              ? 'No quiero pelear contigo. Pero si no me dejas opción...'
               : 'No busco pelea. Pero no puedo permitir que lastimes a otros.',
           avatarPath: isDan
               ? 'assets/avatars/dialogue_icons/Dan_Dialogue.png'
@@ -227,47 +227,47 @@ class KohaaTestLevel extends Component
       dialogues: const [
         DialogueData(
           speakerName: 'Kohaa',
-          text: 'Finalmente... silencio. Â¿Es esto... paz?',
+          text: 'Finalmente... silencio. ¿Es esto... paz?',
           avatarPath: 'assets/avatars/dialogue_icons/kohaa_avatar.png',
         ),
         DialogueData(
           speakerName: 'Mel',
           text:
-              'Dan, su firma estÃ¡ desapareciendo, pero... aÃºn queda algo. Una esencia.',
+              'Dan, su firma está desapareciendo, pero... aún queda algo. Una esencia.',
           avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
         ),
         DialogueData(
           speakerName: 'Dan',
-          text: 'Â¿QuÃ© quieres decir?',
+          text: '¿Qué quieres decir?',
           avatarPath: 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
         ),
         DialogueData(
           speakerName: 'Mel',
           text:
-              'PodrÃ­a... intentar algo. Traerla de vuelta, pero diferente. Purificada.',
+              'Podría... intentar algo. Traerla de vuelta, pero diferente. Purificada.',
           avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
         ),
         DialogueData(
           speakerName: 'Mel',
           text:
-              'Pero te advierto: resucitar un Kijin es peligroso. ConsumirÃ­a DOS de mis cargas de resurrecciÃ³n.',
+              'Pero te advierto: resucitar un Kijin es peligroso. Consumiría DOS de mis cargas de resurrección.',
           avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
         ),
         DialogueData(
           speakerName: 'Mel',
           text:
-              'Si funciona, ella nos protegerÃ­a con toda su fuerza. Pero si algo sale mal...',
+              'Si funciona, ella nos protegería con toda su fuerza. Pero si algo sale mal...',
           avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
         ),
         DialogueData(
           speakerName: 'Dan',
-          text: 'Entiendo el riesgo. VerÃ© quÃ© hacer cuando encuentre su tumba.',
+          text: 'Entiendo el riesgo. Veré qué hacer cuando encuentre su tumba.',
           type: DialogueType.internal,
         ),
         DialogueData(
           speakerName: 'Sistema',
           text:
-              'NOTA: La tumba ROJA indica un Kijin. Requiere 2 slots de resurrecciÃ³n. Presiona E para revivir.',
+              'NOTA: La tumba ROJA indica un Kijin. Requiere 2 slots de resurrección. Presiona E para revivir.',
           type: DialogueType.system,
         ),
       ],

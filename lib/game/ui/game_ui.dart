@@ -11,7 +11,7 @@ import '../../combat/weapon_system.dart';
 import 'dynamic_joystick_overlay.dart';
 
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Paleta de colores oscuros / cafÃ© (horror UX)
+// Paleta de colores oscuros / café (horror UX)
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const _brown900 = Color(0xFF1A0F08);
 const _brown700 = Color(0xFF3B1F10);
@@ -102,7 +102,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
       type: MaterialType.transparency,
       child: Stack(
       children: [
-        // â”€â”€ 1. JOYSTICK DINÃMICO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // â”€â”€ 1. JOYSTICK DINÁMICO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         DynamicJoystickOverlay(
           onInput: (input) => widget.game.updateJoystickInput(input),
         ),
@@ -114,7 +114,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
           child: SafeArea(child: _buildHealthHUD()),
         ),
 
-        // â”€â”€ 3. BOTÃ“N CONFIG (top-right) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // â”€â”€ 3. BOTÓN CONFIG (top-right) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         Positioned(
           top: 12,
           right: 12,
@@ -249,7 +249,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
             ),
           ),
 
-        // â”€â”€ 5. BOTONES DE ACCIÃ“N MÃ“VIL (bottom-right) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // â”€â”€ 5. BOTONES DE ACCIÓN MÓVIL (bottom-right) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         _buildActionButtons(),
 
         // â”€â”€ 6. HINT DE CONTROLES TRANSITORIO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -414,7 +414,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     );
   }
 
-  // â”€â”€ BOTONES DE ACCIÃ“N (Flutter, encima del flashlight) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ BOTONES DE ACCIÓN (Flutter, encima del flashlight) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildActionButtons() {
     final game = widget.game;
     final isDan = game.player.playerRole == PlayerRole.dan;
@@ -445,7 +445,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                     onTap: () => game.player.tryResurrect(),
                   ),
                 const SizedBox(width: 8),
-                // BotÃ³n de curaciÃ³n de Mel (dinÃ¡mico segÃºn cooldown)
+                // Botón de curación de Mel (dinámico según cooldown)
                 _buildMelHealButton(game, isDan),
                 const SizedBox(width: 8),
                 // [Dan] Recarga R (solo con pistola)  |  [Mel] Dash â€ºâ€º
@@ -486,7 +486,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     );
   }
 
-  /// BotÃ³n de curaciÃ³n de Mel â€” cambia de color segÃºn disponibilidad
+  /// Botón de curación de Mel â€” cambia de color según disponibilidad
   Widget _buildMelHealButton(ExpedienteKorinGame game, bool isDan) {
     return ValueListenableBuilder<bool>(
       valueListenable: game.melReadyNotifier,
@@ -515,7 +515,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                       ),
                     ),
                   ),
-                  // BotÃ³n principal
+                  // Botón principal
                   Container(
                     width: 44,
                     height: 44,
@@ -599,7 +599,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     );
   }
 
-  // â”€â”€ PANEL DE CONFIGURACIÃ“N â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ PANEL DE CONFIGURACIÓN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildConfigPanel() {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -633,7 +633,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
         const SizedBox(height: 8),
         Divider(color: _brown400.withValues(alpha: 0.4), height: 1),
         const SizedBox(height: 16),
-        _configSlider('MÃšSICA', _volume, (v) {
+        _configSlider('MÚSICA', _volume, (v) {
           setState(() {
             _volume = v;
             AudioManager().musicVolume = v;
@@ -659,7 +659,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
               ),
               elevation: 0,
             ),
-            child: const Text('SALIR AL MENÃš',
+            child: const Text('SALIR AL MENÚ',
                 style: TextStyle(
                     fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'monospace')),
           ),
@@ -712,14 +712,14 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Â¿ABORTAR MISIÃ“N?',
+              const Text('¿ABORTAR MISIÓN?',
                   style: TextStyle(
                       color: Color(0xFFE07070),
                       fontSize: 16,
                       fontFamily: 'monospace',
                       fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
-              const Text('El progreso no guardado se perderÃ¡.',
+              const Text('El progreso no guardado se perderá.',
                   style: TextStyle(
                       color: _white60, fontSize: 12, fontFamily: 'monospace'),
                   textAlign: TextAlign.center),

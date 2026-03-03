@@ -8,7 +8,7 @@ import '../yurei_kohaa.dart'; // Para atacar a Kohaa
 import '../redeemed_kijin_ally.dart'; // Para atacar a Kohaa aliada
 import '../allied_enemy.dart'; // Para atacar enfermeros
 
-/// Katana flotante autÃ³noma que ataca al jugador
+/// Katana flotante autónoma que ataca al jugador
 /// Aparece a 40% HP en Fase 2 del jefe
 class FloatingKatana extends PositionComponent 
     with CollisionCallbacks, HasGameReference<ExpedienteKorinGame> {
@@ -65,11 +65,11 @@ class FloatingKatana extends PositionComponent
   void _updateAI(double dt) {
     final player = game.player;
     
-    // Buscar objetivo mÃ¡s cercano (Prioridad: Enfermeros > Kohaa > Jugador)
+    // Buscar objetivo más cercano (Prioridad: Enfermeros > Kohaa > Jugador)
     PositionComponent? target = player.isDead ? null : player;
     double minDistance = player.isDead ? double.infinity : position.distanceTo(player.position);
     
-    // PRIORIDAD 1: Enfermeros (fÃ¡ciles de matar)
+    // PRIORIDAD 1: Enfermeros (fáciles de matar)
     game.world.children.query<AlliedEnemy>().forEach((nurse) {
       if (!nurse.isDead) {
         final dist = position.distanceTo(nurse.position);
@@ -134,16 +134,16 @@ class FloatingKatana extends PositionComponent
     if (distance <= _attackRange) {
       if (_currentTarget is AlliedEnemy) {
         (_currentTarget as AlliedEnemy).takeDamage(_damage);
-        debugPrint('âš”ï¸ Katana flotante ataca ENFERMERO: $_damage daÃ±o');
+        debugPrint('âš”ï¸ Katana flotante ataca ENFERMERO: $_damage daño');
       } else if (_currentTarget is PlayerCharacter) {
         (_currentTarget as PlayerCharacter).takeDamage(_damage);
-        debugPrint('âš”ï¸ Katana flotante ataca Jugador: $_damage daÃ±o');
+        debugPrint('âš”ï¸ Katana flotante ataca Jugador: $_damage daño');
       } else if (_currentTarget is RedeemedKijinAlly) {
         (_currentTarget as RedeemedKijinAlly).takeDamage(_damage);
-        debugPrint('âš”ï¸ Katana flotante ataca Kohaa ALIADA: $_damage daÃ±o');
+        debugPrint('âš”ï¸ Katana flotante ataca Kohaa ALIADA: $_damage daño');
       } else if (_currentTarget is YureiKohaa) {
         (_currentTarget as YureiKohaa).takeDamage(_damage);
-        debugPrint('âš”ï¸ Katana flotante ataca Kohaa: $_damage daÃ±o');
+        debugPrint('âš”ï¸ Katana flotante ataca Kohaa: $_damage daño');
       }
       
       _attackTimer = _attackCooldown;
@@ -197,7 +197,7 @@ class FloatingKatana extends PositionComponent
     
     canvas.drawRect(size.toRect(), edgePaint);
     
-    // Barra de vida pequeÃ±a
+    // Barra de vida pequeña
     _drawHealthBar(canvas);
   }
   

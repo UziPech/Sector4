@@ -8,7 +8,7 @@ import 'story_screen.dart';
 import 'login_screen.dart';
 import '../../game/audio_manager.dart';
 
-/// Pantalla del menÃº principal con efectos visuales avanzados
+/// Pantalla del menú principal con efectos visuales avanzados
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
 
@@ -34,7 +34,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
     super.initState();
     
     // Inicializar Video
-    // Inicializar Video con opciÃ³n para mezclar audio (evita que robe el foco agresivamente)
+    // Inicializar Video con opción para mezclar audio (evita que robe el foco agresivamente)
     _videoController = VideoPlayerController.asset(
       'assets/images/Fondo.mp4',
       videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
@@ -48,12 +48,12 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
       _videoController.setLooping(true);
       _videoController.play();
       
-      // Iniciar mÃºsica
+      // Iniciar música
       AudioManager().playLoginMusic();
     });
 
     _videoController.addListener(() {
-      // Forzar reconstrucciÃ³n si hay errores o cambios de estado crÃ­ticos
+      // Forzar reconstrucción si hay errores o cambios de estado críticos
       if (_videoController.value.hasError) {
         debugPrint('âŒ Video Error: ${_videoController.value.errorDescription}');
       }
@@ -76,7 +76,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
       if (mounted) {
         setState(() => _isTitleGlitching = true);
         
-        // DuraciÃ³n del glitch (corto, como estÃ¡tica)
+        // Duración del glitch (corto, como estática)
         Future.delayed(const Duration(milliseconds: 200), () {
           if (mounted) {
             setState(() => _isTitleGlitching = false);
@@ -126,7 +126,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                 : Container(color: Colors.black),
           ),
 
-          // 2. EFECTO DE VIÃ‘ETA (Radial Gradient)
+          // 2. EFECTO DE VIÑETA (Radial Gradient)
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -179,10 +179,10 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start, // Todo alineado a la izquierda
                     children: [
-                      // Espacio superior para bajar un poco el tÃ­tulo del borde
+                      // Espacio superior para bajar un poco el título del borde
                       const SizedBox(height: 80),
                       
-                      // --- TÃTULO ---
+                      // --- TÍTULO ---
                       FittedBox(
                         fit: BoxFit.scaleDown,
                         child: BleedingTitleWrapper(
@@ -196,7 +196,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                               ),
                               const SizedBox(width: 24),
                               VHSGlitchTitle(
-                                text: 'KÅŒRIN',
+                                text: 'KŌRIN',
                                 fontSize: 64, 
                                 isGlitching: _isTitleGlitching,
                               ),
@@ -208,14 +208,14 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                       const SizedBox(height: 16),
                       
                       Text(
-                        'v0.1.0 - CapÃ­tulo 1',
+                        'v0.1.0 - Capítulo 1',
                         style: GoogleFonts.robotoMono(
                           color: Colors.grey[500],
                           fontSize: 14,
                         ),
                       ),
 
-                      // Espacio flexible entre TÃ­tulo y Botones
+                      // Espacio flexible entre Título y Botones
                       const Spacer(), 
                       
                       // --- BOTONES ---
@@ -258,7 +258,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                               onPressed: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('Opciones - PrÃ³ximamente'),
+                                    content: Text('Opciones - Próximamente'),
                                     duration: Duration(seconds: 1),
                                   ),
                                 );
@@ -278,14 +278,14 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                             title: Text(
-                                              'CONFIRMACIÃ“N',
+                                              'CONFIRMACIÓN',
                                               style: GoogleFonts.robotoMono(
                                                 color: Colors.redAccent,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                             content: Text(
-                                              'Â¿EstÃ¡s seguro que quieres salir del juego?',
+                                              '¿Estás seguro que quieres salir del juego?',
                                               style: GoogleFonts.robotoMono(
                                                 color: Colors.red, // Texto rojo como solicitado
                                                 fontSize: 16,
@@ -294,7 +294,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                                       actions: [
                                         TextButton(
                                           onPressed: () {
-                                            Navigator.of(context).pop(); // Cerrar diÃ¡logo
+                                            Navigator.of(context).pop(); // Cerrar diálogo
                                           },
                                           child: Text(
                                             'NO',
@@ -309,7 +309,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                                             SystemNavigator.pop(); // Cerrar app
                                           },
                                           child: Text(
-                                            'SÃ',
+                                            'SÍ',
                                             style: GoogleFonts.robotoMono(
                                               color: Colors.redAccent,
                                               fontWeight: FontWeight.bold,
@@ -366,7 +366,7 @@ class _BleedingTitleWrapperState extends State<BleedingTitleWrapper> with Single
     // El texto tiene ~16 caracteres. Generamos ~20 gotas distribuidas uniformemente
     // para asegurar cobertura.
     for (int i = 0; i < 20; i++) {
-      // DistribuciÃ³n mÃ¡s uniforme con pequeÃ±a variaciÃ³n aleatoria
+      // Distribución más uniforme con pequeña variación aleatoria
       double baseX = (i / 20.0); 
       double jitter = _random.nextDouble() * 0.04 - 0.02;
       
@@ -409,10 +409,10 @@ class _BleedingTitleWrapperState extends State<BleedingTitleWrapper> with Single
 }
 
 class BloodDrip {
-  double x; // PosiciÃ³n relativa 0-1
+  double x; // Posición relativa 0-1
   double length; // Longitud relativa
   double width; // Ancho en pixels
-  double swayPhase; // Fase para oscilaciÃ³n leve
+  double swayPhase; // Fase para oscilación leve
 
   BloodDrip({
     required this.x,
@@ -430,7 +430,7 @@ class DrippingBloodPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Pintura para la sangre (Rojo sÃ³lido y brillante)
+    // Pintura para la sangre (Rojo sólido y brillante)
     final paint = Paint()
       ..color = const Color(0xFFE60000) // Rojo sangre vivo
       ..style = PaintingStyle.fill; 
@@ -455,7 +455,7 @@ class DrippingBloodPainter extends CustomPainter {
       final startY = size.height * 0.70; 
       final endY = startY + (drip.length * size.height * 0.5); // Longitud
       
-      // OscilaciÃ³n muy sutil
+      // Oscilación muy sutil
       final sway = sin(time * 2 * pi + drip.swayPhase) * 1.0;
       final endX = startX + sway;
 
@@ -491,7 +491,7 @@ class DrippingBloodPainter extends CustomPainter {
          final dropProgress = (time - 0.7) / 0.3; // 0 a 1
          final dropY = endY + dropProgress * size.height * 0.3;
          
-         // Gota lÃ¡grima redondeada
+         // Gota lágrima redondeada
          final dropPath = Path();
          dropPath.addOval(Rect.fromCircle(center: Offset(endX, dropY), radius: drip.width * 0.6));
          path.addPath(dropPath, Offset.zero);
@@ -508,7 +508,7 @@ class DrippingBloodPainter extends CustomPainter {
   bool shouldRepaint(covariant DrippingBloodPainter oldDelegate) => true;
 }
 
-/// Widget para efecto VHS/Glitch en el tÃ­tulo
+/// Widget para efecto VHS/Glitch en el título
 class VHSGlitchTitle extends StatelessWidget {
   final String text;
   final double fontSize;
@@ -546,7 +546,7 @@ class VHSGlitchTitle extends StatelessWidget {
       );
     }
 
-    // Efecto Glitch: AberraciÃ³n cromÃ¡tica (Rojo/Azul desfasados)
+    // Efecto Glitch: Aberración cromática (Rojo/Azul desfasados)
     return Stack(
       children: [
         // Capa Roja (Desfasada a la izquierda)
@@ -598,9 +598,9 @@ class VHSGlitchTitle extends StatelessWidget {
 
 /// Clase para representar una gota de lluvia
 class Raindrop {
-  double x; // PosiciÃ³n horizontal (0.0 a 1.0)
-  double y; // PosiciÃ³n vertical (0.0 a 1.0)
-  double speed; // Velocidad de caÃ­da
+  double x; // Posición horizontal (0.0 a 1.0)
+  double y; // Posición vertical (0.0 a 1.0)
+  double speed; // Velocidad de caída
   double length; // Longitud de la estela
 
   Raindrop({
@@ -626,7 +626,7 @@ class RainPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     for (final drop in raindrops) {
-      // Actualizar posiciÃ³n (simulaciÃ³n simple en el paint loop)
+      // Actualizar posición (simulación simple en el paint loop)
       drop.y += drop.speed;
 
       // Resetear si sale de la pantalla
@@ -635,10 +635,10 @@ class RainPainter extends CustomPainter {
         drop.x = random.nextDouble();
       }
 
-      // Dibujar lÃ­nea
+      // Dibujar línea
       final start = Offset(drop.x * size.width, drop.y * size.height);
       final end = Offset(
-        drop.x * size.width - (drop.length * size.width * 0.1), // Leve inclinaciÃ³n
+        drop.x * size.width - (drop.length * size.width * 0.1), // Leve inclinación
         (drop.y + drop.length) * size.height
       );
 
@@ -652,7 +652,7 @@ class RainPainter extends CustomPainter {
   }
 }
 
-/// Widget de botÃ³n del menÃº (Estilizado)
+/// Widget de botón del menú (Estilizado)
 class _MenuButton extends StatefulWidget {
   final String text;
   final VoidCallback? onPressed;
@@ -708,7 +708,7 @@ class _MenuButtonState extends State<_MenuButton> {
         onTapCancel: isEnabled ? () => setState(() => _isPressed = false) : null,
         onTap: isEnabled ? widget.onPressed : null,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 100), // MÃ¡s rÃ¡pido para feedback tÃ¡ctil
+          duration: const Duration(milliseconds: 100), // Más rápido para feedback táctil
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
           decoration: BoxDecoration(
@@ -721,7 +721,7 @@ class _MenuButtonState extends State<_MenuButton> {
           child: Text(
             widget.text,
             textAlign: TextAlign.center,
-            style: GoogleFonts.robotoMono( // Fuente tÃ©cnica para botones
+            style: GoogleFonts.robotoMono( // Fuente técnica para botones
               color: textColor,
               fontSize: 18,
               fontWeight: FontWeight.bold,

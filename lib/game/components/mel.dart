@@ -7,7 +7,7 @@ import '../expediente_game.dart';
 import 'player.dart';
 
 /// Mel - Soporte Vital y Ancla del Mundo
-/// Representa la redenciÃ³n, el sacrificio y la conexiÃ³n divina
+/// Representa la redención, el sacrificio y la conexión divina
 class MelCharacter extends PositionComponent
     with KeyboardHandler, HasGameReference<ExpedienteKorinGame>, CollisionCallbacks {
   
@@ -23,7 +23,7 @@ class MelCharacter extends PositionComponent
   bool _canHeal = true;
   final double _healCooldown = 15.0; // 15 segundos
   double _healTimer = 0.0;
-  static const double _healAmount = 100.0; // CuraciÃ³n completa
+  static const double _healAmount = 100.0; // Curación completa
   
   // Estado
   bool _isActive = true;
@@ -53,7 +53,7 @@ class MelCharacter extends PositionComponent
     
     if (!_isActive) return;
     
-    // Actualizar cooldown de curaciÃ³n
+    // Actualizar cooldown de curación
     if (!_canHeal) {
       _healTimer += dt;
       if (_healTimer >= _healCooldown) {
@@ -62,22 +62,22 @@ class MelCharacter extends PositionComponent
       }
     }
     
-    // Seguir al jugador (IA bÃ¡sica)
+    // Seguir al jugador (IA básica)
     _followPlayer(dt);
   }
   
   void _followPlayer(double dt) {
     final distanceToPlayer = position.distanceTo(player.position);
     
-    // Si estÃ¡ muy lejos, acercarse
+    // Si está muy lejos, acercarse
     if (distanceToPlayer > _followDistance) {
       final direction = (player.position - position).normalized();
       final newPos = position + direction * _speed * dt;
-      position = _constrainToWorldBounds(newPos); // Aplicar lÃ­mites
+      position = _constrainToWorldBounds(newPos); // Aplicar límites
     }
   }
   
-  /// Limita la posiciÃ³n a los bordes del mundo (dinÃ¡mico segÃºn tamaÃ±o del mapa)
+  /// Limita la posición a los bordes del mundo (dinámico según tamaño del mapa)
   Vector2 _constrainToWorldBounds(Vector2 pos) {
     final worldSize = game.camera.visibleWorldRect;
     
@@ -103,7 +103,7 @@ class MelCharacter extends PositionComponent
   
   @override
   bool onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
-    // Activar curaciÃ³n con tecla E
+    // Activar curación con tecla E
     if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyE) {
       activateHeal();
     }
@@ -111,7 +111,7 @@ class MelCharacter extends PositionComponent
     return true;
   }
   
-  /// Activa la habilidad de curaciÃ³n (Soporte Vital)
+  /// Activa la habilidad de curación (Soporte Vital)
   void activateHeal() {
     if (!_canHeal || player.isDead) return;
     
@@ -129,7 +129,7 @@ class MelCharacter extends PositionComponent
     // Por ahora solo un placeholder
   }
   
-  /// Invoca una esencia de la caÃ­da (habilidad futura)
+  /// Invoca una esencia de la caída (habilidad futura)
   void invokeEssence() {
     // Requiere haber derrotado mutados previamente
   }
@@ -150,7 +150,7 @@ class MelCharacter extends PositionComponent
   void render(Canvas canvas) {
     super.render(canvas);
     
-    // Dibujar cÃ­rculo de Mel
+    // Dibujar círculo de Mel
     canvas.drawCircle(
       (size / 2).toOffset(),
       _size / 2,

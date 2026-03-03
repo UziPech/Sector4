@@ -14,7 +14,7 @@ import '../../narrative/models/dialogue_data.dart';
 
 /// Nivel del mapa exterior post-resonante
 /// Mapa simple sin Tiled, generado proceduralmente
-/// INCLUYE: Sistema de invocaciÃ³n de On-Oyabun post-Kohaa
+/// INCLUYE: Sistema de invocación de On-Oyabun post-Kohaa
 class ExteriorMapLevel extends Component
     with HasGameReference<ExpedienteKorinGame> {
   late ResurrectionManager resurrectionManager;
@@ -25,7 +25,7 @@ class ExteriorMapLevel extends Component
   final int _initialEnemyCount = 5;
   YureiKohaa? _kohaa;
 
-  // Control de On-Oyabun (aparece despuÃ©s de Kohaa)
+  // Control de On-Oyabun (aparece después de Kohaa)
   bool _kohaaDefeated = false;
   bool _oyabunSpawned = false;
   bool _summoningInProgress = false;
@@ -52,7 +52,7 @@ class ExteriorMapLevel extends Component
     // Crear fondo del mapa
     await _createBackground();
 
-    // Crear paredes/obstÃ¡culos
+    // Crear paredes/obstáculos
     await _createWalls();
 
     // Posicionar jugador en el centro
@@ -106,7 +106,7 @@ class ExteriorMapLevel extends Component
 
         if (_aliveEnemyCount == 0) {
           _initialEnemiesCleared = true;
-          // Esperar 1 segundo y mostrar diÃ¡logo de Kohaa
+          // Esperar 1 segundo y mostrar diálogo de Kohaa
           Future.delayed(const Duration(milliseconds: 1000), () {
             _showKohaaIntro();
           });
@@ -122,7 +122,7 @@ class ExteriorMapLevel extends Component
       game.activeKohaa = null;
       debugPrint('ðŸ’€ Yurei Kohaa ha sido derrotada!');
       debugPrint(
-        'â³ On-Oyabun serÃ¡ invocado en $_postKohaaDelay segundos...',
+        'â³ On-Oyabun será invocado en $_postKohaaDelay segundos...',
       );
     }
 
@@ -149,14 +149,14 @@ class ExteriorMapLevel extends Component
         const DialogueData(
           speakerName: 'Sistema',
           text:
-              'ALERTA: Firma de energÃ­a anÃ³mala detectada. CategorÃ­a: KIJIN.',
+              'ALERTA: Firma de energía anómala detectada. Categoría: KIJIN.',
           type: DialogueType.system,
         ),
         DialogueData(
           speakerName: isDan ? 'Mel' : 'Dan',
           text: isDan
               ? 'Dan... esta presencia es diferente. No es un irracional.'
-              : 'Mel, Â¿sientes eso? Es diferente a los otros.',
+              : 'Mel, ¿sientes eso? Es diferente a los otros.',
           avatarPath: isDan
               ? 'assets/avatars/dialogue_icons/Mel_Dialogue.png'
               : 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
@@ -164,8 +164,8 @@ class ExteriorMapLevel extends Component
         DialogueData(
           speakerName: isDan ? 'Dan' : 'Mel',
           text: isDan
-              ? 'Â¿QuÃ© es? Se siente... triste. Como si el aire mismo estuviera llorando.'
-              : 'Es un Kijin. Nacido de muerte violenta y emociÃ³n intensa. Ten cuidado.',
+              ? '¿Qué es? Se siente... triste. Como si el aire mismo estuviera llorando.'
+              : 'Es un Kijin. Nacido de muerte violenta y emoción intensa. Ten cuidado.',
           avatarPath: isDan
               ? 'assets/avatars/dialogue_icons/Dan_Dialogue.png'
               : 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
@@ -174,24 +174,24 @@ class ExteriorMapLevel extends Component
           const DialogueData(
             speakerName: 'Mel',
             text:
-                'Los Kijin son nacidos de muertes violentas cargadas de emociÃ³n. Odio, amor traicionado, venganza...',
+                'Los Kijin son nacidos de muertes violentas cargadas de emoción. Odio, amor traicionado, venganza...',
             avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
           ),
         const DialogueData(
           speakerName: '???',
-          text: 'Ã‰l... me prometiÃ³ eternidad. Pero me dio... esto.',
+          text: 'Él... me prometió eternidad. Pero me dio... esto.',
           avatarPath: 'assets/avatars/dialogue_icons/kohaa_avatar.png',
         ),
         const DialogueData(
           speakerName: 'Yurei Kohaa',
           text:
-              'Una novia que no puede morir. Un amor que se pudriÃ³ en mis venas. Â¿Vienes a liberarme?',
+              'Una novia que no puede morir. Un amor que se pudrió en mis venas. ¿Vienes a liberarme?',
           avatarPath: 'assets/avatars/dialogue_icons/kohaa_avatar.png',
         ),
         DialogueData(
           speakerName: isDan ? 'Dan' : 'Mel',
           text: isDan
-              ? 'No quiero pelear contigo. Pero si no me dejas opciÃ³n...'
+              ? 'No quiero pelear contigo. Pero si no me dejas opción...'
               : 'No busco pelea. Pero no puedo permitir que lastimes a otros.',
           avatarPath: isDan
               ? 'assets/avatars/dialogue_icons/Dan_Dialogue.png'
@@ -225,17 +225,17 @@ class ExteriorMapLevel extends Component
 
   // ==================== ON-OYABUN SUMMONING LOGIC ====================
 
-  /// Inicia el ritual de invocaciÃ³n de On-Oyabun
+  /// Inicia el ritual de invocación de On-Oyabun
   void _startOyabunSummoning() {
     if (_summoningInProgress || _oyabunSpawned) return;
 
     _summoningInProgress = true;
-    debugPrint('ðŸ”´ INICIANDO RITUAL DE INVOCACIÃ“N DE ON-OYABUN...');
+    debugPrint('ðŸ”´ INICIANDO RITUAL DE INVOCACIÓN DE ON-OYABUN...');
 
-    // PosiciÃ³n central del mapa para el ritual
+    // Posición central del mapa para el ritual
     final summoningPosition = Vector2(mapWidth / 2, mapHeight / 2);
 
-    // Crear cÃ­rculo de invocaciÃ³n
+    // Crear círculo de invocación
     final circle = SummoningCircle(
       position: summoningPosition,
       onSummoningComplete: () {
@@ -245,16 +245,16 @@ class ExteriorMapLevel extends Component
     );
     game.world.add(circle);
 
-    // Crear las 28 katanas formando un cÃ­rculo
+    // Crear las 28 katanas formando un círculo
     _create28KatanaCircle(summoningPosition);
 
-    // Mostrar diÃ¡logo de invocaciÃ³n
+    // Mostrar diálogo de invocación
     Future.delayed(const Duration(milliseconds: 500), () {
       _showOyabunIntro();
     });
   }
 
-  /// Crea un cÃ­rculo de 28 katanas en el suelo
+  /// Crea un círculo de 28 katanas en el suelo
   void _create28KatanaCircle(Vector2 center) {
     const int katanaCount = 28;
     const double radiusCircle = 180.0;
@@ -275,7 +275,7 @@ class ExteriorMapLevel extends Component
     debugPrint('âš”ï¸ 28 katanas han emergido del suelo...');
   }
 
-  /// DiÃ¡logo de introducciÃ³n de On-Oyabun
+  /// Diálogo de introducción de On-Oyabun
   void _showOyabunIntro() {
     if (game.buildContext == null || _oyabunSpawned) return;
 
@@ -289,14 +289,14 @@ class ExteriorMapLevel extends Component
         const DialogueData(
           speakerName: 'Sistema',
           text:
-              'ALERTA: Las almas liberadas han despertado algo mÃ¡s profundo...',
+              'ALERTA: Las almas liberadas han despertado algo más profundo...',
           type: DialogueType.system,
         ),
         DialogueData(
           speakerName: isDan ? 'Mel' : 'Dan',
           text: isDan
-              ? 'Dan... las katanas estÃ¡n emergiendo del suelo. Esta presencia...'
-              : 'Mel, Â¿lo sientes? No es solo un Kijin. Es algo peor.',
+              ? 'Dan... las katanas están emergiendo del suelo. Esta presencia...'
+              : 'Mel, ¿lo sientes? No es solo un Kijin. Es algo peor.',
           avatarPath: isDan
               ? 'assets/avatars/dialogue_icons/Mel_Dialogue.png'
               : 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
@@ -304,22 +304,22 @@ class ExteriorMapLevel extends Component
         const DialogueData(
           speakerName: '???',
           text:
-              '...VeintitrÃ©s almas. Cinco guerreros. Todos cayeron ante mi filo.',
+              '...Veintitrés almas. Cinco guerreros. Todos cayeron ante mi filo.',
         ),
         const DialogueData(
           speakerName: '???',
-          text: 'Y ahora... ahora ellos viven en mÃ­. Y yo vivo en ellos.',
+          text: 'Y ahora... ahora ellos viven en mí. Y yo vivo en ellos.',
         ),
         const DialogueData(
           speakerName: 'On-Oyabun',
           text:
-              'Kohaa ha caÃ­do. Su dolor resonÃ³ con el mÃ­o. Ahora... es mi turno.',
+              'Kohaa ha caído. Su dolor resonó con el mío. Ahora... es mi turno.',
         ),
         DialogueData(
           speakerName: isDan ? 'Dan' : 'Mel',
           text: isDan
-              ? 'Esto es diferente. Es... mÃ¡s antiguo. MÃ¡s poderoso.'
-              : 'Una Singularidad. Una fusiÃ³n de vÃ­ctima y verdugo. Cuidado, Dan.',
+              ? 'Esto es diferente. Es... más antiguo. Más poderoso.'
+              : 'Una Singularidad. Una fusión de víctima y verdugo. Cuidado, Dan.',
           avatarPath: isDan
               ? 'assets/avatars/dialogue_icons/Dan_Dialogue.png'
               : 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
@@ -358,7 +358,7 @@ class ExteriorMapLevel extends Component
   }
 
   Future<void> _createWalls() async {
-    // Paredes del perÃ­metro (lÃ­mites del mapa)
+    // Paredes del perímetro (límites del mapa)
     final wallThickness = 40.0;
 
     // Pared superior
@@ -399,7 +399,7 @@ class ExteriorMapLevel extends Component
 
   Future<void> _createMapObjectCollisions() async {
     // Basado en la imagen del mapa (1600x1200), crear hitboxes para cada objeto visible
-    // Coordenadas ajustadas segÃºn la imagen real
+    // Coordenadas ajustadas según la imagen real
 
     // === LADO IZQUIERDO (ZONA ROJA) ===
 
@@ -508,7 +508,7 @@ class ExteriorMapLevel extends Component
       ),
     );
 
-    // Charco verde (tÃ³xico) derecha - Ã¡rea de daÃ±o
+    // Charco verde (tóxico) derecha - área de daño
     await game.world.add(
       _SimpleWall(
         position: Vector2(1300, 600),
@@ -533,7 +533,7 @@ class _MapBackground extends SpriteComponent
       sprite = await game.loadSprite('city_map_night.png');
     } catch (e) {
       debugPrint('âŒ Error loading background image: $e');
-      // Si falla, usar fondo de color sÃ³lido
+      // Si falla, usar fondo de color sólido
     }
   }
 
@@ -541,7 +541,7 @@ class _MapBackground extends SpriteComponent
   int get priority => -100; // Renderizar primero (fondo)
 }
 
-/// Componente simple de pared/obstÃ¡culo
+/// Componente simple de pared/obstáculo
 class _SimpleWall extends PositionComponent {
   final bool isObstacle;
 
@@ -563,8 +563,8 @@ class _SimpleWall extends PositionComponent {
   void render(Canvas canvas) {
     super.render(canvas);
 
-    // Solo renderizar paredes perimetrales (no obstÃ¡culos)
-    // Los obstÃ¡culos son invisibles pero tienen colisiÃ³n
+    // Solo renderizar paredes perimetrales (no obstáculos)
+    // Los obstáculos son invisibles pero tienen colisión
     if (!isObstacle) {
       final wallPaint = Paint()
         ..color = const Color(0xFF2a2a2a)
@@ -591,7 +591,7 @@ class _SimpleWall extends PositionComponent {
   }
 }
 
-/// Katana clavada en el suelo (para el cÃ­rculo de invocaciÃ³n de Oyabun)
+/// Katana clavada en el suelo (para el círculo de invocación de Oyabun)
 class _GroundKatana extends PositionComponent {
   final double katanaAngle;
 
@@ -617,7 +617,7 @@ class _GroundKatana extends PositionComponent {
 
     canvas.drawRect(Rect.fromLTWH(0, 0, size.x, size.y * 0.8), bladePaint);
 
-    // EmpuÃ±adura (negra/roja)
+    // Empuñadura (negra/roja)
     final handlePaint = Paint()
       ..color = const Color(0xFF8B0000)
       ..style = PaintingStyle.fill;

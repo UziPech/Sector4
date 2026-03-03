@@ -7,7 +7,7 @@ import '../models/dialogue_data.dart';
 import '../components/dialogue_system.dart';
 import '../../game/ui/game_ui.dart';
 
-/// Pantalla de selecciÃ³n de rol (Dan vs Mel)
+/// Pantalla de selección de rol (Dan vs Mel)
 class RoleSelectionScreen extends StatefulWidget {
   const RoleSelectionScreen({super.key});
 
@@ -36,13 +36,13 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // TÃ­tulo
+              // Título
               Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
                   children: [
                     Text(
-                      'SELECCIÃ“N DE OPERADOR',
+                      'SELECCIÓN DE OPERADOR',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 28,
@@ -59,7 +59,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Â¿QuiÃ©n toma el punto?',
+                      '¿Quién toma el punto?',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.7),
                         fontSize: 16,
@@ -105,7 +105,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                 ),
               ),
               
-              // BotÃ³n confirmar
+              // Botón confirmar
               if (_selectedRole != null)
                 Padding(
                   padding: const EdgeInsets.all(24.0),
@@ -128,7 +128,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                             ),
                           ),
                           child: const Text(
-                            'CONFIRMAR SELECCIÃ“N',
+                            'CONFIRMAR SELECCIÓN',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -159,10 +159,10 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
       _isConfirming = true;
     });
 
-    // Guardar selecciÃ³n
+    // Guardar selección
     RoleSelection.selectRole(_selectedRole!);
 
-    // Mostrar diÃ¡logo post-selecciÃ³n
+    // Mostrar diálogo post-selección
     _showPostSelectionDialogue();
   }
 
@@ -176,7 +176,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
             ),
             DialogueData(
               speakerName: 'Mel',
-              text: 'Te cubro desde atrÃ¡s. No dejes que te rodeen.',
+              text: 'Te cubro desde atrás. No dejes que te rodeen.',
               avatarPath: 'assets/avatars/mel.png',
               type: DialogueType.normal,
             ),
@@ -184,13 +184,13 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
         : const [
             DialogueData(
               speakerName: 'Mel',
-              text: 'EstÃ¡ bien. Puedo hacer esto. Siento cada latido, cada movimiento. Estoy lista.',
+              text: 'Está bien. Puedo hacer esto. Siento cada latido, cada movimiento. Estoy lista.',
               avatarPath: 'assets/avatars/mel.png',
               type: DialogueType.normal,
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: 'Ella es mÃ¡s fuerte de lo que cree. MÃ¡s fuerte de lo que yo jamÃ¡s fui. QuizÃ¡s la CaÃ­da eligiÃ³ a la persona correcta.',
+              text: 'Ella es más fuerte de lo que cree. Más fuerte de lo que yo jamás fui. Quizás la Caída eligió a la persona correcta.',
               type: DialogueType.internal,
             ),
           ];
@@ -285,7 +285,7 @@ class _RoleCard extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // TÃ­tulo
+              // Título
               Text(
                 isDan ? 'DAN' : 'MEL',
                 style: TextStyle(
@@ -298,7 +298,7 @@ class _RoleCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                isDan ? 'OPERADOR TÃCTICO' : 'PORTADORA DE LA CAÃDA',
+                isDan ? 'OPERADOR TÁCTICO' : 'PORTADORA DE LA CAÍDA',
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.8),
                   fontSize: 12,
@@ -308,11 +308,11 @@ class _RoleCard extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               
-              // DescripciÃ³n
+              // Descripción
               Text(
                 isDan
                     ? 'Entrenamiento militar. Armas convencionales. Sin margen de error.'
-                    : 'MutaciÃ³n controlada. RegeneraciÃ³n. Dominio sobre la vida y la muerte.',
+                    : 'Mutación controlada. Regeneración. Dominio sobre la vida y la muerte.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.9),
@@ -389,8 +389,8 @@ class _RoleCard extends StatelessWidget {
                 ),
                 child: Text(
                   isDan
-                      ? '"El peso del metal. El olor de la pÃ³lvora. Esto es lo que conozco. Esto es lo que soy. Un soldado sin guerra, un fantasma con un propÃ³sito."'
-                      : '"Siento el pulso de la CaÃ­da en mis venas. No es una maldiciÃ³n. Es una herramienta. Y voy a usarla para proteger lo que queda."',
+                      ? '"El peso del metal. El olor de la pólvora. Esto es lo que conozco. Esto es lo que soy. Un soldado sin guerra, un fantasma con un propósito."'
+                      : '"Siento el pulso de la Caída en mis venas. No es una maldición. Es una herramienta. Y voy a usarla para proteger lo que queda."',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.8),
@@ -409,7 +409,7 @@ class _RoleCard extends StatelessWidget {
   }
 }
 
-/// Widget para mostrar una fila de estadÃ­stica
+/// Widget para mostrar una fila de estadística
 class _StatRow extends StatelessWidget {
   final String label;
   final String value;

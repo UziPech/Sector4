@@ -10,38 +10,38 @@ import 'redeemed_kijin_ally.dart';
 import 'irracional.dart';
 import '../bosses/on_oyabun_boss.dart';
 
-/// Yurei Kohaa - Jefe Kijin (CategorÃ­a 2)
-/// La Novia Escarlata - Un enemigo tÃ¡ctico y peligroso
+/// Yurei Kohaa - Jefe Kijin (Categoría 2)
+/// La Novia Escarlata - Un enemigo táctico y peligroso
 class YureiKohaa extends PositionComponent
     with HasGameReference<ExpedienteKorinGame>, CollisionCallbacks {
   double _health;
-  final double _maxHealth = 3000.0; // Â¡10x mÃ¡s resistente!
+  final double _maxHealth = 3000.0; // ¡10x más resistente!
   final double _speed = 150.0;
   final double _damage = 25.0;
   final double _attackRange = 50.0;
   final double _attackCooldown = 1.2;
   double _attackTimer = 0.0;
 
-  // Dash attack (MÃS FRECUENTE)
+  // Dash attack (MÁS FRECUENTE)
   final double _dashCooldown = 4.0; // Reducido de 5s a 4s
   double _dashTimer = 0.0;
   bool _isDashing = false;
-  bool _isPreparingDash = false; // Nueva: preparaciÃ³n antes del dash
+  bool _isPreparingDash = false; // Nueva: preparación antes del dash
   final double _dashPreparationTime =
-      0.8; // Tiempo de preparaciÃ³n (INVULNERABLE)
+      0.8; // Tiempo de preparación (INVULNERABLE)
   double _dashPreparationTimer = 0.0;
-  final double _dashDuration = 0.4; // DuraciÃ³n mÃ¡s larga
+  final double _dashDuration = 0.4; // Duración más larga
   double _dashTime = 0.0;
   Vector2 _dashDirection = Vector2.zero();
-  final double _dashSpeed = 500.0; // MÃ¡s rÃ¡pido
+  final double _dashSpeed = 500.0; // Más rápido
 
-  // ExplosiÃ³n defensiva (NUEVA HABILIDAD)
+  // Explosión defensiva (NUEVA HABILIDAD)
   final double _defensiveExplosionCooldown = 12.0; // Cooldown de 12 segundos
   double _defensiveExplosionTimer = 0.0;
   bool _canUseDefensiveExplosion = true;
   final double _defensiveExplosionThreshold = 0.3; // 30% HP
 
-  // RegeneraciÃ³n de vida
+  // Regeneración de vida
   double _regenerationTimer = 0.0;
 
   // Sistema de huida cuando tiene poca vida
@@ -49,18 +49,18 @@ class YureiKohaa extends PositionComponent
   final double _fleeHealthThreshold = 0.15; // 15% HP (solo huye en emergencia)
   final double _fleeDistance = 300.0; // Distancia de huida
   double _fleeTimer = 0.0; // Timer para evitar huir indefinidamente
-  final double _maxFleeTime = 4.0; // MÃ¡ximo 4s huyendo antes de volver
-  Vector2? _fleeTargetPosition; // PosiciÃ³n objetivo al huir
+  final double _maxFleeTime = 4.0; // Máximo 4s huyendo antes de volver
+  Vector2? _fleeTargetPosition; // Posición objetivo al huir
   int _fleeCount = 0; // Contador de veces que ha huido
-  final int _maxFleeCount = 2; // MÃ¡ximo 2 huidas por combate
+  final int _maxFleeCount = 2; // Máximo 2 huidas por combate
 
-  // Sistema de curaciÃ³n cuando estÃ¡ segura
+  // Sistema de curación cuando está segura
   double _healingTimer = 0.0;
-  final double _healingInterval = 3.0; // Curar cada 3s (mÃ¡s lento)
+  final double _healingInterval = 3.0; // Curar cada 3s (más lento)
   final double _healingAmount = 30.0; // 30 HP por tick (reducido)
   final double _safeDistance = 250.0; // Distancia segura del peligro
   double _totalHealingReceived = 0.0; // Total curado
-  final double _maxTotalHealing = 300.0; // MÃ¡ximo 300 HP de curaciÃ³n total
+  final double _maxTotalHealing = 300.0; // Máximo 300 HP de curación total
 
   // Spawn de enfermeros (a 50% HP)
   bool _hasSpawnedNurses = false;
@@ -104,7 +104,7 @@ class YureiKohaa extends PositionComponent
     // Agregar hitbox
     add(CircleHitbox(radius: _size / 2, collisionType: CollisionType.passive));
 
-    // Inicializar painter del nombre (es estÃ¡tico)
+    // Inicializar painter del nombre (es estático)
     _bossNamePainter = TextPainter(
       text: const TextSpan(
         text: 'YUREI KOHAA',
@@ -155,9 +155,9 @@ class YureiKohaa extends PositionComponent
 
     if (_isDead) return;
 
-    // Actualizar animaciÃ³n de sprites segÃºn estado
+    // Actualizar animación de sprites según estado
     if (_spriteComponent != null) {
-      // Determinar animaciÃ³n segÃºn velocidad
+      // Determinar animación según velocidad
       final velocity = _isDashing
           ? _dashDirection * _dashSpeed
           : (_currentTarget != null &&
@@ -182,29 +182,29 @@ class YureiKohaa extends PositionComponent
       }
     }
 
-    // LÃ³gica de preparaciÃ³n del dash (INVULNERABLE)
+    // Lógica de preparación del dash (INVULNERABLE)
     if (_isPreparingDash) {
       _dashPreparationTimer += dt;
       if (_dashPreparationTimer >= _dashPreparationTime) {
-        // Terminar preparaciÃ³n, ejecutar dash
+        // Terminar preparación, ejecutar dash
         _isPreparingDash = false;
         _isDashing = true;
         _dashPreparationTimer = 0.0;
       }
-      return; // No moverse durante preparaciÃ³n
+      return; // No moverse durante preparación
     }
 
-    // LÃ³gica de dash
+    // Lógica de dash
     if (_isDashing) {
       _dashTime += dt;
       if (_dashTime >= _dashDuration) {
         _isDashing = false;
         _dashTime = 0.0;
       } else {
-        // Moverse en la direcciÃ³n del dash
+        // Moverse en la dirección del dash
         final newPos = position + (_dashDirection * _dashSpeed * dt);
 
-        // Aplicar lÃ­mites estrictos durante dash
+        // Aplicar límites estrictos durante dash
         const double worldMinX = 150.0;
         const double worldMaxX = 2850.0;
         const double worldMinY = 150.0;
@@ -216,12 +216,12 @@ class YureiKohaa extends PositionComponent
       }
     }
 
-    // RegeneraciÃ³n gradual
+    // Regeneración gradual
     if (_regenerationTimer > 0) {
       _regenerationTimer -= dt;
     }
 
-    // Sistema de curaciÃ³n cuando estÃ¡ segura
+    // Sistema de curación cuando está segura
     _updateHealing(dt);
 
     // IA: Decidir objetivo y atacar (o huir)
@@ -240,21 +240,21 @@ class YureiKohaa extends PositionComponent
     final healthPercent = _health / _maxHealth;
 
     // COMPORTAMIENTO DE HUIDA cuando tiene poca vida
-    // EXCEPTO si estÃ¡ luchando contra el boss final O si ya huyÃ³ muchas veces
+    // EXCEPTO si está luchando contra el boss final O si ya huyó muchas veces
     if (healthPercent <= _fleeHealthThreshold && !_isFleeing) {
       // NO huir si el objetivo es el boss final
       if (_currentTarget is OnOyabunBoss) {
       }
-      // NO huir si ya alcanzÃ³ el lÃ­mite de huidas
+      // NO huir si ya alcanzó el límite de huidas
       else if (_fleeCount >= _maxFleeCount) {
         // Solo imprimir una vez cada cierto tiempo o no imprimir
       }
-      // Huir solo si aÃºn tiene huidas disponibles
+      // Huir solo si aún tiene huidas disponibles
       else {
         _isFleeing = true;
         _fleeTimer = 0.0;
         _fleeCount++;
-        _fleeTargetPosition = null; // Resetear posiciÃ³n objetivo
+        _fleeTargetPosition = null; // Resetear posición objetivo
       }
     }
 
@@ -263,8 +263,8 @@ class YureiKohaa extends PositionComponent
       _fleeTimer += dt;
 
       // Condiciones para dejar de huir:
-      // 1. Se recuperÃ³ suficiente HP
-      // 2. PasÃ³ el tiempo mÃ¡ximo de huida
+      // 1. Se recuperó suficiente HP
+      // 2. Pasó el tiempo máximo de huida
       if (healthPercent > _fleeHealthThreshold + 0.15 ||
           _fleeTimer >= _maxFleeTime) {
         _isFleeing = false;
@@ -273,14 +273,14 @@ class YureiKohaa extends PositionComponent
       }
     }
 
-    // Si estÃ¡ huyendo, usar lÃ³gica inteligente
+    // Si está huyendo, usar lógica inteligente
     if (_isFleeing) {
       _updateFleeingBehavior(dt, distanceToTarget);
       return;
     }
 
     // COMPORTAMIENTO NORMAL: Atacar
-    // Intentar dash si estÃ¡ listo (RANGO MÃS AMPLIO)
+    // Intentar dash si está listo (RANGO MÁS AMPLIO)
     if (_dashTimer <= 0 && distanceToTarget > 80 && distanceToTarget < 400) {
       _executeDash();
       return;
@@ -291,7 +291,7 @@ class YureiKohaa extends PositionComponent
       final direction = (_currentTarget!.position - position).normalized();
       final newPos = position + (direction * _speed * dt);
 
-      // Aplicar lÃ­mites estrictos
+      // Aplicar límites estrictos
       const double worldMinX = 150.0;
       const double worldMaxX = 2850.0;
       const double worldMinY = 150.0;
@@ -300,7 +300,7 @@ class YureiKohaa extends PositionComponent
       position.x = newPos.x.clamp(worldMinX, worldMaxX);
       position.y = newPos.y.clamp(worldMinY, worldMaxY);
     } else {
-      // Atacar si estÃ¡ en rango
+      // Atacar si está en rango
       _tryAttack();
     }
   }
@@ -309,7 +309,7 @@ class YureiKohaa extends PositionComponent
   void _updateFleeingBehavior(double dt, double distanceToTarget) {
     if (_currentTarget == null) return;
 
-    // DESHABILITAR HUIDA si estÃ¡ luchando contra el boss final
+    // DESHABILITAR HUIDA si está luchando contra el boss final
     // Esto la hace mortal y evita que sea invencible
     if (_currentTarget is OnOyabunBoss) {
       _isFleeing = false;
@@ -317,7 +317,7 @@ class YureiKohaa extends PositionComponent
       return;
     }
 
-    // Si no tenemos posiciÃ³n objetivo o estamos cerca de ella, calcular nueva
+    // Si no tenemos posición objetivo o estamos cerca de ella, calcular nueva
     if (_fleeTargetPosition == null ||
         position.distanceTo(_fleeTargetPosition!) < 50) {
       _fleeTargetPosition = _calculateSafeFleePosition();
@@ -325,19 +325,19 @@ class YureiKohaa extends PositionComponent
 
     // Si estamos lo suficientemente lejos, quedarnos quietos y curar
     if (distanceToTarget >= _fleeDistance) {
-      // Quieta, curÃ¡ndose
-      _constrainToWorldBounds(); // Asegurar que estÃ¡ dentro de lÃ­mites
+      // Quieta, curándose
+      _constrainToWorldBounds(); // Asegurar que está dentro de límites
       return;
     }
 
-    // Moverse hacia la posiciÃ³n segura
+    // Moverse hacia la posición segura
     if (_fleeTargetPosition != null) {
       final direction = (_fleeTargetPosition! - position).normalized();
       final newPos =
           position +
-          (direction * _speed * dt * 1.3); // 30% mÃ¡s rÃ¡pido al huir
+          (direction * _speed * dt * 1.3); // 30% más rápido al huir
 
-      // Aplicar lÃ­mites ANTES de mover
+      // Aplicar límites ANTES de mover
       const double worldMinX = 150.0;
       const double worldMaxX = 2850.0;
       const double worldMinY = 150.0;
@@ -348,11 +348,11 @@ class YureiKohaa extends PositionComponent
     }
   }
 
-  /// Calcula una posiciÃ³n segura para huir (evita esquinas y bordes)
+  /// Calcula una posición segura para huir (evita esquinas y bordes)
   Vector2 _calculateSafeFleePosition() {
     if (_currentTarget == null) return position.clone();
 
-    // Centro del mapa (posiciÃ³n mÃ¡s segura)
+    // Centro del mapa (posición más segura)
     const double centerX = 1500.0;
     const double centerY = 1500.0;
     final mapCenter = Vector2(centerX, centerY);
@@ -360,26 +360,26 @@ class YureiKohaa extends PositionComponent
     // Vector desde el peligro hacia nosotros
     final awayFromThreat = (position - _currentTarget!.position).normalized();
 
-    // PosiciÃ³n ideal: lejos del peligro pero cerca del centro
+    // Posición ideal: lejos del peligro pero cerca del centro
     final idealPosition =
         _currentTarget!.position + (awayFromThreat * _fleeDistance);
 
-    // Interpolar entre posiciÃ³n ideal y centro del mapa
+    // Interpolar entre posición ideal y centro del mapa
     // Esto evita que se vaya a las esquinas
     final safePosition = idealPosition * 0.6 + mapCenter * 0.4;
 
-    // Asegurar que estÃ¡ dentro de lÃ­mites
+    // Asegurar que está dentro de límites
     return Vector2(
       safePosition.x.clamp(200.0, 2800.0),
       safePosition.y.clamp(200.0, 2800.0),
     );
   }
 
-  /// Sistema de curaciÃ³n cuando estÃ¡ segura (con lÃ­mite total)
+  /// Sistema de curación cuando está segura (con límite total)
   void _updateHealing(double dt) {
     if (_isDead) return;
 
-    // Solo curar si estÃ¡ huyendo o lejos del peligro
+    // Solo curar si está huyendo o lejos del peligro
     bool isSafe = false;
 
     if (_isFleeing && _currentTarget != null) {
@@ -391,7 +391,7 @@ class YureiKohaa extends PositionComponent
       _healingTimer += dt;
 
       if (_healingTimer >= _healingInterval) {
-        // Verificar si aÃºn puede curarse (lÃ­mite total)
+        // Verificar si aún puede curarse (límite total)
         if (_totalHealingReceived >= _maxTotalHealing) {
           _healingTimer = 0.0;
           return;
@@ -412,18 +412,18 @@ class YureiKohaa extends PositionComponent
         _healingTimer = 0.0;
       }
     } else {
-      _healingTimer = 0.0; // Resetear timer si no estÃ¡ segura
+      _healingTimer = 0.0; // Resetear timer si no está segura
     }
   }
 
-  /// Restringe la posiciÃ³n a los lÃ­mites del mundo (con deslizamiento)
+  /// Restringe la posición a los límites del mundo (con deslizamiento)
   void _constrainToWorldBounds() {
     const double worldMinX = 150.0; // Ajustado para coincidir con paredes
     const double worldMaxX = 2850.0;
     const double worldMinY = 150.0; // Ajustado para coincidir con paredes
     const double worldMaxY = 2850.0;
 
-    // Solo aplicar lÃ­mites, sin modificar velocidad (permite deslizamiento natural)
+    // Solo aplicar límites, sin modificar velocidad (permite deslizamiento natural)
     position.x = position.x.clamp(worldMinX, worldMaxX);
     position.y = position.y.clamp(worldMinY, worldMaxY);
   }
@@ -435,7 +435,7 @@ class YureiKohaa extends PositionComponent
     // OPTIMIZED: Use cached reference instead of query
     final boss = game.activeBoss;
 
-    // Si existe el boss final, PRIORIDAD MÃXIMA (90% chance - mÃ¡s agresiva)
+    // Si existe el boss final, PRIORIDAD MÁXIMA (90% chance - más agresiva)
     if (boss != null && !boss.isDead && random.nextDouble() < 0.9) {
       _currentTarget = boss;
       if (_currentTarget != boss) {
@@ -476,7 +476,7 @@ class YureiKohaa extends PositionComponent
   void _executeDash() {
     if (_currentTarget == null) return;
 
-    // Iniciar PREPARACIÃ“N (fase invulnerable)
+    // Iniciar PREPARACIÓN (fase invulnerable)
     _isPreparingDash = true;
     _dashPreparationTimer = 0.0;
     _dashTime = 0.0;
@@ -491,24 +491,24 @@ class YureiKohaa extends PositionComponent
   ) {
     super.onCollisionStart(intersectionPoints, other);
 
-    // Solo hacer daÃ±o durante el dash
+    // Solo hacer daño durante el dash
     if (!_isDashing) return;
 
-    const double dashDamage = 50.0; // DaÃ±o del dash
+    const double dashDamage = 50.0; // Daño del dash
 
-    // ColisiÃ³n con jugador
+    // Colisión con jugador
     if (other is PlayerCharacter) {
       other.takeDamage(dashDamage);
     }
-    // ColisiÃ³n con aliados normales
+    // Colisión con aliados normales
     else if (other is AlliedEnemy) {
       other.takeDamage(dashDamage);
     }
-    // ColisiÃ³n con aliados Kijin
+    // Colisión con aliados Kijin
     else if (other is RedeemedKijinAlly) {
       other.takeDamage(dashDamage);
     }
-    // ColisiÃ³n con el boss final
+    // Colisión con el boss final
     else if (other is OnOyabunBoss) {
       other.takeDamage(dashDamage);
     }
@@ -536,18 +536,18 @@ class YureiKohaa extends PositionComponent
     }
   }
 
-  /// Recibe daÃ±o
+  /// Recibe daño
   void takeDamage(double damage) {
     if (_isDead) return;
 
-    // INVULNERABLE durante preparaciÃ³n del dash
+    // INVULNERABLE durante preparación del dash
     if (_isPreparingDash) {
       return;
     }
 
     _health -= damage;
 
-    // NUEVA: ExplosiÃ³n defensiva cuando estÃ¡ baja de vida
+    // NUEVA: Explosión defensiva cuando está baja de vida
     final healthPercent = _health / _maxHealth;
     if (healthPercent <= _defensiveExplosionThreshold &&
         _canUseDefensiveExplosion) {
@@ -556,7 +556,7 @@ class YureiKohaa extends PositionComponent
       _defensiveExplosionTimer = _defensiveExplosionCooldown;
     }
 
-    // Spawn de enfermeros a 60% HP (MÃS TEMPRANO)
+    // Spawn de enfermeros a 60% HP (MÁS TEMPRANO)
     if (!_hasSpawnedNurses && _health <= _maxHealth * 0.6) {
       _spawnNurses();
       _hasSpawnedNurses = true;
@@ -568,8 +568,8 @@ class YureiKohaa extends PositionComponent
     }
   }
 
-  /// NUEVA HABILIDAD: ExplosiÃ³n Defensiva
-  /// Se activa cuando Kohaa estÃ¡ baja de vida (< 30%)
+  /// NUEVA HABILIDAD: Explosión Defensiva
+  /// Se activa cuando Kohaa está baja de vida (< 30%)
   void _executeDefensiveExplosion() {
     const double explosionRadius = 250.0;
     const double explosionDamage = 40.0;
@@ -579,7 +579,7 @@ class YureiKohaa extends PositionComponent
     // CURARSE
     _health = (_health + healAmount).clamp(0.0, _maxHealth);
 
-    // DaÃ±ar y empujar al jugador
+    // Dañar y empujar al jugador
     final player = game.player;
     final distToPlayer = position.distanceTo(player.position);
     if (distToPlayer <= explosionRadius) {
@@ -589,7 +589,7 @@ class YureiKohaa extends PositionComponent
       player.position += pushDirection * pushForce * 0.15;
     }
 
-    // DaÃ±ar y empujar aliados normales
+    // Dañar y empujar aliados normales
     final normalAllies = game.world.children.query<AlliedEnemy>();
     for (final ally in normalAllies) {
       if (ally.isDead) continue;
@@ -601,7 +601,7 @@ class YureiKohaa extends PositionComponent
       }
     }
 
-    // DaÃ±ar y empujar aliados Kijin
+    // Dañar y empujar aliados Kijin
     final kijinAllies = game.world.children.query<RedeemedKijinAlly>();
     for (final ally in kijinAllies) {
       if (ally.isDead) continue;
@@ -640,23 +640,23 @@ class YureiKohaa extends PositionComponent
     }
   }
 
-  /// Ataque AOE al cambiar de fase - DaÃ±a y empuja
+  /// Ataque AOE al cambiar de fase - Daña y empuja
   void _executePhaseTransitionAOE() {
     const double aoeRadius = 200.0;
     const double aoeDamage = 30.0;
     const double pushForce = 300.0;
 
-    // DaÃ±ar jugador si estÃ¡ cerca
+    // Dañar jugador si está cerca
     final player = game.player;
     final distToPlayer = position.distanceTo(player.position);
     if (distToPlayer <= aoeRadius) {
       player.takeDamage(aoeDamage);
       // Empujar jugador
       final pushDirection = (player.position - position).normalized();
-      player.position += pushDirection * pushForce * 0.1; // PequeÃ±o empuje
+      player.position += pushDirection * pushForce * 0.1; // Pequeño empuje
     }
 
-    // DaÃ±ar TODOS los aliados cercanos
+    // Dañar TODOS los aliados cercanos
     final normalAllies = game.world.children.query<AlliedEnemy>();
     for (final ally in normalAllies) {
       if (ally.isDead) continue;
@@ -669,7 +669,7 @@ class YureiKohaa extends PositionComponent
       }
     }
 
-    // DaÃ±ar aliados Kijin cercanos
+    // Dañar aliados Kijin cercanos
     final kijinAllies = game.world.children.query<RedeemedKijinAlly>();
     for (final ally in kijinAllies) {
       if (ally.isDead) continue;
@@ -685,7 +685,7 @@ class YureiKohaa extends PositionComponent
 
   /// Recuperar vida al reintentar (recarga entre muertes del jugador)
   void recoverHealthOnRetry(double amount) {
-    if (_isDead) return; // No recuperar si ya muriÃ³
+    if (_isDead) return; // No recuperar si ya murió
 
     _health = (_health + amount).clamp(0.0, _maxHealth);
   }
@@ -713,7 +713,7 @@ class YureiKohaa extends PositionComponent
     // Aura roja para Kijin (MANTENER) - using cached paint
     canvas.drawCircle((size / 2).toOffset(), _size / 2 + 8, _auraPaint);
 
-    // FALLBACK: Si sprites no cargaron, dibujar cÃ­rculo
+    // FALLBACK: Si sprites no cargaron, dibujar círculo
     if (_spriteComponent == null) {
       // Cuerpo de Kohaa (rojo oscuro) - FALLBACK
       canvas.drawCircle((size / 2).toOffset(), _size / 2, _bodyPaint);
@@ -724,13 +724,13 @@ class YureiKohaa extends PositionComponent
 
     // Indicador de HUIDA (verde pulsante)
     if (_isFleeing) {
-      // Determinar texto segÃºn estado
+      // Determinar texto según estado
       final healthPercent = _health / _maxHealth;
       String statusText;
       Color statusColor;
 
       if (healthPercent > _fleeHealthThreshold + 0.05) {
-        statusText = 'ðŸ’š CURÃNDOSE';
+        statusText = 'ðŸ’š CURÁNDOSE';
         statusColor = Colors.lightGreen;
       } else {
         statusText = 'ðŸƒ HUYENDO';
@@ -769,7 +769,7 @@ class YureiKohaa extends PositionComponent
       _lastStatusText = '';
     }
 
-    // Indicador de preparaciÃ³n (INVULNERABLE - dorado brillante)
+    // Indicador de preparación (INVULNERABLE - dorado brillante)
     if (_isPreparingDash) {
       final preparePaint = Paint()
         ..color = Colors.amber

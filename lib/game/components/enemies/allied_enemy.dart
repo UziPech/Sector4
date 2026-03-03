@@ -5,7 +5,7 @@ import '../../expediente_game.dart';
 import '../../systems/resurrection_system.dart';
 import '../enemy_tomb.dart';
 import 'irracional.dart';
-import 'yurei_kohaa.dart'; // AÃ±adido para poder atacar a Kohaa
+import 'yurei_kohaa.dart'; // Añadido para poder atacar a Kohaa
 import '../bosses/on_oyabun_boss.dart'; // Para atacar a On-Oyabun
 import 'minions/yakuza_ghost.dart'; // Para atacar minions del boss
 import 'minions/floating_katana.dart'; // Para atacar minions del boss
@@ -22,7 +22,7 @@ class AlliedEnemy extends PositionComponent
   late final double _attackCooldown;
   double _attackTimer = 0.0;
 
-  // DuraciÃ³n del aliado
+  // Duración del aliado
   final double _lifetime;
   double _lifetimeTimer = 0.0;
 
@@ -44,11 +44,11 @@ class AlliedEnemy extends PositionComponent
     this.enemyType = 'irracional',
   }) : _lifetime = lifetime,
        super(position: position) {
-    // Configurar estadÃ­sticas segÃºn el tipo de enemigo
+    // Configurar estadísticas según el tipo de enemigo
     _configureStats();
   }
 
-  /// Configura las estadÃ­sticas segÃºn el tipo de enemigo
+  /// Configura las estadísticas según el tipo de enemigo
   void _configureStats() {
     switch (enemyType) {
       case 'irracional':
@@ -129,12 +129,12 @@ class AlliedEnemy extends PositionComponent
     if (_currentTarget != null && _isTargetValid()) {
       final distanceToTarget = position.distanceTo(_currentTarget!.position);
 
-      // Acercarse si estÃ¡ lejos
+      // Acercarse si está lejos
       if (distanceToTarget > _attackRange) {
         final direction = (_currentTarget!.position - position).normalized();
         position += direction * _speed * dt;
       } else {
-        // Atacar si estÃ¡ en rango
+        // Atacar si está en rango
         _tryAttack();
       }
     }
@@ -143,7 +143,7 @@ class AlliedEnemy extends PositionComponent
   bool _isTargetValid() {
     if (_currentTarget == null) return false;
 
-    // Verificar si el objetivo sigue vivo segÃºn su tipo
+    // Verificar si el objetivo sigue vivo según su tipo
     if (_currentTarget is IrrationalEnemy) {
       return !(_currentTarget as IrrationalEnemy).isDead;
     } else if (_currentTarget is YureiKohaa) {
@@ -170,7 +170,7 @@ class AlliedEnemy extends PositionComponent
       if (kohaa.isDead) continue;
 
       final distance = position.distanceTo(kohaa.position);
-      // Si Yurei Kohaa estÃ¡ a menos de 300 unidades, SIEMPRE targetearla
+      // Si Yurei Kohaa está a menos de 300 unidades, SIEMPRE targetearla
       if (distance < 300.0) {
         nearest = kohaa;
         nearestDistance = distance;
@@ -182,13 +182,13 @@ class AlliedEnemy extends PositionComponent
       }
     }
 
-    // Si ya encontramos a Yurei Kohaa cerca, no buscar mÃ¡s
+    // Si ya encontramos a Yurei Kohaa cerca, no buscar más
     if (nearest is YureiKohaa && nearestDistance < 300.0) {
       _currentTarget = nearest;
       return;
     }
 
-    // PRIORIDAD 1: Atacar minions del boss (mÃ¡s fÃ¡ciles)
+    // PRIORIDAD 1: Atacar minions del boss (más fáciles)
     for (final ghost in ghosts) {
       if (ghost.isDead) continue;
       final distance = position.distanceTo(ghost.position);
@@ -235,28 +235,28 @@ class AlliedEnemy extends PositionComponent
   void _tryAttack() {
     if (_attackTimer > 0 || _currentTarget == null) return;
 
-    // Atacar segÃºn el tipo de enemigo
+    // Atacar según el tipo de enemigo
     if (_currentTarget is YakuzaGhost) {
       (_currentTarget as YakuzaGhost).takeDamage(_damage);
-      // [PERF] print('âš”ï¸ Enfermero atacÃ³ Fantasma Yakuza: $_damage daÃ±o');
+      // [PERF] print('âš”ï¸ Enfermero atacó Fantasma Yakuza: $_damage daño');
     } else if (_currentTarget is FloatingKatana) {
       (_currentTarget as FloatingKatana).takeDamage(_damage);
-      // [PERF] print('âš”ï¸ Enfermero atacÃ³ Katana Flotante: $_damage daÃ±o');
+      // [PERF] print('âš”ï¸ Enfermero atacó Katana Flotante: $_damage daño');
     } else if (_currentTarget is IrrationalEnemy) {
       (_currentTarget as IrrationalEnemy).takeDamage(_damage);
-      // [PERF] print('âš”ï¸ Aliado atacÃ³ Irracional: $_damage daÃ±o');
+      // [PERF] print('âš”ï¸ Aliado atacó Irracional: $_damage daño');
     } else if (_currentTarget is YureiKohaa) {
       (_currentTarget as YureiKohaa).takeDamage(_damage);
-      // [PERF] print('âš”ï¸ Aliado atacÃ³ Kohaa: $_damage daÃ±o');
+      // [PERF] print('âš”ï¸ Aliado atacó Kohaa: $_damage daño');
     } else if (_currentTarget is OnOyabunBoss) {
       (_currentTarget as OnOyabunBoss).takeDamage(_damage);
-      // [PERF] print('âš”ï¸ Aliado atacÃ³ ON-OYABUN: $_damage daÃ±o');
+      // [PERF] print('âš”ï¸ Aliado atacó ON-OYABUN: $_damage daño');
     }
 
     _attackTimer = _attackCooldown;
   }
 
-  /// Recibe daÃ±o (puede ser atacado por otros enemigos)
+  /// Recibe daño (puede ser atacado por otros enemigos)
   void takeDamage(double damage) {
     if (_isDead) return;
 
@@ -277,7 +277,7 @@ class AlliedEnemy extends PositionComponent
     removeFromParent();
   }
 
-  /// ExpiraciÃ³n natural del aliado
+  /// Expiración natural del aliado
   void _expire() {
     _isDead = true;
     // Crear efecto de desvanecimiento
@@ -295,7 +295,7 @@ class AlliedEnemy extends PositionComponent
     final tomb = EnemyTomb(
       position: position.clone(),
       enemyType: 'allied',
-      lifetime: 8.0, // Las tumbas de aliados duran mÃ¡s tiempo
+      lifetime: 8.0, // Las tumbas de aliados duran más tiempo
     );
     game.world.add(tomb);
   }

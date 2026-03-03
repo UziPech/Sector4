@@ -4,7 +4,7 @@ import '../models/chapter_info.dart';
 import 'house_scene.dart';
 import 'bunker_scene.dart';
 
-/// Pantalla de historia con tarjetas de capÃ­tulos
+/// Pantalla de historia con tarjetas de capítulos
 class StoryScreen extends StatefulWidget {
   const StoryScreen({super.key});
 
@@ -17,21 +17,21 @@ class _StoryScreenState extends State<StoryScreen> {
   List<int> _skippedChapters = [];
   bool _isLoading = true;
 
-  // DefiniciÃ³n de capÃ­tulos disponibles
+  // Definición de capítulos disponibles
   final List<ChapterInfo> _chapters = const [
     ChapterInfo(
       number: 1,
-      title: 'CapÃ­tulo 1: El Despertar',
+      title: 'Capítulo 1: El Despertar',
       description: 'El sufrimiento de un padre...',
       sceneBuilder: HouseScene.new,
     ),
     ChapterInfo(
       number: 2,
-      title: 'CapÃ­tulo 2: El BÃºnker',
+      title: 'Capítulo 2: El Búnker',
       description: 'Debemos preocuparnos...',
       sceneBuilder: BunkerScene.new,
     ),
-    // Agregar mÃ¡s capÃ­tulos aquÃ­ en el futuro
+    // Agregar más capítulos aquí en el futuro
   ];
 
   @override
@@ -90,7 +90,7 @@ class _StoryScreenState extends State<StoryScreen> {
                   ],
                 ),
               ),
-              // Lista de capÃ­tulos
+              // Lista de capítulos
               Expanded(
                 child: _isLoading
                     ? const Center(
@@ -141,11 +141,11 @@ class _StoryScreenState extends State<StoryScreen> {
       builder: (context) => AlertDialog(
         backgroundColor: Colors.grey[900],
         title: const Text(
-          'Skipear CapÃ­tulo',
+          'Skipear Capítulo',
           style: TextStyle(color: Colors.white),
         ),
         content: Text(
-          'Â¿EstÃ¡s seguro de que quieres skipear ${chapter.title}?\n\nPodrÃ¡s volver a jugarlo mÃ¡s tarde.',
+          '¿Estás seguro de que quieres skipear ${chapter.title}?\n\nPodrás volver a jugarlo más tarde.',
           style: const TextStyle(color: Colors.white70),
         ),
         actions: [
@@ -180,7 +180,7 @@ class _StoryScreenState extends State<StoryScreen> {
   }
 }
 
-/// Widget de tarjeta de capÃ­tulo
+/// Widget de tarjeta de capítulo
 class _ChapterCard extends StatefulWidget {
   final ChapterInfo chapter;
   final bool isCompleted;
@@ -230,7 +230,7 @@ class _ChapterCardState extends State<_ChapterCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header con tÃ­tulo y estado
+                // Header con título y estado
                 Row(
                   children: [
                     Expanded(
@@ -318,7 +318,7 @@ class _ChapterCardState extends State<_ChapterCard> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                // DescripciÃ³n
+                // Descripción
                 Text(
                   widget.chapter.description,
                   style: TextStyle(
@@ -329,7 +329,7 @@ class _ChapterCardState extends State<_ChapterCard> {
                 ),
                 if (widget.isUnlocked) ...[
                   const SizedBox(height: 16),
-                  // Botones de acciÃ³n
+                  // Botones de acción
                   Row(
                     children: [
                       Expanded(
@@ -362,7 +362,7 @@ class _ChapterCardState extends State<_ChapterCard> {
   }
 }
 
-/// BotÃ³n de acciÃ³n para las tarjetas
+/// Botón de acción para las tarjetas
 class _ActionButton extends StatefulWidget {
   final String text;
   final IconData icon;

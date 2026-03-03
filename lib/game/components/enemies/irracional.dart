@@ -55,7 +55,7 @@ class IrrationalEnemy extends PositionComponent
       collisionType: CollisionType.passive,
     ));
 
-    // Inicializar painter de stun (estÃ¡tico)
+    // Inicializar painter de stun (estático)
     _stunIndicatorPainter = TextPainter(
       text: const TextSpan(
         text: 'â˜…',
@@ -93,11 +93,11 @@ class IrrationalEnemy extends PositionComponent
     _updateTarget();
     _chaseTarget(dt);
     
-    // Intentar atacar si estÃ¡ en rango
+    // Intentar atacar si está en rango
     _tryAttack();
   }
   
-  /// Actualiza el objetivo (jugador o Kohaa, el mÃ¡s cercano)
+  /// Actualiza el objetivo (jugador o Kohaa, el más cercano)
   void _updateTarget() {
     final player = game.player;
     
@@ -110,7 +110,7 @@ class IrrationalEnemy extends PositionComponent
       return;
     }
     
-    // Si hay Kohaa, atacar al mÃ¡s cercano
+    // Si hay Kohaa, atacar al más cercano
     final distToPlayer = player.isDead ? double.infinity : position.distanceTo(player.position);
     final distToKohaa = position.distanceTo(kohaa.position);
     
@@ -122,7 +122,7 @@ class IrrationalEnemy extends PositionComponent
     
     final distanceToTarget = position.distanceTo(_currentTarget!.position);
     
-    // Si estÃ¡ lejos, acercarse
+    // Si está lejos, acercarse
     if (distanceToTarget > _attackRange) {
       final direction = (_currentTarget!.position - position).normalized();
       position += direction * _speed * dt;
@@ -130,14 +130,14 @@ class IrrationalEnemy extends PositionComponent
     }
   }
   
-  /// Restringe la posiciÃ³n a los lÃ­mites del mundo (con deslizamiento)
+  /// Restringe la posición a los límites del mundo (con deslizamiento)
   void _constrainToWorldBounds() {
     const double worldMinX = 150.0; // Ajustado para coincidir con paredes
     const double worldMaxX = 2850.0;
     const double worldMinY = 150.0; // Ajustado para coincidir con paredes
     const double worldMaxY = 2850.0;
     
-    // Solo aplicar lÃ­mites, sin modificar velocidad (permite deslizamiento natural)
+    // Solo aplicar límites, sin modificar velocidad (permite deslizamiento natural)
     position.x = position.x.clamp(worldMinX, worldMaxX);
     position.y = position.y.clamp(worldMinY, worldMaxY);
   }
@@ -147,7 +147,7 @@ class IrrationalEnemy extends PositionComponent
     
     final distanceToTarget = position.distanceTo(_currentTarget!.position);
     
-    // Si estÃ¡ en rango, atacar
+    // Si está en rango, atacar
     if (distanceToTarget <= _attackRange) {
       _attack(_currentTarget!);
       _attackTimer = _attackCooldown;
@@ -162,7 +162,7 @@ class IrrationalEnemy extends PositionComponent
     }
   }
   
-  /// Recibe daÃ±o
+  /// Recibe daño
   void takeDamage(double damage) {
     if (_isDead) return;
     
@@ -187,7 +187,7 @@ class IrrationalEnemy extends PositionComponent
   void _die() {
     _isDead = true;
     
-    // Crear tumba en la posiciÃ³n del enemigo
+    // Crear tumba en la posición del enemigo
     final tomb = EnemyTomb(
       position: position.clone(),
       enemyType: 'irracional',
@@ -202,7 +202,7 @@ class IrrationalEnemy extends PositionComponent
   void render(Canvas canvas) {
     super.render(canvas);
     
-    // Color segÃºn estado
+    // Color según estado
     Color enemyColor;
     if (_isStunned) {
       enemyColor = Colors.yellow;
@@ -212,7 +212,7 @@ class IrrationalEnemy extends PositionComponent
       enemyColor = Colors.red;
     }
     
-    // Cuerpo del enemigo (cÃ­rculo)
+    // Cuerpo del enemigo (círculo)
     final bodyPaint = Paint()
       ..color = enemyColor.withValues(alpha: 0.8)
       ..style = PaintingStyle.fill;

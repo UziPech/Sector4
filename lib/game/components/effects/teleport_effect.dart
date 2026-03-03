@@ -3,12 +3,12 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../expediente_game.dart';
 
-/// Efecto visual de teletransportaciÃ³n del boss
-/// CÃ­rculo de sombras que se expande/contrae
+/// Efecto visual de teletransportación del boss
+/// Círculo de sombras que se expande/contrae
 class TeleportEffect extends PositionComponent 
     with HasGameReference<ExpedienteKorinGame> {
   
-  final bool isFadeOut; // true = desapariciÃ³n, false = apariciÃ³n
+  final bool isFadeOut; // true = desaparición, false = aparición
   final double duration;
   double _timer = 0.0;
   
@@ -21,7 +21,7 @@ class TeleportEffect extends PositionComponent
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    size = Vector2.all(150); // TamaÃ±o del efecto
+    size = Vector2.all(150); // Tamaño del efecto
   }
   
   @override
@@ -41,7 +41,7 @@ class TeleportEffect extends PositionComponent
     
     final progress = (_timer / duration).clamp(0.0, 1.0);
     
-    // Radio del cÃ­rculo segÃºn si es fade out o fade in
+    // Radio del círculo según si es fade out o fade in
     final radius = isFadeOut 
         ? 75 * (1 - progress) // Se contrae
         : 75 * progress; // Se expande
@@ -51,7 +51,7 @@ class TeleportEffect extends PositionComponent
         ? 0.8 * (1 - progress)
         : 0.8 * (1 - progress);
     
-    // CÃ­rculo principal (negro/rojo)
+    // Círculo principal (negro/rojo)
     final mainPaint = Paint()
       ..color = Colors.black.withValues(alpha: opacity)
       ..style = PaintingStyle.fill;
@@ -74,13 +74,13 @@ class TeleportEffect extends PositionComponent
       ringPaint,
     );
     
-    // PartÃ­culas de sombra (pequeÃ±os cÃ­rculos)
+    // Partículas de sombra (pequeños círculos)
     final particlePaint = Paint()
       ..color = Colors.grey.withValues(alpha: opacity * 0.4)
       ..style = PaintingStyle.fill;
     
     for (int i = 0; i < 8; i++) {
-      final angle = (i / 8) * 2 * 3.14159 + (_timer * 3); // RotaciÃ³n
+      final angle = (i / 8) * 2 * 3.14159 + (_timer * 3); // Rotación
       final particleRadius = radius * 0.8;
       final x = size.x / 2 + particleRadius * cos(angle);
       final y = size.y / 2 + particleRadius * sin(angle);

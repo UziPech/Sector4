@@ -34,7 +34,7 @@ class EnemyTomb extends PositionComponent
     size = Vector2.all(_tombRadius * 2);
     anchor = Anchor.center;
     
-    // Agregar hitbox para detecciÃ³n de proximidad
+    // Agregar hitbox para detección de proximidad
     add(CircleHitbox(
       radius: _tombRadius,
       collisionType: CollisionType.passive,
@@ -52,7 +52,7 @@ class EnemyTomb extends PositionComponent
       return;
     }
     
-    // Actualizar animaciÃ³n de pulso
+    // Actualizar animación de pulso
     _pulseTimer += dt * 2;
     
     // Verificar proximidad del jugador
@@ -73,11 +73,11 @@ class EnemyTomb extends PositionComponent
     // Efecto de pulso
     final pulseScale = 1.0 + sin(_pulseTimer) * 0.1;
     
-    // Color segÃºn tipo de enemigo
+    // Color según tipo de enemigo
     final tombColor = isKijin ? Colors.red : Colors.purple;
     final promptColor = isKijin ? Colors.red : Colors.green;
     
-    // CÃ­rculo base (tumba)
+    // Círculo base (tumba)
     final basePaint = Paint()
       ..color = tombColor.withValues(alpha: 0.3 * opacity)
       ..style = PaintingStyle.fill;
@@ -100,7 +100,7 @@ class EnemyTomb extends PositionComponent
       borderPaint,
     );
     
-    // Holograma central (cruz o sÃ­mbolo)
+    // Holograma central (cruz o símbolo)
     final symbolPaint = Paint()
       ..color = Colors.white.withValues(alpha: 0.9 * opacity)
       ..style = PaintingStyle.stroke
@@ -121,7 +121,7 @@ class EnemyTomb extends PositionComponent
       symbolPaint,
     );
     
-    // Indicador de interacciÃ³n si el jugador estÃ¡ cerca
+    // Indicador de interacción si el jugador está cerca
     if (_isPlayerNearby) {
       final promptText = isKijin ? 'E - Revivir (2 slots)' : 'E - Revivir';
       
@@ -130,13 +130,13 @@ class EnemyTomb extends PositionComponent
       // Podemos actualizar el painter solo cuando cambia el texto, y aplicar opacidad al pintarlo o 
       // si usamos TextSpan con color base, solo necesitamos layout una vez si el texto no cambia.
       // Pero TextPainter no tiene "setOpacity". Recrear TextPainter es costoso por el layout.
-      // SoluciÃ³n: Crear el painter con color sÃ³lido y usar saveLayer/opacity en el canvas si fuera necesario,
+      // Solución: Crear el painter con color sólido y usar saveLayer/opacity en el canvas si fuera necesario,
       // pero TextPainter usa el color del estilo. 
-      // Optimizacion: Solo hacer layout si el texto cambia. El estilo lo podemos actualizar? No fÃ¡cilmente.
+      // Optimizacion: Solo hacer layout si el texto cambia. El estilo lo podemos actualizar? No fácilmente.
       // Mejor: Cachear el layout. Si la opacidad cambia, lamentablemente hay que repintar, pero podemos
       // al menos evitar instanciar el objeto si la opacidad no cambia mucho (aunque cambia cada frame por lifetime).
       // COMPROMISO: Crear el painter una sola vez (layout) con color blanco solido, y pintar con opacidad en el canvas? No, TextPainter ignora tint.
-      // SoluciÃ³n practica: Cachear el painter con el color base, y solo actualizarlo si la opacidad cambia > 0.1 o asÃ­? Descartado.
+      // Solución practica: Cachear el painter con el color base, y solo actualizarlo si la opacidad cambia > 0.1 o así? Descartado.
       // MEJOR: Usar un color fijo en el painter y pintar en un layer con opacidad? 
       // Vamos a simplemente cachear el objeto y el layout y solo recrearlo, ya que el texto es lo que importa.
       
@@ -172,7 +172,7 @@ class EnemyTomb extends PositionComponent
     }
   }
   
-  /// Verifica si el jugador estÃ¡ en rango de interacciÃ³n
+  /// Verifica si el jugador está en rango de interacción
   bool isPlayerInRange() => _isPlayerNearby;
   
   /// Obtiene el tipo de enemigo para resucitar

@@ -47,7 +47,7 @@ class ObsessionObject extends PositionComponent
     
     linkedEnemy.onObsessionDestroyed();
     removeFromParent();
-    // Efectos de destrucciÃ³n
+    // Efectos de destrucción
   }
   
   @override

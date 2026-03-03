@@ -12,7 +12,7 @@ enum StalkerState {
   sleeping, // Dormido/Vulnerable
   charging, // Preparando embestida
   dashing, // Ejecutando embestida
-  berserk, // Modo desesperaciÃ³n (todos los objetos destruidos)
+  berserk, // Modo desesperación (todos los objetos destruidos)
   dying, // Muriendo (cuando se rompe el objeto real)
 }
 
@@ -23,20 +23,20 @@ class StalkerEnemy extends EnemyCharacter {
   double sleepDuration = 10.0; // Tiempo que duerme
   double _sleepTimer = 0.0;
   
-  // Sistema de degradaciÃ³n
+  // Sistema de degradación
   int objectsRemaining = 7; // Total de objetos en el nivel
   double powerMultiplier = 1.0; // Multiplicador de poder
   bool realObjectDestroyed = false; // Si el objeto real fue destruido
   
-  // Sistema de Dash/Embestida - MÃS AGRESIVO
+  // Sistema de Dash/Embestida - MÁS AGRESIVO
   double _dashCooldownTimer = 0.0;
-  final double dashCooldown = 4.0; // 6 â†’ 4 segundos (mÃ¡s frecuente)
+  final double dashCooldown = 4.0; // 6 â†’ 4 segundos (más frecuente)
   double _chargeUpTimer = 0.0;
-  final double chargeUpDuration = 0.4; // 0.5 â†’ 0.4s (carga mÃ¡s rÃ¡pida)
+  final double chargeUpDuration = 0.4; // 0.5 â†’ 0.4s (carga más rápida)
   double _dashTimer = 0.0;
   final double dashDuration = 0.3;
   Vector2? _dashTargetPosition;
-  final double dashSpeed = 550.0; // 450 â†’ 550 (mÃ¡s rÃ¡pido)
+  final double dashSpeed = 550.0; // 450 â†’ 550 (más rápido)
   final double dashDamage = 60.0; // 50 â†’ 60 HP
   bool _dashHitPlayer = false;
   
@@ -46,7 +46,7 @@ class StalkerEnemy extends EnemyCharacter {
   
   StalkerState stalkerState = StalkerState.active;
   
-  // Sistema de sprites animados - componentes individuales por direcciÃ³n
+  // Sistema de sprites animados - componentes individuales por dirección
   SpriteAnimationComponent? _spriteUp;
   SpriteAnimationComponent? _spriteDown;
   SpriteAnimationComponent? _spriteLeft;
@@ -65,16 +65,16 @@ class StalkerEnemy extends EnemyCharacter {
   String? obsessionObjectId;
   
   StalkerEnemy({super.config}) {
-    // ConfiguraciÃ³n especÃ­fica del Stalker - AUMENTADA PARA MÃS DIFICULTAD
+    // Configuración específica del Stalker - AUMENTADA PARA MÁS DIFICULTAD
     initHealth(3000.0); // 1000 â†’ 3000 (triple de vida)
-    shield = 500.0; // 200 â†’ 500 (escudo mÃ¡s resistente)
+    shield = 500.0; // 200 â†’ 500 (escudo más resistente)
     maxShield = 500.0;
     isInvincible = true; // CRUCIAL: Invencible hasta destruir objeto
     stalkerState = StalkerState.intro;
     _sleepTimer = 2.0;
     
     // Stats aumentados
-    stability = 150.0; // 100 â†’ 150 (mÃ¡s difÃ­cil de cansar)
+    stability = 150.0; // 100 â†’ 150 (más difícil de cansar)
     maxStability = 150.0;
     sleepDuration = 7.0; // 10 â†’ 7 (duerme menos tiempo)
   }
@@ -112,7 +112,7 @@ class StalkerEnemy extends EnemyCharacter {
       final southImage = southFrame.image;
       
       // Cargar la imagen de caminata este (3 frames horizontales)
-      // Nota: Oeste usarÃ¡ este mismo sprite pero invertido horizontalmente
+      // Nota: Oeste usará este mismo sprite pero invertido horizontalmente
       final eastData = await rootBundle.load('assets/sprites/stalker/stalker_walk_east.png');
       final eastCodec = await instantiateImageCodec(eastData.buffer.asUint8List());
       final eastFrame = await eastCodec.getNextFrame();
@@ -145,7 +145,7 @@ class StalkerEnemy extends EnemyCharacter {
       final frameWidthSouth = southImage.width.toDouble();
       final frameHeightSouth = southImage.height / 3.0;
       
-      // Este: 3 frames horizontales (oeste usarÃ¡ los mismos frames invertidos)
+      // Este: 3 frames horizontales (oeste usará los mismos frames invertidos)
       final frameWidthEast = eastImage.width / 3.0;
       final frameHeightEast = eastImage.height.toDouble();
       
@@ -162,7 +162,7 @@ class StalkerEnemy extends EnemyCharacter {
       // print('ðŸ“Š Frame sizes - Charge Vertical: ${frameWidthChargeVertical.toInt()}x${frameHeightChargeVertical.toInt()}');
       // print('ðŸ“Š Frame sizes - Charge Horizontal: ${frameWidthChargeHorizontal.toInt()}x${frameHeightChargeHorizontal.toInt()}');
       
-      // Crear sprites para la direcciÃ³n norte (3 frames verticales)
+      // Crear sprites para la dirección norte (3 frames verticales)
       final List<Sprite> upSprites = [];
       for (int i = 0; i < 3; i++) {
         upSprites.add(Sprite(
@@ -172,7 +172,7 @@ class StalkerEnemy extends EnemyCharacter {
         ));
       }
       
-      // Crear sprites para la direcciÃ³n sur (3 frames verticales)
+      // Crear sprites para la dirección sur (3 frames verticales)
       final List<Sprite> downSprites = [];
       for (int i = 0; i < 3; i++) {
         downSprites.add(Sprite(
@@ -182,7 +182,7 @@ class StalkerEnemy extends EnemyCharacter {
         ));
       }
       
-      // Crear sprites para la direcciÃ³n oeste - usar este invertido
+      // Crear sprites para la dirección oeste - usar este invertido
       final List<Sprite> leftSprites = [];
       for (int i = 0; i < 3; i++) {
         leftSprites.add(Sprite(
@@ -192,7 +192,7 @@ class StalkerEnemy extends EnemyCharacter {
         ));
       }
       
-      // Crear sprites para la direcciÃ³n este (3 frames horizontales)
+      // Crear sprites para la dirección este (3 frames horizontales)
       final List<Sprite> rightSprites = [];
       for (int i = 0; i < 3; i++) {
         rightSprites.add(Sprite(
@@ -234,7 +234,7 @@ class StalkerEnemy extends EnemyCharacter {
         ));
       }
       
-      // Para Oeste (mirando a la izquierda) - mismo sprite, se invertirÃ¡ con flip
+      // Para Oeste (mirando a la izquierda) - mismo sprite, se invertirá con flip
       final List<Sprite> chargeLeftSprites = [];
       for (int i = 0; i < 3; i++) {
         chargeLeftSprites.add(Sprite(
@@ -249,15 +249,15 @@ class StalkerEnemy extends EnemyCharacter {
       final walkRight = SpriteAnimation.spriteList(rightSprites, stepTime: 0.15);
       final walkLeft = SpriteAnimation.spriteList(leftSprites, stepTime: 0.15);
       
-      // Animaciones de charge - usar solo el frame del medio para postura estÃ¡tica
-      // Para vertical (3 frames), usar frame 1 (Ã­ndice 1, el del medio)
+      // Animaciones de charge - usar solo el frame del medio para postura estática
+      // Para vertical (3 frames), usar frame 1 (índice 1, el del medio)
       final chargeUp = SpriteAnimation.spriteList([chargeUpSprites[1]], stepTime: 1.0, loop: false);
       final chargeDown = SpriteAnimation.spriteList([chargeDownSprites[1]], stepTime: 1.0, loop: false);
-      // Para horizontal (3 frames), usar frame 1 (Ã­ndice 1, el del medio)
+      // Para horizontal (3 frames), usar frame 1 (índice 1, el del medio)
       final chargeRight = SpriteAnimation.spriteList([chargeRightSprites[1]], stepTime: 1.0, loop: false);
       final chargeLeft = SpriteAnimation.spriteList([chargeLeftSprites[1]], stepTime: 1.0, loop: false);
       
-      // Calcular tamaÃ±os para cada direcciÃ³n manteniendo proporciones
+      // Calcular tamaños para cada dirección manteniendo proporciones
       final targetHeight = 120.0;
       
       // Norte/Sur: usar proporciones del frame norte
@@ -272,7 +272,7 @@ class StalkerEnemy extends EnemyCharacter {
       final scaleChargeVertical = targetHeight / frameHeightChargeVertical;
       final sizeChargeVertical = Vector2(frameWidthChargeVertical * scaleChargeVertical, targetHeight);
       
-      // Charge horizontal: aumentar significativamente el tamaÃ±o (2.5x mÃ¡s grande que walk)
+      // Charge horizontal: aumentar significativamente el tamaño (2.5x más grande que walk)
       final scaleChargeHorizontal = (targetHeight / frameHeightChargeHorizontal) * 2.5;
       final sizeChargeHorizontal = Vector2(frameWidthChargeHorizontal * scaleChargeHorizontal, targetHeight * 2.5);
       
@@ -281,7 +281,7 @@ class StalkerEnemy extends EnemyCharacter {
       // print('ðŸ“Š Component sizes - Charge Vertical: ${sizeChargeVertical.x.toInt()}x${sizeChargeVertical.y.toInt()}');
       // print('ðŸ“Š Component sizes - Charge Horizontal: ${sizeChargeHorizontal.x.toInt()}x${sizeChargeHorizontal.y.toInt()}');
       
-      // Crear componentes individuales para cada direcciÃ³n
+      // Crear componentes individuales para cada dirección
       _spriteUp = SpriteAnimationComponent(
         animation: walkUp,
         size: sizeNorthSouth,
@@ -336,7 +336,7 @@ class StalkerEnemy extends EnemyCharacter {
       // Aplicar flip permanente usando scale negativo
       _spriteChargeLeft!.scale.x = -1;
       
-      // Empezar con la animaciÃ³n hacia abajo
+      // Empezar con la animación hacia abajo
       _currentSprite = _spriteDown;
       add(_currentSprite!);
       _spritesLoaded = true;
@@ -351,7 +351,7 @@ class StalkerEnemy extends EnemyCharacter {
   void update(double dt) {
     super.update(dt);
     
-    // CRÃTICO: Mantener invulnerabilidad si el objeto real no ha sido destruido
+    // CRÍTICO: Mantener invulnerabilidad si el objeto real no ha sido destruido
     // Esto previene que updateInvincibility() desactive la invulnerabilidad
     if (!realObjectDestroyed) {
       isInvincible = true;
@@ -378,7 +378,7 @@ class StalkerEnemy extends EnemyCharacter {
       movementType = EnemyMovementType.stunned;
     }
     else if (stalkerState == StalkerState.charging) {
-      // Fase de carga/anticipaciÃ³n
+      // Fase de carga/anticipación
       _chargeUpTimer += dt;
       
       // Efecto de temblor
@@ -419,18 +419,18 @@ class StalkerEnemy extends EnemyCharacter {
       // Modo activo o berserk
       movementType = EnemyMovementType.chasing;
       
-      // Intentar dash attack si estÃ¡ disponible
+      // Intentar dash attack si está disponible
       if (_dashCooldownTimer <= 0 && playerToTrack != null) {
         final distanceToPlayer = (playerToTrack!.position - position).length;
         
-        // Dash a distancia media-amplia (100-400 unidades) - MÃS AGRESIVO
+        // Dash a distancia media-amplia (100-400 unidades) - MÁS AGRESIVO
         if (distanceToPlayer >= 100 && distanceToPlayer <= 400) {
           _startDashAttack();
         }
       }
       
-      // Aplicar powerMultiplier a la velocidad de persecuciÃ³n
-      // NO cambiar direcciÃ³n durante charging o dashing
+      // Aplicar powerMultiplier a la velocidad de persecución
+      // NO cambiar dirección durante charging o dashing
       if (playerToTrack != null && 
           stalkerState != StalkerState.charging && 
           stalkerState != StalkerState.dashing) {
@@ -442,7 +442,7 @@ class StalkerEnemy extends EnemyCharacter {
         if (toTarget.length > 10) {
           position.add(toTarget.normalized() * effectiveSpeed * dt);
           
-          // Actualizar direcciÃ³n del sprite - cambiar componente activo
+          // Actualizar dirección del sprite - cambiar componente activo
           if (_spritesLoaded) {
             SpriteAnimationComponent? newSprite;
             
@@ -452,7 +452,7 @@ class StalkerEnemy extends EnemyCharacter {
               newSprite = toTarget.x > 0 ? _spriteRight : _spriteLeft;
             }
             
-            // Solo cambiar si es diferente usando el mÃ©todo seguro
+            // Solo cambiar si es diferente usando el método seguro
             if (newSprite != _currentSprite) {
               _switchToSprite(newSprite);
             }
@@ -462,21 +462,21 @@ class StalkerEnemy extends EnemyCharacter {
     }
   }
   
-  // MÃ©todo helper para cambiar sprites de forma segura
+  // Método helper para cambiar sprites de forma segura
   void _switchToSprite(SpriteAnimationComponent? newSprite) {
     if (newSprite == null || newSprite == _currentSprite) return;
     
-    // Remover TODOS los sprites de animaciÃ³n primero para evitar duplicados
+    // Remover TODOS los sprites de animación primero para evitar duplicados
     if (_currentSprite != null && _currentSprite!.isMounted) {
       _currentSprite!.removeFromParent();
     }
     
-    // Asegurarse de que el nuevo sprite no estÃ© ya aÃ±adido
+    // Asegurarse de que el nuevo sprite no esté ya añadido
     if (newSprite.isMounted) {
       newSprite.removeFromParent();
     }
     
-    // AÃ±adir el nuevo sprite
+    // Añadir el nuevo sprite
     _currentSprite = newSprite;
     add(_currentSprite!);
   }
@@ -491,7 +491,7 @@ class StalkerEnemy extends EnemyCharacter {
     // DETENER MOVIMIENTO durante la carga
     movementType = EnemyMovementType.stunned;
     
-    // CAMBIAR A SPRITE DE CHARGE segÃºn direcciÃ³n actual
+    // CAMBIAR A SPRITE DE CHARGE según dirección actual
     SpriteAnimationComponent? chargeSprite;
     if (_currentSprite == _spriteUp) {
       chargeSprite = _spriteChargeUp;
@@ -503,11 +503,11 @@ class StalkerEnemy extends EnemyCharacter {
       chargeSprite = _spriteChargeLeft;
     }
     
-    // Cambiar sprite usando el mÃ©todo seguro
+    // Cambiar sprite usando el método seguro
     _switchToSprite(chargeSprite);
     // print('ðŸ”„ Cambiado a sprite de charge');
     
-    game.addMessage("Â¡El Stalker se prepara para embestir!");
+    game.addMessage("¡El Stalker se prepara para embestir!");
   }
   
   void _executeDash() {
@@ -522,7 +522,7 @@ class StalkerEnemy extends EnemyCharacter {
     _dashHitPlayer = false;
     _shakeOffset = Vector2.zero();
     
-    // VOLVER A SPRITE DE WALK segÃºn la direcciÃ³n del charge
+    // VOLVER A SPRITE DE WALK según la dirección del charge
     SpriteAnimationComponent? walkSprite;
     if (_currentSprite == _spriteChargeUp) {
       walkSprite = _spriteUp;
@@ -534,15 +534,15 @@ class StalkerEnemy extends EnemyCharacter {
       walkSprite = _spriteLeft;
     }
     
-    // Cambiar sprite usando el mÃ©todo seguro
+    // Cambiar sprite usando el método seguro
     if (walkSprite != null) {
       _switchToSprite(walkSprite);
       
       // Efectos visuales durante el dash - preservar flip si es sprite left
       if (_currentSprite == _spriteLeft || _currentSprite == _spriteChargeLeft) {
-        _currentSprite!.scale = Vector2(-1.2, 1.2); // MÃ¡s grande pero manteniendo flip
+        _currentSprite!.scale = Vector2(-1.2, 1.2); // Más grande pero manteniendo flip
       } else {
-        _currentSprite!.scale = Vector2.all(1.2); // MÃ¡s grande
+        _currentSprite!.scale = Vector2.all(1.2); // Más grande
       }
       // print('ðŸ”„ Cambiado a sprite de walk para dash');
     }
@@ -550,7 +550,7 @@ class StalkerEnemy extends EnemyCharacter {
     // Reactivar movimiento
     movementType = EnemyMovementType.chasing;
     
-    game.addMessage("Â¡DASH!");
+    game.addMessage("¡DASH!");
   }
   
   void _endDash() {
@@ -561,10 +561,10 @@ class StalkerEnemy extends EnemyCharacter {
     _dashTargetPosition = null;
     _shakeOffset = Vector2.zero();
     
-    // Restaurar tamaÃ±o normal del sprite - preservar flip si es sprite left
+    // Restaurar tamaño normal del sprite - preservar flip si es sprite left
     if (_currentSprite != null) {
       if (_currentSprite == _spriteLeft || _currentSprite == _spriteChargeLeft) {
-        _currentSprite!.scale = Vector2(-1.0, 1.0); // TamaÃ±o normal pero manteniendo flip
+        _currentSprite!.scale = Vector2(-1.0, 1.0); // Tamaño normal pero manteniendo flip
       } else {
         _currentSprite!.scale = Vector2.all(1.0);
       }
@@ -581,13 +581,13 @@ class StalkerEnemy extends EnemyCharacter {
   ) {
     super.onCollisionStart(intersectionPoints, other);
     
-    // Si estÃ¡ en dash y golpea al jugador
+    // Si está en dash y golpea al jugador
     if (stalkerState == StalkerState.dashing && !_dashHitPlayer) {
       if (other.runtimeType.toString().contains('PlayerCharacter')) {
         try {
           (other as dynamic).takeDamage(dashDamage);
           _dashHitPlayer = true;
-          game.addMessage("Â¡EMBESTIDA! -60 HP"); // Actualizado a 60
+          game.addMessage("¡EMBESTIDA! -60 HP"); // Actualizado a 60
           _endDash();
         } catch (e) {
           // Error
@@ -600,38 +600,38 @@ class StalkerEnemy extends EnemyCharacter {
   bool receiveDamage(double amount) {
     // print('ðŸŽ¯ Stalker receiveDamage: $amount HP, realObjectDestroyed: $realObjectDestroyed, isInvincible: $isInvincible');
     
-    // Si estÃ¡ en estado sleeping o dying, no recibe daÃ±o
+    // Si está en estado sleeping o dying, no recibe daño
     if (stalkerState == StalkerState.sleeping || stalkerState == StalkerState.dying) {
-      // print('âŒ Stalker no recibe daÃ±o: estÃ¡ durmiendo o muriendo');
+      // print('âŒ Stalker no recibe daño: está durmiendo o muriendo');
       return false;
     }
     
-    // CRÃTICO: Si el objeto real NO ha sido destruido, el Stalker es INVENCIBLE
-    // El daÃ±o solo afecta escudo y estabilidad, NUNCA la vida
+    // CRÍTICO: Si el objeto real NO ha sido destruido, el Stalker es INVENCIBLE
+    // El daño solo afecta escudo y estabilidad, NUNCA la vida
     if (!realObjectDestroyed) {
-      // print('ðŸ›¡ï¸ Stalker INVENCIBLE: daÃ±o va a escudo/estabilidad');
+      // print('ðŸ›¡ï¸ Stalker INVENCIBLE: daño va a escudo/estabilidad');
       
-      // 1. DaÃ±o al escudo primero
+      // 1. Daño al escudo primero
       if (shield > 0) {
         final shieldDamage = amount.clamp(0.0, shield);
         shield -= shieldDamage;
         final remainingDamage = amount - shieldDamage;
         
-        // print('ðŸ›¡ï¸ Escudo: ${shield.toInt()} HP (recibiÃ³ $shieldDamage daÃ±o)');
+        // print('ðŸ›¡ï¸ Escudo: ${shield.toInt()} HP (recibió $shieldDamage daño)');
         
-        // Si queda daÃ±o despuÃ©s del escudo, afecta estabilidad
+        // Si queda daño después del escudo, afecta estabilidad
         if (remainingDamage > 0) {
           stability -= remainingDamage;
-          // print('ðŸ˜µ Estabilidad: ${stability.toInt()} (recibiÃ³ $remainingDamage daÃ±o)');
+          // print('ðŸ˜µ Estabilidad: ${stability.toInt()} (recibió $remainingDamage daño)');
           
           if (stability <= 0) {
             fallAsleep();
           }
         }
       } else {
-        // 2. Si no hay escudo, daÃ±o directo a la estabilidad
+        // 2. Si no hay escudo, daño directo a la estabilidad
         stability -= amount;
-        // print('ðŸ˜µ Estabilidad: ${stability.toInt()} (recibiÃ³ $amount daÃ±o, sin escudo)');
+        // print('ðŸ˜µ Estabilidad: ${stability.toInt()} (recibió $amount daño, sin escudo)');
         
         if (stability <= 0) {
           fallAsleep();
@@ -644,8 +644,8 @@ class StalkerEnemy extends EnemyCharacter {
     }
     
     // Si el objeto real HA SIDO destruido, el Stalker es VULNERABLE
-    // Ahora SÃ puede recibir daÃ±o directo a la vida
-    // print('ðŸ’€ Stalker VULNERABLE: daÃ±o va a la vida');
+    // Ahora SÍ puede recibir daño directo a la vida
+    // print('ðŸ’€ Stalker VULNERABLE: daño va a la vida');
     return super.receiveDamage(amount);
   }
   
@@ -653,14 +653,14 @@ class StalkerEnemy extends EnemyCharacter {
     stalkerState = StalkerState.sleeping;
     _sleepTimer = sleepDuration;
     movementType = EnemyMovementType.stunned;
-    game.addMessage("Â¡El Stalker duerme! Â¡Busca el objeto!");
+    game.addMessage("¡El Stalker duerme! ¡Busca el objeto!");
   }
   
   void wakeUp() {
     stalkerState = StalkerState.active;
     stability = maxStability; // Recupera estabilidad
     movementType = EnemyMovementType.chasing;
-    game.addMessage("Â¡El Stalker ha despertado!");
+    game.addMessage("¡El Stalker ha despertado!");
   }
   
   
@@ -672,35 +672,35 @@ class StalkerEnemy extends EnemyCharacter {
       // El objeto REAL fue destruido
       realObjectDestroyed = true;
       isInvincible = false;
-      game.addMessage("Â¡Â¡Â¡VULNERABILIDAD DETECTADA!!!");
-      game.addMessage("Â¡El Stalker ahora puede ser derrotado!");
+      game.addMessage("¡¡¡VULNERABILIDAD DETECTADA!!!");
+      game.addMessage("¡El Stalker ahora puede ser derrotado!");
       
-      // Mostrar notificaciÃ³n grande en pantalla
+      // Mostrar notificación grande en pantalla
       game.notificationSystem.show(
         'âœ… OBJETO OBSESIVO DESTRUIDO',
-        'Â¡EL STALKER ES AHORA VULNERABLE! Â¡ELIMÃNALO!',
+        '¡EL STALKER ES AHORA VULNERABLE! ¡ELIMÍNALO!',
       );
     } else {
       // Objeto falso
-      game.addMessage("Solo era un seÃ±uelo... $objectsRemaining objetos quedan");
+      game.addMessage("Solo era un señuelo... $objectsRemaining objetos quedan");
     }
     
-    // Calcular multiplicador de velocidad segÃºn objetos restantes:
+    // Calcular multiplicador de velocidad según objetos restantes:
     if (objectsRemaining == 5) {
-      // PerdiÃ³ 2 objetos - se vuelve mÃ¡s lento
+      // Perdió 2 objetos - se vuelve más lento
       powerMultiplier = 0.85;
       game.addMessage("El Stalker parece debilitarse...");
     } else if (objectsRemaining == 3) {
-      // PerdiÃ³ 4 objetos - desesperaciÃ³n, mÃ¡s rÃ¡pido
+      // Perdió 4 objetos - desesperación, más rápido
       powerMultiplier = 1.3;
       shield = 0; // Pierde escudo completamente
-      game.addMessage("Â¡El Stalker entra en pÃ¡nico!");
+      game.addMessage("¡El Stalker entra en pánico!");
     } else if (objectsRemaining == 1) {
       // Solo 1 objeto queda - muy agresivo
       powerMultiplier = 1.4;
-      maxStability *= 0.6; // Se cansa mÃ¡s rÃ¡pido
+      maxStability *= 0.6; // Se cansa más rápido
       sleepDuration = 7.0; // Duerme menos tiempo
-      game.addMessage("Â¡El Stalker estÃ¡ al borde del colapso!");
+      game.addMessage("¡El Stalker está al borde del colapso!");
     } else if (objectsRemaining == 0) {
       // Todos destruidos - modo berserk
       enterBerserkMode();
@@ -712,32 +712,32 @@ class StalkerEnemy extends EnemyCharacter {
     
     if (realObjectDestroyed) {
       // Si ya destruiste el real, ahora es vulnerable pero entra en modo final
-      game.addMessage("Â¡Â¡Â¡EL STALKER HA PERDIDO LA RAZÃ“N!!!");
+      game.addMessage("¡¡¡EL STALKER HA PERDIDO LA RAZÓN!!!");
     } else {
       // Si NO destruiste el real, sigue invencible pero furioso
       isInvincible = false; // Ahora vulnerable de todos modos
-      game.addMessage("Â¡Â¡Â¡MODO BERSERK ACTIVADO!!!");
+      game.addMessage("¡¡¡MODO BERSERK ACTIVADO!!!");
     }
     
-    powerMultiplier = 2.0; // Extremadamente rÃ¡pido
+    powerMultiplier = 2.0; // Extremadamente rápido
     sleepDuration = 3.0; // Duerme muy poco
-    maxStability *= 0.4; // Se cansa rapidÃ­simo
+    maxStability *= 0.4; // Se cansa rapidísimo
     shield = 0;
   }
   
-  /// MÃ©todo legacy para compatibilidad
+  /// Método legacy para compatibilidad
   /// Ya NO mata al Stalker, solo lo hace vulnerable
   void onObsessionDestroyed() {
-    // Ya se llamÃ³ onObjectDestroyed(true) desde ObsessionObject.destroy()
-    // Este mÃ©todo ahora solo existe para compatibilidad
+    // Ya se llamó onObjectDestroyed(true) desde ObsessionObject.destroy()
+    // Este método ahora solo existe para compatibilidad
     // El Stalker queda vulnerable pero VIVO - debes pelear para matarlo
   }
   
   @override
   void render(Canvas canvas) {
-    // Si los sprites estÃ¡n cargados, no dibujar el cÃ­rculo
+    // Si los sprites están cargados, no dibujar el círculo
     if (_currentSprite != null && _spritesLoaded) {
-      // Aplicar tinte de color segÃºn estado
+      // Aplicar tinte de color según estado
       if (stalkerState == StalkerState.dashing) {
         _currentSprite!.paint.colorFilter = const ColorFilter.mode(
           Color.fromARGB(100, 255, 180, 0),
@@ -762,19 +762,19 @@ class StalkerEnemy extends EnemyCharacter {
         _currentSprite!.paint.colorFilter = null;
       }
       
-      // NO llamar a super.render() para evitar el cÃ­rculo base
-      // Las barras de estado se mostrarÃ¡n en el HUD, no sobre el sprite
+      // NO llamar a super.render() para evitar el círculo base
+      // Las barras de estado se mostrarán en el HUD, no sobre el sprite
       return;
     }
     
-    // FALLBACK: Dibujar cÃ­rculo si no hay sprite
-    // Aplicar offset de temblor si estÃ¡ cargando
+    // FALLBACK: Dibujar círculo si no hay sprite
+    // Aplicar offset de temblor si está cargando
     if (stalkerState == StalkerState.charging) {
       canvas.save();
       canvas.translate(_shakeOffset.x, _shakeOffset.y);
     }
     
-    // Determinar color segÃºn estado y degradaciÃ³n
+    // Determinar color según estado y degradación
     Color stalkerColor;
     double opacity = 1.0;
     
@@ -794,35 +794,35 @@ class StalkerEnemy extends EnemyCharacter {
       // Dormido - azul oscuro
       stalkerColor = const Color.fromARGB(200, 100, 100, 200);
     } else {
-      // Color degradado segÃºn objetos restantes
-      opacity = (objectsRemaining / 7.0).clamp(0.3, 1.0); // MÃ­nimo 30% opacidad
+      // Color degradado según objetos restantes
+      opacity = (objectsRemaining / 7.0).clamp(0.3, 1.0); // Mínimo 30% opacidad
       final alpha = (opacity * 255).toInt();
       
       if (objectsRemaining <= 2) {
         // Casi destruido - rojo oscuro
         stalkerColor = Color.fromARGB(alpha, 200, 50, 50);
       } else if (objectsRemaining <= 4) {
-        // Degradado - pÃºrpura rojizo
+        // Degradado - púrpura rojizo
         stalkerColor = Color.fromARGB(alpha, 180, 60, 120);
       } else {
-        // Normal - pÃºrpura
+        // Normal - púrpura
         stalkerColor = Color.fromARGB(alpha, 150, 50, 200);
       }
     }
     
-    // Dibujar el cÃ­rculo del Stalker con color degradado
+    // Dibujar el círculo del Stalker con color degradado
     final stalkerPaint = Paint()
       ..color = stalkerColor
       ..style = PaintingStyle.fill;
     
-    // TamaÃ±o aumentado durante dash
+    // Tamaño aumentado durante dash
     final renderSize = stalkerState == StalkerState.dashing 
         ? size.x / 2 * 1.2 
         : size.x / 2;
     
     canvas.drawCircle(Offset.zero, renderSize, stalkerPaint);
     
-    // Restaurar canvas si habÃ­a shake
+    // Restaurar canvas si había shake
     if (stalkerState == StalkerState.charging) {
       canvas.restore();
     }
@@ -836,7 +836,7 @@ extension GameMessage on ExpedienteKorinGame {
   void addMessage(String msg) {
     // Placeholder para sistema de mensajes en pantalla
     // print("GAME MESSAGE: $msg");
-    // PodrÃ­amos acceder al HUD si tuviÃ©ramos referencia
+    // Podríamos acceder al HUD si tuviéramos referencia
   }
 }
 

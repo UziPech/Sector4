@@ -58,11 +58,11 @@ class YakuzaGhost extends PositionComponent
   void _updateAI(double dt) {
     final player = game.player;
     
-    // Buscar objetivo mÃ¡s cercano (Prioridad: Enfermeros > Kohaa > Jugador)
+    // Buscar objetivo más cercano (Prioridad: Enfermeros > Kohaa > Jugador)
     PositionComponent? target = player.isDead ? null : player;
     double minDistance = player.isDead ? double.infinity : position.distanceTo(player.position);
     
-    // PRIORIDAD 1: Enfermeros (fÃ¡ciles de matar)
+    // PRIORIDAD 1: Enfermeros (fáciles de matar)
     game.world.children.query<AlliedEnemy>().forEach((nurse) {
       if (!nurse.isDead) {
         final dist = position.distanceTo(nurse.position);
@@ -99,17 +99,17 @@ class YakuzaGhost extends PositionComponent
     
     if (target == null) return;
     
-    // LÃ³gica de movimiento con separaciÃ³n (Steering Behavior)
+    // Lógica de movimiento con separación (Steering Behavior)
     Vector2 direction = (target!.position - position).normalized();
     
-    // Fuerza de separaciÃ³n para evitar agruparse
+    // Fuerza de separación para evitar agruparse
     Vector2 separation = Vector2.zero();
     int neighbors = 0;
     
     game.world.children.query<YakuzaGhost>().forEach((other) {
       if (other != this && !other.isDead) {
         final dist = position.distanceTo(other.position);
-        if (dist < _size * 1.5) { // Radio de separaciÃ³n
+        if (dist < _size * 1.5) { // Radio de separación
           separation += (position - other.position).normalized() / dist;
           neighbors++;
         }
@@ -117,7 +117,7 @@ class YakuzaGhost extends PositionComponent
     });
     
     if (neighbors > 0) {
-      separation = separation.normalized() * 1.5; // Peso de la separaciÃ³n
+      separation = separation.normalized() * 1.5; // Peso de la separación
       direction = (direction + separation).normalized();
     }
     
@@ -125,7 +125,7 @@ class YakuzaGhost extends PositionComponent
     if (minDistance > _attackRange) {
       position += direction * _speed * dt;
     } else {
-      // Atacar si estÃ¡ en rango
+      // Atacar si está en rango
       _tryAttack();
     }
   }
@@ -138,16 +138,16 @@ class YakuzaGhost extends PositionComponent
     if (distance <= _attackRange) {
       if (_currentTarget is AlliedEnemy) {
         (_currentTarget as AlliedEnemy).takeDamage(_damage);
-        debugPrint('ðŸ‘» Fantasma Yakuza ataca ENFERMERO: $_damage daÃ±o');
+        debugPrint('ðŸ‘» Fantasma Yakuza ataca ENFERMERO: $_damage daño');
       } else if (_currentTarget is PlayerCharacter) {
         (_currentTarget as PlayerCharacter).takeDamage(_damage);
-        debugPrint('ðŸ‘» Fantasma Yakuza ataca Jugador: $_damage daÃ±o');
+        debugPrint('ðŸ‘» Fantasma Yakuza ataca Jugador: $_damage daño');
       } else if (_currentTarget is RedeemedKijinAlly) {
         (_currentTarget as RedeemedKijinAlly).takeDamage(_damage);
-        debugPrint('ðŸ‘» Fantasma Yakuza ataca Kohaa ALIADA: $_damage daÃ±o');
+        debugPrint('ðŸ‘» Fantasma Yakuza ataca Kohaa ALIADA: $_damage daño');
       } else if (_currentTarget is YureiKohaa) {
         (_currentTarget as YureiKohaa).takeDamage(_damage);
-        debugPrint('ðŸ‘» Fantasma Yakuza ataca Kohaa: $_damage daÃ±o');
+        debugPrint('ðŸ‘» Fantasma Yakuza ataca Kohaa: $_damage daño');
       }
       
       _attackTimer = _attackCooldown;

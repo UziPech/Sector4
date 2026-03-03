@@ -19,7 +19,7 @@ class _GameOverWithAdviceState extends State<GameOverWithAdvice> {
   late String melQuote;
   late String melAdvice;
   
-  // Mensajes de Mel con consejos segÃºn situaciones comunes
+  // Mensajes de Mel con consejos según situaciones comunes
   final List<Map<String, String>> adviceList = [
     // Consejos del Stalker (boss original)
     {
@@ -28,45 +28,45 @@ class _GameOverWithAdviceState extends State<GameOverWithAdvice> {
     },
     {
       'quote': '"La embestida del Stalker es letal pero predecible."',
-      'tip': 'Cuando veas que tiembla y se pone rojo, Â¡ESQUIVA! Te harÃ¡ 60 de daÃ±o.'
+      'tip': 'Cuando veas que tiembla y se pone rojo, ¡ESQUIVA! Te hará 60 de daño.'
     },
     {
       'quote': '"El Stalker tiene una barra de estabilidad, no de vida."',
-      'tip': 'DispÃ¡rale hasta que se canse y duerma. Usa ese tiempo para buscar objetos.'
+      'tip': 'Dispárale hasta que se canse y duerma. Usa ese tiempo para buscar objetos.'
     },
     // Consejos de Yurei Kohaa (nuevo boss Kijin)
     {
       'quote': '"Yurei Kohaa es un Kijin. Su dolor la hace peligrosa."',
-      'tip': 'Tiene 3000 HP y es RÃPIDA (velocidad 150). MantÃ©n la distancia y dispara.'
+      'tip': 'Tiene 3000 HP y es RÁPIDA (velocidad 150). Mantén la distancia y dispara.'
     },
     {
       'quote': '"Cuando Kohaa se vuelve amarilla, va a embestir."',
-      'tip': 'Â¡ESQUIVA SU DASH! Tiene cooldown de 4 segundos. Ãšsalo para atacar.'
+      'tip': '¡ESQUIVA SU DASH! Tiene cooldown de 4 segundos. Úsalo para atacar.'
     },
     {
-      'quote': '"Kohaa invoca enfermeros cuando estÃ¡ herida."',
-      'tip': 'Al 60% HP, spawnea 2 enfermeros. MÃ¡talos rÃ¡pido o te flanquearÃ¡n.'
+      'quote': '"Kohaa invoca enfermeros cuando está herida."',
+      'tip': 'Al 60% HP, spawnea 2 enfermeros. Mátalos rápido o te flanquearán.'
     },
     {
-      'quote': '"Â¡CUIDADO! Kohaa usa explosiÃ³n defensiva al 30% HP."',
-      'tip': 'Cuando estÃ© baja, hace EXPLOSIÃ“N (40 daÃ±o, te empuja) y se cura 100 HP. Â¡AlÃ©jate!'
+      'quote': '"¡CUIDADO! Kohaa usa explosión defensiva al 30% HP."',
+      'tip': 'Cuando esté baja, hace EXPLOSIÓN (40 daño, te empuja) y se cura 100 HP. ¡Aléjate!'
     },
     {
-      'quote': '"Los Kijin pueden ser redimidos despuÃ©s de morir."',
-      'tip': 'Si eres Mel, puedes resucitar su tumba ROJA (cuesta 2 slots). SerÃ¡ aliada.'
+      'quote': '"Los Kijin pueden ser redimidos después de morir."',
+      'tip': 'Si eres Mel, puedes resucitar su tumba ROJA (cuesta 2 slots). Será aliada.'
     },
     {
-      'quote': '"Kohaa hace 25 de daÃ±o por golpe, no te rodees."',
-      'tip': 'Usa el cuchillo en cuerpo a cuerpo (100 daÃ±o) o pistola a distancia (20 daÃ±o).'
+      'quote': '"Kohaa hace 25 de daño por golpe, no te rodees."',
+      'tip': 'Usa el cuchillo en cuerpo a cuerpo (100 daño) o pistola a distancia (20 daño).'
     },
     // Consejos generales
     {
-      'quote': '"Recuerda: tienes dos armas a tu disposiciÃ³n."',
+      'quote': '"Recuerda: tienes dos armas a tu disposición."',
       'tip': 'Presiona Q para cambiar entre Cuchillo (âˆž) y Pistola (20 balas). Recarga con R.'
     },
     {
       'quote': '"El cuchillo es devastador en cuerpo a cuerpo."',
-      'tip': 'El cuchillo hace 100 de daÃ±o. Ãšsalo contra enemigos lentos o debilitados.'
+      'tip': 'El cuchillo hace 100 de daño. Úsalo contra enemigos lentos o debilitados.'
     },
   ];
   
@@ -85,7 +85,7 @@ class _GameOverWithAdviceState extends State<GameOverWithAdvice> {
       color: Colors.black.withValues(alpha: 0.95),
       child: Column(
         children: [
-          // TÃ­tulo Game Over en la parte superior
+          // Título Game Over en la parte superior
           Expanded(
             child: Center(
               child: Column(
@@ -103,7 +103,7 @@ class _GameOverWithAdviceState extends State<GameOverWithAdvice> {
                   ),
                   const SizedBox(height: 20),
                   const Text(
-                    'La CaÃ­da fue inevitable',
+                    'La Caída fue inevitable',
                     style: TextStyle(
                       color: Colors.white70,
                       fontSize: 24,
@@ -116,7 +116,7 @@ class _GameOverWithAdviceState extends State<GameOverWithAdvice> {
             ),
           ),
           
-          // DiÃ¡logo de Mel en la parte inferior (estilo juego)
+          // Diálogo de Mel en la parte inferior (estilo juego)
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
@@ -158,7 +158,7 @@ class _GameOverWithAdviceState extends State<GameOverWithAdvice> {
                   child: ClipRect(
                     child: Builder(
                       builder: (context) {
-                        // Mostrar el COMPAÃ‘ERO (no el jugador)
+                        // Mostrar el COMPAÑERO (no el jugador)
                         // Si jugador es Dan, mostrar Mel. Si es Mel, mostrar Dan.
                         final isDan = widget.game.player.role == PlayerRole.dan;
                         final companionAvatar = isDan
@@ -174,7 +174,7 @@ class _GameOverWithAdviceState extends State<GameOverWithAdvice> {
                 ),
                 const SizedBox(width: 20),
                 
-                // Contenido del diÃ¡logo
+                // Contenido del diálogo
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,7 +185,7 @@ class _GameOverWithAdviceState extends State<GameOverWithAdvice> {
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Builder(
                           builder: (context) {
-                            // Mostrar el COMPAÃ‘ERO (no el jugador)
+                            // Mostrar el COMPAÑERO (no el jugador)
                             final isDan = widget.game.player.role == PlayerRole.dan;
                             final companionName = isDan ? 'Mel' : 'Dan';
                             return Text(
@@ -255,7 +255,7 @@ class _GameOverWithAdviceState extends State<GameOverWithAdvice> {
                               ),
                             ),
                             child: const Text(
-                              'MENÃš PRINCIPAL',
+                              'MENÚ PRINCIPAL',
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,

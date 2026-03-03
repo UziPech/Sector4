@@ -34,7 +34,7 @@ class InteractableObject extends StatelessWidget {
     // Ejecutar callback personalizado si existe
     data.onInteract?.call();
 
-    // Mostrar diÃ¡logo si existe
+    // Mostrar diálogo si existe
     if (data.dialogue != null) {
       DialogueOverlay.show(
         context,
@@ -48,7 +48,7 @@ class InteractableObject extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Para muebles decorativos, fotos y decoraciones, no mostrar borde a menos que estÃ© en rango
+    // Para muebles decorativos, fotos y decoraciones, no mostrar borde a menos que esté en rango
     final isFurniture = data.type == InteractableType.furniture || data.type == InteractableType.photo;
     final isDecoration = data.type == InteractableType.decoration;
     final showBorder = (!isFurniture && !isDecoration) || isInRange;
@@ -98,7 +98,7 @@ class InteractableObject extends StatelessWidget {
                 )
               else
                 _buildCharacterPlaceholder(),
-              // Indicador de interacciÃ³n
+              // Indicador de interacción
               if (isInRange && !DialogueOverlay.isActive)
                 Positioned(
                   top: -30,
@@ -184,7 +184,7 @@ class InteractableObject extends StatelessWidget {
       );
     }
     
-    // Placeholder genÃ©rico para otros tipos
+    // Placeholder genérico para otros tipos
     return Center(
       child: Icon(
         _getIconForType(),
@@ -268,7 +268,7 @@ class _SpritePainter extends CustomPainter {
   }
 }
 
-/// Widget helper para mostrar indicador de interacciÃ³n flotante
+/// Widget helper para mostrar indicador de interacción flotante
 class InteractionPrompt extends StatelessWidget {
   final String text;
 

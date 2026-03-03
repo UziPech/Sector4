@@ -2,7 +2,7 @@
 import '../services/save_system.dart';
 import '../screens/menu_screen.dart';
 
-/// BotÃƒÂ³n de skip para escenas narrativas
+/// Botón de skip para escenas narrativas
 class SkipButton extends StatefulWidget {
   final int chapterNumber;
   final VoidCallback? onSkip;
@@ -65,11 +65,11 @@ class _SkipButtonState extends State<SkipButton> {
   }
 
   Future<void> _showSkipDialog(BuildContext context) async {
-    // print('Ã°Å¸â€Ëœ Skip button pressed - Chapter ${widget.chapterNumber}');
+    // print('💀Ëœ Skip button pressed - Chapter ${widget.chapterNumber}');
 
-    // Asegurarse de que el contexto sea vÃƒÂ¡lido
+    // Asegurarse de que el contexto sea válido
     if (!context.mounted) {
-      // print('Ã¢ÂÅ’ Context not mounted');
+      // print('âÂÅ’ Context not mounted');
       return;
     }
 
@@ -80,17 +80,17 @@ class _SkipButtonState extends State<SkipButton> {
         builder: (dialogContext) => AlertDialog(
           backgroundColor: Colors.grey[900],
           title: const Text(
-            'Skipear CapÃƒÂ­tulo',
+            'Skipear Capítulo',
             style: TextStyle(color: Colors.white),
           ),
           content: const Text(
-            'Ã‚Â¿EstÃƒÂ¡s seguro de que quieres skipear este capÃƒÂ­tulo?\n\nPodrÃƒÂ¡s volver a jugarlo desde el menÃƒÂº de Historia.',
+            '¿Estás seguro de que quieres skipear este capítulo?\n\nPodrás volver a jugarlo desde el menú de Historia.',
             style: TextStyle(color: Colors.white70),
           ),
           actions: [
             TextButton(
               onPressed: () {
-                // print('Ã¢ÂÅ’ Skip cancelled');
+                // print('âÂÅ’ Skip cancelled');
                 Navigator.of(dialogContext).pop(false);
               },
               child: const Text(
@@ -100,7 +100,7 @@ class _SkipButtonState extends State<SkipButton> {
             ),
             TextButton(
               onPressed: () {
-                // print('Ã¢Å“â€¦ Skip confirmed');
+                // print('âœ… Skip confirmed');
                 Navigator.of(dialogContext).pop(true);
               },
               child: const Text(
@@ -119,23 +119,23 @@ class _SkipButtonState extends State<SkipButton> {
 
       if (confirm == true) {
         if (!context.mounted) {
-          // print('Ã¢ÂÅ’ Context not mounted after dialog');
+          // print('âÂÅ’ Context not mounted after dialog');
           return;
         }
 
-        // print('Ã°Å¸â€™Â¾ Marking chapter ${widget.chapterNumber} as skipped');
+        // print('ðŸ’¾ Marking chapter ${widget.chapterNumber} as skipped');
 
         // Marcar como skipeado
         await SaveSystem.markChapterSkipped(widget.chapterNumber);
 
-        // print('Ã¢Å“â€¦ Chapter marked as skipped');
+        // print('âœ… Chapter marked as skipped');
 
         // Callback personalizado si existe
         widget.onSkip?.call();
 
-        // Volver al menÃƒÂº
+        // Volver al menú
         if (context.mounted) {
-          // print('Ã°Å¸ÂÂ  Navigating to menu');
+          // print('ðÅ¸ÂÂ  Navigating to menu');
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => const MenuScreen()),
             (route) => false,
@@ -143,7 +143,7 @@ class _SkipButtonState extends State<SkipButton> {
         }
       }
     } catch (e) {
-      // print('Ã¢ÂÅ’ Error in skip dialog: $e');
+      // print('âÂÅ’ Error in skip dialog: $e');
 
       // Mostrar error al usuario
       if (context.mounted) {

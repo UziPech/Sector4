@@ -10,7 +10,7 @@ import 'package:flame/events.dart';
 
 import '../expediente_game.dart';
 
-/// HUD del juego - Muestra informaciÃ³n vital
+/// HUD del juego - Muestra información vital
 class GameHUD extends PositionComponent
     with HasGameReference<ExpedienteKorinGame> {
   final PlayerCharacter player;
@@ -23,7 +23,7 @@ class GameHUD extends PositionComponent
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    // NOTA: Los botones de acciÃ³n (Ataque, Q, R, E, Dash) ahora se renderizan
+    // NOTA: Los botones de acción (Ataque, Q, R, E, Dash) ahora se renderizan
     // como Flutter widgets en GameUI para quedar ENCIMA del FlashlightLayer.
     // Este GameHUD solo mantiene el canvas de salud/vidas/hotbar de armas
     // como respaldo visual en el canvas de Flame.
@@ -46,7 +46,7 @@ class AttackButtonComponent extends PositionComponent with TapCallbacks {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    size = Vector2(80, 80); // TamaÃ±o del botÃ³n
+    size = Vector2(80, 80); // Tamaño del botón
     // Posicionar en esquina inferior derecha
     position = Vector2(
       gameRef.size.x - size.x - 40,
@@ -63,7 +63,7 @@ class AttackButtonComponent extends PositionComponent with TapCallbacks {
       ..color = Colors.red.withValues(alpha: 0.6)
       ..style = PaintingStyle.fill;
 
-    // Dibujar cÃ­rculo relativo a 0,0 del componente
+    // Dibujar círculo relativo a 0,0 del componente
     final radius = size.x / 2;
     canvas.drawCircle(Offset(radius, radius), radius, paint);
 
@@ -109,7 +109,7 @@ class SwitchWeaponButtonComponent extends PositionComponent with TapCallbacks {
   Future<void> onLoad() async {
     await super.onLoad();
     size = Vector2(60, 60);
-    // Posicionar arriba del botÃ³n de ataque
+    // Posicionar arriba del botón de ataque
     position = Vector2(
       gameRef.size.x - size.x - 50,
       gameRef.size.y - size.y - 140,
@@ -185,7 +185,7 @@ class ReloadButtonComponent extends PositionComponent with TapCallbacks {
   Future<void> onLoad() async {
     await super.onLoad();
     size = Vector2(50, 50);
-    // Posicionar a la izquierda del botÃ³n de ataque
+    // Posicionar a la izquierda del botón de ataque
     position = Vector2(
       gameRef.size.x - size.x - 140,
       gameRef.size.y - size.y - 55,
@@ -196,12 +196,12 @@ class ReloadButtonComponent extends PositionComponent with TapCallbacks {
   @override
   void update(double dt) {
     super.update(dt);
-    // Solo visible si el arma actual usa municiÃ³n
+    // Solo visible si el arma actual usa munición
     final weapon = player.weaponInventory.currentWeapon;
     if (weapon is RangedWeapon) {
       if (weapon.currentAmmo < weapon.maxAmmo) {
         // Mostrar si necesita recarga
-        // PodrÃ­amos hacerlo invisible o transparente
+        // Podríamos hacerlo invisible o transparente
       }
     }
   }
@@ -267,7 +267,7 @@ class ResurrectButtonComponent extends PositionComponent with TapCallbacks {
   Future<void> onLoad() async {
     await super.onLoad();
     size = Vector2(60, 60);
-    // Posicionar arriba del botÃ³n de ataque (donde irÃ­a el cambio de arma)
+    // Posicionar arriba del botón de ataque (donde iría el cambio de arma)
     position = Vector2(
       gameRef.size.x - size.x - 50,
       gameRef.size.y - size.y - 140,
@@ -343,7 +343,7 @@ class DashButtonComponent extends PositionComponent with TapCallbacks {
   Future<void> onLoad() async {
     await super.onLoad();
     size = Vector2(50, 50);
-    // Posicionar a la izquierda del botÃ³n de ataque (donde irÃ­a la recarga)
+    // Posicionar a la izquierda del botón de ataque (donde iría la recarga)
     position = Vector2(
       gameRef.size.x - size.x - 140,
       gameRef.size.y - size.y - 55,

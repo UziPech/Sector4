@@ -4,26 +4,26 @@ import 'package:flame_tiled/flame_tiled.dart';
 import 'package:tiled/tiled.dart' as tiled;
 import 'package:flame/collisions.dart';
 
-/// Sistema de carga de mapas por capÃ­tulo
+/// Sistema de carga de mapas por capítulo
 class MapLoader {
-  // Registro de mapas por capÃ­tulo
+  // Registro de mapas por capítulo
   static const Map<int, String> _chapterMaps = {
     1: 'tiles/capitulo_1/casa_dan.tmx',
     2: 'tiles/capitulo_2/bunker.tmx',
-    // Agregar mÃ¡s capÃ­tulos aquÃ­
+    // Agregar más capítulos aquí
   };
 
-  // Posiciones de spawn del jugador por capÃ­tulo
+  // Posiciones de spawn del jugador por capítulo
   static final Map<int, Vector2> _playerSpawns = {
     1: Vector2(200, 300), // Casa de Dan
-    2: Vector2(400, 300), // BÃºnker
+    2: Vector2(400, 300), // Búnker
   };
 
-  /// Carga el mapa del capÃ­tulo especificado
+  /// Carga el mapa del capítulo especificado
   Future<TiledComponent> loadMap(int chapter) async {
     final mapPath = _chapterMaps[chapter];
     if (mapPath == null) {
-      throw Exception('No existe mapa para el capÃ­tulo $chapter');
+      throw Exception('No existe mapa para el capítulo $chapter');
     }
 
     return await TiledComponent.load(
@@ -32,23 +32,23 @@ class MapLoader {
     );
   }
 
-  /// Obtiene la posiciÃ³n de spawn del jugador para el capÃ­tulo
+  /// Obtiene la posición de spawn del jugador para el capítulo
   Vector2 getPlayerSpawnPosition(int chapter) {
     return _playerSpawns[chapter] ?? Vector2(200, 300);
   }
 
-  // Muros manuales para corregir errores de colisiÃ³n en los mapas (Chapter -> List<Rect>)
+  // Muros manuales para corregir errores de colisión en los mapas (Chapter -> List<Rect>)
   static final Map<int, List<Rect>> _manualWalls = {
     1: [
-      // === SALA DE ESTAR - Parches de colisiÃ³n ===
+      // === SALA DE ESTAR - Parches de colisión ===
 
       // Pared vertical IZQUIERDA superior (verde izquierda)
       const Rect.fromLTWH(268, 190, 16, 120),
 
-      // Esquina izquierda sobre sofÃ¡ (verde pequeÃ±o izquierda)
+      // Esquina izquierda sobre sofá (verde pequeño izquierda)
       const Rect.fromLTWH(268, 285, 35, 25),
 
-      // Pared HORIZONTAL sobre el sofÃ¡ - COMPLETA (verde horizontal)
+      // Pared HORIZONTAL sobre el sofá - COMPLETA (verde horizontal)
       const Rect.fromLTWH(303, 285, 408, 25),
 
       // Pared vertical DERECHA superior (verde derecha)
@@ -60,7 +60,7 @@ class MapLoader {
   Future<void> loadCollisions(
     TiledComponent map,
     World world,
-    int chapter, // Nuevo parÃ¡metro
+    int chapter, // Nuevo parámetro
   ) async {
     final collisionLayer = map.tileMap.getLayer<tiled.ObjectGroup>(
       'collisions',
@@ -76,7 +76,7 @@ class MapLoader {
     // Cargar muros manuales
     final manualWalls = _manualWalls[chapter];
     if (manualWalls != null) {
-      // print('ðŸ§± Cargando ${manualWalls.length} muros manuales para capÃ­tulo $chapter');
+      // print('ðŸ§± Cargando ${manualWalls.length} muros manuales para capítulo $chapter');
       for (final rect in manualWalls) {
         final wall = TiledWall(
           position: Vector2(rect.left, rect.top),
@@ -88,7 +88,7 @@ class MapLoader {
         // print('  âœ… Muro agregado: Pos(${rect.left}, ${rect.top}) Size(${rect.width}x${rect.height})');
       }
     } else {
-      // print('âš ï¸ No hay muros manuales definidos para capÃ­tulo $chapter');
+      // print('âš ï¸ No hay muros manuales definidos para capítulo $chapter');
     }
   }
 

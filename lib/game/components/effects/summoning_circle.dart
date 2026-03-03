@@ -2,14 +2,14 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
-/// Efecto de cÃ­rculo de invocaciÃ³n para On-Oyabun
+/// Efecto de círculo de invocación para On-Oyabun
 /// Se dibuja en el suelo antes de que aparezca el jefe
 class SummoningCircle extends PositionComponent {
   double animationProgress = 0.0;
-  final double animationDuration = 5.0; // 5 segundos de invocaciÃ³n
+  final double animationDuration = 5.0; // 5 segundos de invocación
   final double circleRadius = 200.0;
   
-  // Callback cuando se completa la invocaciÃ³n
+  // Callback cuando se completa la invocación
   final VoidCallback? onSummoningComplete;
   
   SummoningCircle({
@@ -24,7 +24,7 @@ class SummoningCircle extends PositionComponent {
     animationProgress += dt / animationDuration;
     
     if (animationProgress >= 1.0) {
-      // Completar invocaciÃ³n
+      // Completar invocación
       onSummoningComplete?.call();
       removeFromParent();
     }
@@ -36,7 +36,7 @@ class SummoningCircle extends PositionComponent {
     
     final progress = animationProgress.clamp(0.0, 1.0);
     
-    // CÃ­rculo exterior expansivo (rojo)
+    // Círculo exterior expansivo (rojo)
     final outerRadius = circleRadius * progress;
     final outerPaint = Paint()
       ..color = Colors.red.withValues(alpha: 0.3 * (1.0 - progress * 0.5))
@@ -45,7 +45,7 @@ class SummoningCircle extends PositionComponent {
     
     canvas.drawCircle(Offset.zero, outerRadius, outerPaint);
     
-    // CÃ­rculo interior (mÃ¡s intenso)
+    // Círculo interior (más intenso)
     final innerRadius = circleRadius * 0.7 * progress;
     final innerPaint = Paint()
       ..color = Colors.red.withValues(alpha: 0.5)
@@ -54,12 +54,12 @@ class SummoningCircle extends PositionComponent {
     
     canvas.drawCircle(Offset.zero, innerRadius, innerPaint);
     
-    // SÃ­mbolos yakuza rotando (28 sÃ­mbolos para las 28 vÃ­ctimas)
+    // Símbolos yakuza rotando (28 símbolos para las 28 víctimas)
     if (progress > 0.3) {
       _drawRotatingSymbols(canvas, progress);
     }
     
-    // PartÃ­culas rojas ascendentes
+    // Partículas rojas ascendentes
     if (progress > 0.5) {
       _drawParticles(canvas, progress);
     }
@@ -79,7 +79,7 @@ class SummoningCircle extends PositionComponent {
       final x = cos(angle) * symbolRadius;
       final y = sin(angle) * symbolRadius;
       
-      // Dibujar pequeÃ±o sÃ­mbolo (cÃ­rculo como placeholder)
+      // Dibujar pequeño símbolo (círculo como placeholder)
       canvas.drawCircle(Offset(x, y), 3.0, symbolPaint);
     }
   }
