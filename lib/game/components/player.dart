@@ -2,6 +2,7 @@
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/palette.dart';
+import 'package:flame/cache.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import '../../combat/weapon_system.dart';
@@ -156,8 +157,9 @@ class PlayerCharacter extends PositionComponent
   Future<void> _loadDanAnimations() async {
     try {
       // OPTIMIZED: Use Flame's image cache instead of manual rootBundle loading
-      final danImage = await game.images.load('sprites/caminar_dan.png');
-      final northImage = await game.images.load('sprites/dan_walk_north.png');
+      final customImages = Images(prefix: 'assets/');
+      final danImage = await customImages.load('sprites/caminar_dan.png');
+      final northImage = await customImages.load('sprites/dan_walk_north.png');
 
       // Configurar animaciones (Grilla 3x3 para spritesheet)
       const cols = 3;

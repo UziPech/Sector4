@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
+import 'package:flame/cache.dart';
 import 'package:flutter/material.dart';
 import '../../expediente_game.dart';
 import '../player.dart';
@@ -197,7 +198,8 @@ class OnOyabunBoss extends PositionComponent
   Future<void> _loadSprites() async {
     try {
       // [PERF] print('ðŸ” [Oyabun] Intentando cargar sprites...');
-      final spriteSheet = await game.images.load(
+      final customImages = Images(prefix: 'assets/');
+      final spriteSheet = await customImages.load(
         'sprites/On_oyabuSpritesComplete.png',
       );
       // [PERF] print('ðŸ” [Oyabun] SpriteSheet cargado: ${spriteSheet.width}x${spriteSheet.height}');
@@ -595,7 +597,6 @@ class OnOyabunBoss extends PositionComponent
 
     debugPrint('âš”ï¸ On-Oyabun: ESTADO DE MUERTE HONORABLE');
     debugPrint('   El jugador tiene 30 segundos para decidir...');
-
   }
 
   // ==================== IA Y COMBATE ====================
@@ -879,7 +880,6 @@ class OnOyabunBoss extends PositionComponent
       duration: 0.3,
     );
     game.world.add(teleportEffect);
-
   }
 
   /// Genera una onda explosiva que daña y empuja
@@ -1510,7 +1510,6 @@ class OnOyabunBoss extends PositionComponent
     }
 
     debugPrint('   â†ªï¸ Objetivo arrastrado hacia el jefe');
-
   }
 
   /// LLUVIA DE ACERO - 28 katanas caen del cielo
@@ -1791,7 +1790,6 @@ class OnOyabunBoss extends PositionComponent
   void onDeath() {
     isDead = true;
     debugPrint(' On-Oyabun ha sido derrotado!');
-
 
     removeFromParent();
   }
