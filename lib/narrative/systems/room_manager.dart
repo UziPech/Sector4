@@ -70,16 +70,13 @@ class RoomManager {
             250,
           ), // Dentro del nuevo estudio (altura 320)
         ),
+        // Puerta decorativa del centro - no funcional, solo visual
         const DoorData(
           id: 'door_center',
-          position: Vector2(
-            327,
-            102,
-          ), // Centro - pared del fondo del hueco en U
+          position: Vector2(327, 102),
           size: Vector2(46, 18),
-          targetRoomId: 'emma_room',
-          label: 'Habitación Emma',
-          targetSpawnPosition: Vector2(300, 100),
+          targetRoomId: '', // Sin destino - solo decorativa
+          label: '',
         ),
         const DoorData(
           id: 'door_to_emma',

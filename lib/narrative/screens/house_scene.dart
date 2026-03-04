@@ -481,9 +481,11 @@ class _HouseSceneState extends State<HouseScene>
         // Ajuste visual: La pared tiene 60px de alto. El límite debe estar cerca de eso.
         double wallLimitY = towerHeight + 55;
 
-        // Verificar si hay una puerta en esta sección para permitir el paso
+        // Verificar si hay una puerta FUNCIONAL en esta sección para permitir el paso
         bool isNearDoor = false;
         for (final door in room.doors) {
+          // Ignorar puertas decorativas (sin destino)
+          if (door.targetRoomId.isEmpty) continue;
           // Si la puerta está en la pared norte (o cerca de la pared central)
           if (door.position.dy < towerHeight + 50) {
             // Si estamos alineados horizontalmente con la puerta
@@ -656,6 +658,8 @@ class _HouseSceneState extends State<HouseScene>
 
     // Prioridad: Puertas
     for (final door in room.doors) {
+      // Ignorar puertas decorativas (sin destino definido)
+      if (door.targetRoomId.isEmpty) continue;
       if (door.isPlayerInRange(_playerPosition, _playerSize)) {
         _transitionToRoom(
           door.targetRoomId,
@@ -1795,6 +1799,8 @@ class _HouseSceneState extends State<HouseScene>
 
     // Check doors
     for (final door in room.doors) {
+      // Ignorar puertas decorativas (sin destino definido)
+      if (door.targetRoomId.isEmpty) continue;
       if (door.isPlayerInRange(_playerPosition, _playerSize)) {
         canInteractNow = true;
         break;
