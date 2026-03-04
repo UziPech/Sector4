@@ -21,7 +21,7 @@ class MelCharacter extends PositionComponent
   
   // Habilidades
   bool _canHeal = true;
-  double _healCooldown = 15.0; // 15 segundos
+  final double _healCooldown = 15.0; // 15 segundos
   double _healTimer = 0.0;
   static const double _healAmount = 100.0; // Curación completa
   
@@ -56,9 +56,11 @@ class MelCharacter extends PositionComponent
     // Actualizar cooldown de curación
     if (!_canHeal) {
       _healTimer += dt;
+      game.melCooldownNotifier.value = _healTimer / _healCooldown;
       if (_healTimer >= _healCooldown) {
         _canHeal = true;
         _healTimer = 0.0;
+        game.melReadyNotifier.value = true;
       }
     }
     
@@ -122,24 +124,24 @@ class MelCharacter extends PositionComponent
     _canHeal = false;
     _healTimer = 0.0;
     
-    // TODO: Agregar efecto visual/sonoro
+    // Sincronizar UI
+    game.melReadyNotifier.value = false;
+    game.melCooldownNotifier.value = 0.0;
+    
     _showHealEffect();
   }
   
   void _showHealEffect() {
-    // TODO: Implementar partículas o animación
     // Por ahora solo un placeholder
   }
   
   /// Invoca una esencia de la caída (habilidad futura)
   void invokeEssence() {
-    // TODO: Implementar invocación de esencias
     // Requiere haber derrotado mutados previamente
   }
   
   /// Mimetiza habilidad de un mutado derrotado (habilidad futura)
   void mimicAbility(String abilityType) {
-    // TODO: Implementar mimetismo
     // Otorga buffs temporales a Dan
   }
   
@@ -165,7 +167,7 @@ class MelCharacter extends PositionComponent
     if (!_canHeal) {
       final progress = _healTimer / _healCooldown;
       final arcPaint = Paint()
-        ..color = Colors.yellow.withOpacity(0.5)
+        ..color = Colors.yellow.withValues(alpha: 0.5)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3;
       
@@ -182,3 +184,4 @@ class MelCharacter extends PositionComponent
     }
   }
 }
+

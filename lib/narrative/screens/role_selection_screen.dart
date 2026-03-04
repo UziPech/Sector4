@@ -6,10 +6,10 @@ import '../../game/ui/game_over_with_advice.dart';
 import '../models/dialogue_data.dart';
 import '../components/dialogue_system.dart';
 import '../../game/ui/game_ui.dart';
-
+import '../../game/ui/combat_flashlight_widget.dart';
 /// Pantalla de selección de rol (Dan vs Mel)
 class RoleSelectionScreen extends StatefulWidget {
-  const RoleSelectionScreen({Key? key}) : super(key: key);
+  const RoleSelectionScreen({super.key});
 
   @override
   State<RoleSelectionScreen> createState() => _RoleSelectionScreenState();
@@ -51,7 +51,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                         letterSpacing: 3,
                         shadows: [
                           Shadow(
-                            color: Colors.red.withOpacity(0.5),
+                            color: Colors.red.withValues(alpha: 0.5),
                             blurRadius: 10,
                           ),
                         ],
@@ -61,7 +61,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                     Text(
                       '¿Quién toma el punto?',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         fontSize: 16,
                         fontFamily: 'monospace',
                         letterSpacing: 1,
@@ -122,7 +122,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(4),
                               side: BorderSide(
-                                color: Colors.red.withOpacity(0.5),
+                                color: Colors.red.withValues(alpha: 0.5),
                                 width: 2,
                               ),
                             ),
@@ -230,9 +230,12 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                 onSequenceComplete: korinGame.onDialogueComplete,
               );
             },
+            'FlashlightLayer': (context, game) => IgnorePointer(
+              child: CombatFlashlightWidget(game: game as ExpedienteKorinGame),
+            ),
             'GameUI': (context, game) => GameUI(game: game as ExpedienteKorinGame),
           },
-          initialActiveOverlays: const ['GameUI'],
+          initialActiveOverlays: const ['FlashlightLayer', 'GameUI'],
         ),
       ),
     );
@@ -264,18 +267,18 @@ class _RoleCard extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.7),
+            color: Colors.black.withValues(alpha: 0.7),
             border: Border.all(
               color: isSelected
                   ? (isDan ? Colors.green : Colors.cyan)
-                  : Colors.white.withOpacity(0.3),
+                  : Colors.white.withValues(alpha: 0.3),
               width: isSelected ? 3 : 2,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
                       color: (isDan ? Colors.green : Colors.cyan)
-                          .withOpacity(0.5),
+                          .withValues(alpha: 0.5),
                       blurRadius: 20,
                       spreadRadius: 2,
                     ),
@@ -300,7 +303,7 @@ class _RoleCard extends StatelessWidget {
               Text(
                 isDan ? 'OPERADOR TÁCTICO' : 'PORTADORA DE LA CAÍDA',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                   fontSize: 12,
                   fontFamily: 'monospace',
                   letterSpacing: 1,
@@ -315,7 +318,7 @@ class _RoleCard extends StatelessWidget {
                     : 'Mutación controlada. Regeneración. Dominio sobre la vida y la muerte.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   fontSize: 14,
                   fontFamily: 'monospace',
                   height: 1.5,
@@ -327,9 +330,9 @@ class _RoleCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withValues(alpha: 0.5),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Column(
@@ -381,10 +384,10 @@ class _RoleCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   border: Border.all(
                     color: (isDan ? Colors.green : Colors.cyan)
-                        .withOpacity(0.3),
+                        .withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
@@ -393,7 +396,7 @@ class _RoleCard extends StatelessWidget {
                       : '"Siento el pulso de la Caída en mis venas. No es una maldición. Es una herramienta. Y voy a usarla para proteger lo que queda."',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                     fontSize: 12,
                     fontStyle: FontStyle.italic,
                     fontFamily: 'monospace',
@@ -427,7 +430,7 @@ class _StatRow extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.6),
+            color: Colors.white.withValues(alpha: 0.6),
             fontSize: 12,
             fontFamily: 'monospace',
           ),
@@ -445,3 +448,4 @@ class _StatRow extends StatelessWidget {
     );
   }
 }
+

@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flame/components.dart';
-import 'package:flame/palette.dart';
 import 'package:flame/collisions.dart';
 import 'package:flutter/services.dart';
 import 'enemy_character.dart';
@@ -31,14 +30,14 @@ class StalkerEnemy extends EnemyCharacter {
   
   // Sistema de Dash/Embestida - MÁS AGRESIVO
   double _dashCooldownTimer = 0.0;
-  final double dashCooldown = 4.0; // 6 → 4 segundos (más frecuente)
+  final double dashCooldown = 4.0; // 6 â†’ 4 segundos (más frecuente)
   double _chargeUpTimer = 0.0;
-  final double chargeUpDuration = 0.4; // 0.5 → 0.4s (carga más rápida)
+  final double chargeUpDuration = 0.4; // 0.5 â†’ 0.4s (carga más rápida)
   double _dashTimer = 0.0;
   final double dashDuration = 0.3;
   Vector2? _dashTargetPosition;
-  final double dashSpeed = 550.0; // 450 → 550 (más rápido)
-  final double dashDamage = 60.0; // 50 → 60 HP
+  final double dashSpeed = 550.0; // 450 â†’ 550 (más rápido)
+  final double dashDamage = 60.0; // 50 â†’ 60 HP
   bool _dashHitPlayer = false;
   
   // Efecto de temblor
@@ -67,17 +66,17 @@ class StalkerEnemy extends EnemyCharacter {
   
   StalkerEnemy({super.config}) {
     // Configuración específica del Stalker - AUMENTADA PARA MÁS DIFICULTAD
-    initHealth(3000.0); // 1000 → 3000 (triple de vida)
-    shield = 500.0; // 200 → 500 (escudo más resistente)
+    initHealth(3000.0); // 1000 â†’ 3000 (triple de vida)
+    shield = 500.0; // 200 â†’ 500 (escudo más resistente)
     maxShield = 500.0;
     isInvincible = true; // CRUCIAL: Invencible hasta destruir objeto
     stalkerState = StalkerState.intro;
     _sleepTimer = 2.0;
     
     // Stats aumentados
-    stability = 150.0; // 100 → 150 (más difícil de cansar)
+    stability = 150.0; // 100 â†’ 150 (más difícil de cansar)
     maxStability = 150.0;
-    sleepDuration = 7.0; // 10 → 7 (duerme menos tiempo)
+    sleepDuration = 7.0; // 10 â†’ 7 (duerme menos tiempo)
   }
   
   @override
@@ -89,7 +88,7 @@ class StalkerEnemy extends EnemyCharacter {
     final hitbox = children.whereType<RectangleHitbox>().firstOrNull;
     if (hitbox != null) {
       hitbox.collisionType = CollisionType.active;
-      print('✅ Stalker hitbox configurado como ACTIVE para recibir balas');
+      // print('âœ… Stalker hitbox configurado como ACTIVE para recibir balas');
     }
     
     // Cargar sprites
@@ -98,7 +97,7 @@ class StalkerEnemy extends EnemyCharacter {
   
   Future<void> _loadStalkerSprites() async {
     try {
-      print('🔄 Loading Stalker sprites...');
+      // print('ðŸ”„ Loading Stalker sprites...');
       
       // Cargar la imagen de caminata norte (3 frames verticales)
       final northData = await rootBundle.load('assets/sprites/stalker/stalker_walk_north.png');
@@ -133,11 +132,11 @@ class StalkerEnemy extends EnemyCharacter {
       final chargeHorizontalFrame = await chargeHorizontalCodec.getNextFrame();
       final chargeHorizontalImage = chargeHorizontalFrame.image;
       
-      print('📊 Stalker north image: ${northImage.width}x${northImage.height}');
-      print('📊 Stalker south image: ${southImage.width}x${southImage.height}');
-      print('📊 Stalker east image: ${eastImage.width}x${eastImage.height} (will be flipped for west)');
-      print('📊 Stalker charge vertical image: ${chargeVerticalImage.width}x${chargeVerticalImage.height} (5 frames)');
-      print('📊 Stalker charge horizontal image: ${chargeHorizontalImage.width}x${chargeHorizontalImage.height} (3 frames)');
+      // print('ðŸ“Š Stalker north image: ${northImage.width}x${northImage.height}');
+      // print('ðŸ“Š Stalker south image: ${southImage.width}x${southImage.height}');
+      // print('ðŸ“Š Stalker east image: ${eastImage.width}x${eastImage.height} (will be flipped for west)');
+      // print('ðŸ“Š Stalker charge vertical image: ${chargeVerticalImage.width}x${chargeVerticalImage.height} (5 frames)');
+      // print('ðŸ“Š Stalker charge horizontal image: ${chargeHorizontalImage.width}x${chargeHorizontalImage.height} (3 frames)');
       
       // Norte y Sur: 3 frames apilados verticalmente
       final frameWidthNorth = northImage.width.toDouble();
@@ -158,10 +157,10 @@ class StalkerEnemy extends EnemyCharacter {
       final frameWidthChargeHorizontal = chargeHorizontalImage.width / 3.0;
       final frameHeightChargeHorizontal = chargeHorizontalImage.height.toDouble();
       
-      print('📊 Frame sizes - North: ${frameWidthNorth.toInt()}x${frameHeightNorth.toInt()}, South: ${frameWidthSouth.toInt()}x${frameHeightSouth.toInt()}');
-      print('📊 Frame sizes - East/West: ${frameWidthEast.toInt()}x${frameHeightEast.toInt()}');
-      print('📊 Frame sizes - Charge Vertical: ${frameWidthChargeVertical.toInt()}x${frameHeightChargeVertical.toInt()}');
-      print('📊 Frame sizes - Charge Horizontal: ${frameWidthChargeHorizontal.toInt()}x${frameHeightChargeHorizontal.toInt()}');
+      // print('ðŸ“Š Frame sizes - North: ${frameWidthNorth.toInt()}x${frameHeightNorth.toInt()}, South: ${frameWidthSouth.toInt()}x${frameHeightSouth.toInt()}');
+      // print('ðŸ“Š Frame sizes - East/West: ${frameWidthEast.toInt()}x${frameHeightEast.toInt()}');
+      // print('ðŸ“Š Frame sizes - Charge Vertical: ${frameWidthChargeVertical.toInt()}x${frameHeightChargeVertical.toInt()}');
+      // print('ðŸ“Š Frame sizes - Charge Horizontal: ${frameWidthChargeHorizontal.toInt()}x${frameHeightChargeHorizontal.toInt()}');
       
       // Crear sprites para la dirección norte (3 frames verticales)
       final List<Sprite> upSprites = [];
@@ -277,10 +276,10 @@ class StalkerEnemy extends EnemyCharacter {
       final scaleChargeHorizontal = (targetHeight / frameHeightChargeHorizontal) * 2.5;
       final sizeChargeHorizontal = Vector2(frameWidthChargeHorizontal * scaleChargeHorizontal, targetHeight * 2.5);
       
-      print('📊 Component sizes - North/South: ${sizeNorthSouth.x.toInt()}x${sizeNorthSouth.y.toInt()}');
-      print('📊 Component sizes - East/West: ${sizeEastWest.x.toInt()}x${sizeEastWest.y.toInt()}');
-      print('📊 Component sizes - Charge Vertical: ${sizeChargeVertical.x.toInt()}x${sizeChargeVertical.y.toInt()}');
-      print('📊 Component sizes - Charge Horizontal: ${sizeChargeHorizontal.x.toInt()}x${sizeChargeHorizontal.y.toInt()}');
+      // print('ðŸ“Š Component sizes - North/South: ${sizeNorthSouth.x.toInt()}x${sizeNorthSouth.y.toInt()}');
+      // print('ðŸ“Š Component sizes - East/West: ${sizeEastWest.x.toInt()}x${sizeEastWest.y.toInt()}');
+      // print('ðŸ“Š Component sizes - Charge Vertical: ${sizeChargeVertical.x.toInt()}x${sizeChargeVertical.y.toInt()}');
+      // print('ðŸ“Š Component sizes - Charge Horizontal: ${sizeChargeHorizontal.x.toInt()}x${sizeChargeHorizontal.y.toInt()}');
       
       // Crear componentes individuales para cada dirección
       _spriteUp = SpriteAnimationComponent(
@@ -341,9 +340,9 @@ class StalkerEnemy extends EnemyCharacter {
       _currentSprite = _spriteDown;
       add(_currentSprite!);
       _spritesLoaded = true;
-      print('✅ Stalker sprites loaded (including charge animations)!');
+      // print('âœ… Stalker sprites loaded (including charge animations)!');
     } catch (e) {
-      print('❌ Error loading Stalker sprites: $e');
+      // print('âŒ Error loading Stalker sprites: $e');
       _spritesLoaded = false;
     }
   }
@@ -506,7 +505,7 @@ class StalkerEnemy extends EnemyCharacter {
     
     // Cambiar sprite usando el método seguro
     _switchToSprite(chargeSprite);
-    print('🔄 Cambiado a sprite de charge');
+    // print('ðŸ”„ Cambiado a sprite de charge');
     
     game.addMessage("¡El Stalker se prepara para embestir!");
   }
@@ -545,7 +544,7 @@ class StalkerEnemy extends EnemyCharacter {
       } else {
         _currentSprite!.scale = Vector2.all(1.2); // Más grande
       }
-      print('🔄 Cambiado a sprite de walk para dash');
+      // print('ðŸ”„ Cambiado a sprite de walk para dash');
     }
     
     // Reactivar movimiento
@@ -599,18 +598,18 @@ class StalkerEnemy extends EnemyCharacter {
   
   @override
   bool receiveDamage(double amount) {
-    print('🎯 Stalker receiveDamage: $amount HP, realObjectDestroyed: $realObjectDestroyed, isInvincible: $isInvincible');
+    // print('ðŸŽ¯ Stalker receiveDamage: $amount HP, realObjectDestroyed: $realObjectDestroyed, isInvincible: $isInvincible');
     
     // Si está en estado sleeping o dying, no recibe daño
     if (stalkerState == StalkerState.sleeping || stalkerState == StalkerState.dying) {
-      print('❌ Stalker no recibe daño: está durmiendo o muriendo');
+      // print('âŒ Stalker no recibe daño: está durmiendo o muriendo');
       return false;
     }
     
     // CRÍTICO: Si el objeto real NO ha sido destruido, el Stalker es INVENCIBLE
     // El daño solo afecta escudo y estabilidad, NUNCA la vida
     if (!realObjectDestroyed) {
-      print('🛡️ Stalker INVENCIBLE: daño va a escudo/estabilidad');
+      // print('ðŸ›¡ï¸ Stalker INVENCIBLE: daño va a escudo/estabilidad');
       
       // 1. Daño al escudo primero
       if (shield > 0) {
@@ -618,12 +617,12 @@ class StalkerEnemy extends EnemyCharacter {
         shield -= shieldDamage;
         final remainingDamage = amount - shieldDamage;
         
-        print('🛡️ Escudo: ${shield.toInt()} HP (recibió $shieldDamage daño)');
+        // print('ðŸ›¡ï¸ Escudo: ${shield.toInt()} HP (recibió $shieldDamage daño)');
         
         // Si queda daño después del escudo, afecta estabilidad
         if (remainingDamage > 0) {
           stability -= remainingDamage;
-          print('😵 Estabilidad: ${stability.toInt()} (recibió $remainingDamage daño)');
+          // print('ðŸ˜µ Estabilidad: ${stability.toInt()} (recibió $remainingDamage daño)');
           
           if (stability <= 0) {
             fallAsleep();
@@ -632,7 +631,7 @@ class StalkerEnemy extends EnemyCharacter {
       } else {
         // 2. Si no hay escudo, daño directo a la estabilidad
         stability -= amount;
-        print('😵 Estabilidad: ${stability.toInt()} (recibió $amount daño, sin escudo)');
+        // print('ðŸ˜µ Estabilidad: ${stability.toInt()} (recibió $amount daño, sin escudo)');
         
         if (stability <= 0) {
           fallAsleep();
@@ -646,7 +645,7 @@ class StalkerEnemy extends EnemyCharacter {
     
     // Si el objeto real HA SIDO destruido, el Stalker es VULNERABLE
     // Ahora SÍ puede recibir daño directo a la vida
-    print('💀 Stalker VULNERABLE: daño va a la vida');
+    // print('ðŸ’€ Stalker VULNERABLE: daño va a la vida');
     return super.receiveDamage(amount);
   }
   
@@ -654,7 +653,6 @@ class StalkerEnemy extends EnemyCharacter {
     stalkerState = StalkerState.sleeping;
     _sleepTimer = sleepDuration;
     movementType = EnemyMovementType.stunned;
-    // TODO: Notificar al jugador "¡El Stalker duerme! ¡Busca el objeto!"
     game.addMessage("¡El Stalker duerme! ¡Busca el objeto!");
   }
   
@@ -837,7 +835,8 @@ class StalkerEnemy extends EnemyCharacter {
 extension GameMessage on ExpedienteKorinGame {
   void addMessage(String msg) {
     // Placeholder para sistema de mensajes en pantalla
-    print("GAME MESSAGE: $msg");
+    // print("GAME MESSAGE: $msg");
     // Podríamos acceder al HUD si tuviéramos referencia
   }
 }
+

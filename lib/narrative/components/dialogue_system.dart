@@ -8,10 +8,10 @@ class DialogueSystem extends StatefulWidget {
   final VoidCallback? onSequenceComplete;
 
   const DialogueSystem({
-    Key? key,
+    super.key,
     required this.sequence,
     this.onSequenceComplete,
-  }) : super(key: key);
+  });
 
   @override
   State<DialogueSystem> createState() => _DialogueSystemState();
@@ -134,8 +134,8 @@ class _DialogueSystemState extends State<DialogueSystem> {
                 center: Alignment.center,
                 radius: 1.2,
                 colors: [
-                  Colors.black.withOpacity(0.3),
-                  Colors.black.withOpacity(0.7),
+                  Colors.black.withValues(alpha: 0.3),
+                  Colors.black.withValues(alpha: 0.7),
                 ],
               ),
             ),
@@ -191,9 +191,9 @@ class _DialogueSystemState extends State<DialogueSystem> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.black.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white.withOpacity(0.3)),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -283,3 +283,4 @@ class DialogueOverlay {
   /// Verifica si hay un diálogo activo
   static bool get isActive => _currentOverlay != null;
 }
+

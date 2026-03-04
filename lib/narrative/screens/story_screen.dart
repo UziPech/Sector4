@@ -6,7 +6,7 @@ import 'bunker_scene.dart';
 
 /// Pantalla de historia con tarjetas de capítulos
 class StoryScreen extends StatefulWidget {
-  const StoryScreen({Key? key}) : super(key: key);
+  const StoryScreen({super.key});
 
   @override
   State<StoryScreen> createState() => _StoryScreenState();
@@ -59,7 +59,7 @@ class _StoryScreenState extends State<StoryScreen> {
             image: AssetImage('assets/images/city_map_night.png'),
             fit: BoxFit.cover,
             colorFilter: ColorFilter.mode(
-              Colors.black.withOpacity(0.7), 
+              Colors.black.withValues(alpha: 0.7), 
               BlendMode.darken,
             ),
           ),
@@ -216,7 +216,7 @@ class _ChapterCardState extends State<_ChapterCard> {
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
             color: _isHovered && widget.isUnlocked
-                ? Colors.white.withOpacity(0.05)
+                ? Colors.white.withValues(alpha: 0.05)
                 : Colors.transparent,
             border: Border.all(
               color: widget.isUnlocked
@@ -251,7 +251,7 @@ class _ChapterCardState extends State<_ChapterCard> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.2),
+                          color: Colors.green.withValues(alpha: 0.2),
                           border: Border.all(color: Colors.green),
                         ),
                         child: const Text(
@@ -271,7 +271,7 @@ class _ChapterCardState extends State<_ChapterCard> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.orange.withOpacity(0.2),
+                          color: Colors.orange.withValues(alpha: 0.2),
                           border: Border.all(color: Colors.orange),
                         ),
                         child: const Text(
@@ -291,7 +291,7 @@ class _ChapterCardState extends State<_ChapterCard> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.2),
+                          color: Colors.grey.withValues(alpha: 0.2),
                           border: Border.all(color: Colors.grey[700]!),
                         ),
                         child: Row(
@@ -396,7 +396,7 @@ class _ActionButtonState extends State<_ActionButton> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           decoration: BoxDecoration(
-            color: _isHovered ? color.withOpacity(0.1) : Colors.transparent,
+            color: _isHovered ? color.withValues(alpha: 0.1) : Colors.transparent,
             border: Border.all(
               color: _isHovered ? color : Colors.white,
               width: 2,
@@ -427,3 +427,4 @@ class _ActionButtonState extends State<_ActionButton> {
     );
   }
 }
+

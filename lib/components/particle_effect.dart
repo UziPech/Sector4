@@ -7,10 +7,10 @@ class ParticleEffect extends PositionComponent {
   final Color color;
   final int particleCount;
   final double lifetime;
-  final List<_Particle> particles = [];
-  
+  final List<_Particle> _particles = [];
+
   double _elapsed = 0.0;
-  
+
   ParticleEffect({
     required Vector2 position,
     required this.color,
@@ -20,53 +20,52 @@ class ParticleEffect extends PositionComponent {
     this.position = position;
     _createParticles();
   }
-  
+
   void _createParticles() {
     final random = Random();
     for (int i = 0; i < particleCount; i++) {
       final angle = random.nextDouble() * 2 * pi;
       final speed = 50.0 + random.nextDouble() * 100.0;
-      final velocity = Vector2(
-        cos(angle) * speed,
-        sin(angle) * speed,
+      final velocity = Vector2(cos(angle) * speed, sin(angle) * speed);
+
+      _particles.add(
+        _Particle(
+          position: Vector2.zero(),
+          velocity: velocity,
+          size: 2.0 + random.nextDouble() * 3.0,
+        ),
       );
-      
-      particles.add(_Particle(
-        position: Vector2.zero(),
-        velocity: velocity,
-        size: 2.0 + random.nextDouble() * 3.0,
-      ));
     }
   }
-  
+
   @override
   void update(double dt) {
     super.update(dt);
-    
+
     _elapsed += dt;
-    
+
     if (_elapsed >= lifetime) {
       removeFromParent();
       return;
     }
-    
+
     // Actualizar partículas
-    for (final particle in particles) {
+    for (final particle in _particles) {
       particle.position.add(particle.velocity * dt);
       particle.velocity.scale(0.95); // Fricción
     }
   }
-  
+
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    
+
     final alpha = (1.0 - (_elapsed / lifetime)) * 255;
     final paint = Paint()
       ..color = color.withAlpha(alpha.toInt())
       ..style = PaintingStyle.fill;
-    
-    for (final particle in particles) {
+
+    for (final particle in _particles) {
       canvas.drawCircle(
         Offset(particle.position.x, particle.position.y),
         particle.size,
@@ -80,7 +79,7 @@ class _Particle {
   Vector2 position;
   Vector2 velocity;
   double size;
-  
+
   _Particle({
     required this.position,
     required this.velocity,
@@ -93,34 +92,34 @@ class HealEffect extends PositionComponent {
   final double maxRadius = 50.0;
   final double lifetime = 0.8;
   double _elapsed = 0.0;
-  
+
   HealEffect({required Vector2 position}) {
     this.position = position;
   }
-  
+
   @override
   void update(double dt) {
     super.update(dt);
-    
+
     _elapsed += dt;
     if (_elapsed >= lifetime) {
       removeFromParent();
     }
   }
-  
+
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    
+
     final progress = _elapsed / lifetime;
     final radius = maxRadius * progress;
     final alpha = ((1.0 - progress) * 150).toInt();
-    
+
     final paint = Paint()
       ..color = Color.fromARGB(alpha, 0, 255, 0)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
-    
+
     canvas.drawCircle(Offset.zero, radius, paint);
   }
 }

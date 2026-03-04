@@ -1,4 +1,4 @@
-import 'dart:math';
+﻿import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flutter/material.dart';
@@ -79,7 +79,7 @@ class EnemyTomb extends PositionComponent
     
     // Círculo base (tumba)
     final basePaint = Paint()
-      ..color = tombColor.withOpacity(0.3 * opacity)
+      ..color = tombColor.withValues(alpha: 0.3 * opacity)
       ..style = PaintingStyle.fill;
     
     canvas.drawCircle(
@@ -90,7 +90,7 @@ class EnemyTomb extends PositionComponent
     
     // Borde luminoso
     final borderPaint = Paint()
-      ..color = tombColor.withOpacity(0.8 * opacity)
+      ..color = tombColor.withValues(alpha: 0.8 * opacity)
       ..style = PaintingStyle.stroke
       ..strokeWidth = isKijin ? 3 : 2;
     
@@ -102,7 +102,7 @@ class EnemyTomb extends PositionComponent
     
     // Holograma central (cruz o símbolo)
     final symbolPaint = Paint()
-      ..color = Colors.white.withOpacity(0.9 * opacity)
+      ..color = Colors.white.withValues(alpha: 0.9 * opacity)
       ..style = PaintingStyle.stroke
       ..strokeWidth = isKijin ? 3 : 2;
     
@@ -148,7 +148,7 @@ class EnemyTomb extends PositionComponent
           text: TextSpan(
             text: promptText,
             style: TextStyle(
-              color: promptColor.withOpacity(opacity),
+              color: promptColor.withValues(alpha: opacity),
               fontSize: isKijin ? 11 : 12,
               fontWeight: FontWeight.bold,
               fontFamily: 'monospace',
@@ -178,3 +178,4 @@ class EnemyTomb extends PositionComponent
   /// Obtiene el tipo de enemigo para resucitar
   String getEnemyType() => enemyType;
 }
+

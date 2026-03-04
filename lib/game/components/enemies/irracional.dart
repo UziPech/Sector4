@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flutter/material.dart';
@@ -59,7 +58,7 @@ class IrrationalEnemy extends PositionComponent
     // Inicializar painter de stun (estático)
     _stunIndicatorPainter = TextPainter(
       text: const TextSpan(
-        text: '★',
+        text: 'â˜…',
         style: TextStyle(
           color: Colors.yellow,
           fontSize: 20,
@@ -215,7 +214,7 @@ class IrrationalEnemy extends PositionComponent
     
     // Cuerpo del enemigo (círculo)
     final bodyPaint = Paint()
-      ..color = enemyColor.withOpacity(0.8)
+      ..color = enemyColor.withValues(alpha: 0.8)
       ..style = PaintingStyle.fill;
     
     canvas.drawCircle(
@@ -226,7 +225,7 @@ class IrrationalEnemy extends PositionComponent
     
     // Borde
     final borderPaint = Paint()
-      ..color = Colors.white.withOpacity(0.5)
+      ..color = Colors.white.withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
     
@@ -253,7 +252,7 @@ class IrrationalEnemy extends PositionComponent
     
     // Fondo
     final bgPaint = Paint()
-      ..color = Colors.black.withOpacity(0.5)
+      ..color = Colors.black.withValues(alpha: 0.5)
       ..style = PaintingStyle.fill;
     
     canvas.drawRect(
@@ -288,3 +287,4 @@ class IrrationalEnemy extends PositionComponent
   bool get isStunned => _isStunned;
   double get health => _health;
 }
+

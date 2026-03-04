@@ -28,6 +28,17 @@ class FlashlightOverlay extends StatelessWidget {
     this.shadowColor = Colors.black,
   });
 
+  /// Calcula el radio interno global estandarizado para la linterna, basado en una dimensión de referencia.
+  /// Se ha aumentado a petición del usuario para más luz.
+  static double globalInnerRadius(double referenceDimension) {
+    return (referenceDimension * 0.18).clamp(110.0, 200.0);
+  }
+
+  /// Calcula el radio externo global estandarizado para la linterna, basado en una dimensión de referencia.
+  static double globalOuterRadius(double referenceDimension) {
+    return (referenceDimension * 0.60).clamp(240.0, 400.0);
+  }
+
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(
@@ -65,36 +76,43 @@ class _FlashlightPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    // Gradiente radial en un cuadrado perfecto anclado al centro de la luz
+    // Así evitamos que se convierta en una elipse por el aspecto de la pantalla
+    final rectGradient = Rect.fromCircle(center: center, radius: outerRadius);
 
-    // Gradiente radial: transparente en el centro → opaco en el borde
+    // ratio: qué fracción del outerRadius representa el innerRadius
+    final ratio = (innerRadius / outerRadius).clamp(0.0, 0.9);
+
     final gradient = RadialGradient(
-      center: Alignment(
-        (center.dx / size.width) * 2 - 1,
-        (center.dy / size.height) * 2 - 1,
-      ),
-      radius: outerRadius / (size.shortestSide * 0.5),
+      center: Alignment.center,
+      // 0.5 = el gradiente llena exactamente el rectGradient (círculo perfecto).
+      // Antes era 1.0, lo que hacía el degradado el DOBLE de grande y
+      // empujaba el negro completamente fuera de la pantalla.
+      radius: 0.5,
       colors: [
-        const Color(0x12FFA040),                                      // Núcleo ámbar cálido (muy sutil)
-        Colors.transparent,                                           // Centro iluminado
-        shadowColor.withValues(alpha: 0.0),                           // Aún claro
-        shadowColor.withValues(alpha: shadowOpacity * 0.5),           // Transición suave
-        shadowColor.withValues(alpha: shadowOpacity),                 // Sombra completa
+        const Color(0x18FFA040), // Tinte cálido muy sutil en el centro
+        Colors.transparent,
+        shadowColor.withValues(alpha: 0.0),
+        shadowColor.withValues(alpha: shadowOpacity * 0.6),
+        shadowColor.withValues(alpha: shadowOpacity),
       ],
       stops: [
         0.0,
-        innerRadius / outerRadius * 0.5,                              // Borde del núcleo cálido
-        innerRadius / outerRadius,                                    // Donde empieza la sombra
-        (innerRadius / outerRadius) + 0.25,                           // Zona de transición
+        ratio * 0.55,           // Fin de la zona central cálida
+        ratio,                   // Inicio del negro (borde del círculo de luz)
+        ratio + 0.15,           // Transición rápida al negro total
         1.0,
       ],
     );
 
     final paint = Paint()
-      ..shader = gradient.createShader(rect)
+      ..shader = gradient.createShader(rectGradient)
       ..blendMode = BlendMode.srcOver;
 
-    canvas.drawRect(rect, paint);
+    // Pintamos toda la pantalla. Gracias a TileMode.clamp (por defecto en RadialGradient),
+    // todo lo que quede fuera de `rectGradient` tomará el color del borde exterior de la sombra.
+    final screenRect = Rect.fromLTWH(0, 0, size.width, size.height);
+    canvas.drawRect(screenRect, paint);
   }
 
   @override

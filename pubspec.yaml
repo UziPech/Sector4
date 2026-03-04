@@ -42,6 +42,7 @@ dependencies:
   font_awesome_flutter: ^10.12.0
   video_player: ^2.8.1
 
+  tiled: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -73,7 +74,6 @@ flutter:
     - assets/images/
     - assets/images/objects/
     - assets/sprites/
-    - assets/sprites/objects/
     - assets/sprites/stalker/
     - assets/audio/music/
     - assets/audio/sfx/

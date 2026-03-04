@@ -1,4 +1,4 @@
-import 'package:flame/components.dart';
+﻿import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +14,7 @@ class DestructibleObject extends PositionComponent
   
   static final _paint = BasicPalette.red.paint()..style = PaintingStyle.fill;
   static final _glowPaint = Paint()
-    ..color = Colors.red.withOpacity(0.5)
+    ..color = Colors.red.withValues(alpha: 0.5)
     ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10);
 
   DestructibleObject({
@@ -79,3 +79,4 @@ class DestructibleObject extends PositionComponent
     canvas.drawRect(size.toRect(), _paint);
   }
 }
+

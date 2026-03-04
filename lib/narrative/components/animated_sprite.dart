@@ -1,4 +1,4 @@
-import 'dart:ui' as ui;
+﻿import 'dart:ui' as ui;
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -30,11 +30,11 @@ class AnimatedSprite {
     final frameHeight = frame.image.height / rows;
     
     // Debug: imprimir dimensiones
-    print('=== SPRITE SHEET DEBUG ===');
-    print('Asset: $assetPath');
-    print('Image size: ${frame.image.width}x${frame.image.height}');
-    print('Grid: ${columns}x${rows}');
-    print('Frame size: ${frameWidth}x${frameHeight}');
+    // print('=== SPRITE SHEET DEBUG ===');
+    // print('Asset: $assetPath');
+    // print('Image size: ${frame.image.width}x${frame.image.height}');
+    // print('Grid: ${columns}x$rows');
+    // print('Frame size: ${frameWidth}x$frameHeight');
     
     return AnimatedSprite(
       spriteSheet: frame.image,
@@ -52,7 +52,7 @@ class AnimatedSprite {
     // Normalizar para obtener ángulo
     final angle = (atan2(vy, vx) * 180 / pi + 360) % 360;
     
-    // Mapear ángulo a dirección (8 direcciones, 45° cada una)
+    // Mapear ángulo a dirección (8 direcciones, 45Â° cada una)
     if (angle >= 337.5 || angle < 22.5) return 'EAST';
     if (angle >= 22.5 && angle < 67.5) return 'SOUTH-EAST';
     if (angle >= 67.5 && angle < 112.5) return 'SOUTH';
@@ -118,12 +118,12 @@ class AnimatedSpriteWidget extends StatelessWidget {
   final double size;
   
   const AnimatedSpriteWidget({
-    Key? key,
+    super.key,
     required this.sprite,
     required this.direction,
     required this.frameIndex,
     required this.size,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {
@@ -140,3 +140,4 @@ class AnimatedSpriteWidget extends StatelessWidget {
     );
   }
 }
+

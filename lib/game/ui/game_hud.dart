@@ -2,12 +2,11 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../components/player.dart';
 import '../components/mel.dart';
-import '../models/player_role.dart';
 import '../systems/resurrection_system.dart';
 import '../../combat/weapon_system.dart';
 
 import 'package:flame/events.dart';
-import 'package:flutter/foundation.dart'; // For defaultTargetPlatform
+// For defaultTargetPlatform
 
 import '../expediente_game.dart';
 
@@ -31,357 +30,9 @@ class GameHUD extends PositionComponent
   }
 
   @override
-  void update(double dt) {
-    super.update(dt);
-    // El input del joystick se actualiza desde GameUI -> game.updateJoystickInput
-  }
-
-  @override
   void render(Canvas canvas) {
     // Todo el HUD ahora se renderiza como Flutter widget en GameUI
     // (encima del FlashlightLayer). No dibujar nada en el canvas de Flame.
-  }
-
-  void _drawWeaponHotbar(Canvas canvas) {
-    final inventory = player.weaponInventory;
-    if (inventory.weapons.isEmpty) return;
-
-    const double slotSize = 60.0;
-    const double spacing = 10.0;
-    final double totalWidth =
-        (inventory.weapons.length * slotSize) +
-        ((inventory.weapons.length - 1) * spacing);
-    final double startX = (game.size.x - totalWidth) / 2;
-    final double startY = game.size.y - slotSize - 20.0;
-
-    for (int i = 0; i < inventory.weapons.length; i++) {
-      final weapon = inventory.weapons[i];
-      final isSelected = inventory.currentWeapon == weapon;
-      final x = startX + (i * (slotSize + spacing));
-
-      // Slot Background
-      final slotRect = Rect.fromLTWH(x, startY, slotSize, slotSize);
-      final slotPaint = Paint()
-        ..color = isSelected
-            ? Colors.white.withOpacity(0.3)
-            : Colors.black.withOpacity(0.5)
-        ..style = PaintingStyle.fill;
-      canvas.drawRect(slotRect, slotPaint);
-
-      // Slot Border
-      final slotBorderPaint = Paint()
-        ..color = isSelected ? Colors.yellow : Colors.white.withOpacity(0.5)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = isSelected ? 3 : 1;
-      canvas.drawRect(slotRect, slotBorderPaint);
-
-      // Weapon Name (Short)
-      String shortName = weapon.name.split(' ').first;
-      if (shortName.length > 4) shortName = shortName.substring(0, 4);
-
-      _drawText(
-        canvas,
-        shortName,
-        x + 5,
-        startY + 5,
-        isSelected ? Colors.yellow : Colors.white,
-        bold: isSelected,
-      );
-
-      // Ammo Count (if Ranged)
-      if (weapon is RangedWeapon) {
-        Color ammoColor = Colors.white;
-        if (weapon.currentAmmo == 0) {
-          ammoColor = Colors.red;
-          _drawText(
-            canvas,
-            'RELOAD (R)',
-            x + 5,
-            startY + slotSize + 5,
-            Colors.red,
-            bold: true,
-          );
-        } else if (weapon.currentAmmo < weapon.maxAmmo * 0.3) {
-          ammoColor = Colors.yellow;
-          _drawText(
-            canvas,
-            'RELOAD (R)',
-            x + 5,
-            startY + slotSize + 5,
-            Colors.yellow,
-            bold: true,
-          );
-        }
-
-        _drawText(
-          canvas,
-          '${weapon.currentAmmo}/${weapon.maxAmmo}',
-          x + 5,
-          startY + slotSize - 20,
-          ammoColor,
-        );
-      } else {
-        _drawText(canvas, '∞', x + 5, startY + slotSize - 20, Colors.white);
-      }
-
-      // Key Hint (1, 2, etc - though we use Q to switch, let's show index+1)
-      _drawText(canvas, '${i + 1}', x + slotSize - 15, startY + 5, Colors.grey);
-    }
-  }
-
-  void _drawLivesCounter(Canvas canvas) {
-    final lives = game.remainingLives;
-    final maxLives = ExpedienteKorinGame.maxLives;
-
-    // Posición en la esquina superior derecha
-    const double startX = 320.0; // Junto al HUD de stats
-    const double startY = 10.0;
-    const double heartSize = 30.0;
-    const double spacing = 35.0;
-
-    // Fondo
-    final bgRect = Rect.fromLTWH(
-      startX,
-      startY,
-      (heartSize * maxLives) + (spacing * (maxLives - 1)) + 20,
-      50,
-    );
-    final bgPaint = Paint()
-      ..color = Colors.black.withOpacity(0.7)
-      ..style = PaintingStyle.fill;
-    canvas.drawRect(bgRect, bgPaint);
-
-    // Borde
-    final borderPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    canvas.drawRect(bgRect, borderPaint);
-
-    // Título
-    _drawText(
-      canvas,
-      'VIDAS',
-      startX + 10,
-      startY + 5,
-      Colors.white,
-      bold: true,
-    );
-
-    // Dibujar corazones
-    for (int i = 0; i < maxLives; i++) {
-      final x = startX + 10 + (i * spacing);
-      final y = startY + 25;
-      final isAlive = i < lives;
-
-      // Corazón (símbolo)
-      final heartPaint = Paint()
-        ..color = isAlive ? Colors.red : Colors.grey
-        ..style = PaintingStyle.fill;
-
-      // Dibujar un corazón simple como dos círculos y un triángulo
-      final heartPath = Path();
-      final cx = x + heartSize / 2;
-      final cy = y + heartSize / 2;
-
-      // Forma aproximada de corazón
-      heartPath.moveTo(cx, cy - heartSize / 4);
-      heartPath.quadraticBezierTo(
-        cx - heartSize / 2,
-        cy - heartSize / 2,
-        cx - heartSize / 2,
-        cy,
-      );
-      heartPath.quadraticBezierTo(
-        cx - heartSize / 2,
-        cy + heartSize / 4,
-        cx,
-        cy + heartSize / 2,
-      );
-      heartPath.quadraticBezierTo(
-        cx + heartSize / 2,
-        cy + heartSize / 4,
-        cx + heartSize / 2,
-        cy,
-      );
-      heartPath.quadraticBezierTo(
-        cx + heartSize / 2,
-        cy - heartSize / 2,
-        cx,
-        cy - heartSize / 4,
-      );
-      heartPath.close();
-
-      canvas.drawPath(heartPath, heartPaint);
-
-      // Brillo si está vivo
-      if (isAlive) {
-        final glowPaint = Paint()
-          ..color = Colors.red.withOpacity(0.5)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2;
-        canvas.drawPath(heartPath, glowPaint);
-      }
-    }
-  }
-
-  void _drawText(
-    Canvas canvas,
-    String text,
-    double x,
-    double y,
-    Color color, {
-    bool bold = false,
-  }) {
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: text,
-        style: TextStyle(
-          color: color,
-          fontSize: bold ? 14 : 12,
-          fontWeight: bold ? FontWeight.bold : FontWeight.normal,
-          fontFamily: 'monospace',
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout();
-    textPainter.paint(canvas, Offset(x, y));
-  }
-
-  void _drawHealthBar(
-    Canvas canvas,
-    double x,
-    double y,
-    double width,
-    double current,
-    double max,
-    Color color,
-  ) {
-    // Fondo de la barra
-    final bgPaint = Paint()
-      ..color = Colors.grey[800]!
-      ..style = PaintingStyle.fill;
-    canvas.drawRect(Rect.fromLTWH(x, y, width, 20), bgPaint);
-
-    // Barra de vida
-    final healthPercent = (current / max).clamp(0.0, 1.0);
-    final healthPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-    canvas.drawRect(
-      Rect.fromLTWH(x, y, width * healthPercent, 20),
-      healthPaint,
-    );
-
-    // Borde
-    final borderPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-    canvas.drawRect(Rect.fromLTWH(x, y, width, 20), borderPaint);
-
-    // Texto de vida
-    _drawText(
-      canvas,
-      '${current.toInt()} / ${max.toInt()}',
-      x + width / 2 - 30,
-      y + 4,
-      Colors.white,
-    );
-  }
-
-  void _drawCooldownBar(
-    Canvas canvas,
-    double x,
-    double y,
-    double width,
-    double progress,
-  ) {
-    // Fondo
-    final bgPaint = Paint()
-      ..color = Colors.grey[800]!
-      ..style = PaintingStyle.fill;
-    canvas.drawRect(Rect.fromLTWH(x, y, width, 10), bgPaint);
-
-    // Progreso
-    final progressPaint = Paint()
-      ..color = Colors.yellow
-      ..style = PaintingStyle.fill;
-    canvas.drawRect(Rect.fromLTWH(x, y, width * progress, 10), progressPaint);
-
-    // Borde
-    final borderPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-    canvas.drawRect(Rect.fromLTWH(x, y, width, 10), borderPaint);
-  }
-
-  void _drawResurrectionCounter(Canvas canvas, double x, double y) {
-    _drawText(canvas, 'SLOTS ALIADOS', x, y, Colors.purple, bold: true);
-
-    if (resurrectionManager == null) return;
-
-    final remaining = resurrectionManager!.resurrectionsRemaining;
-    final max = resurrectionManager!.maxActiveAllies;
-
-    // Dibujar orbes de resurrección
-    const double orbSize = 15.0;
-    const double orbSpacing = 25.0;
-    final double orbY = y + 25;
-
-    for (int i = 0; i < max; i++) {
-      final orbX = x + (i * orbSpacing);
-      final isAvailable = i < remaining;
-
-      // Orbe
-      final orbPaint = Paint()
-        ..color = isAvailable
-            ? Colors.purple.withOpacity(0.8)
-            : Colors.grey.withOpacity(0.3)
-        ..style = PaintingStyle.fill;
-
-      canvas.drawCircle(
-        Offset(orbX + orbSize / 2, orbY + orbSize / 2),
-        orbSize / 2,
-        orbPaint,
-      );
-
-      // Borde del orbe
-      final orbBorderPaint = Paint()
-        ..color = isAvailable ? Colors.white : Colors.grey
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2;
-
-      canvas.drawCircle(
-        Offset(orbX + orbSize / 2, orbY + orbSize / 2),
-        orbSize / 2,
-        orbBorderPaint,
-      );
-
-      // Efecto de brillo si está disponible
-      if (isAvailable) {
-        final glowPaint = Paint()
-          ..color = Colors.purple.withOpacity(0.3)
-          ..style = PaintingStyle.fill;
-
-        canvas.drawCircle(
-          Offset(orbX + orbSize / 2, orbY + orbSize / 2),
-          orbSize / 2 + 3,
-          glowPaint,
-        );
-      }
-    }
-
-    // Texto de contador
-    _drawText(
-      canvas,
-      '$remaining/$max',
-      x + (max * orbSpacing) + 10,
-      orbY,
-      Colors.white,
-    );
   }
 }
 
@@ -409,7 +60,7 @@ class AttackButtonComponent extends PositionComponent with TapCallbacks {
     super.render(canvas);
 
     final paint = Paint()
-      ..color = Colors.red.withOpacity(0.6)
+      ..color = Colors.red.withValues(alpha: 0.6)
       ..style = PaintingStyle.fill;
 
     // Dibujar círculo relativo a 0,0 del componente
@@ -452,7 +103,7 @@ class SwitchWeaponButtonComponent extends PositionComponent with TapCallbacks {
   final ExpedienteKorinGame gameRef;
 
   SwitchWeaponButtonComponent({required this.player, required this.gameRef})
-      : super(priority: 101);
+    : super(priority: 101);
 
   @override
   Future<void> onLoad() async {
@@ -469,14 +120,14 @@ class SwitchWeaponButtonComponent extends PositionComponent with TapCallbacks {
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    
+
     final paint = Paint()
-      ..color = Colors.blue.withOpacity(0.6)
+      ..color = Colors.blue.withValues(alpha: 0.6)
       ..style = PaintingStyle.fill;
-    
+
     final radius = size.x / 2;
     canvas.drawCircle(Offset(radius, radius), radius, paint);
-    
+
     final borderPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.stroke
@@ -488,7 +139,7 @@ class SwitchWeaponButtonComponent extends PositionComponent with TapCallbacks {
       ..color = Colors.white
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
-      
+
     canvas.drawArc(
       Rect.fromCircle(center: Offset(radius, radius), radius: radius * 0.5),
       0.5,
@@ -496,17 +147,24 @@ class SwitchWeaponButtonComponent extends PositionComponent with TapCallbacks {
       false,
       iconPaint,
     );
-    
+
     // Texto "Q"
     final textPainter = TextPainter(
       text: const TextSpan(
         text: 'Q',
-        style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       textDirection: TextDirection.ltr,
     );
     textPainter.layout();
-    textPainter.paint(canvas, Offset(radius - textPainter.width / 2, radius - textPainter.height / 2));
+    textPainter.paint(
+      canvas,
+      Offset(radius - textPainter.width / 2, radius - textPainter.height / 2),
+    );
   }
 
   @override
@@ -521,7 +179,7 @@ class ReloadButtonComponent extends PositionComponent with TapCallbacks {
   final ExpedienteKorinGame gameRef;
 
   ReloadButtonComponent({required this.player, required this.gameRef})
-      : super(priority: 101);
+    : super(priority: 101);
 
   @override
   Future<void> onLoad() async {
@@ -555,14 +213,14 @@ class ReloadButtonComponent extends PositionComponent with TapCallbacks {
     if (weapon is! RangedWeapon) return;
 
     super.render(canvas);
-    
+
     final paint = Paint()
-      ..color = Colors.orange.withOpacity(0.6)
+      ..color = Colors.orange.withValues(alpha: 0.6)
       ..style = PaintingStyle.fill;
-    
+
     final radius = size.x / 2;
     canvas.drawCircle(Offset(radius, radius), radius, paint);
-    
+
     final borderPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.stroke
@@ -573,12 +231,19 @@ class ReloadButtonComponent extends PositionComponent with TapCallbacks {
     final textPainter = TextPainter(
       text: const TextSpan(
         text: 'R',
-        style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       textDirection: TextDirection.ltr,
     );
     textPainter.layout();
-    textPainter.paint(canvas, Offset(radius - textPainter.width / 2, radius - textPainter.height / 2));
+    textPainter.paint(
+      canvas,
+      Offset(radius - textPainter.width / 2, radius - textPainter.height / 2),
+    );
   }
 
   @override
@@ -596,7 +261,7 @@ class ResurrectButtonComponent extends PositionComponent with TapCallbacks {
   final ExpedienteKorinGame gameRef;
 
   ResurrectButtonComponent({required this.player, required this.gameRef})
-      : super(priority: 101);
+    : super(priority: 101);
 
   @override
   Future<void> onLoad() async {
@@ -613,14 +278,14 @@ class ResurrectButtonComponent extends PositionComponent with TapCallbacks {
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    
+
     final paint = Paint()
-      ..color = Colors.purple.withOpacity(0.6)
+      ..color = Colors.purple.withValues(alpha: 0.6)
       ..style = PaintingStyle.fill;
-    
+
     final radius = size.x / 2;
     canvas.drawCircle(Offset(radius, radius), radius, paint);
-    
+
     final borderPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.stroke
@@ -631,23 +296,33 @@ class ResurrectButtonComponent extends PositionComponent with TapCallbacks {
     final iconPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
-      
+
     // Ojos
     canvas.drawCircle(Offset(radius - 8, radius - 5), 4, iconPaint);
     canvas.drawCircle(Offset(radius + 8, radius - 5), 4, iconPaint);
     // Nariz
-    canvas.drawRect(Rect.fromCenter(center: Offset(radius, radius + 5), width: 4, height: 6), iconPaint);
-    
+    canvas.drawRect(
+      Rect.fromCenter(center: Offset(radius, radius + 5), width: 4, height: 6),
+      iconPaint,
+    );
+
     // Texto "E"
     final textPainter = TextPainter(
       text: const TextSpan(
         text: 'E',
-        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       textDirection: TextDirection.ltr,
     );
     textPainter.layout();
-    textPainter.paint(canvas, Offset(radius - textPainter.width / 2, radius + 10));
+    textPainter.paint(
+      canvas,
+      Offset(radius - textPainter.width / 2, radius + 10),
+    );
   }
 
   @override
@@ -662,7 +337,7 @@ class DashButtonComponent extends PositionComponent with TapCallbacks {
   final ExpedienteKorinGame gameRef;
 
   DashButtonComponent({required this.player, required this.gameRef})
-      : super(priority: 101);
+    : super(priority: 101);
 
   @override
   Future<void> onLoad() async {
@@ -679,14 +354,14 @@ class DashButtonComponent extends PositionComponent with TapCallbacks {
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    
+
     final paint = Paint()
-      ..color = Colors.cyan.withOpacity(0.6)
+      ..color = Colors.cyan.withValues(alpha: 0.6)
       ..style = PaintingStyle.fill;
-    
+
     final radius = size.x / 2;
     canvas.drawCircle(Offset(radius, radius), radius, paint);
-    
+
     final borderPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.stroke
@@ -698,12 +373,18 @@ class DashButtonComponent extends PositionComponent with TapCallbacks {
     iconPath.moveTo(radius - 5, radius - 10);
     iconPath.lineTo(radius + 5, radius);
     iconPath.lineTo(radius - 5, radius + 10);
-    
+
     iconPath.moveTo(radius + 2, radius - 10);
     iconPath.lineTo(radius + 12, radius);
     iconPath.lineTo(radius + 2, radius + 10);
 
-    canvas.drawPath(iconPath, Paint()..color = Colors.white..style = PaintingStyle.stroke..strokeWidth = 2);
+    canvas.drawPath(
+      iconPath,
+      Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2,
+    );
   }
 
   @override

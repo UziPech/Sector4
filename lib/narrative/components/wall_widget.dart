@@ -10,12 +10,12 @@ class WallWidget extends StatelessWidget {
   final ui.Image? image;
 
   const WallWidget({
-    Key? key,
+    super.key,
     required this.width,
     required this.height,
     required this.side,
     this.image,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

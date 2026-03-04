@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'dart:ui' as ui; // Import dart:ui for Image
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,7 +22,7 @@ import '../components/flashlight_overlay.dart';
 
 /// Capítulo 2: El Búnker - Sistema de habitaciones
 class BunkerScene extends StatefulWidget {
-  const BunkerScene({Key? key}) : super(key: key);
+  const BunkerScene({super.key});
 
   @override
   State<BunkerScene> createState() => _BunkerSceneState();
@@ -64,8 +64,9 @@ class _BunkerSceneState extends State<BunkerScene>
   Timer? _updateTimer;
 
   // Animación de sprite
+  AnimatedSprite? _danSprite;
   AnimatedSprite? _danSpriteNorth;
-  AnimatedSprite? _danSpriteSouth;
+  int _currentFrameOffset = 6; // Default to South (Row 3)
   ui.Image? _treeSprite; // Sprite sheet para los árboles
   ui.Image? _wallHorizontal;
   ui.Image? _wallVertical;
@@ -117,17 +118,19 @@ class _BunkerSceneState extends State<BunkerScene>
 
   Future<void> _loadDanSprites() async {
     try {
+      final spriteMain = await AnimatedSprite.load(
+        'assets/sprites/caminar_dan.png',
+        columns: 3,
+        rows: 3,
+      );
       final spriteNorth = await AnimatedSprite.load(
         'assets/sprites/dan_walk_north.png',
-      );
-      final spriteSouth = await AnimatedSprite.load(
-        'assets/sprites/dan_walk_south.png',
       );
 
       if (mounted) {
         setState(() {
+          _danSprite = spriteMain;
           _danSpriteNorth = spriteNorth;
-          _danSpriteSouth = spriteSouth;
         });
       }
     } catch (e) {
@@ -136,17 +139,7 @@ class _BunkerSceneState extends State<BunkerScene>
   }
 
   Future<void> _loadTreeSprite() async {
-    final data = await rootBundle.load(
-      'assets/sprites/realistic_pine_tree.png',
-    );
-    final bytes = data.buffer.asUint8List();
-    final codec = await ui.instantiateImageCodec(bytes);
-    final frame = await codec.getNextFrame();
-    if (mounted) {
-      setState(() {
-        _treeSprite = frame.image;
-      });
-    }
+    // Sprite de árbol eliminado temporalmente
   }
 
   Future<void> _loadWallTextures() async {
@@ -199,73 +192,6 @@ class _BunkerSceneState extends State<BunkerScene>
     });
   }
 
-  void _showTutorialDialogue() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        _isDialogueActive = true;
-      });
-      DialogueOverlay.show(
-        context,
-        DialogueSequence(
-          id: 'tutorial_controles',
-          dialogues: const [
-            DialogueData(
-              speakerName: 'SISTEMA',
-              text: 'INICIANDO MÓDULO DE ENTRENAMIENTO BÁSICO...',
-              type: DialogueType.system,
-            ),
-            DialogueData(
-              speakerName: 'SISTEMA',
-              text:
-                  'MOVIMIENTO: Utiliza las teclas [W, A, S, D] o las [FLECHAS] para desplazar a tu personaje.',
-              type: DialogueType.system,
-            ),
-            DialogueData(
-              speakerName: 'SISTEMA',
-              text:
-                  'PANTALLA TÁCTIL: Si juegas en móvil, desliza el dedo en la mitad izquierda de la pantalla para usar el Joystick Virtual.',
-              type: DialogueType.system,
-            ),
-            DialogueData(
-              speakerName: 'SISTEMA',
-              text:
-                  'INTERACCIÓN: Acércate a objetos o puertas y presiona la tecla [E] o toca el [BOTÓN INFERIOR DERECHO].',
-              type: DialogueType.system,
-            ),
-            DialogueData(
-              speakerName: 'SISTEMA',
-              text:
-                  'DIÁLOGOS: Puedes presionar [ESC] para saltar rápidamente conversaciones en curso.',
-              type: DialogueType.system,
-            ),
-            DialogueData(
-              speakerName: 'SISTEMA',
-              text:
-                  'INTERFAZ: Toca el icono superior izquierdo para ocultar/mostrar tu objetivo actual.',
-              type: DialogueType.system,
-            ),
-            DialogueData(
-              speakerName: 'SISTEMA',
-              text:
-                  'OPCIONES: El botón del engranaje (arriba a la derecha) abre los ajustes de audio y pausa el juego.',
-              type: DialogueType.system,
-            ),
-            DialogueData(
-              speakerName: 'SISTEMA',
-              text: 'FIN DEL INSTRUCTIVO. Buena suerte.',
-              type: DialogueType.system,
-            ),
-          ],
-        ),
-        onComplete: () {
-          setState(() {
-            _isDialogueActive = false;
-          });
-        },
-      );
-    });
-  }
-
   void _showArrivalMonologue() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
@@ -297,8 +223,6 @@ class _BunkerSceneState extends State<BunkerScene>
           setState(() {
             _isDialogueActive = false;
           });
-          // Iniciar tutorial tras el monólogo
-          _showTutorialDialogue();
         },
       );
     });
@@ -366,9 +290,9 @@ class _BunkerSceneState extends State<BunkerScene>
             onComplete: () {
               setState(() {
                 _isDialogueActive = false;
-                if (interactable.id == 'mel_capsule')
+                if (interactable.id == 'mel_capsule') {
                   _melMetCompleted = true;
-                else if (interactable.id == 'main_console') {
+                } else if (interactable.id == 'main_console') {
                   _briefingCompleted = true;
                   Future.delayed(const Duration(seconds: 2), () {
                     _transitionToCombat();
@@ -405,17 +329,21 @@ class _BunkerSceneState extends State<BunkerScene>
     if (_isDialogueActive || _isTransitioning) return;
     Vector2 velocity = const Vector2(0, 0);
     if (_pressedKeys.contains(LogicalKeyboardKey.keyW) ||
-        _pressedKeys.contains(LogicalKeyboardKey.arrowUp))
+        _pressedKeys.contains(LogicalKeyboardKey.arrowUp)) {
       velocity = Vector2(velocity.x, velocity.y - 1);
+    }
     if (_pressedKeys.contains(LogicalKeyboardKey.keyS) ||
-        _pressedKeys.contains(LogicalKeyboardKey.arrowDown))
+        _pressedKeys.contains(LogicalKeyboardKey.arrowDown)) {
       velocity = Vector2(velocity.x, velocity.y + 1);
+    }
     if (_pressedKeys.contains(LogicalKeyboardKey.keyA) ||
-        _pressedKeys.contains(LogicalKeyboardKey.arrowLeft))
+        _pressedKeys.contains(LogicalKeyboardKey.arrowLeft)) {
       velocity = Vector2(velocity.x - 1, velocity.y);
+    }
     if (_pressedKeys.contains(LogicalKeyboardKey.keyD) ||
-        _pressedKeys.contains(LogicalKeyboardKey.arrowRight))
+        _pressedKeys.contains(LogicalKeyboardKey.arrowRight)) {
       velocity = Vector2(velocity.x + 1, velocity.y);
+    }
     // Joystick Input
     if (_isJoystickActive) {
       velocity = velocity + _joystickInput;
@@ -454,18 +382,31 @@ class _BunkerSceneState extends State<BunkerScene>
           velocity.y,
         );
 
+        if (velocity.y < -0.1) {
+          _currentFrameOffset = 0; // Fila superior para dan_walk_north
+        } else if (velocity.y > 0.1) {
+          _currentFrameOffset = 6; // Fila 3
+        } else if (velocity.x < -0.1) {
+          _currentFrameOffset = 3; // Fila 2
+        } else if (velocity.x > 0.1) {
+          _currentFrameOffset = 0; // Fila 1
+        }
+
         // Animar frames
         _animationTimer += 0.016; // ~16ms por frame
         if (_animationTimer >= _frameRate) {
           _animationTimer = 0;
-          _currentFrame = (_currentFrame + 1) % 3; // Ciclar entre 3 frames
+          int nextAnimFrame = ((_currentFrame - _currentFrameOffset + 1) % 3);
+          if (nextAnimFrame < 0) nextAnimFrame = 0;
+          _currentFrame = _currentFrameOffset + nextAnimFrame;
         }
       });
     } else {
-      // Si no se mueve, resetear a frame 0 (idle)
-      if (_currentFrame != 0) {
+      // Si no se mueve, resetear a frame idle
+      int idleFrame = _currentFrameOffset;
+      if (_currentFrame != idleFrame) {
         setState(() {
-          _currentFrame = 0;
+          _currentFrame = idleFrame;
         });
       }
     }
@@ -517,7 +458,7 @@ class _BunkerSceneState extends State<BunkerScene>
         pos.x > room.roomSize.width ||
         pos.y < 0 ||
         pos.y > room.roomSize.height) {
-      print('DEBUG: Out of bounds: $pos. Room: ${room.roomSize}');
+      // print('DEBUG: Out of bounds: $pos. Room: ${room.roomSize}');
       return false;
     }
 
@@ -536,9 +477,9 @@ class _BunkerSceneState extends State<BunkerScene>
         }
       }
       if (!inDoor) {
-        print(
-          'DEBUG: Collision Left. Pos: $pos, HalfSize: $halfSize, Thickness: $thickness',
-        );
+        // print(
+        //   'DEBUG: Collision Left. Pos: $pos, HalfSize: $halfSize, Thickness: $thickness',
+        // );
         return false;
       }
     }
@@ -556,9 +497,9 @@ class _BunkerSceneState extends State<BunkerScene>
         }
       }
       if (!inDoor) {
-        print(
-          'DEBUG: Collision Right. Pos: $pos, HalfSize: $halfSize, Thickness: $thickness, RoomWidth: ${room.roomSize.width}',
-        );
+        // print(
+        //   'DEBUG: Collision Right. Pos: $pos, HalfSize: $halfSize, Thickness: $thickness, RoomWidth: ${room.roomSize.width}',
+        // );
         return false;
       }
     }
@@ -576,9 +517,9 @@ class _BunkerSceneState extends State<BunkerScene>
         }
       }
       if (!inDoor) {
-        print(
-          'DEBUG: Collision Top. Pos: $pos, HalfSize: $halfSize, Thickness: $thickness',
-        );
+        // print(
+        //   'DEBUG: Collision Top. Pos: $pos, HalfSize: $halfSize, Thickness: $thickness',
+        // );
         return false;
       }
     }
@@ -596,9 +537,9 @@ class _BunkerSceneState extends State<BunkerScene>
         }
       }
       if (!inDoor) {
-        print(
-          'DEBUG: Collision Bottom. Pos: $pos, HalfSize: $halfSize, Thickness: $thickness, RoomHeight: ${room.roomSize.height}',
-        );
+        // print(
+        //   'DEBUG: Collision Bottom. Pos: $pos, HalfSize: $halfSize, Thickness: $thickness, RoomHeight: ${room.roomSize.height}',
+        // );
         return false;
       }
     }
@@ -648,7 +589,7 @@ class _BunkerSceneState extends State<BunkerScene>
                     decoration: BoxDecoration(
                       color: room.backgroundColor,
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.white.withValues(alpha: 0.3),
                         width: 2,
                       ),
                     ),
@@ -671,7 +612,7 @@ class _BunkerSceneState extends State<BunkerScene>
             decoration: BoxDecoration(
               color: room.backgroundColor,
               border: Border.all(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.3),
                 width: 2,
               ),
             ),
@@ -807,17 +748,10 @@ class _BunkerSceneState extends State<BunkerScene>
         top: _playerPosition.y - _playerSize / 2,
         child: Builder(
           builder: (context) {
-            // Seleccionar sprite basado en dirección
-            AnimatedSprite? spriteToUse;
-
-            if (_currentDirection.contains('NORTH')) {
-              spriteToUse = _danSpriteNorth;
-            } else {
-              spriteToUse = _danSpriteSouth;
-            }
-
-            // Fallback si alguno es null
-            spriteToUse ??= _danSpriteSouth ?? _danSpriteNorth;
+            // Seleccionar sprite
+            AnimatedSprite? spriteToUse = _currentDirection.contains('NORTH')
+                ? _danSpriteNorth
+                : _danSprite;
 
             if (spriteToUse != null) {
               return AnimatedSpriteWidget(
@@ -833,12 +767,12 @@ class _BunkerSceneState extends State<BunkerScene>
                 height: _playerSize,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.8),
+                    color: Colors.blue.withValues(alpha: 0.8),
                     border: Border.all(color: Colors.white, width: 3),
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.blue.withOpacity(0.5),
+                        color: Colors.blue.withValues(alpha: 0.5),
                         blurRadius: 10,
                         spreadRadius: 2,
                       ),
@@ -1112,7 +1046,7 @@ class _BunkerSceneState extends State<BunkerScene>
               _pressedKeys.remove(event.logicalKey);
             }
           },
-          child: Container(
+          child: RepaintBoundary(
             child: Stack(
               children: [
                 _buildRoomWithCamera(room, screenSize),
@@ -1142,10 +1076,27 @@ class _BunkerSceneState extends State<BunkerScene>
                       );
                     }
 
+                    // Radios adaptativos globales
+                    // Usamos el ancho de pantalla o el ancho renderizado según el modo
+                    final referenceW = room.cameraMode == CameraMode.follow
+                        ? screenW
+                        : room.roomSize.width *
+                              (screenW / room.roomSize.width <
+                                      screenH / room.roomSize.height
+                                  ? screenW / room.roomSize.width
+                                  : screenH / room.roomSize.height);
+
+                    final innerR = FlashlightOverlay.globalInnerRadius(
+                      referenceW,
+                    );
+                    final outerR = FlashlightOverlay.globalOuterRadius(
+                      referenceW,
+                    );
+
                     return FlashlightOverlay(
                       center: screenCenter,
-                      innerRadius: 130.0,
-                      outerRadius: 260.0,
+                      innerRadius: innerR,
+                      outerRadius: outerR,
                       shadowOpacity: 0.97,
                     );
                   },
@@ -1204,7 +1155,9 @@ class _BunkerSceneState extends State<BunkerScene>
                   AnimatedBuilder(
                     animation: _fadeAnimation,
                     builder: (context, child) => Container(
-                      color: Colors.black.withOpacity(_fadeAnimation.value),
+                      color: Colors.black.withValues(
+                        alpha: _fadeAnimation.value,
+                      ),
                     ),
                   ),
                 // Nuevo HUD Dinámico y Ocultable (Top Left)
@@ -1237,15 +1190,15 @@ class _BunkerSceneState extends State<BunkerScene>
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            Colors.black.withOpacity(0.85),
-                            Colors.black.withOpacity(0.4),
+                            Colors.black.withValues(alpha: 0.85),
+                            Colors.black.withValues(alpha: 0.4),
                           ],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         ),
                         border: Border(
                           left: BorderSide(
-                            color: Colors.cyan.withOpacity(0.5),
+                            color: Colors.cyan.withValues(alpha: 0.5),
                             width: 3,
                           ),
                         ),
@@ -1332,9 +1285,9 @@ class _BunkerSceneState extends State<BunkerScene>
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.6),
+                            color: Colors.black.withValues(alpha: 0.6),
                             border: Border.all(
-                              color: Colors.cyan.withOpacity(0.6),
+                              color: Colors.cyan.withValues(alpha: 0.6),
                               width: 1.5,
                             ),
                           ),
@@ -1358,7 +1311,7 @@ class _BunkerSceneState extends State<BunkerScene>
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
+                        color: Colors.black.withValues(alpha: 0.7),
                         border: Border.all(color: Colors.white, width: 2),
                       ),
                       child: Text(
@@ -1385,10 +1338,10 @@ class _BunkerSceneState extends State<BunkerScene>
                       width: _joystickRadius * 2,
                       height: _joystickRadius * 2,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                           width: 2,
                         ),
                       ),
@@ -1401,11 +1354,11 @@ class _BunkerSceneState extends State<BunkerScene>
                       width: _joystickKnobRadius * 2,
                       height: _joystickKnobRadius * 2,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
+                            color: Colors.black.withValues(alpha: 0.3),
                             blurRadius: 5,
                             spreadRadius: 1,
                           ),
@@ -1429,12 +1382,12 @@ class _BunkerSceneState extends State<BunkerScene>
                           width: 64,
                           height: 64,
                           decoration: BoxDecoration(
-                            color: Colors.yellow.withOpacity(0.8),
+                            color: Colors.yellow.withValues(alpha: 0.8),
                             shape: BoxShape.circle,
                             border: Border.all(color: Colors.white, width: 3),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.5),
+                                color: Colors.black.withValues(alpha: 0.5),
                                 blurRadius: 8,
                                 spreadRadius: 2,
                               ),
@@ -1470,15 +1423,15 @@ class _BunkerSceneState extends State<BunkerScene>
                       padding: EdgeInsets.zero,
                       clipBehavior: Clip.hardEdge,
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.9),
+                        color: Colors.black.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                           width: 1.5,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             blurRadius: 15,
                             spreadRadius: 1,
                           ),
@@ -1515,10 +1468,12 @@ class _BunkerSceneState extends State<BunkerScene>
   String _getObjectiveText() {
     if (_briefingCompleted) return 'Objetivo: Prepararse para el combate';
     if (_melMetCompleted) return 'Objetivo: Ir al Centro de Comando';
-    if (_roomManager.currentRoom.id == 'exterior_large')
+    if (_roomManager.currentRoom.id == 'exterior_large') {
       return 'Objetivo: Llegar a la entrada del búnker';
-    if (_roomManager.currentRoom.id == 'exterior')
+    }
+    if (_roomManager.currentRoom.id == 'exterior') {
       return 'Objetivo: Entrar al búnker';
+    }
     return 'Objetivo: Encontrar a Mel';
   }
 
@@ -1741,8 +1696,8 @@ class _BunkerSceneState extends State<BunkerScene>
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.redAccent.withOpacity(
-                                  0.8,
+                                backgroundColor: Colors.redAccent.withValues(
+                                  alpha: 0.8,
                                 ),
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
@@ -1766,7 +1721,7 @@ class _BunkerSceneState extends State<BunkerScene>
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.withOpacity(0.2),
+              backgroundColor: Colors.red.withValues(alpha: 0.2),
               foregroundColor: Colors.redAccent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -1795,7 +1750,7 @@ class GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.1)
+      ..color = Colors.white.withValues(alpha: 0.1)
       ..strokeWidth = 1;
 
     const gridSize = 50.0;

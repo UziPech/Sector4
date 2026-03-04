@@ -6,7 +6,7 @@ import 'package:flame/game.dart';
 class DynamicJoystickOverlay extends StatefulWidget {
   final Function(Vector2) onInput;
 
-  const DynamicJoystickOverlay({Key? key, required this.onInput}) : super(key: key);
+  const DynamicJoystickOverlay({super.key, required this.onInput});
 
   @override
   State<DynamicJoystickOverlay> createState() => _DynamicJoystickOverlayState();
@@ -87,9 +87,9 @@ class _DynamicJoystickOverlayState extends State<DynamicJoystickOverlay> {
                 width: _joystickRadius * 2,
                 height: _joystickRadius * 2,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white.withOpacity(0.5), width: 2),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 2),
                 ),
               ),
             ),
@@ -103,11 +103,11 @@ class _DynamicJoystickOverlayState extends State<DynamicJoystickOverlay> {
                 width: _joystickKnobRadius * 2,
                 height: _joystickKnobRadius * 2,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
+                      color: Colors.black.withValues(alpha: 0.3),
                       blurRadius: 5,
                       spreadRadius: 1,
                     ),
@@ -130,3 +130,4 @@ class _DynamicJoystickOverlayState extends State<DynamicJoystickOverlay> {
     });
   }
 }
+

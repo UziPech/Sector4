@@ -1,5 +1,4 @@
-import 'dart:ui' as ui;
-import 'dart:math';
+﻿import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/palette.dart';
@@ -13,7 +12,6 @@ import '../models/player_role.dart';
 import '../systems/resurrection_system.dart';
 import '../../narrative/models/dialogue_data.dart';
 import 'enemy_tomb.dart';
-import '../audio_manager.dart';
 import 'enemies/allied_enemy.dart';
 import 'enemies/redeemed_kijin_ally.dart';
 import 'tiled_wall.dart';
@@ -64,9 +62,9 @@ class PlayerCharacter extends PositionComponent
   // Habilidad compartida: Dash (solo Mel con Kijin activo)
   bool _isDashing = false;
   bool _isPreparingDash = false;
-  double _dashPreparationTime = 0.6;
+  final double _dashPreparationTime = 0.6;
   double _dashPreparationTimer = 0.0;
-  double _dashDuration = 0.3;
+  final double _dashDuration = 0.3;
   double _dashTime = 0.0;
   Vector2 _dashDirection = Vector2.zero();
   final double _dashSpeed = 600.0; // Más rápido que el Kijin
@@ -74,8 +72,11 @@ class PlayerCharacter extends PositionComponent
   double _dashTimer = 0.0;
 
   // Getters
+  @override
   double get health => _health;
+  @override
   double get maxHealth => _maxHealth;
+  @override
   bool get isDead => _isDead;
   bool get isInvulnerable => _isInvulnerable;
   PlayerRole get playerRole => role;
@@ -155,60 +156,104 @@ class PlayerCharacter extends PositionComponent
   Future<void> _loadDanAnimations() async {
     try {
       // OPTIMIZED: Use Flame's image cache instead of manual rootBundle loading
+      final danImage = await game.images.load('sprites/caminar_dan.png');
       final northImage = await game.images.load('sprites/dan_walk_north.png');
-      final southImage = await game.images.load('sprites/dan_walk_south.png');
 
-      // Configurar animaciones (Grilla 3x3 = 9 frames)
+      // Configurar animaciones (Grilla 3x3 para spritesheet)
       const cols = 3;
       const rows = 3;
-      final frameWidth = northImage.width / cols;
-      final frameHeight = northImage.height / rows;
+      final frameWidth = danImage.width / cols;
+      final frameHeight = danImage.height / rows;
       final textureSize = Vector2(frameWidth, frameHeight);
 
-      // Animación Norte (Caminata)
-      final northAnim = SpriteAnimation.fromFrameData(
-        northImage,
-        SpriteAnimationData.sequenced(
-          amount: 9, // 9 frames totales (3 filas x 3 columnas)
-          stepTime: 0.15, // Velocidad original
-          textureSize: textureSize,
-          amountPerRow: 3, // Baja a la siguiente fila cada 3 frames
-        ),
-      );
+      // Para dan_walk_north asumimos 3 frames en una fila horizontal
+      final northFrameWidth = northImage.width / 3;
+      final northFrameHeight = northImage.height / 1;
+      final northTextureSize = Vector2(northFrameWidth, northFrameHeight);
 
-      // Animación Sur (Caminata)
-      final southAnim = SpriteAnimation.fromFrameData(
-        southImage,
+      // Fila 1: Caminar Derecha (Índice 0)
+      final eastAnim = SpriteAnimation.fromFrameData(
+        danImage,
         SpriteAnimationData.sequenced(
-          amount: 9,
+          amount: 3,
           stepTime: 0.15,
           textureSize: textureSize,
           amountPerRow: 3,
+          texturePosition: Vector2(0, 0),
         ),
       );
 
-      // Animación Idle Norte (Usamos el primer frame de la animación norte)
+      // Fila 2: Caminar Izquierda (Índice 1)
+      final westAnim = SpriteAnimation.fromFrameData(
+        danImage,
+        SpriteAnimationData.sequenced(
+          amount: 3,
+          stepTime: 0.15,
+          textureSize: textureSize,
+          amountPerRow: 3,
+          texturePosition: Vector2(0, frameHeight * 1),
+        ),
+      );
+
+      // Fila 3: Caminar Derecha Alternativo (Índice 2) - Se usará para abajo (sur)
+      final auxEastAnim = SpriteAnimation.fromFrameData(
+        danImage,
+        SpriteAnimationData.sequenced(
+          amount: 3,
+          stepTime: 0.15,
+          textureSize: textureSize,
+          amountPerRow: 3,
+          texturePosition: Vector2(0, frameHeight * 2),
+        ),
+      );
+
+      // Animación Norte (dan_walk_north.png)
+      final northAnim = SpriteAnimation.fromFrameData(
+        northImage,
+        SpriteAnimationData.sequenced(
+          amount: 3,
+          stepTime: 0.15,
+          textureSize: northTextureSize,
+          amountPerRow: 3,
+          texturePosition: Vector2(0, 0),
+        ),
+      );
+
+      // Animaciones Idle (Primer frame de cada fila respectiva)
+      final idleEastAnim = SpriteAnimation.spriteList(
+        [eastAnim.frames[0].sprite],
+        stepTime: 1.0,
+        loop: false,
+      );
+      final idleWestAnim = SpriteAnimation.spriteList(
+        [westAnim.frames[0].sprite],
+        stepTime: 1.0,
+        loop: false,
+      );
+      final idleAuxEastAnim = SpriteAnimation.spriteList(
+        [auxEastAnim.frames[0].sprite],
+        stepTime: 1.0,
+        loop: false,
+      );
       final idleNorthAnim = SpriteAnimation.spriteList(
         [northAnim.frames[0].sprite],
         stepTime: 1.0,
         loop: false,
       );
 
-      // Animación Idle Sur (Usamos el primer frame de la animación sur)
-      final idleSouthAnim = SpriteAnimation.spriteList(
-        [southAnim.frames[0].sprite],
-        stepTime: 1.0,
-        loop: false,
-      );
-
       _danSprite = SpriteAnimationGroupComponent<String>(
         animations: {
-          'north': northAnim,
-          'south': southAnim,
+          'south':
+              auxEastAnim, // Seguimos usando la derecha alternativa para el sur
+          'west': westAnim, // Izquierda real (Fila 2)
+          'east': eastAnim, // Derecha principal (Fila 1)
+          'north': northAnim, // Animación real hacia el norte (espalda)
+          'idle_south': idleAuxEastAnim,
+          'idle_west': idleWestAnim,
+          'idle_east': idleEastAnim,
           'idle_north': idleNorthAnim,
-          'idle_south': idleSouthAnim,
         },
-        current: 'idle_south',
+        current: 'idle_east',
         anchor: Anchor.center,
         // El tamaño visual es 80x80 como en el capítulo 1
         size: Vector2(80, 80),
@@ -255,7 +300,7 @@ class PlayerCharacter extends PositionComponent
         _isPreparingDash = false;
         _isDashing = true;
         _dashPreparationTimer = 0.0;
-        print('⚡ ¡Mel usa DASH compartido del Kijin!');
+        // print('âÅ¡¡ ¡Mel usa DASH compartido del Kijin!');
       }
       return; // No movimiento normal durante preparación
     }
@@ -286,33 +331,46 @@ class PlayerCharacter extends PositionComponent
 
   void _updateDanAnimation() {
     if (_velocity.length > 0) {
-      // Movimiento
       if (_velocity.y < -0.1) {
         _danSprite!.current = 'north';
       } else if (_velocity.y > 0.1) {
         _danSprite!.current = 'south';
-      } else {
-        // Movimiento horizontal: mantener dirección vertical previa o usar sur
-        final current = _danSprite!.current;
-        if (current == 'north' || current == 'idle_north') {
-          _danSprite!.current = 'north';
-        } else {
-          _danSprite!.current = 'south';
+      } else if (_velocity.x < -0.1) {
+        if (_danSprite!.current != 'west') {
+          print(
+            'DEBUG: Movimiento Izquierda detectado (velocity: \${_velocity.x}). Cambiando a "west" (Fila 2).',
+          );
         }
+        _danSprite!.current = 'west';
+      } else if (_velocity.x > 0.1) {
+        if (_danSprite!.current != 'east') {
+          print(
+            'DEBUG: Movimiento Derecha detectado (velocity: \${_velocity.x}). Cambiando a "east" (Fila 1).',
+          );
+        }
+        _danSprite!.current = 'east';
       }
 
-      // Girar el sprite al moverse a la izquierda
-      if (_velocity.x < -0.1 && _danSprite!.isFlippedHorizontally == false) {
+      // Quitar el flipeo por si acaso hubiera quedado pegado de antes
+      if (_danSprite!.isFlippedHorizontally) {
+        print('DEBUG: Quitando isFlippedHorizontally de _danSprite');
         _danSprite!.flipHorizontallyAroundCenter();
-      } else if (_velocity.x > 0.1 &&
-          _danSprite!.isFlippedHorizontally == true) {
-        _danSprite!.flipHorizontallyAroundCenter();
+      }
+      if (scale.x < 0) {
+        print(
+          'DEBUG: El componente contenedor estaba flipeado, restaurando scale.x',
+        );
+        scale.x = 1.0;
       }
     } else {
       // Idle
       final current = _danSprite!.current;
       if (current == 'north' || current == 'idle_north') {
         _danSprite!.current = 'idle_north';
+      } else if (current == 'west' || current == 'idle_west') {
+        _danSprite!.current = 'idle_west';
+      } else if (current == 'east' || current == 'idle_east') {
+        _danSprite!.current = 'idle_east';
       } else {
         _danSprite!.current = 'idle_south';
       }
@@ -442,13 +500,13 @@ class PlayerCharacter extends PositionComponent
         tryResurrect();
       }
 
-      // Curar con E (solo Dan) — activa la habilidad de Mel companion
+      // Curar con E (solo Dan) ââ‚¬â€ activa la habilidad de Mel companion
       if (event.logicalKey == LogicalKeyboardKey.keyE &&
           role == PlayerRole.dan) {
         game.mel.activateHeal();
       }
 
-      // Curar con F (solo Mel) — auto-curación via Mel companion (E ya es resurrect)
+      // Curar con F (solo Mel) ââ‚¬â€ auto-curación via Mel companion (E ya es resurrect)
       if (event.logicalKey == LogicalKeyboardKey.keyF &&
           role == PlayerRole.mel) {
         game.mel.activateHeal();
@@ -590,7 +648,7 @@ class PlayerCharacter extends PositionComponent
     // Crear efecto visual de resurrección
     _createResurrectionEffect(tomb.position);
 
-    // MOSTRAR DIÁLOGO VISUAL PARA KOHAA
+    // MOSTRAR DIÃÂLOGO VISUAL PARA KOHAA
     if (tomb.enemyType.contains('kohaa') || tomb.enemyType.contains('kijin')) {
       _showKohaaGratitudeDialogue();
     }
@@ -640,7 +698,7 @@ class PlayerCharacter extends PositionComponent
       id: 'kohaa_resurrection',
       dialogues: dialogues,
       onComplete: () {
-        debugPrint('💮 Diálogo de Kohaa completado');
+        debugPrint('ðŸ’® Diálogo de Kohaa completado');
       },
     );
 
@@ -660,7 +718,7 @@ class PlayerCharacter extends PositionComponent
 
     // INVULNERABLE durante preparación del dash
     if (_isPreparingDash) {
-      print('🛡️ ¡Mel es INVULNERABLE! (Preparando dash del Kijin)');
+      // print('🛡️ ¡Mel es INVULNERABLE! (Preparando dash del Kijin)');
       return;
     }
 
@@ -675,6 +733,7 @@ class PlayerCharacter extends PositionComponent
   }
 
   /// Cura al jugador
+  @override
   void heal(double amount) {
     if (_isDead) return;
 
@@ -727,7 +786,7 @@ class PlayerCharacter extends PositionComponent
       // Segundo anillo pulsante
       final pulse = (sin(_dashPreparationTimer * 10) * 0.5 + 0.5);
       final pulsePaint = Paint()
-        ..color = Colors.white.withOpacity(pulse)
+        ..color = Colors.white.withValues(alpha: pulse)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2;
 
@@ -754,7 +813,7 @@ class PlayerCharacter extends PositionComponent
     if (stats.hasRegeneration && _regenTimer > 0) {
       final regenProgress = _regenTimer / stats.regenerationInterval;
       final regenPaint = Paint()
-        ..color = Colors.green.withOpacity(0.3 * regenProgress)
+        ..color = Colors.green.withValues(alpha: 0.3 * regenProgress)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2;
 
@@ -765,7 +824,7 @@ class PlayerCharacter extends PositionComponent
 
 /// Efecto visual de resurrección
 class _ResurrectionEffect extends PositionComponent {
-  double _lifetime = 1.0;
+  final double _lifetime = 1.0;
   double _timer = 0.0;
 
   _ResurrectionEffect({required Vector2 position})
@@ -798,7 +857,7 @@ class _ResurrectionEffect extends PositionComponent {
       final radius = 20.0 + (adjustedProgress * 40.0);
 
       final paint = Paint()
-        ..color = Colors.green.withOpacity(opacity * 0.6)
+        ..color = Colors.green.withValues(alpha: opacity * 0.6)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3;
 
@@ -807,7 +866,7 @@ class _ResurrectionEffect extends PositionComponent {
 
     // Partículas ascendentes
     final particlePaint = Paint()
-      ..color = Colors.green.withOpacity(opacity * 0.8)
+      ..color = Colors.green.withValues(alpha: opacity * 0.8)
       ..style = PaintingStyle.fill;
 
     for (int i = 0; i < 8; i++) {
@@ -825,7 +884,7 @@ class _ResurrectionEffect extends PositionComponent {
         text: TextSpan(
           text: 'RESURRECCIÓN',
           style: TextStyle(
-            color: Colors.green.withOpacity(opacity),
+            color: Colors.green.withValues(alpha: opacity),
             fontSize: 16,
             fontWeight: FontWeight.bold,
             fontFamily: 'monospace',

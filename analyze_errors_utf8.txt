@@ -1,0 +1,480 @@
+﻿Analyzing Sector4...                                            
+
+   info - Parameters ''name', 'damage', and 'cooldown'' could be super parameters - lib\combat\mutant_hand_weapon.dart:23:3 - use_super_parameters
+   info - Don't invoke 'print' in production code - lib\combat\mutant_hand_weapon.dart:74:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\combat\mutant_hand_weapon.dart:91:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\combat\mutant_hand_weapon.dart:108:9 - avoid_print
+   info - The private field _lifetime could be 'final' - lib\combat\mutant_hand_weapon.dart:168:10 - prefer_final_fields
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\combat\mutant_hand_weapon.dart:194:31 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\combat\mutant_hand_weapon.dart:206:31 - deprecated_member_use
+   info - The private field _lifetime could be 'final' - lib\combat\mutant_hand_weapon.dart:222:10 - prefer_final_fields
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\combat\mutant_hand_weapon.dart:247:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\combat\mutant_hand_weapon.dart:270:33 - deprecated_member_use
+   info - The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\combat\weapon_system.dart:1:8 - unnecessary_import
+   info - The import of 'package:flame/game.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flame/components.dart' - lib\combat\weapon_system.dart:3:8 - unnecessary_import
+   info - Don't invoke 'print' in production code - lib\combat\weapon_system.dart:106:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\combat\weapon_system.dart:115:9 - avoid_print
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\combat\weapon_system.dart:301:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\combat\weapon_system.dart:322:30 - deprecated_member_use
+   info - The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\components\bullet.dart:2:8 - unnecessary_import
+   info - The import of 'package:flame/palette.dart' is unnecessary because all of the used elements are also provided by the import of 'dart:ui' - lib\components\bullet.dart:6:8 - unnecessary_import
+warning - Unused import: 'character_component.dart' - lib\components\bullet.dart:9:8 - unused_import
+   info - Don't invoke 'print' in production code - lib\components\bullet.dart:255:11 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\bullet.dart:267:11 - avoid_print
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\components\destructible_object.dart:17:26 - deprecated_member_use
+   info - The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\components\enemy_character.dart:2:8 - unnecessary_import
+warning - Duplicate import - lib\components\enemy_character.dart:14:8 - duplicate_import
+warning - The value of the field '_originalTint' isn't used - lib\components\enemy_character.dart:129:15 - unused_field
+warning - The value of the field '_lastPlayerUpdateTime' isn't used - lib\components\enemy_character.dart:141:10 - unused_field
+   info - The private field _circlingDirection could be 'final' - lib\components\enemy_character.dart:181:7 - prefer_final_fields
+warning - The value of the field '_recentDamage' isn't used - lib\components\enemy_character.dart:184:10 - unused_field
+warning - The value of the field '_detectionPaint' isn't used - lib\components\enemy_character.dart:191:20 - unused_field
+warning - The declaration '_getFlankingPosition' isn't referenced - lib\components\enemy_character.dart:283:11 - unused_element
+warning - The declaration '_startDash' isn't referenced - lib\components\enemy_character.dart:749:8 - unused_element
+warning - Unused import: '../main.dart' - lib\components\enemy_spawner.dart:3:8 - unused_import
+  error - The name 'ExpedienteKorinGame' isn't a type, so it can't be used as a type argument - lib\components\enemy_spawner.dart:8:60 - non_type_as_type_argument
+   info - Don't invoke 'print' in production code - lib\components\enemy_spawner.dart:124:5 - avoid_print
+warning - Unused import: '../main.dart' - lib\components\hud_component.dart:3:8 - unused_import
+  error - The name 'ExpedienteKorinGame' isn't a type, so it can't be used as a type argument - lib\components\hud_component.dart:6:68 - non_type_as_type_argument
+warning - The value of the field '_random' isn't used - lib\components\infinite_world.dart:110:21 - unused_field
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\components\obsession_object.dart:17:26 - deprecated_member_use
+   info - Invalid use of a private type in a public API - lib\components\particle_effect.dart:10:14 - library_private_types_in_public_api
+   info - The import of 'package:flame/palette.dart' is unnecessary because all of the used elements are also provided by the import of 'dart:ui' - lib\components\stalker_enemy.dart:4:8 - unnecessary_import
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:92:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:101:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:136:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:137:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:138:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:139:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:140:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:161:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:162:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:163:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:164:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:280:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:281:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:282:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:283:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:344:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:346:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:509:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:548:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:602:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:606:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:613:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:621:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:626:11 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:635:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:649:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:840:5 - avoid_print
+   info - The import of 'package:audioplayers/audioplayers.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flame_audio/flame_audio.dart' - lib\game\audio_manager.dart:3:8 - unnecessary_import
+   info - The imported package 'audioplayers' isn't a dependency of the importing package - lib\game\audio_manager.dart:3:8 - depend_on_referenced_packages
+warning - Unused import: '../enemies/yurei_kohaa.dart' - lib\game\components\bosses\on_oyabun_boss.dart:7:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\bosses\on_oyabun_boss.dart:394:34 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\bosses\on_oyabun_boss.dart:399:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\bosses\on_oyabun_boss.dart:403:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\bosses\on_oyabun_boss.dart:407:34 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\bosses\on_oyabun_boss.dart:481:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\bosses\on_oyabun_boss.dart:568:44 - deprecated_member_use
+warning - The '!' will have no effect because the receiver can't be null - lib\game\components\bosses\on_oyabun_boss.dart:647:32 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null - lib\game\components\bosses\on_oyabun_boss.dart:649:52 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null - lib\game\components\bosses\on_oyabun_boss.dart:653:16 - unnecessary_non_null_assertion
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\bosses\on_oyabun_boss.dart:837:24 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\bosses\on_oyabun_boss.dart:838:22 - deprecated_member_use
+warning - The declaration '_startCombo' isn't referenced - lib\game\components\bosses\on_oyabun_boss.dart:1098:8 - unused_element
+warning - The value of the local variable 'player' isn't used - lib\game\components\bosses\on_oyabun_boss.dart:1140:11 - unused_local_variable
+warning - The declaration '_startDuelStance' isn't referenced - lib\game\components\bosses\on_oyabun_boss.dart:1323:8 - unused_element
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\bosses\on_oyabun_boss.dart:1433:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\bosses\on_oyabun_boss.dart:1502:42 - deprecated_member_use
+warning - The value of the local variable 'offsetY' isn't used - lib\game\components\bosses\on_oyabun_boss.dart:1513:15 - unused_local_variable
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\bosses\on_oyabun_boss.dart:1545:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\bosses\on_oyabun_boss.dart:1570:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\bosses\on_oyabun_boss.dart:1602:44 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\bosses\on_oyabun_boss.dart:1667:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\bosses\on_oyabun_boss.dart:1714:44 - deprecated_member_use
+   info - Unnecessary braces in a string interpolation - lib\game\components\bosses\on_oyabun_boss.dart:1730:23 - unnecessary_brace_in_string_interps
+   info - The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\game\components\effects\explosive_wave.dart:1:8 - unnecessary_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\effects\explosive_wave.dart:148:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\effects\explosive_wave.dart:157:28 - deprecated_member_use
+   info - The private field _lifetime could be 'final' - lib\game\components\effects\kijin_resurrection_effect.dart:8:10 - prefer_final_fields
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\effects\kijin_resurrection_effect.dart:41:14 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\effects\kijin_resurrection_effect.dart:54:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\effects\kijin_resurrection_effect.dart:72:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\effects\kijin_resurrection_effect.dart:87:44 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\effects\kijin_resurrection_effect.dart:93:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\effects\screen_flash.dart:50:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\effects\summoning_circle.dart:42:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\effects\summoning_circle.dart:51:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\effects\summoning_circle.dart:74:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\effects\summoning_circle.dart:92:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\effects\teleport_effect.dart:56:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\effects\teleport_effect.dart:67:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\effects\teleport_effect.dart:79:29 - deprecated_member_use
+warning - Unused import: 'dart:math' - lib\game\components\enemies\allied_enemy.dart:1:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\allied_enemy.dart:316:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\allied_enemy.dart:327:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\allied_enemy.dart:338:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\allied_enemy.dart:363:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\allied_enemy.dart:392:31 - deprecated_member_use
+warning - Unused import: 'dart:math' - lib\game\components\enemies\irracional.dart:1:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\irracional.dart:218:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\irracional.dart:229:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\irracional.dart:256:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\minions\floating_katana.dart:176:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\minions\floating_katana.dart:212:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\minions\floating_katana.dart:223:29 - deprecated_member_use
+warning - Unused import: 'dart:math' - lib\game\components\enemies\minions\yakuza_ghost.dart:1:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\minions\yakuza_ghost.dart:181:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\minions\yakuza_ghost.dart:192:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\minions\yakuza_ghost.dart:203:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\minions\yakuza_ghost.dart:225:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\minions\yakuza_ghost.dart:236:28 - deprecated_member_use
+   info - The private field _dashPreparationTime could be 'final' - lib\game\components\enemies\redeemed_kijin_ally.dart:34:10 - prefer_final_fields
+   info - The private field _dashDuration could be 'final' - lib\game\components\enemies\redeemed_kijin_ally.dart:36:10 - prefer_final_fields
+   info - The private field _separationRadius could be 'final' - lib\game\components\enemies\redeemed_kijin_ally.dart:42:10 - prefer_final_fields
+   info - The private field _tacticalTimer could be 'final' - lib\game\components\enemies\redeemed_kijin_ally.dart:48:10 - prefer_final_fields
+warning - The value of the field '_tacticalTimer' isn't used - lib\game\components\enemies\redeemed_kijin_ally.dart:48:10 - unused_field
+warning - The value of the field '_tacticalInterval' isn't used - lib\game\components\enemies\redeemed_kijin_ally.dart:49:16 - unused_field
+warning - The value of the field '_currentTactic' isn't used - lib\game\components\enemies\redeemed_kijin_ally.dart:50:10 - unused_field
+   info - The private field _tacticalExplosionCooldown could be 'final' - lib\game\components\enemies\redeemed_kijin_ally.dart:64:10 - prefer_final_fields
+warning - Unnecessary type check; the result is always 'false' - lib\game\components\enemies\redeemed_kijin_ally.dart:427:27 - unnecessary_type_check
+warning - Unnecessary cast - lib\game\components\enemies\redeemed_kijin_ally.dart:429:45 - unnecessary_cast
+warning - The value of the local variable 'enemiesHit' isn't used - lib\game\components\enemies\redeemed_kijin_ally.dart:629:9 - unused_local_variable
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\redeemed_kijin_ally.dart:757:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\redeemed_kijin_ally.dart:782:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\redeemed_kijin_ally.dart:809:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\redeemed_kijin_ally.dart:845:30 - deprecated_member_use
+warning - The declaration '_tryTacticalExplosion' isn't referenced - lib\game\components\enemies\redeemed_kijin_ally_explosion.dart:5:6 - unused_element
+  error - Undefined name 'game' - lib\game\components\enemies\redeemed_kijin_ally_explosion.dart:7:18 - undefined_identifier
+  error - The name 'OnOyabunBoss' isn't a type, so it can't be used as a type argument - lib\game\components\enemies\redeemed_kijin_ally_explosion.dart:7:44 - non_type_as_type_argument
+  error - Undefined name 'position' - lib\game\components\enemies\redeemed_kijin_ally_explosion.dart:12:28 - undefined_identifier
+  error - Undefined name '_tacticalExplosionRadius' - lib\game\components\enemies\redeemed_kijin_ally_explosion.dart:15:27 - undefined_identifier
+  error - Undefined class 'OnOyabunBoss' - lib\game\components\enemies\redeemed_kijin_ally_explosion.dart:23:32 - undefined_class
+   info - Don't invoke 'print' in production code - lib\game\components\enemies\redeemed_kijin_ally_explosion.dart:24:3 - avoid_print
+  error - Undefined name '_tacticalExplosionDamage' - lib\game\components\enemies\redeemed_kijin_ally_explosion.dart:27:19 - undefined_identifier
+   info - Don't invoke 'print' in production code - lib\game\components\enemies\redeemed_kijin_ally_explosion.dart:28:3 - avoid_print
+  error - Undefined name '_tacticalExplosionDamage' - lib\game\components\enemies\redeemed_kijin_ally_explosion.dart:28:30 - undefined_identifier
+  error - Undefined name 'position' - lib\game\components\enemies\redeemed_kijin_ally_explosion.dart:31:42 - undefined_identifier
+  error - Undefined name '_tacticalExplosionTimer' - lib\game\components\enemies\redeemed_kijin_ally_explosion.dart:35:3 - undefined_identifier
+  error - Undefined name '_tacticalExplosionCooldown' - lib\game\components\enemies\redeemed_kijin_ally_explosion.dart:35:29 - undefined_identifier
+   info - Don't invoke 'print' in production code - lib\game\components\enemies\redeemed_kijin_ally_explosion.dart:45:3 - avoid_print
+  error - Undefined name '_tacticalExplosionRadius' - lib\game\components\enemies\redeemed_kijin_ally_explosion.dart:45:36 - undefined_identifier
+   info - The private field _dashPreparationTime could be 'final' - lib\game\components\enemies\yurei_kohaa.dart:30:10 - prefer_final_fields
+   info - The private field _dashDuration could be 'final' - lib\game\components\enemies\yurei_kohaa.dart:32:10 - prefer_final_fields
+   info - The private field _canRegenerate could be 'final' - lib\game\components\enemies\yurei_kohaa.dart:44:8 - prefer_final_fields
+warning - The value of the field '_canRegenerate' isn't used - lib\game\components\enemies\yurei_kohaa.dart:44:8 - unused_field
+   info - The private field _regenerationCooldown could be 'final' - lib\game\components\enemies\yurei_kohaa.dart:45:10 - prefer_final_fields
+warning - The value of the field '_regenerationCooldown' isn't used - lib\game\components\enemies\yurei_kohaa.dart:45:10 - unused_field
+warning - The value of the field '_dashIndicatorPaint' isn't used - lib\game\components\enemies\yurei_kohaa.dart:89:20 - unused_field
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\yurei_kohaa.dart:125:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\yurei_kohaa.dart:129:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\yurei_kohaa.dart:143:30 - deprecated_member_use
+warning - The value of the local variable 'remaining' isn't used - lib\game\components\enemies\yurei_kohaa.dart:416:17 - unused_local_variable
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemies\yurei_kohaa.dart:791:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemy_tomb.dart:82:27 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemy_tomb.dart:93:27 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemy_tomb.dart:105:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\enemy_tomb.dart:151:34 - deprecated_member_use
+   info - The private field _healCooldown could be 'final' - lib\game\components\mel.dart:24:10 - prefer_final_fields
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\mel.dart:168:33 - deprecated_member_use
+  error - Undefined class 'StalkerEnemy' - lib\game\components\obsession_object.dart:9:9 - undefined_class
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\obsession_object.dart:39:35 - deprecated_member_use
+warning - Unused import: 'dart:ui' - lib\game\components\player.dart:1:8 - unused_import
+warning - Unused import: '../audio_manager.dart' - lib\game\components\player.dart:16:8 - unused_import
+   info - The private field _dashPreparationTime could be 'final' - lib\game\components\player.dart:67:10 - prefer_final_fields
+   info - The private field _dashDuration could be 'final' - lib\game\components\player.dart:69:10 - prefer_final_fields
+   info - The member 'health' overrides an inherited member but isn't annotated with '@override' - lib\game\components\player.dart:77:14 - annotate_overrides
+   info - The member 'maxHealth' overrides an inherited member but isn't annotated with '@override' - lib\game\components\player.dart:78:14 - annotate_overrides
+   info - The member 'isDead' overrides an inherited member but isn't annotated with '@override' - lib\game\components\player.dart:79:12 - annotate_overrides
+   info - Don't invoke 'print' in production code - lib\game\components\player.dart:258:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\game\components\player.dart:655:7 - avoid_print
+   info - The member 'heal' overrides an inherited member but isn't annotated with '@override' - lib\game\components\player.dart:670:8 - annotate_overrides
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\player.dart:722:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\player.dart:749:32 - deprecated_member_use
+   info - The private field _lifetime could be 'final' - lib\game\components\player.dart:760:10 - prefer_final_fields
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\player.dart:793:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\player.dart:802:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\components\player.dart:820:33 - deprecated_member_use
+warning - Unused import: 'dart:math' - lib\game\components\projectiles\falling_katana.dart:1:8 - unused_import
+warning - Unused import: '../player.dart' - lib\game\components\projectiles\falling_katana.dart:5:8 - unused_import
+  error - Expected an identifier - lib\game\components\stalker_enemy.dart:1:13 - missing_identifier
+  error - Expected to find ')' - lib\game\components\stalker_enemy.dart:1:45 - expected_token
+  error - A function body must be provided - lib\game\components\stalker_enemy.dart:1:49 - missing_function_body
+warning - The value of the local variable 'companionName' isn't used - lib\game\expediente_game.dart:289:11 - unused_local_variable
+   info - The import of 'package:flame/palette.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\game\levels\bunker_boss_level.dart:2:8 - unnecessary_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\levels\bunker_boss_level.dart:277:31 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\levels\bunker_boss_level.dart:580:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\levels\bunker_boss_level.dart:615:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\levels\bunker_boss_level.dart:666:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\levels\bunker_boss_level.dart:673:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\levels\bunker_boss_level.dart:684:31 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\levels\bunker_boss_level.dart:689:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\levels\bunker_boss_level.dart:755:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\levels\bunker_boss_level.dart:765:33 - deprecated_member_use
+   info - The private field _initialEnemyCount could be 'final' - lib\game\levels\exterior_map_level.dart:25:7 - prefer_final_fields
+   info - The private field _postKohaaDelay could be 'final' - lib\game\levels\exterior_map_level.dart:32:10 - prefer_final_fields
+warning - The declaration '_setupEnemySpawner' isn't referenced - lib\game\levels\exterior_map_level.dart:346:16 - unused_element
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\levels\exterior_map_level.dart:546:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\levels\exterior_map_level.dart:556:30 - deprecated_member_use
+   info - Unnecessary 'this.' qualifier - lib\game\levels\exterior_map_level.dart:578:5 - unnecessary_this
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\levels\kohaa_test_level.dart:80:29 - deprecated_member_use
+  error - Undefined name 'PlayerRole' - lib\game\levels\kohaa_test_level.dart:150:39 - undefined_identifier
+  error - The method 'RectangleHitbox' isn't defined for the type '_Wall' - lib\game\levels\kohaa_test_level.dart:286:9 - undefined_method
+  error - Undefined name 'CollisionType' - lib\game\levels\kohaa_test_level.dart:286:44 - undefined_identifier
+   info - The imported package 'tiled' isn't a dependency of the importing package - lib\game\systems\map_loader.dart:4:8 - depend_on_referenced_packages
+   info - Don't invoke 'print' in production code - lib\game\systems\map_loader.dart:77:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\game\systems\map_loader.dart:87:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\game\systems\map_loader.dart:90:7 - avoid_print
+   info - Parameter 'key' could be a super parameter - lib\game\ui\dynamic_joystick_overlay.dart:9:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\dynamic_joystick_overlay.dart:90:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\dynamic_joystick_overlay.dart:92:58 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\dynamic_joystick_overlay.dart:106:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\dynamic_joystick_overlay.dart:110:43 - deprecated_member_use
+warning - Unused import: '../models/player_role.dart' - lib\game\ui\game_hud.dart:5:8 - unused_import
+warning - Unused import: 'package:flutter/foundation.dart' - lib\game\ui\game_hud.dart:10:8 - unused_import
+   info - Unnecessary override - lib\game\ui\game_hud.dart:34:8 - unnecessary_overrides
+warning - The declaration '_drawWeaponHotbar' isn't referenced - lib\game\ui\game_hud.dart:45:8 - unused_element
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_hud.dart:66:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_hud.dart:67:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_hud.dart:73:61 - deprecated_member_use
+warning - The declaration '_drawLivesCounter' isn't referenced - lib\game\ui\game_hud.dart:132:8 - unused_element
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_hud.dart:150:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_hud.dart:220:32 - deprecated_member_use
+warning - The declaration '_drawHealthBar' isn't referenced - lib\game\ui\game_hud.dart:252:8 - unused_element
+warning - The declaration '_drawCooldownBar' isn't referenced - lib\game\ui\game_hud.dart:294:8 - unused_element
+warning - The declaration '_drawResurrectionCounter' isn't referenced - lib\game\ui\game_hud.dart:321:8 - unused_element
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_hud.dart:341:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_hud.dart:342:27 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_hud.dart:366:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_hud.dart:412:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_hud.dart:474:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_hud.dart:560:31 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_hud.dart:618:31 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_hud.dart:684:29 - deprecated_member_use
+   info - Parameter 'key' could be a super parameter - lib\game\ui\game_over_with_advice.dart:9:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_over_with_advice.dart:85:27 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_over_with_advice.dart:124:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_over_with_advice.dart:126:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_over_with_advice.dart:131:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_over_with_advice.dart:145:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_over_with_advice.dart:147:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_over_with_advice.dart:152:45 - deprecated_member_use
+warning - Unused import: 'package:flame/game.dart' - lib\game\ui\game_ui.dart:10:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:135:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:137:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:172:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:174:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:200:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:209:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:235:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:241:57 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:266:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:268:57 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:296:26 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:298:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:521:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:524:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:525:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:531:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:543:62 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:574:24 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:575:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:578:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:624:57 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:631:34 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:651:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:705:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\game_ui.dart:707:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\mission_notification.dart:52:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\mission_notification.dart:63:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\mission_notification.dart:84:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\game\ui\mission_notification.dart:108:31 - deprecated_member_use
+warning - Unused import: 'narrative/screens/menu_screen.dart' - lib\main.dart:6:8 - unused_import
+   info - Parameter 'key' could be a super parameter - lib\main.dart:34:9 - use_super_parameters
+   info - Parameter 'key' could be a super parameter - lib\main.dart:49:9 - use_super_parameters
+   info - Parameter 'key' could be a super parameter - lib\main.dart:99:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:107:27 - deprecated_member_use
+   info - Don't invoke 'print' in production code - lib\narrative\components\animated_sprite.dart:33:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\animated_sprite.dart:34:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\animated_sprite.dart:35:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\animated_sprite.dart:36:5 - avoid_print
+   info - Unnecessary braces in a string interpolation - lib\narrative\components\animated_sprite.dart:36:29 - unnecessary_brace_in_string_interps
+   info - Don't invoke 'print' in production code - lib\narrative\components\animated_sprite.dart:37:5 - avoid_print
+   info - Unnecessary braces in a string interpolation - lib\narrative\components\animated_sprite.dart:37:38 - unnecessary_brace_in_string_interps
+   info - Parameter 'key' could be a super parameter - lib\narrative\components\animated_sprite.dart:120:9 - use_super_parameters
+   info - Parameter 'key' could be a super parameter - lib\narrative\components\animated_tree.dart:11:9 - use_super_parameters
+   info - The private field _currentFrame could be 'final' - lib\narrative\components\animated_tree.dart:23:7 - prefer_final_fields
+warning - The value of the field '_totalFrames' isn't used - lib\narrative\components\animated_tree.dart:26:20 - unused_field
+warning - The value of the field '_frameDuration' isn't used - lib\narrative\components\animated_tree.dart:27:23 - unused_field
+   info - Parameter 'key' could be a super parameter - lib\narrative\components\automatic_door_widget.dart:11:9 - use_super_parameters
+   info - Don't invoke 'print' in production code - lib\narrative\components\automatic_door_widget.dart:46:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\automatic_door_widget.dart:55:11 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\automatic_door_widget.dart:59:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\automatic_door_widget.dart:71:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\automatic_door_widget.dart:83:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\automatic_door_widget.dart:90:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\automatic_door_widget.dart:96:9 - avoid_print
+   info - Parameter 'key' could be a super parameter - lib\narrative\components\dialogue_box.dart:11:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\dialogue_box.dart:110:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\dialogue_box.dart:113:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\dialogue_box.dart:114:34 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\dialogue_box.dart:119:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\dialogue_box.dart:134:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\dialogue_box.dart:136:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\dialogue_box.dart:141:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\dialogue_box.dart:208:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\dialogue_box.dart:215:54 - deprecated_member_use
+   info - Parameter 'key' could be a super parameter - lib\narrative\components\dialogue_system.dart:10:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\dialogue_system.dart:137:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\dialogue_system.dart:138:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\dialogue_system.dart:194:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\dialogue_system.dart:196:60 - deprecated_member_use
+warning - Unused import: 'animated_tree.dart' - lib\narrative\components\interactable_object.dart:7:8 - unused_import
+   info - Parameter 'key' could be a super parameter - lib\narrative\components\interactable_object.dart:16:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\interactable_object.dart:68:63 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\interactable_object.dart:116:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\interactable_object.dart:148:27 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\interactable_object.dart:149:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\interactable_object.dart:162:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\interactable_object.dart:201:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\interactable_object.dart:205:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\interactable_object.dart:207:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\interactable_object.dart:209:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\interactable_object.dart:211:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\interactable_object.dart:215:29 - deprecated_member_use
+   info - Parameter 'key' could be a super parameter - lib\narrative\components\interactable_object.dart:276:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\interactable_object.dart:286:29 - deprecated_member_use
+   info - Parameter 'key' could be a super parameter - lib\narrative\components\skip_button.dart:10:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\skip_button.dart:38:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\components\skip_button.dart:39:34 - deprecated_member_use
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:72:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:76:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:97:17 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:107:17 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:119:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:123:11 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:127:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:132:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:139:11 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:149:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:150:7 - avoid_print
+   info - Parameter 'key' could be a super parameter - lib\narrative\components\wall_widget.dart:12:9 - use_super_parameters
+   info - Parameter 'key' could be a super parameter - lib\narrative\screens\bunker_scene.dart:25:9 - use_super_parameters
+   info - Statements in an if should be enclosed in a block - lib\narrative\screens\bunker_scene.dart:291:19 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\narrative\screens\bunker_scene.dart:330:7 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\narrative\screens\bunker_scene.dart:333:7 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\narrative\screens\bunker_scene.dart:336:7 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\narrative\screens\bunker_scene.dart:339:7 - curly_braces_in_flow_control_structures
+   info - Don't invoke 'print' in production code - lib\narrative\screens\bunker_scene.dart:441:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\screens\bunker_scene.dart:460:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\screens\bunker_scene.dart:480:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\screens\bunker_scene.dart:500:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\screens\bunker_scene.dart:520:9 - avoid_print
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:572:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:595:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:757:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:762:44 - deprecated_member_use
+   info - Unnecessary instance of 'Container' - lib\narrative\screens\bunker_scene.dart:1036:18 - avoid_unnecessary_containers
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1128:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1161:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1162:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1169:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1256:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1258:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1282:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1309:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1312:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1325:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1329:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1353:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1358:53 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1394:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1397:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1402:49 - deprecated_member_use
+   info - Statements in an if should be enclosed in a block - lib\narrative\screens\bunker_scene.dart:1440:7 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\narrative\screens\bunker_scene.dart:1442:7 - curly_braces_in_flow_control_structures
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1665:67 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1690:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\bunker_scene.dart:1719:30 - deprecated_member_use
+   info - Parameter 'key' could be a super parameter - lib\narrative\screens\house_scene.dart:22:9 - use_super_parameters
+warning - The value of the field '_stairsDownSprite' isn't used - lib\narrative\screens\house_scene.dart:67:19 - unused_field
+   info - Don't invoke 'print' in production code - lib\narrative\screens\house_scene.dart:127:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\screens\house_scene.dart:140:7 - avoid_print
+warning - The declaration '_buildBottomEntranceWalls' isn't referenced - lib\narrative\screens\house_scene.dart:1459:16 - unused_element
+   info - Unnecessary instance of 'Container' - lib\narrative\screens\house_scene.dart:1948:18 - avoid_unnecessary_containers
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2247:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2277:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2278:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2285:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2367:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2369:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2390:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2414:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2416:64 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2427:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2431:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2470:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2473:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2478:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2718:67 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2735:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2801:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2803:44 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2808:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene.dart:2818:46 - deprecated_member_use
+   info - Parameter 'key' could be a super parameter - lib\narrative\screens\house_scene_backup.dart:14:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene_backup.dart:644:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene_backup.dart:683:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene_backup.dart:719:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\house_scene_backup.dart:737:27 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\login_screen.dart:95:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\login_screen.dart:97:59 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\login_screen.dart:180:34 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\login_screen.dart:181:34 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\login_screen.dart:366:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\login_screen.dart:371:42 - deprecated_member_use
+warning - Unused import: 'house_scene.dart' - lib\narrative\screens\menu_screen.dart:7:8 - unused_import
+warning - Unused import: 'bunker_scene.dart' - lib\narrative\screens\menu_screen.dart:8:8 - unused_import
+   info - Parameter 'key' could be a super parameter - lib\narrative\screens\menu_screen.dart:15:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\menu_screen.dart:140:34 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\menu_screen.dart:166:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\menu_screen.dart:277:69 - deprecated_member_use
+   info - Parameter 'key' could be a super parameter - lib\narrative\screens\menu_screen.dart:348:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\menu_screen.dart:442:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\menu_screen.dart:447:41 - deprecated_member_use
+   info - Parameter 'key' could be a super parameter - lib\narrative\screens\menu_screen.dart:519:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\menu_screen.dart:542:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\menu_screen.dart:560:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\menu_screen.dart:574:34 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\menu_screen.dart:626:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\menu_screen.dart:691:44 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\menu_screen.dart:696:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\menu_screen.dart:699:36 - deprecated_member_use
+   info - Parameter 'key' could be a super parameter - lib\narrative\screens\role_selection_screen.dart:12:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\role_selection_screen.dart:54:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\role_selection_screen.dart:64:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\role_selection_screen.dart:125:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\role_selection_screen.dart:267:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\role_selection_screen.dart:271:34 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\role_selection_screen.dart:278:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\role_selection_screen.dart:303:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\role_selection_screen.dart:318:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\role_selection_screen.dart:330:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\role_selection_screen.dart:332:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\role_selection_screen.dart:384:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\role_selection_screen.dart:387:26 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\role_selection_screen.dart:396:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\role_selection_screen.dart:430:33 - deprecated_member_use
+   info - Parameter 'key' could be a super parameter - lib\narrative\screens\story_screen.dart:9:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\story_screen.dart:62:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\story_screen.dart:219:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\story_screen.dart:254:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\story_screen.dart:274:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\story_screen.dart:294:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\narrative\screens\story_screen.dart:399:39 - deprecated_member_use
+warning - Unused import: 'tree_generator.dart' - lib\narrative\systems\bunker_room_manager.dart:5:8 - unused_import
+   info - Unnecessary 'const' keyword - lib\narrative\systems\bunker_room_manager.dart:378:15 - unnecessary_const
+warning - Unused import: 'package:flutter/material.dart' - lib\narrative\systems\tree_generator.dart:2:8 - unused_import
+warning - The declaration '_createTree' isn't referenced - lib\narrative\systems\tree_generator.dart:68:27 - unused_element
+warning - The asset directory 'assets/sprites/objects/' doesn't exist - pubspec.yaml:76:7 - asset_directory_does_not_exist
+

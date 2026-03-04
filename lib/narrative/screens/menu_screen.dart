@@ -4,15 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:video_player/video_player.dart';
-import 'house_scene.dart';
-import 'bunker_scene.dart';
 import 'story_screen.dart';
 import 'login_screen.dart';
 import '../../game/audio_manager.dart';
 
 /// Pantalla del menú principal con efectos visuales avanzados
 class MenuScreen extends StatefulWidget {
-  const MenuScreen({Key? key}) : super(key: key);
+  const MenuScreen({super.key});
 
   @override
   State<MenuScreen> createState() => _MenuScreenState();
@@ -57,7 +55,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
     _videoController.addListener(() {
       // Forzar reconstrucción si hay errores o cambios de estado críticos
       if (_videoController.value.hasError) {
-        debugPrint('❌ Video Error: ${_videoController.value.errorDescription}');
+        debugPrint('âŒ Video Error: ${_videoController.value.errorDescription}');
       }
     });
 
@@ -137,7 +135,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                   radius: 1.0,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.8), // Bordes oscuros
+                    Colors.black.withValues(alpha: 0.8), // Bordes oscuros
                   ],
                   stops: const [0.4, 1.0],
                 ),
@@ -163,7 +161,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
           // 4. CAPA DE OSCURECIMIENTO (Overlay general)
           Positioned.fill(
             child: Container(
-              color: Colors.black.withOpacity(0.4),
+              color: Colors.black.withValues(alpha: 0.4),
             ),
           ),
 
@@ -274,7 +272,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
-                                      backgroundColor: Colors.black.withOpacity(0.9), // Fondo oscuro
+                                      backgroundColor: Colors.black.withValues(alpha: 0.9), // Fondo oscuro
                                       shape: RoundedRectangleBorder(
                                         side: const BorderSide(color: Colors.redAccent, width: 1),
                                         borderRadius: BorderRadius.circular(8),
@@ -345,7 +343,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
 /// Widget wrapper para efecto de sangrado goteante (Estilo Referencia)
 class BleedingTitleWrapper extends StatefulWidget {
   final Widget child;
-  const BleedingTitleWrapper({Key? key, required this.child}) : super(key: key);
+  const BleedingTitleWrapper({super.key, required this.child});
 
   @override
   State<BleedingTitleWrapper> createState() => _BleedingTitleWrapperState();
@@ -439,12 +437,12 @@ class DrippingBloodPainter extends CustomPainter {
     
     // Pintura para el brillo interior (highlight)
     final highlightPaint = Paint()
-      ..color = const Color(0xFFFF4D4D).withOpacity(0.6)
+      ..color = const Color(0xFFFF4D4D).withValues(alpha: 0.6)
       ..style = PaintingStyle.fill;
 
     // Pintura para la sombra/resplandor externo
     final glowPaint = Paint()
-      ..color = const Color(0xFF800000).withOpacity(0.5)
+      ..color = const Color(0xFF800000).withValues(alpha: 0.5)
       ..style = PaintingStyle.fill
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6.0);
 
@@ -517,11 +515,11 @@ class VHSGlitchTitle extends StatelessWidget {
   final bool isGlitching;
 
   const VHSGlitchTitle({
-    Key? key,
+    super.key,
     required this.text,
     required this.fontSize,
     required this.isGlitching,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -539,7 +537,7 @@ class VHSGlitchTitle extends StatelessWidget {
           height: 1.1,
           shadows: [
             Shadow(
-              color: Colors.black.withOpacity(0.8),
+              color: Colors.black.withValues(alpha: 0.8),
               offset: const Offset(2, 2),
               blurRadius: 4,
             ),
@@ -557,7 +555,7 @@ class VHSGlitchTitle extends StatelessWidget {
           child: Text(
             text,
             style: GoogleFonts.specialElite(
-              color: Colors.red.withOpacity(0.8),
+              color: Colors.red.withValues(alpha: 0.8),
               fontSize: fontSize,
               fontWeight: FontWeight.bold,
               letterSpacing: 8,
@@ -571,7 +569,7 @@ class VHSGlitchTitle extends StatelessWidget {
           child: Text(
             text,
             style: GoogleFonts.specialElite(
-              color: Colors.blue.withOpacity(0.8),
+              color: Colors.blue.withValues(alpha: 0.8),
               fontSize: fontSize,
               fontWeight: FontWeight.bold,
               letterSpacing: 8,
@@ -623,7 +621,7 @@ class RainPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.15) // Blanco semitransparente
+      ..color = Colors.white.withValues(alpha: 0.15) // Blanco semitransparente
       ..strokeWidth = 1.5
       ..strokeCap = StrokeCap.round;
 
@@ -688,15 +686,15 @@ class _MenuButtonState extends State<_MenuButton> {
         // ROJO al presionar
         borderColor = Colors.redAccent;
         textColor = Colors.redAccent;
-        backgroundColor = Colors.redAccent.withOpacity(0.2);
+        backgroundColor = Colors.redAccent.withValues(alpha: 0.2);
       } else if (_isHovered) {
         // AMARILLO al pasar el mouse
         borderColor = Colors.yellow;
         textColor = Colors.yellow;
-        backgroundColor = Colors.yellow.withOpacity(0.1);
+        backgroundColor = Colors.yellow.withValues(alpha: 0.1);
       } else {
         // BLANCO normal
-        borderColor = Colors.white.withOpacity(0.5);
+        borderColor = Colors.white.withValues(alpha: 0.5);
         textColor = Colors.white;
       }
     }
@@ -735,3 +733,4 @@ class _MenuButtonState extends State<_MenuButton> {
     );
   }
 }
+

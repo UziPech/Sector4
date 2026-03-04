@@ -44,7 +44,7 @@ class RoomManager {
           size: const Vector2(50, 100),
           spritePath: 'assets/images/grandfather_clock.png',
         ),
-        
+
         // Sofá - Zona norte de la sala (al lado de puerta central)
         InteractableData(
           id: 'sofa',
@@ -58,15 +58,24 @@ class RoomManager {
       doors: [
         const DoorData(
           id: 'door_to_study',
-          position: Vector2(45, 0), // Torre izquierda - ajustado al punto medio (45)
+          position: Vector2(
+            45,
+            0,
+          ), // Torre izquierda - ajustado al punto medio (45)
           size: Vector2(46, 18),
           targetRoomId: 'study',
           label: 'Estudio',
-          targetSpawnPosition: Vector2(300, 250), // Dentro del nuevo estudio (altura 320)
+          targetSpawnPosition: Vector2(
+            300,
+            250,
+          ), // Dentro del nuevo estudio (altura 320)
         ),
         const DoorData(
           id: 'door_center',
-          position: Vector2(327, 102), // Centro - pared del fondo del hueco en U
+          position: Vector2(
+            327,
+            102,
+          ), // Centro - pared del fondo del hueco en U
           size: Vector2(46, 18),
           targetRoomId: 'emma_room',
           label: 'Habitación Emma',
@@ -78,7 +87,10 @@ class RoomManager {
           size: Vector2(46, 18),
           targetRoomId: 'emma_room',
           label: 'Habitación Emma',
-          targetSpawnPosition: Vector2(300, 750), // Spawn cerca de la puerta sur
+          targetSpawnPosition: Vector2(
+            300,
+            750,
+          ), // Spawn cerca de la puerta sur
         ),
       ],
     );
@@ -99,7 +111,7 @@ class RoomManager {
           type: InteractableType.furniture,
           position: const Vector2(200, 200),
           size: const Vector2(92, 70),
-          spritePath: 'assets/sprites/objects/desk.png',
+          // spritePath: 'assets/sprites/objects/desk.png',
           dialogue: DialogueSequence(
             id: 'emma_desk_dialogue',
             dialogues: [
@@ -111,23 +123,23 @@ class RoomManager {
             ],
           ),
         ),
-        
+
         InteractableData(
           id: 'emma_bed',
           name: 'Cama de Emma',
           type: InteractableType.furniture,
           position: const Vector2(400, 200),
           size: const Vector2(100, 120),
-          spritePath: 'assets/sprites/objects/bed.png',
+          // spritePath: 'assets/sprites/objects/bed.png',
         ),
-        
+
         InteractableData(
           id: 'furniture_1',
           name: 'Mueble 1',
           type: InteractableType.furniture,
           position: const Vector2(145, 10),
           size: const Vector2(144, 144),
-          spritePath: 'assets/sprites/objects/furniture_1.png',
+          // spritePath: 'assets/sprites/objects/furniture_1.png',
         ),
         InteractableData(
           id: 'furniture_2',
@@ -135,7 +147,7 @@ class RoomManager {
           type: InteractableType.furniture,
           position: const Vector2(285, 10),
           size: const Vector2(44, 144),
-          spritePath: 'assets/sprites/objects/furniture_2.png',
+          // spritePath: 'assets/sprites/objects/furniture_2.png',
         ),
         InteractableData(
           id: 'furniture_3',
@@ -143,9 +155,9 @@ class RoomManager {
           type: InteractableType.furniture,
           position: const Vector2(530, 10),
           size: const Vector2(60, 80),
-          spritePath: 'assets/sprites/objects/furniture_3.png',
+          // spritePath: 'assets/sprites/objects/furniture_3.png',
         ),
-        
+
         // Sofá - Zona norte de la habitación
         InteractableData(
           id: 'emma_sofa',
@@ -163,7 +175,7 @@ class RoomManager {
           type: InteractableType.photo,
           position: const Vector2(50, 320),
           size: const Vector2(80, 60),
-          spritePath: 'assets/sprites/objects/photos.png',
+          // spritePath: 'assets/sprites/objects/photos.png',
           dialogue: DialogueSequence(
             id: 'emma_photos_dialogue',
             dialogues: [
@@ -194,8 +206,14 @@ class RoomManager {
       name: 'Estudio',
       type: RoomType.study,
       backgroundColor: const Color(0xFF1C1C28),
-      playerSpawnPosition: const Vector2(325, 200), // Ajustado para nueva altura
-      roomSize: const Size(650, 320), // Reducido a rectángulo (sin la extensión L)
+      playerSpawnPosition: const Vector2(
+        325,
+        200,
+      ), // Ajustado para nueva altura
+      roomSize: const Size(
+        650,
+        320,
+      ), // Reducido a rectángulo (sin la extensión L)
       shape: RoomShape.rectangle, // Cambiado a rectángulo
       interactables: [
         InteractableData(
@@ -225,7 +243,7 @@ class RoomManager {
             ],
           ),
         ),
-        
+
         // Sofá - Zona norte del estudio
         InteractableData(
           id: 'study_sofa',

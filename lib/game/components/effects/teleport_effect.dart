@@ -1,4 +1,4 @@
-import 'dart:math';
+﻿import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../expediente_game.dart';
@@ -53,7 +53,7 @@ class TeleportEffect extends PositionComponent
     
     // Círculo principal (negro/rojo)
     final mainPaint = Paint()
-      ..color = Colors.black.withOpacity(opacity)
+      ..color = Colors.black.withValues(alpha: opacity)
       ..style = PaintingStyle.fill;
     
     canvas.drawCircle(
@@ -64,7 +64,7 @@ class TeleportEffect extends PositionComponent
     
     // Anillo rojo exterior
     final ringPaint = Paint()
-      ..color = Colors.red.withOpacity(opacity * 0.6)
+      ..color = Colors.red.withValues(alpha: opacity * 0.6)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
     
@@ -76,7 +76,7 @@ class TeleportEffect extends PositionComponent
     
     // Partículas de sombra (pequeños círculos)
     final particlePaint = Paint()
-      ..color = Colors.grey.withOpacity(opacity * 0.4)
+      ..color = Colors.grey.withValues(alpha: opacity * 0.4)
       ..style = PaintingStyle.fill;
     
     for (int i = 0; i < 8; i++) {
@@ -93,3 +93,4 @@ class TeleportEffect extends PositionComponent
     }
   }
 }
+

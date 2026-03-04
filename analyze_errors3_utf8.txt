@@ -1,0 +1,202 @@
+﻿Analyzing Sector4...                                            
+
+   info - Parameters ''name', 'damage', and 'cooldown'' could be super parameters - lib\combat\mutant_hand_weapon.dart:23:3 - use_super_parameters
+   info - Don't invoke 'print' in production code - lib\combat\mutant_hand_weapon.dart:74:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\combat\mutant_hand_weapon.dart:91:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\combat\mutant_hand_weapon.dart:108:9 - avoid_print
+   info - The private field _lifetime could be 'final' - lib\combat\mutant_hand_weapon.dart:168:10 - prefer_final_fields
+   info - The private field _lifetime could be 'final' - lib\combat\mutant_hand_weapon.dart:222:10 - prefer_final_fields
+   info - The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\combat\weapon_system.dart:1:8 - unnecessary_import
+   info - The import of 'package:flame/game.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flame/components.dart' - lib\combat\weapon_system.dart:3:8 - unnecessary_import
+   info - Don't invoke 'print' in production code - lib\combat\weapon_system.dart:106:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\combat\weapon_system.dart:115:9 - avoid_print
+   info - The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\components\bullet.dart:2:8 - unnecessary_import
+   info - The import of 'package:flame/palette.dart' is unnecessary because all of the used elements are also provided by the import of 'dart:ui' - lib\components\bullet.dart:6:8 - unnecessary_import
+warning - Unused import: 'character_component.dart' - lib\components\bullet.dart:9:8 - unused_import
+   info - Don't invoke 'print' in production code - lib\components\bullet.dart:255:11 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\bullet.dart:267:11 - avoid_print
+   info - The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\components\enemy_character.dart:2:8 - unnecessary_import
+warning - Duplicate import - lib\components\enemy_character.dart:14:8 - duplicate_import
+warning - The value of the field '_originalTint' isn't used - lib\components\enemy_character.dart:129:15 - unused_field
+warning - The value of the field '_lastPlayerUpdateTime' isn't used - lib\components\enemy_character.dart:141:10 - unused_field
+   info - The private field _circlingDirection could be 'final' - lib\components\enemy_character.dart:181:7 - prefer_final_fields
+warning - The value of the field '_recentDamage' isn't used - lib\components\enemy_character.dart:184:10 - unused_field
+warning - The value of the field '_detectionPaint' isn't used - lib\components\enemy_character.dart:191:20 - unused_field
+warning - The declaration '_getFlankingPosition' isn't referenced - lib\components\enemy_character.dart:283:11 - unused_element
+warning - The declaration '_startDash' isn't referenced - lib\components\enemy_character.dart:749:8 - unused_element
+warning - The value of the field '_random' isn't used - lib\components\infinite_world.dart:110:21 - unused_field
+   info - Invalid use of a private type in a public API - lib\components\particle_effect.dart:10:14 - library_private_types_in_public_api
+   info - The import of 'package:flame/palette.dart' is unnecessary because all of the used elements are also provided by the import of 'dart:ui' - lib\components\stalker_enemy.dart:4:8 - unnecessary_import
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:92:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:101:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:136:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:137:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:138:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:139:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:140:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:161:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:162:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:163:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:164:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:280:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:281:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:282:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:283:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:344:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:346:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:509:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:548:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:602:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:606:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:613:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:621:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:626:11 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:635:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:649:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\components\stalker_enemy.dart:840:5 - avoid_print
+   info - The import of 'package:audioplayers/audioplayers.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flame_audio/flame_audio.dart' - lib\game\audio_manager.dart:3:8 - unnecessary_import
+   info - The imported package 'audioplayers' isn't a dependency of the importing package - lib\game\audio_manager.dart:3:8 - depend_on_referenced_packages
+warning - Unused import: '../enemies/yurei_kohaa.dart' - lib\game\components\bosses\on_oyabun_boss.dart:7:8 - unused_import
+warning - The '!' will have no effect because the receiver can't be null - lib\game\components\bosses\on_oyabun_boss.dart:647:32 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null - lib\game\components\bosses\on_oyabun_boss.dart:649:52 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null - lib\game\components\bosses\on_oyabun_boss.dart:653:16 - unnecessary_non_null_assertion
+warning - The declaration '_startCombo' isn't referenced - lib\game\components\bosses\on_oyabun_boss.dart:1098:8 - unused_element
+warning - The value of the local variable 'player' isn't used - lib\game\components\bosses\on_oyabun_boss.dart:1140:11 - unused_local_variable
+warning - The declaration '_startDuelStance' isn't referenced - lib\game\components\bosses\on_oyabun_boss.dart:1323:8 - unused_element
+warning - The value of the local variable 'offsetY' isn't used - lib\game\components\bosses\on_oyabun_boss.dart:1513:15 - unused_local_variable
+   info - Unnecessary braces in a string interpolation - lib\game\components\bosses\on_oyabun_boss.dart:1730:25 - unnecessary_brace_in_string_interps
+   info - The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\game\components\effects\explosive_wave.dart:1:8 - unnecessary_import
+   info - The private field _lifetime could be 'final' - lib\game\components\effects\kijin_resurrection_effect.dart:8:10 - prefer_final_fields
+warning - Unused import: 'dart:math' - lib\game\components\enemies\allied_enemy.dart:1:8 - unused_import
+warning - Unused import: 'dart:math' - lib\game\components\enemies\irracional.dart:1:8 - unused_import
+warning - Unused import: 'dart:math' - lib\game\components\enemies\minions\yakuza_ghost.dart:1:8 - unused_import
+   info - The private field _dashPreparationTime could be 'final' - lib\game\components\enemies\redeemed_kijin_ally.dart:34:10 - prefer_final_fields
+   info - The private field _dashDuration could be 'final' - lib\game\components\enemies\redeemed_kijin_ally.dart:36:10 - prefer_final_fields
+   info - The private field _separationRadius could be 'final' - lib\game\components\enemies\redeemed_kijin_ally.dart:42:10 - prefer_final_fields
+   info - The private field _tacticalTimer could be 'final' - lib\game\components\enemies\redeemed_kijin_ally.dart:48:10 - prefer_final_fields
+warning - The value of the field '_tacticalTimer' isn't used - lib\game\components\enemies\redeemed_kijin_ally.dart:48:10 - unused_field
+warning - The value of the field '_tacticalInterval' isn't used - lib\game\components\enemies\redeemed_kijin_ally.dart:49:16 - unused_field
+warning - The value of the field '_currentTactic' isn't used - lib\game\components\enemies\redeemed_kijin_ally.dart:50:10 - unused_field
+   info - The private field _tacticalExplosionCooldown could be 'final' - lib\game\components\enemies\redeemed_kijin_ally.dart:64:10 - prefer_final_fields
+warning - Unnecessary type check; the result is always 'false' - lib\game\components\enemies\redeemed_kijin_ally.dart:427:27 - unnecessary_type_check
+warning - Unnecessary cast - lib\game\components\enemies\redeemed_kijin_ally.dart:429:45 - unnecessary_cast
+warning - The value of the local variable 'enemiesHit' isn't used - lib\game\components\enemies\redeemed_kijin_ally.dart:629:9 - unused_local_variable
+   info - The private field _dashPreparationTime could be 'final' - lib\game\components\enemies\yurei_kohaa.dart:30:10 - prefer_final_fields
+   info - The private field _dashDuration could be 'final' - lib\game\components\enemies\yurei_kohaa.dart:32:10 - prefer_final_fields
+   info - The private field _canRegenerate could be 'final' - lib\game\components\enemies\yurei_kohaa.dart:44:8 - prefer_final_fields
+warning - The value of the field '_canRegenerate' isn't used - lib\game\components\enemies\yurei_kohaa.dart:44:8 - unused_field
+   info - The private field _regenerationCooldown could be 'final' - lib\game\components\enemies\yurei_kohaa.dart:45:10 - prefer_final_fields
+warning - The value of the field '_regenerationCooldown' isn't used - lib\game\components\enemies\yurei_kohaa.dart:45:10 - unused_field
+warning - The value of the field '_dashIndicatorPaint' isn't used - lib\game\components\enemies\yurei_kohaa.dart:89:20 - unused_field
+warning - The value of the local variable 'remaining' isn't used - lib\game\components\enemies\yurei_kohaa.dart:416:17 - unused_local_variable
+   info - The private field _healCooldown could be 'final' - lib\game\components\mel.dart:24:10 - prefer_final_fields
+warning - Unused import: 'dart:ui' - lib\game\components\player.dart:1:8 - unused_import
+warning - Unused import: '../audio_manager.dart' - lib\game\components\player.dart:16:8 - unused_import
+   info - The private field _dashPreparationTime could be 'final' - lib\game\components\player.dart:67:10 - prefer_final_fields
+   info - The private field _dashDuration could be 'final' - lib\game\components\player.dart:69:10 - prefer_final_fields
+   info - The member 'health' overrides an inherited member but isn't annotated with '@override' - lib\game\components\player.dart:77:14 - annotate_overrides
+   info - The member 'maxHealth' overrides an inherited member but isn't annotated with '@override' - lib\game\components\player.dart:78:14 - annotate_overrides
+   info - The member 'isDead' overrides an inherited member but isn't annotated with '@override' - lib\game\components\player.dart:79:12 - annotate_overrides
+   info - Don't invoke 'print' in production code - lib\game\components\player.dart:258:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\game\components\player.dart:655:7 - avoid_print
+   info - The member 'heal' overrides an inherited member but isn't annotated with '@override' - lib\game\components\player.dart:670:8 - annotate_overrides
+   info - The private field _lifetime could be 'final' - lib\game\components\player.dart:760:10 - prefer_final_fields
+warning - Unused import: 'dart:math' - lib\game\components\projectiles\falling_katana.dart:1:8 - unused_import
+warning - Unused import: '../player.dart' - lib\game\components\projectiles\falling_katana.dart:5:8 - unused_import
+warning - The value of the local variable 'companionName' isn't used - lib\game\expediente_game.dart:289:11 - unused_local_variable
+   info - The import of 'package:flame/palette.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\game\levels\bunker_boss_level.dart:2:8 - unnecessary_import
+   info - The private field _initialEnemyCount could be 'final' - lib\game\levels\exterior_map_level.dart:25:7 - prefer_final_fields
+   info - The private field _postKohaaDelay could be 'final' - lib\game\levels\exterior_map_level.dart:32:10 - prefer_final_fields
+warning - The declaration '_setupEnemySpawner' isn't referenced - lib\game\levels\exterior_map_level.dart:346:16 - unused_element
+   info - Unnecessary 'this.' qualifier - lib\game\levels\exterior_map_level.dart:578:5 - unnecessary_this
+warning - Unused import: '../components/player.dart' - lib\game\levels\kohaa_test_level.dart:8:8 - unused_import
+   info - The imported package 'tiled' isn't a dependency of the importing package - lib\game\systems\map_loader.dart:4:8 - depend_on_referenced_packages
+   info - Don't invoke 'print' in production code - lib\game\systems\map_loader.dart:77:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\game\systems\map_loader.dart:87:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\game\systems\map_loader.dart:90:7 - avoid_print
+   info - Parameter 'key' could be a super parameter - lib\game\ui\dynamic_joystick_overlay.dart:9:9 - use_super_parameters
+warning - Unused import: '../models/player_role.dart' - lib\game\ui\game_hud.dart:5:8 - unused_import
+warning - Unused import: 'package:flutter/foundation.dart' - lib\game\ui\game_hud.dart:10:8 - unused_import
+   info - Unnecessary override - lib\game\ui\game_hud.dart:34:8 - unnecessary_overrides
+warning - The declaration '_drawWeaponHotbar' isn't referenced - lib\game\ui\game_hud.dart:45:8 - unused_element
+warning - The declaration '_drawLivesCounter' isn't referenced - lib\game\ui\game_hud.dart:132:8 - unused_element
+warning - The declaration '_drawHealthBar' isn't referenced - lib\game\ui\game_hud.dart:252:8 - unused_element
+warning - The declaration '_drawCooldownBar' isn't referenced - lib\game\ui\game_hud.dart:294:8 - unused_element
+warning - The declaration '_drawResurrectionCounter' isn't referenced - lib\game\ui\game_hud.dart:321:8 - unused_element
+   info - Parameter 'key' could be a super parameter - lib\game\ui\game_over_with_advice.dart:9:9 - use_super_parameters
+warning - Unused import: 'package:flame/game.dart' - lib\game\ui\game_ui.dart:10:8 - unused_import
+warning - Unused import: 'narrative/screens/menu_screen.dart' - lib\main.dart:6:8 - unused_import
+   info - Parameter 'key' could be a super parameter - lib\main.dart:34:9 - use_super_parameters
+   info - Parameter 'key' could be a super parameter - lib\main.dart:49:9 - use_super_parameters
+   info - Parameter 'key' could be a super parameter - lib\main.dart:99:9 - use_super_parameters
+   info - Don't invoke 'print' in production code - lib\narrative\components\animated_sprite.dart:33:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\animated_sprite.dart:34:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\animated_sprite.dart:35:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\animated_sprite.dart:36:5 - avoid_print
+   info - Unnecessary braces in a string interpolation - lib\narrative\components\animated_sprite.dart:36:29 - unnecessary_brace_in_string_interps
+   info - Don't invoke 'print' in production code - lib\narrative\components\animated_sprite.dart:37:5 - avoid_print
+   info - Unnecessary braces in a string interpolation - lib\narrative\components\animated_sprite.dart:37:38 - unnecessary_brace_in_string_interps
+   info - Parameter 'key' could be a super parameter - lib\narrative\components\animated_sprite.dart:120:9 - use_super_parameters
+   info - Parameter 'key' could be a super parameter - lib\narrative\components\animated_tree.dart:11:9 - use_super_parameters
+   info - The private field _currentFrame could be 'final' - lib\narrative\components\animated_tree.dart:23:7 - prefer_final_fields
+warning - The value of the field '_totalFrames' isn't used - lib\narrative\components\animated_tree.dart:26:20 - unused_field
+warning - The value of the field '_frameDuration' isn't used - lib\narrative\components\animated_tree.dart:27:23 - unused_field
+   info - Parameter 'key' could be a super parameter - lib\narrative\components\automatic_door_widget.dart:11:9 - use_super_parameters
+   info - Don't invoke 'print' in production code - lib\narrative\components\automatic_door_widget.dart:46:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\automatic_door_widget.dart:55:11 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\automatic_door_widget.dart:59:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\automatic_door_widget.dart:71:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\automatic_door_widget.dart:83:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\automatic_door_widget.dart:90:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\automatic_door_widget.dart:96:9 - avoid_print
+   info - Parameter 'key' could be a super parameter - lib\narrative\components\dialogue_box.dart:11:9 - use_super_parameters
+   info - Parameter 'key' could be a super parameter - lib\narrative\components\dialogue_system.dart:10:9 - use_super_parameters
+warning - Unused import: 'animated_tree.dart' - lib\narrative\components\interactable_object.dart:7:8 - unused_import
+   info - Parameter 'key' could be a super parameter - lib\narrative\components\interactable_object.dart:16:9 - use_super_parameters
+   info - Parameter 'key' could be a super parameter - lib\narrative\components\interactable_object.dart:276:9 - use_super_parameters
+   info - Parameter 'key' could be a super parameter - lib\narrative\components\skip_button.dart:10:9 - use_super_parameters
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:72:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:76:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:97:17 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:107:17 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:119:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:123:11 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:127:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:132:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:139:11 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:149:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\components\skip_button.dart:150:7 - avoid_print
+   info - Parameter 'key' could be a super parameter - lib\narrative\components\wall_widget.dart:12:9 - use_super_parameters
+   info - Parameter 'key' could be a super parameter - lib\narrative\screens\bunker_scene.dart:25:9 - use_super_parameters
+   info - Statements in an if should be enclosed in a block - lib\narrative\screens\bunker_scene.dart:291:19 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\narrative\screens\bunker_scene.dart:330:7 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\narrative\screens\bunker_scene.dart:333:7 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\narrative\screens\bunker_scene.dart:336:7 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\narrative\screens\bunker_scene.dart:339:7 - curly_braces_in_flow_control_structures
+   info - Don't invoke 'print' in production code - lib\narrative\screens\bunker_scene.dart:441:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\screens\bunker_scene.dart:460:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\screens\bunker_scene.dart:480:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\screens\bunker_scene.dart:500:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\screens\bunker_scene.dart:520:9 - avoid_print
+   info - Unnecessary instance of 'Container' - lib\narrative\screens\bunker_scene.dart:1036:18 - avoid_unnecessary_containers
+   info - Statements in an if should be enclosed in a block - lib\narrative\screens\bunker_scene.dart:1440:7 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\narrative\screens\bunker_scene.dart:1442:7 - curly_braces_in_flow_control_structures
+   info - Parameter 'key' could be a super parameter - lib\narrative\screens\house_scene.dart:22:9 - use_super_parameters
+warning - The value of the field '_stairsDownSprite' isn't used - lib\narrative\screens\house_scene.dart:67:19 - unused_field
+   info - Don't invoke 'print' in production code - lib\narrative\screens\house_scene.dart:127:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\narrative\screens\house_scene.dart:140:7 - avoid_print
+warning - The declaration '_buildBottomEntranceWalls' isn't referenced - lib\narrative\screens\house_scene.dart:1459:16 - unused_element
+   info - Unnecessary instance of 'Container' - lib\narrative\screens\house_scene.dart:1948:18 - avoid_unnecessary_containers
+   info - Parameter 'key' could be a super parameter - lib\narrative\screens\house_scene_backup.dart:14:9 - use_super_parameters
+warning - Unused import: 'house_scene.dart' - lib\narrative\screens\menu_screen.dart:7:8 - unused_import
+warning - Unused import: 'bunker_scene.dart' - lib\narrative\screens\menu_screen.dart:8:8 - unused_import
+   info - Parameter 'key' could be a super parameter - lib\narrative\screens\menu_screen.dart:15:9 - use_super_parameters
+   info - Parameter 'key' could be a super parameter - lib\narrative\screens\menu_screen.dart:348:9 - use_super_parameters
+   info - Parameter 'key' could be a super parameter - lib\narrative\screens\menu_screen.dart:519:9 - use_super_parameters
+   info - Parameter 'key' could be a super parameter - lib\narrative\screens\role_selection_screen.dart:12:9 - use_super_parameters
+   info - Parameter 'key' could be a super parameter - lib\narrative\screens\story_screen.dart:9:9 - use_super_parameters
+warning - Unused import: 'tree_generator.dart' - lib\narrative\systems\bunker_room_manager.dart:5:8 - unused_import
+   info - Unnecessary 'const' keyword - lib\narrative\systems\bunker_room_manager.dart:378:15 - unnecessary_const
+warning - Unused import: 'package:flutter/material.dart' - lib\narrative\systems\tree_generator.dart:2:8 - unused_import
+warning - The declaration '_createTree' isn't referenced - lib\narrative\systems\tree_generator.dart:68:27 - unused_element
+

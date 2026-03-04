@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
@@ -19,7 +19,7 @@ import 'menu_screen.dart';
 
 /// Escena de la casa de Dan (Capítulo 1) - Con sistema de habitaciones
 class HouseScene extends StatefulWidget {
-  const HouseScene({Key? key}) : super(key: key);
+  const HouseScene({super.key});
 
   @override
   State<HouseScene> createState() => _HouseSceneState();
@@ -60,13 +60,11 @@ class _HouseSceneState extends State<HouseScene>
   late FocusNode _focusNode;
   Timer? _movementTimer;
 
-  // Animación de sprite
   AnimatedSprite? _danSprite;
   AnimatedSprite? _danSpriteNorth;
-  AnimatedSprite? _danSpriteSouth;
   AnimatedSprite? _doorSprite;
-  AnimatedSprite? _stairsDownSprite; // Nuevo sprite para escaleras
   String _currentDirection = 'SOUTH';
+  int _currentFrameOffset = 6; // Default to row 3 (South)
   int _currentFrame = 0;
   double _animationTimer = 0.0;
   static const double _frameRate = 0.15;
@@ -96,7 +94,7 @@ class _HouseSceneState extends State<HouseScene>
     );
 
     _loadDanSprite();
-    _showControlsMenu();
+    _showIntroDialogue();
     _startMovementLoop();
 
     // Iniciar música del capítulo
@@ -108,11 +106,13 @@ class _HouseSceneState extends State<HouseScene>
 
   Future<void> _loadDanSprite() async {
     try {
+      final spriteMain = await AnimatedSprite.load(
+        'assets/sprites/caminar_dan.png',
+        columns: 3,
+        rows: 3,
+      );
       final spriteNorth = await AnimatedSprite.load(
         'assets/sprites/dan_walk_north.png',
-      );
-      final spriteSouth = await AnimatedSprite.load(
-        'assets/sprites/dan_walk_south.png',
       );
       final doorSprite = await AnimatedSprite.load(
         'assets/images/doors_sprite_sheet.png',
@@ -120,29 +120,15 @@ class _HouseSceneState extends State<HouseScene>
         rows: 1,
       );
 
-      // Intentar cargar sprite de escaleras (si existe)
-      AnimatedSprite? stairsDown;
-      try {
-        stairsDown = await AnimatedSprite.load(
-          'assets/images/stairs_down.png',
-          columns: 1,
-          rows: 1,
-        );
-      } catch (e) {
-        print('Warning: stairs_down.png not found yet.');
-      }
-
       if (mounted) {
         setState(() {
+          _danSprite = spriteMain;
           _danSpriteNorth = spriteNorth;
-          _danSpriteSouth = spriteSouth;
-          _danSprite = spriteSouth;
           _doorSprite = doorSprite;
-          _stairsDownSprite = stairsDown;
         });
       }
     } catch (e) {
-      print('Error loading sprites: $e');
+      // print('Error loading sprites: $e');
     }
   }
 
@@ -189,209 +175,6 @@ class _HouseSceneState extends State<HouseScene>
           _checkInteractions();
         }
       }
-    });
-  }
-
-  void _showControlsMenu() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        _isPaused = true;
-      });
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) {
-          return Dialog(
-            backgroundColor: Colors.transparent,
-            insetPadding: const EdgeInsets.all(20),
-            child: Container(
-              width: 800,
-              height: 520,
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/wood_card_bg.png'),
-                  fit: BoxFit.fill,
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 120,
-                vertical: 60,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'CONTROLES DE JUEGO',
-                    style: TextStyle(
-                      color: Color(0xFFFFF9C4), // Light yellow/cream
-                      fontSize: 24,
-                      fontFamily: 'monospace',
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2,
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  _buildControlItem(
-                    Icons.games,
-                    'Movimiento',
-                    'Teclas W, A, S, D / Flechas / Joystick táctil',
-                  ),
-                  const SizedBox(height: 20),
-                  _buildControlItem(
-                    Icons.touch_app,
-                    'Interacción',
-                    'Acércate y presiona E o el botón táctil inferior',
-                  ),
-                  const SizedBox(height: 20),
-                  _buildControlItem(
-                    Icons.fast_forward,
-                    'Saltar Diálogos',
-                    'Presiona ESC para omitir conversaciones',
-                  ),
-                  const SizedBox(height: 20),
-                  _buildControlItem(
-                    Icons.settings,
-                    'Menú / Pausa',
-                    'Toca el ícono superior derecho',
-                  ),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      setState(() {
-                        _isPaused = false;
-                      });
-                      _showIntroDialogue();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4E342E), // Brown dark
-                      side: const BorderSide(
-                        color: Color(0xFF3E2723),
-                        width: 1.5,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 40,
-                        vertical: 15,
-                      ),
-                    ),
-                    child: const Text(
-                      'INICIAR MISIÓN',
-                      style: TextStyle(
-                        color: Color(0xFFFFECB3), // Light cream/yellowish
-                        fontSize: 16,
-                        fontFamily: 'monospace',
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
-    });
-  }
-
-  Widget _buildControlItem(IconData icon, String title, String desc) {
-    return Row(
-      children: [
-        Icon(icon, color: const Color(0xFFFFCC80), size: 32), // Light Orange
-        const SizedBox(width: 15),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Color(0xFFFFF59D), // Yellowish cream
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  fontFamily: 'monospace',
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                desc,
-                style: const TextStyle(
-                  color: Color(0xFFE0E0E0), // Light grey/white
-                  fontSize: 13,
-                  fontFamily: 'monospace',
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _showTutorialDialogue() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        _isDialogueActive = true;
-      });
-      DialogueOverlay.show(
-        context,
-        DialogueSequence(
-          id: 'tutorial_controles',
-          dialogues: const [
-            DialogueData(
-              speakerName: 'SISTEMA',
-              text: 'INICIANDO MÓDULO DE ENTRENAMIENTO BÁSICO...',
-              type: DialogueType.system,
-            ),
-            DialogueData(
-              speakerName: 'SISTEMA',
-              text:
-                  'MOVIMIENTO: Utiliza las teclas [W, A, S, D] o las [FLECHAS] para desplazar a tu personaje.',
-              type: DialogueType.system,
-            ),
-            DialogueData(
-              speakerName: 'SISTEMA',
-              text:
-                  'PANTALLA TÁCTIL: Si juegas en móvil, desliza el dedo en la mitad izquierda de la pantalla para usar el Joystick Virtual.',
-              type: DialogueType.system,
-            ),
-            DialogueData(
-              speakerName: 'SISTEMA',
-              text:
-                  'INTERACCIÓN: Acércate a objetos o puertas y presiona la tecla [E] o toca el [BOTÓN INFERIOR DERECHO].',
-              type: DialogueType.system,
-            ),
-            DialogueData(
-              speakerName: 'SISTEMA',
-              text:
-                  'DIÁLOGOS: Puedes presionar [ESC] para saltar rápidamente conversaciones en curso.',
-              type: DialogueType.system,
-            ),
-            DialogueData(
-              speakerName: 'SISTEMA',
-              text:
-                  'INTERFAZ: Toca el icono superior izquierdo para ocultar/mostrar tu objetivo actual.',
-              type: DialogueType.system,
-            ),
-            DialogueData(
-              speakerName: 'SISTEMA',
-              text:
-                  'OPCIONES: El botón del engranaje (arriba a la derecha) abre los ajustes de audio y pausa el juego.',
-              type: DialogueType.system,
-            ),
-            DialogueData(
-              speakerName: 'SISTEMA',
-              text: 'FIN DEL INSTRUCTIVO. Buena suerte.',
-              type: DialogueType.system,
-            ),
-          ],
-        ),
-        onComplete: () {
-          setState(() {
-            _isDialogueActive = false;
-          });
-        },
-      );
     });
   }
 
@@ -444,7 +227,7 @@ class _HouseSceneState extends State<HouseScene>
             DialogueData(
               speakerName: 'Dan',
               text:
-                  'El duelo me convirtió en un desecho, un Yūrei sin misión. ¿De qué sirve la brillantez táctica cuando la voluntad de vivir se ha desvanecido?',
+                  'El duelo me convirtió en un desecho, un YÅ«rei sin misión. ¿De qué sirve la brillantez táctica cuando la voluntad de vivir se ha desvanecido?',
               type: DialogueType.internal,
             ),
             DialogueData(
@@ -517,7 +300,6 @@ class _HouseSceneState extends State<HouseScene>
           setState(() {
             _isDialogueActive = false;
           });
-          _showTutorialDialogue();
         },
       );
     });
@@ -580,25 +362,37 @@ class _HouseSceneState extends State<HouseScene>
         setState(() {
           _playerPosition = newPos;
 
+          // Update direction and frame offset
           if (velocity.y < -0.1) {
             _currentDirection = 'NORTH';
-            _danSprite = _danSpriteNorth;
+            _currentFrameOffset = 0; // Utiliza índice 0 para dan_walk_north
           } else if (velocity.y > 0.1) {
             _currentDirection = 'SOUTH';
-            _danSprite = _danSpriteSouth;
+            _currentFrameOffset = 6; // Fila 3 de caminar_dan
+          } else if (velocity.x < -0.1) {
+            _currentDirection = 'WEST';
+            _currentFrameOffset = 3; // Fila 2
+          } else if (velocity.x > 0.1) {
+            _currentDirection = 'EAST';
+            _currentFrameOffset = 0; // Fila 1
           }
 
           _animationTimer += 0.016;
           if (_animationTimer >= _frameRate) {
             _animationTimer = 0.0;
-            _currentFrame = (_currentFrame + 1) % 9;
+            // Solo animar entre 0 y 2 y sumarle el offset respectivo de la fila
+            int nextAnimFrame = ((_currentFrame - _currentFrameOffset + 1) % 3);
+            if (nextAnimFrame < 0) nextAnimFrame = 0;
+            _currentFrame = _currentFrameOffset + nextAnimFrame;
           }
         });
       }
     } else {
-      if (_currentFrame != 0) {
+      // Idle frame for current direction
+      int idleFrame = _currentFrameOffset;
+      if (_currentFrame != idleFrame) {
         setState(() {
-          _currentFrame = 0;
+          _currentFrame = idleFrame;
         });
       }
     }
@@ -769,7 +563,7 @@ class _HouseSceneState extends State<HouseScene>
           _playerSize / 2,
         );
 
-        // Lógica específica para el SOFÁ
+        // Lógica específica para el SOFÁ
         if (interactable.id == 'sofa') {
           // Crear una hitbox MUY ajustada al centro visual del sofá
           final sofaHitbox = Rect.fromLTWH(
@@ -1735,201 +1529,6 @@ class _HouseSceneState extends State<HouseScene>
     ];
   }
 
-  List<Widget> _buildBottomEntranceWalls(RoomData room) {
-    final wallThickness = 60.0;
-    final pipeThickness = 10.0;
-
-    // Dimensiones del pasillo (mismas que en RoomShapeClipper)
-    final hallwayWidth = 120.0;
-    final hallwayHeight = 150.0;
-    final mainRoomHeight = room.roomSize.height - hallwayHeight;
-    final hallwayX = (room.roomSize.width - hallwayWidth) / 2;
-
-    Widget buildPipe({double? width, double? height, bool isVertical = false}) {
-      return Container(
-        width: width,
-        height: height,
-        decoration: BoxDecoration(
-          color: const Color(0xFF5D4037),
-          border: Border.all(color: Colors.black, width: 1),
-          borderRadius: BorderRadius.circular(2),
-          gradient: const LinearGradient(
-            colors: [Color(0xFF4E342E), Color(0xFF8D6E63), Color(0xFF4E342E)],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
-        ),
-      );
-    }
-
-    return [
-      // 1. Pared Norte (Top) - Completa
-      Positioned(
-        top: 0,
-        left: 0,
-        right: 0,
-        height: wallThickness,
-        child: Stack(
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/wall_texture.jpg'),
-                  repeat: ImageRepeat.repeatX,
-                  alignment: Alignment.bottomCenter,
-                ),
-                border: Border(
-                  bottom: BorderSide(color: Colors.black, width: 2),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: pipeThickness,
-              child: buildPipe(height: pipeThickness),
-            ),
-          ],
-        ),
-      ),
-
-      // 2. Pared Oeste (Izquierda) - Completa hasta mainRoomHeight
-      Positioned(
-        top: 0,
-        left: 0,
-        height: mainRoomHeight,
-        width: wallThickness, // Pared vertical izquierda
-        child: Stack(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.brown[900],
-                border: const Border(
-                  right: BorderSide(color: Colors.black, width: 2),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 0,
-              bottom: 0,
-              left: 0,
-              width: pipeThickness,
-              child: buildPipe(width: pipeThickness, isVertical: true),
-            ),
-          ],
-        ),
-      ),
-
-      // 3. Pared Este (Derecha) - Completa hasta mainRoomHeight
-      Positioned(
-        top: 0,
-        right: 0,
-        height: mainRoomHeight,
-        width: wallThickness, // Pared vertical derecha
-        child: Stack(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.brown[900],
-                border: const Border(
-                  left: BorderSide(color: Colors.black, width: 2),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 0,
-              bottom: 0,
-              right: 0,
-              width: pipeThickness,
-              child: buildPipe(width: pipeThickness, isVertical: true),
-            ),
-          ],
-        ),
-      ),
-
-      // 4. Pared Sur Izquierda (Main Room)
-      Positioned(
-        top: mainRoomHeight - wallThickness,
-        left: 0,
-        width: hallwayX, // Hasta el inicio del pasillo
-        height: wallThickness,
-        child: Stack(
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/wall_texture.jpg'),
-                  repeat: ImageRepeat.repeatX,
-                  alignment: Alignment.bottomCenter,
-                ),
-                border: Border(top: BorderSide(color: Colors.black, width: 2)),
-              ),
-            ),
-          ],
-        ),
-      ),
-
-      // 5. Pared Sur Derecha (Main Room)
-      Positioned(
-        top: mainRoomHeight - wallThickness,
-        left: hallwayX + hallwayWidth,
-        right: 0, // Hasta el final a la derecha
-        height: wallThickness,
-        child: Stack(
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/wall_texture.jpg'),
-                  repeat: ImageRepeat.repeatX,
-                  alignment: Alignment.bottomCenter,
-                ),
-                border: Border(top: BorderSide(color: Colors.black, width: 2)),
-              ),
-            ),
-          ],
-        ),
-      ),
-
-      // 6. Paredes del Pasillo (Verticales)
-      // Izquierda del pasillo
-      Positioned(
-        top: mainRoomHeight,
-        left: hallwayX,
-        height: hallwayHeight,
-        width: 20, // Pared delgada para pasillo
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.brown[900],
-            border: const Border(
-              right: BorderSide(color: Colors.black, width: 2),
-            ),
-          ),
-        ),
-      ),
-
-      // Derecha del pasillo
-      Positioned(
-        top: mainRoomHeight,
-        left: hallwayX + hallwayWidth - 20,
-        height: hallwayHeight,
-        width: 20, // Pared delgada para pasillo
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.brown[900],
-            border: const Border(
-              left: BorderSide(color: Colors.black, width: 2),
-            ),
-          ),
-        ),
-      ),
-
-      // 7. Fondo del pasillo (Sur final) - Donde irán las escaleras
-      // No dibujamos pared aquí para dejar que las escaleras "salgan"
-    ];
-  }
-
   List<Widget> _buildUShapeWalls(RoomData room) {
     const wallHeight = 60.0;
     const wallThickness = 20.0;
@@ -2252,7 +1851,7 @@ class _HouseSceneState extends State<HouseScene>
               _pressedKeys.remove(event.logicalKey);
             }
           },
-          child: Container(
+          child: RepaintBoundary(
             child: Stack(
               children: [
                 Center(
@@ -2372,7 +1971,7 @@ class _HouseSceneState extends State<HouseScene>
                             } else {
                               // Puertas verticales (izquierda/derecha)
                               if (_doorSprite != null) {
-                                // Para puertas verticales, intercambiamos dimensiones porque rotaremos 90°
+                                // Para puertas verticales, intercambiamos dimensiones porque rotaremos 90Â°
                                 final spriteWidth =
                                     door.size.y *
                                     4.5; // Aumentado para que la puerta sea alta
@@ -2417,7 +2016,7 @@ class _HouseSceneState extends State<HouseScene>
                                         spriteWidth, // Alto del contenedor (antes de rotar)
                                     child: Transform.rotate(
                                       angle:
-                                          1.5708, // 90 grados en radianes (π/2)
+                                          1.5708, // 90 grados en radianes (Ãâ‚¬/2)
                                       child: AnimatedSpriteWidget(
                                         sprite: _doorSprite!,
                                         direction: 'DOOR',
@@ -2475,14 +2074,23 @@ class _HouseSceneState extends State<HouseScene>
                           Positioned(
                             left: _playerPosition.x - _playerSize / 2,
                             top: _playerPosition.y - _playerSize / 2,
-                            child: _danSprite != null
-                                ? AnimatedSpriteWidget(
-                                    sprite: _danSprite!,
+                            child: Builder(
+                              builder: (context) {
+                                // Seleccionar sprite
+                                AnimatedSprite? spriteToUse =
+                                    _currentDirection == 'NORTH'
+                                    ? _danSpriteNorth
+                                    : _danSprite;
+
+                                if (spriteToUse != null) {
+                                  return AnimatedSpriteWidget(
+                                    sprite: spriteToUse,
                                     direction: _currentDirection,
                                     frameIndex: _currentFrame,
                                     size: _playerSize,
-                                  )
-                                : SizedBox(
+                                  );
+                                } else {
+                                  return SizedBox(
                                     width: _playerSize,
                                     height: _playerSize,
                                     child: Container(
@@ -2500,7 +2108,10 @@ class _HouseSceneState extends State<HouseScene>
                                         size: 30,
                                       ),
                                     ),
-                                  ),
+                                  );
+                                }
+                              },
+                            ),
                           ),
                         ],
                       ),
@@ -2531,11 +2142,14 @@ class _HouseSceneState extends State<HouseScene>
                       _playerPosition.y * scale + offsetY,
                     );
 
-                    // Radios adaptativos: proporcionales al tamaño renderizado del canvas
-                    // innerRadius ≈ 18% del ancho renderizado, outerRadius ≈ 42%
+                    // Radios adaptativos globales
                     final renderedW = worldW * scale;
-                    final innerR = (renderedW * 0.18).clamp(80.0, 200.0);
-                    final outerR = (renderedW * 0.42).clamp(160.0, 400.0);
+                    final innerR = FlashlightOverlay.globalInnerRadius(
+                      renderedW,
+                    );
+                    final outerR = FlashlightOverlay.globalOuterRadius(
+                      renderedW,
+                    );
 
                     return FlashlightOverlay(
                       center: screenCenter,
@@ -2600,7 +2214,9 @@ class _HouseSceneState extends State<HouseScene>
                     animation: _fadeAnimation,
                     builder: (context, child) {
                       return Container(
-                        color: Colors.black.withOpacity(_fadeAnimation.value),
+                        color: Colors.black.withValues(
+                          alpha: _fadeAnimation.value,
+                        ),
                       );
                     },
                   ),
@@ -2635,15 +2251,15 @@ class _HouseSceneState extends State<HouseScene>
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                Colors.black.withOpacity(0.85),
-                                Colors.black.withOpacity(0.4),
+                                Colors.black.withValues(alpha: 0.85),
+                                Colors.black.withValues(alpha: 0.4),
                               ],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
                             border: Border(
                               left: BorderSide(
-                                color: Colors.amber.withOpacity(0.5),
+                                color: Colors.amber.withValues(alpha: 0.5),
                                 width: 3,
                               ),
                             ),
@@ -2732,9 +2348,9 @@ class _HouseSceneState extends State<HouseScene>
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.6),
+                            color: Colors.black.withValues(alpha: 0.6),
                             border: Border.all(
-                              color: Colors.amber.withOpacity(0.6),
+                              color: Colors.amber.withValues(alpha: 0.6),
                               width: 1.5,
                             ),
                           ),
@@ -2758,7 +2374,7 @@ class _HouseSceneState extends State<HouseScene>
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
+                        color: Colors.black.withValues(alpha: 0.7),
                         border: Border.all(color: Colors.white, width: 2),
                       ),
                       child: Text(
@@ -2784,10 +2400,10 @@ class _HouseSceneState extends State<HouseScene>
                       width: _joystickRadius * 2,
                       height: _joystickRadius * 2,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                           width: 2,
                         ),
                       ),
@@ -2800,11 +2416,11 @@ class _HouseSceneState extends State<HouseScene>
                       width: _joystickKnobRadius * 2,
                       height: _joystickKnobRadius * 2,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
+                            color: Colors.black.withValues(alpha: 0.3),
                             blurRadius: 5,
                             spreadRadius: 1,
                           ),
@@ -2846,15 +2462,15 @@ class _HouseSceneState extends State<HouseScene>
                       padding: EdgeInsets.zero,
                       clipBehavior: Clip.hardEdge,
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.9),
+                        color: Colors.black.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                           width: 1.5,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             blurRadius: 15,
                             spreadRadius: 1,
                           ),
@@ -3110,8 +2726,8 @@ class _HouseSceneState extends State<HouseScene>
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.redAccent.withOpacity(
-                                  0.8,
+                                backgroundColor: Colors.redAccent.withValues(
+                                  alpha: 0.8,
                                 ),
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
@@ -3135,7 +2751,7 @@ class _HouseSceneState extends State<HouseScene>
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.withOpacity(0.2),
+              backgroundColor: Colors.red.withValues(alpha: 0.2),
               foregroundColor: Colors.redAccent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -3159,9 +2775,9 @@ class _HouseSceneState extends State<HouseScene>
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Botón de interacción — estilo horror ámbar oscuro
-// ─────────────────────────────────────────────────────────────────────────────
+// ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬
+// Botón de interacción — estilo horror ámbar oscuro
+// ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬
 class _InteractButton extends StatefulWidget {
   const _InteractButton();
 
@@ -3202,16 +2818,16 @@ class _InteractButtonState extends State<_InteractButton>
         height: 62,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: const Color(0xFF1A0800).withOpacity(_pulseAnim.value),
+          color: const Color(0xFF1A0800).withValues(alpha: _pulseAnim.value),
           border: Border.all(
-            color: const Color(0xFFD4A96A).withOpacity(_pulseAnim.value),
+            color: const Color(0xFFD4A96A).withValues(alpha: _pulseAnim.value),
             width: 2.5,
           ),
           boxShadow: [
             BoxShadow(
               color: const Color(
                 0xFFD4A96A,
-              ).withOpacity(_pulseAnim.value * 0.35),
+              ).withValues(alpha: _pulseAnim.value * 0.35),
               blurRadius: 14,
               spreadRadius: 2,
             ),
@@ -3223,7 +2839,7 @@ class _InteractButtonState extends State<_InteractButton>
             style: TextStyle(
               color: const Color(
                 0xFFD4A96A,
-              ).withOpacity(_pulseAnim.value + 0.1),
+              ).withValues(alpha: _pulseAnim.value + 0.1),
               fontSize: 22,
               fontWeight: FontWeight.bold,
               fontFamily: 'monospace',

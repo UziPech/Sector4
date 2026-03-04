@@ -1,6 +1,4 @@
-import 'dart:ui';
-import 'package:flame/components.dart';
-import 'package:flame/game.dart';
+﻿import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../game/expediente_game.dart';
 import '../game/components/enemies/irracional.dart';
@@ -103,7 +101,7 @@ class MeleeWeapon extends Weapon {
       if (distance <= range) {
         boss.takeDamage(damage);
         hitSomething = true;
-        print('⚔️ Cuchillo golpeó a KOHAA: $damage daño');
+        // print('âÅ¡â€ïÂ¸Â Cuchillo golpeó a KOHAA: $damage daño');
       }
     });
 
@@ -112,7 +110,7 @@ class MeleeWeapon extends Weapon {
       if (distance <= range) {
         boss.takeDamage(damage);
         hitSomething = true;
-        print('⚔️ Cuchillo golpeó a ON-OYABUN: $damage daño');
+        // print('âÅ¡â€ïÂ¸Â Cuchillo golpeó a ON-OYABUN: $damage daño');
       }
     });
     
@@ -298,7 +296,7 @@ class MeleeSlashEffect extends PositionComponent {
     
     // Dibujar arco de slash
     final paint = Paint()
-      ..color = Colors.cyan.withOpacity(opacity * 0.7)
+      ..color = Colors.cyan.withValues(alpha: opacity * 0.7)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0;
     
@@ -311,15 +309,15 @@ class MeleeSlashEffect extends PositionComponent {
     // Arco de 120 grados
     canvas.drawArc(
       rect,
-      -1.0, // Ángulo inicial
-      2.0,  // Ángulo de barrido
+      -1.0, // ÃÂngulo inicial
+      2.0,  // ÃÂngulo de barrido
       false,
       paint,
     );
     
     // Líneas de efecto adicionales
     final linePaint = Paint()
-      ..color = Colors.white.withOpacity(opacity * 0.5)
+      ..color = Colors.white.withValues(alpha: opacity * 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
     
@@ -337,3 +335,5 @@ class MeleeSlashEffect extends PositionComponent {
     canvas.restore();
   }
 }
+
+

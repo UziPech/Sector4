@@ -4,7 +4,6 @@ import 'dart:ui' as ui;
 import '../models/interactable_data.dart';
 import '../models/dialogue_data.dart';
 import 'dialogue_system.dart';
-import 'animated_tree.dart';
 
 /// Widget para objetos interactuables en la escena
 class InteractableObject extends StatelessWidget {
@@ -14,12 +13,12 @@ class InteractableObject extends StatelessWidget {
   final VoidCallback? onInteractionComplete;
 
   const InteractableObject({
-    Key? key,
+    super.key,
     required this.data,
     required this.playerPosition,
     this.interactionRadius = 50.0,
     this.onInteractionComplete,
-  }) : super(key: key);
+  });
 
   bool get isInRange => data.isInRange(playerPosition, interactionRadius);
 
@@ -65,7 +64,7 @@ class InteractableObject extends StatelessWidget {
           decoration: BoxDecoration(
             color: showBorder ? _getColorForType() : Colors.transparent,
             border: showBorder ? Border.all(
-              color: isInRange ? Colors.yellow : Colors.white.withOpacity(0.3),
+              color: isInRange ? Colors.yellow : Colors.white.withValues(alpha: 0.3),
               width: isInRange ? 3 : 1,
             ) : null,
           ),
@@ -113,7 +112,7 @@ class InteractableObject extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
+                        color: Colors.black.withValues(alpha: 0.7),
                         borderRadius: BorderRadius.circular(4),
                         border: Border.all(color: Colors.yellow, width: 2),
                       ),
@@ -145,8 +144,8 @@ class InteractableObject extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.cyan.withOpacity(0.6),
-              Colors.purple.withOpacity(0.6),
+              Colors.cyan.withValues(alpha: 0.6),
+              Colors.purple.withValues(alpha: 0.6),
             ],
           ),
         ),
@@ -159,7 +158,7 @@ class InteractableObject extends StatelessWidget {
               size: 48,
               shadows: [
                 Shadow(
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withValues(alpha: 0.5),
                   blurRadius: 4,
                 ),
               ],
@@ -198,21 +197,21 @@ class InteractableObject extends StatelessWidget {
   Color _getColorForType() {
     switch (data.type) {
       case InteractableType.phone:
-        return Colors.green.withOpacity(0.5);
+        return Colors.green.withValues(alpha: 0.5);
       case InteractableType.photo:
         return Colors.transparent;
       case InteractableType.door:
-        return Colors.brown.withOpacity(0.5);
+        return Colors.brown.withValues(alpha: 0.5);
       case InteractableType.furniture:
-        return Colors.grey.withOpacity(0.5);
+        return Colors.grey.withValues(alpha: 0.5);
       case InteractableType.document:
-        return Colors.orange.withOpacity(0.5);
+        return Colors.orange.withValues(alpha: 0.5);
       case InteractableType.npc:
-        return Colors.purple.withOpacity(0.5);
+        return Colors.purple.withValues(alpha: 0.5);
       case InteractableType.character:
         return Colors.transparent; // El gradiente se maneja en el placeholder
       default:
-        return Colors.white.withOpacity(0.3);
+        return Colors.white.withValues(alpha: 0.3);
     }
   }
 
@@ -274,16 +273,16 @@ class InteractionPrompt extends StatelessWidget {
   final String text;
 
   const InteractionPrompt({
-    Key? key,
+    super.key,
     this.text = 'Presiona E para interactuar',
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.8),
+        color: Colors.black.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.yellow, width: 2),
       ),
@@ -299,3 +298,4 @@ class InteractionPrompt extends StatelessWidget {
     );
   }
 }
+

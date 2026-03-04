@@ -1,4 +1,4 @@
-import 'dart:math';
+﻿import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
@@ -39,7 +39,7 @@ class SummoningCircle extends PositionComponent {
     // Círculo exterior expansivo (rojo)
     final outerRadius = circleRadius * progress;
     final outerPaint = Paint()
-      ..color = Colors.red.withOpacity(0.3 * (1.0 - progress * 0.5))
+      ..color = Colors.red.withValues(alpha: 0.3 * (1.0 - progress * 0.5))
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0;
     
@@ -48,7 +48,7 @@ class SummoningCircle extends PositionComponent {
     // Círculo interior (más intenso)
     final innerRadius = circleRadius * 0.7 * progress;
     final innerPaint = Paint()
-      ..color = Colors.red.withOpacity(0.5)
+      ..color = Colors.red.withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
     
@@ -71,7 +71,7 @@ class SummoningCircle extends PositionComponent {
     final symbolRadius = circleRadius * 0.85;
     
     final symbolPaint = Paint()
-      ..color = Colors.red.withOpacity(0.7)
+      ..color = Colors.red.withValues(alpha: 0.7)
       ..style = PaintingStyle.fill;
     
     for (int i = 0; i < symbolCount; i++) {
@@ -89,7 +89,7 @@ class SummoningCircle extends PositionComponent {
     final random = Random(42); // Seed fijo para consistencia
     
     final particlePaint = Paint()
-      ..color = Colors.red.withOpacity(0.4)
+      ..color = Colors.red.withValues(alpha: 0.4)
       ..style = PaintingStyle.fill;
     
     for (int i = 0; i < particleCount; i++) {
@@ -108,3 +108,4 @@ class SummoningCircle extends PositionComponent {
   @override
   int get priority => -50; // Renderizar debajo del jefe pero encima del fondo
 }
+

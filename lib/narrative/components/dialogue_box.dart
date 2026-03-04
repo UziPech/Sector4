@@ -9,12 +9,12 @@ class DialogueBox extends StatefulWidget {
   final bool showHintText; // Si mostrar el texto de ayuda
 
   const DialogueBox({
-    Key? key,
+    super.key,
     required this.dialogue,
     required this.onComplete,
     this.typewriterSpeed = 20.0, // Reducido de 30 a 20 para mejor legibilidad
     this.showHintText = true, // Por defecto mostrar
-  }) : super(key: key);
+  });
 
   @override
   State<DialogueBox> createState() => _DialogueBoxState();
@@ -107,16 +107,16 @@ class _DialogueBoxState extends State<DialogueBox>
           width: double.infinity,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.90),
+            color: Colors.black.withValues(alpha: 0.90),
             border: Border.all(
               color: _isComplete 
-                  ? Colors.yellow.withOpacity(0.4)
-                  : Colors.white.withOpacity(0.3),
+                  ? Colors.yellow.withValues(alpha: 0.4)
+                  : Colors.white.withValues(alpha: 0.3),
               width: 2,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.5),
+                color: Colors.black.withValues(alpha: 0.5),
                 blurRadius: 10,
                 spreadRadius: 2,
               ),
@@ -131,14 +131,14 @@ class _DialogueBoxState extends State<DialogueBox>
                 width: 70,
                 height: 70,
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
+                      color: Colors.black.withValues(alpha: 0.3),
                       blurRadius: 5,
                       spreadRadius: 1,
                     ),
@@ -205,14 +205,14 @@ class _DialogueBoxState extends State<DialogueBox>
                           children: [
                             Icon(
                               Icons.touch_app,
-                              color: Colors.yellow.withOpacity(0.9),
+                              color: Colors.yellow.withValues(alpha: 0.9),
                               size: 16,
                             ),
                             const SizedBox(width: 8),
                             Text(
                               'Toca para continuar',
                               style: TextStyle(
-                                color: Colors.yellow.withOpacity(0.9),
+                                color: Colors.yellow.withValues(alpha: 0.9),
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'monospace',
@@ -232,3 +232,4 @@ class _DialogueBoxState extends State<DialogueBox>
     );
   }
 }
+

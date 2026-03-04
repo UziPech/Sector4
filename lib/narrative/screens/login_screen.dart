@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:video_player/video_player.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,7 +13,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  late VideoPlayerController _controller;
+  VideoPlayerController? _controller;
 
   // Controladores de texto
   final TextEditingController _emailController = TextEditingController();
@@ -92,9 +92,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.3),
+        color: Colors.black.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFF8D6E63).withOpacity(0.5)),
+        border: Border.all(
+          color: const Color(0xFF8D6E63).withValues(alpha: 0.5),
+        ),
       ),
       child: TextField(
         controller: controller,
@@ -118,28 +120,41 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
 
-    // Inicializar Video
-    _controller =
-        VideoPlayerController.asset(
-            'assets/images/Fondo.mp4',
-            videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
-          )
-          ..initialize().then((_) {
-            _controller.setLooping(true);
-            _controller.setVolume(0.0); // Mute video
-            _controller.play();
-            setState(() {}); // Refresh to show video
-          });
-
-    // Inicializar Audio (Integrado del remoto)
-    AudioManager().init().then((_) {
-      AudioManager().playLoginMusic();
+    // Inicializar Video y Audio de manera segura después del primer frame
+    // para evitar el error de "Platform channel messages must be sent on the platform thread"
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initMedia();
     });
+  }
+
+  Future<void> _initMedia() async {
+    _controller = VideoPlayerController.asset(
+      'assets/images/Fondo.mp4',
+      videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+    );
+
+    try {
+      await _controller!.initialize();
+      _controller!.setLooping(true);
+      _controller!.setVolume(0.0); // Mute video
+      _controller!.play();
+      if (mounted) setState(() {}); // Refresh to show video
+    } catch (e) {
+      debugPrint("Error inicializando video en Login: $e");
+    }
+
+    try {
+      // Inicializar Audio (Integrado del remoto) de forma segura
+      await AudioManager().init();
+      AudioManager().playLoginMusic();
+    } catch (e) {
+      debugPrint("Error inicializando audio en Login: $e");
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     // AudioManager().stopMusic(); // Opcional, según lógica del remoto
@@ -157,13 +172,13 @@ class _LoginScreenState extends State<LoginScreen> {
         children: [
           // 1. FONDO DE VIDEO
           Positioned.fill(
-            child: _controller.value.isInitialized
+            child: _controller != null && _controller!.value.isInitialized
                 ? FittedBox(
                     fit: BoxFit.cover,
                     child: SizedBox(
-                      width: _controller.value.size.width,
-                      height: _controller.value.size.height,
-                      child: VideoPlayer(_controller),
+                      width: _controller!.value.size.width,
+                      height: _controller!.value.size.height,
+                      child: VideoPlayer(_controller!),
                     ),
                   )
                 : Container(color: Colors.black), // Fallback mientras carga
@@ -177,8 +192,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   center: Alignment.center,
                   radius: 1.5,
                   colors: [
-                    Colors.black.withOpacity(0.3),
-                    Colors.black.withOpacity(0.8),
+                    Colors.black.withValues(alpha: 0.3),
+                    Colors.black.withValues(alpha: 0.8),
                   ],
                 ),
               ),
@@ -211,7 +226,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     // CONTENIDO
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 100, // Aumentado significativamente para centrar en la madera
+                        horizontal:
+                            100, // Aumentado significativamente para centrar en la madera
                         vertical: 30,
                       ),
                       child: Column(
@@ -222,9 +238,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             textAlign: TextAlign.center,
                             style: GoogleFonts.rye(
                               color: const Color(0xFFFFECB3),
-                              fontSize: size.width < 600
-                                  ? 28
-                                  : 38,
+                              fontSize: size.width < 600 ? 28 : 38,
                               fontWeight: FontWeight.bold,
                               shadows: [
                                 const Shadow(
@@ -255,7 +269,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 20), // Reducido de 30
-
                           // --- FORMULARIO ---
                           _buildTextField(
                             controller: _emailController,
@@ -270,7 +283,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             isPassword: true,
                           ),
                           const SizedBox(height: 20), // Reducido de 24
-
                           // BOTÓN DE ACCIÓN PRINCIPAL
                           _LoginButton(
                             text: _isLoginMode ? 'ENTRAR' : 'REGISTRARSE',
@@ -280,7 +292,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
 
                           const SizedBox(height: 10), // Reducido de 16
-
                           // CAMBIAR MODO
                           TextButton(
                             onPressed: () {
@@ -303,8 +314,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
 
                           const SizedBox(height: 10), // Reducido de 30
-                          const Divider(color: Colors.white24, height: 20), // Height explícito reducido
-                          
+                          const Divider(
+                            color: Colors.white24,
+                            height: 20,
+                          ), // Height explícito reducido
                           // BOTÓN INVITADO
                           _LoginButton(
                             text: 'Entrar como Invitado',
@@ -363,12 +376,12 @@ class _LoginButton extends StatelessWidget {
       width: double.infinity,
       height: 50, // Más pequeños (antes 60)
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(
-          0.4,
+        color: Colors.black.withValues(
+          alpha: 0.4,
         ), // Fondo oscuro semitransparente para contrastar con la madera
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: const Color(0xFF8D6E63).withOpacity(0.5),
+          color: const Color(0xFF8D6E63).withValues(alpha: 0.5),
         ), // Borde sutil
       ),
       child: Material(

@@ -7,9 +7,9 @@ class GameOverWithAdvice extends StatefulWidget {
   final ExpedienteKorinGame game;
 
   const GameOverWithAdvice({
-    Key? key,
+    super.key,
     required this.game,
-  }) : super(key: key);
+  });
 
   @override
   State<GameOverWithAdvice> createState() => _GameOverWithAdviceState();
@@ -82,7 +82,7 @@ class _GameOverWithAdviceState extends State<GameOverWithAdvice> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black.withOpacity(0.95),
+      color: Colors.black.withValues(alpha: 0.95),
       child: Column(
         children: [
           // Título Game Over en la parte superior
@@ -121,14 +121,14 @@ class _GameOverWithAdviceState extends State<GameOverWithAdvice> {
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.90),
+              color: Colors.black.withValues(alpha: 0.90),
               border: Border.all(
-                color: Colors.yellow.withOpacity(0.4),
+                color: Colors.yellow.withValues(alpha: 0.4),
                 width: 2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withValues(alpha: 0.5),
                   blurRadius: 10,
                   spreadRadius: 2,
                 ),
@@ -142,14 +142,14 @@ class _GameOverWithAdviceState extends State<GameOverWithAdvice> {
                   width: 70,
                   height: 70,
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withValues(alpha: 0.3),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                       width: 1,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                         blurRadius: 5,
                         spreadRadius: 1,
                       ),
@@ -302,3 +302,4 @@ class _GameOverWithAdviceState extends State<GameOverWithAdvice> {
     );
   }
 }
+

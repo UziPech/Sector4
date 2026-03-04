@@ -1,4 +1,4 @@
-import 'package:flame/components.dart';
+﻿import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
 /// Efecto de flash de pantalla (blanco/color) para momentos dramáticos
@@ -47,9 +47,10 @@ class ScreenFlash extends PositionComponent {
     super.render(canvas);
     
     final paint = Paint()
-      ..color = flashColor.withOpacity(_opacity)
+      ..color = flashColor.withValues(alpha: _opacity)
       ..style = PaintingStyle.fill;
     
     canvas.drawRect(size.toRect(), paint);
   }
 }
+

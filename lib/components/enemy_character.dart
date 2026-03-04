@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'package:flame/components.dart';
@@ -11,11 +10,9 @@ import 'bullet.dart' show Bullet;
 import 'character_component.dart';
 import '../game/expediente_game.dart';
 import '../game/components/tiled_wall.dart';
-import '../game/components/tiled_wall.dart'; // Import shared TiledWall
+// Import shared TiledWall
 
 // ... (rest of imports)
-
-
 
 /// IA simple para el "Resonante" (Shūnen-tai).
 /// Propósito: patrulla (WALKING) hasta que detecta al jugador (Dan) y pasa a CHASING.
@@ -41,7 +38,7 @@ enum AttackType {
 /// Tipo de combate del enemigo
 enum CombatType {
   ranged, // Ataque a distancia (dispara)
-  melee,  // Ataque cuerpo a cuerpo (zombie)
+  melee, // Ataque cuerpo a cuerpo (zombie)
 }
 
 /// Configuración por defecto para el enemigo
@@ -105,7 +102,11 @@ class EnemyConfig {
 }
 
 class EnemyCharacter extends PositionComponent
-    with CharacterComponent, CollisionCallbacks, HasGameReference<ExpedienteKorinGame>, HasPaint {
+    with
+        CharacterComponent,
+        CollisionCallbacks,
+        HasGameReference<ExpedienteKorinGame>,
+        HasPaint {
   /// Referencia al objetivo (Dan). Se espera al menos un PositionComponent con `position`.
   PositionComponent? playerToTrack;
 
@@ -114,20 +115,19 @@ class EnemyCharacter extends PositionComponent
 
   /// Configuración del enemigo
   final EnemyConfig config;
-  
+
   // -- Sistema de Escudo Regenerativo --
   double shield = 0;
   double maxShield = 0;
   final double shieldRegenRate = 5.0; // Puntos por segundo
-  final double shieldCooldownDuration = 3.0; // Tiempo sin daño para empezar a regenerar
+  final double shieldCooldownDuration =
+      3.0; // Tiempo sin daño para empezar a regenerar
   double _shieldCooldownTimer = 0.0;
-  
+
   // -- Efectos Visuales de Daño --
   final double _flashDuration = 0.1;
   double _flashTimer = 0.0;
   bool _isFlashing = false;
-  final Paint _originalTint = BasicPalette.white.paint(); // Placeholder, se usa colorFilter en render
-
 
   /// Última posición conocida del jugador
   Vector2? lastKnownPlayerPosition;
@@ -138,10 +138,8 @@ class EnemyCharacter extends PositionComponent
   /// Última velocidad conocida del jugador para predicción
   Vector2? _lastPlayerVelocity;
   Vector2? _lastPlayerPosition;
-  double _lastPlayerUpdateTime = 0.0;
 
   /// Factor de flanqueo (-1 izquierda, 1 derecha)
-  double _flankingDirection = 1.0;
 
   /// Método para calcular la dirección de movimiento circular
   Vector2 _getCirclingDirection() {
@@ -178,17 +176,15 @@ class EnemyCharacter extends PositionComponent
 
   // Control de movimiento circular
   double _circlingAngle = 0.0;
-  int _circlingDirection = 1;
+  final int _circlingDirection = 1;
 
   // Sistema defensivo
-  double _recentDamage = 0.0;
   double _damageResetTimer = 0.0;
 
   // Colores para estados visuales
   // Paints para los estados, se inicializan en onMount para eficiencia.
   late final Paint _walkingPaint;
   late final Paint _chasingPaint;
-  late final Paint _detectionPaint;
   late final Paint _chargingPaint;
   late final Paint _defendingPaint;
 
@@ -200,7 +196,7 @@ class EnemyCharacter extends PositionComponent
   // Control de disparo
   bool _canShoot = true;
   double _timeSinceLastShot = 0.0;
-  
+
   // Control de ataque melee
   bool _canMeleeAttack = true;
   double _timeSinceLastMeleeAttack = 0.0;
@@ -217,7 +213,8 @@ class EnemyCharacter extends PositionComponent
   Vector2? patrolCenter;
 
   EnemyCharacter({this.playerToTrack, this.patrolCenter, EnemyConfig? config})
-    : config = config ?? const EnemyConfig(), super(priority: 5);
+    : config = config ?? const EnemyConfig(),
+      super(priority: 5);
 
   /// Llamar para asignar objetivo dinámicamente.
   void setPlayerToTrack(PositionComponent player) {
@@ -251,42 +248,31 @@ class EnemyCharacter extends PositionComponent
     }
 
     _lastPlayerPosition = playerToTrack!.position.clone();
-    _lastPlayerUpdateTime += dt;
   }
 
   /// Predice la posición futura del jugador basado en su velocidad actual
   /// Usa cálculo balístico para aim perfecto
   Vector2? _getPredictedPlayerPosition() {
     if (playerToTrack == null) return null;
-    
+
     // Posición y velocidad actual del jugador
     final playerPos = playerToTrack!.position;
     final playerVel = _lastPlayerVelocity ?? Vector2.zero();
-    
+
     // Distancia al jugador
     final toPlayer = playerPos - position;
     final distance = toPlayer.length;
-    
+
     // Velocidad de la bala (debe coincidir con Bullet.speed)
     const bulletSpeed = 300.0;
-    
+
     // Tiempo que tardará la bala en llegar
     final timeToHit = distance / bulletSpeed;
-    
+
     // Posición predicha: donde estará el jugador cuando llegue la bala
     final predictedPos = playerPos + playerVel * timeToHit;
-    
+
     return predictedPos;
-  }
-
-  /// Calcula una posición de flanqueo respecto al jugador
-  Vector2 _getFlankingPosition() {
-    if (playerToTrack == null) return position;
-
-    final toPlayer = playerToTrack!.position - position;
-    final perp = Vector2(-toPlayer.y, toPlayer.x).normalized();
-    return playerToTrack!.position +
-        perp * _flankingDirection * config.flankingOffset;
   }
 
   /// Cambia la dirección de patrulla a una dirección aleatoria dentro del plano X/Y.
@@ -294,14 +280,10 @@ class EnemyCharacter extends PositionComponent
     // Genera una dirección aleatoria uniforme en el círculo
     final double angle = _random.nextDouble() * 2 * math.pi;
     _walkDirection = Vector2(math.cos(angle), math.sin(angle))..normalize();
-    // Alterna la dirección de flanqueo
-    _flankingDirection *= -1;
   }
 
   // Track last valid position for collision resolution
   Vector2 _lastPosition = Vector2.zero();
-
-
 
   @override
   void update(double dt) {
@@ -316,7 +298,7 @@ class EnemyCharacter extends PositionComponent
 
     // Actualizar timers y estados
     _updateTimers(dt);
-    
+
     // Actualizar timer de flash
     if (_isFlashing) {
       _flashTimer -= dt;
@@ -324,7 +306,7 @@ class EnemyCharacter extends PositionComponent
         _isFlashing = false;
       }
     }
-    
+
     // Regeneración de escudo
     if (maxShield > 0 && shield < maxShield) {
       if (_shieldCooldownTimer > 0) {
@@ -350,7 +332,7 @@ class EnemyCharacter extends PositionComponent
         tryShoot();
       }
     }
-    
+
     // Actualizar cooldown de ataque melee (solo para enemigos melee)
     if (config.combatType == CombatType.melee) {
       if (!_canMeleeAttack) {
@@ -374,7 +356,7 @@ class EnemyCharacter extends PositionComponent
 
     // Actualizar daño reciente para sistema defensivo
     if (_damageResetTimer <= 0) {
-      _recentDamage = 0;
+      // _recentDamage = 0;
     }
 
     // Actualizar tracking del jugador
@@ -449,7 +431,7 @@ class EnemyCharacter extends PositionComponent
         if (target != null) {
           final toTarget = target - position;
           if (toTarget.length > 10) {
-             position.add(toTarget.normalized() * config.chasingSpeed * dt);
+            position.add(toTarget.normalized() * config.chasingSpeed * dt);
           }
         }
       case EnemyMovementType.retreating:
@@ -463,14 +445,14 @@ class EnemyCharacter extends PositionComponent
         break;
       case EnemyMovementType.charging:
         if (_dashDirection != null) {
-           position.add(_dashDirection! * config.dashSpeed * dt);
+          position.add(_dashDirection! * config.dashSpeed * dt);
         }
       case EnemyMovementType.circling:
-         final moveDir = _getCirclingDirection();
-         position.add(moveDir * config.walkingSpeed * dt);
+        final moveDir = _getCirclingDirection();
+        position.add(moveDir * config.walkingSpeed * dt);
       case EnemyMovementType.defending:
-         // No movement or slow movement
-         break;
+        // No movement or slow movement
+        break;
     }
   }
 
@@ -497,21 +479,20 @@ class EnemyCharacter extends PositionComponent
       // Si no hay escudo, el daño va a la vida y reseteamos el timer también
       _shieldCooldownTimer = shieldCooldownDuration;
     }
-    
+
     // Si el daño fue absorbido completamente por el escudo, no "recibimos daño" en el sentido de CharacterComponent
     // pero sí queremos efectos visuales.
-    
+
     // Efecto visual de flash
     _isFlashing = true;
     _flashTimer = _flashDuration;
-    // TODO: Emitir partículas aquí
 
     if (amount <= 0) return true; // Daño absorbido
 
     final bool damaged = super.receiveDamage(amount);
     if (damaged) {
       // Actualizar sistema defensivo
-      _recentDamage += amount;
+      // _recentDamage += amount;
       _damageResetTimer = 1.0; // 1 segundo para resetear el daño acumulado
 
       // Entrar en modo stunned si no estamos defendiendo
@@ -543,15 +524,9 @@ class EnemyCharacter extends PositionComponent
 
     // Configurar tamaño para colisiones/render
     size = Vector2.all(_size);
-    
+
     // Inicializar vida
     initHealth(100);
-
-    // Configurar paint para el círculo de detección usando Color.fromARGB
-    _detectionPaint = Paint()
-      ..color =
-          const Color.fromARGB(51, 128, 128, 128) // 20% opaco gris
-      ..style = PaintingStyle.fill;
 
     // Agregar hitbox para colisiones (solo una vez)
     add(RectangleHitbox()..collisionType = CollisionType.active);
@@ -568,21 +543,20 @@ class EnemyCharacter extends PositionComponent
           const Color.fromARGB(255, 75, 75, 255) // Azul defensivo
       ..style = PaintingStyle.fill;
   }
-  
+
   @override
   void onDeath() {
     // Dar puntos al jugador
-    // game.addScore(100); // TODO: Implement addScore in ExpedienteKorinGame
     super.onDeath();
   }
-  
+
   @override
   void onCollisionStart(
     Set<Vector2> intersectionPoints,
     PositionComponent other,
   ) {
     super.onCollisionStart(intersectionPoints, other);
-    
+
     // Si es enemigo melee y colisiona con el jugador
     if (config.combatType == CombatType.melee &&
         other.runtimeType.toString().contains('PlayerCharacter')) {
@@ -593,16 +567,16 @@ class EnemyCharacter extends PositionComponent
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
-    
+
     // Simple collision resolution for walls
     if (other is TiledWall) {
       position = _lastPosition.clone();
     }
   }
-  
+
   void _tryMeleeAttack(PositionComponent target) {
     if (!_canMeleeAttack) return;
-    
+
     try {
       (target as dynamic).receiveDamage(config.meleeDamage);
       _canMeleeAttack = false;
@@ -618,41 +592,47 @@ class EnemyCharacter extends PositionComponent
 
     // Dibuja el círculo de detección (solo si está en modo debug - comentado por defecto)
     // canvas.drawCircle(Offset.zero, config.detectionRadius, _detectionPaint);
-    
+
     // Renderizar barra de vida
     renderHealthBar(canvas);
-    
+
     // Renderizar barra de escudo (Azul cian)
     if (maxShield > 0) {
       const double barWidth = 32.0;
       const double barHeight = 4.0;
       const double offsetY = -15.0; // Arriba de la vida
-      
+
       // Fondo (gris oscuro)
       canvas.drawRect(
         const Rect.fromLTWH(-barWidth / 2, offsetY, barWidth, barHeight),
         Paint()..color = const Color(0xFF404040),
       );
-      
+
       // Barra actual
       final double shieldPercent = (shield / maxShield).clamp(0.0, 1.0);
       canvas.drawRect(
-        Rect.fromLTWH(-barWidth / 2, offsetY, barWidth * shieldPercent, barHeight),
+        Rect.fromLTWH(
+          -barWidth / 2,
+          offsetY,
+          barWidth * shieldPercent,
+          barHeight,
+        ),
         Paint()..color = const Color(0xFF00FFFF),
       );
     }
 
     // Seleccionar el color según el estado y tipo de combate
     Paint currentPaint;
-    
+
     // Efecto de Flash (Blanco)
     if (_isFlashing) {
       currentPaint = Paint()..color = Colors.white;
-    } else 
+    } else
     // Enemigos melee son de color púrpura/morado
     if (config.combatType == CombatType.melee) {
       currentPaint = Paint()
-        ..color = const Color.fromARGB(255, 150, 50, 200) // Púrpura
+        ..color =
+            const Color.fromARGB(255, 150, 50, 200) // Púrpura
         ..style = PaintingStyle.fill;
     } else {
       // Enemigos ranged usan colores normales
@@ -661,21 +641,21 @@ class EnemyCharacter extends PositionComponent
           currentPaint = _walkingPaint;
         case EnemyMovementType.chasing:
           currentPaint = _chasingPaint;
-      case EnemyMovementType.stunned:
-        // Parpadeo cuando está stunned
-        final flashRate = 8.0; // parpadeos por segundo
-        final flash = (_effectTimer * flashRate) % 1.0 > 0.5;
-        currentPaint = flash ? _chasingPaint : _walkingPaint;
-      case EnemyMovementType.retreating:
-        // Mezcla de rojo y azul para mostrar estado de retirada
-        currentPaint = Paint()
-          ..color = Color.fromARGB(
-            255,
-            200, // rojo
-            100, // verde
-            200, // azul
-          )
-          ..style = PaintingStyle.fill;
+        case EnemyMovementType.stunned:
+          // Parpadeo cuando está stunned
+          final flashRate = 8.0; // parpadeos por segundo
+          final flash = (_effectTimer * flashRate) % 1.0 > 0.5;
+          currentPaint = flash ? _chasingPaint : _walkingPaint;
+        case EnemyMovementType.retreating:
+          // Mezcla de rojo y azul para mostrar estado de retirada
+          currentPaint = Paint()
+            ..color = Color.fromARGB(
+              255,
+              200, // rojo
+              100, // verde
+              200, // azul
+            )
+            ..style = PaintingStyle.fill;
         case EnemyMovementType.charging:
           currentPaint = _chargingPaint;
         case EnemyMovementType.circling:
@@ -724,7 +704,7 @@ class EnemyCharacter extends PositionComponent
     if (_damageResetTimer > 0) {
       _damageResetTimer -= dt;
       if (_damageResetTimer <= 0) {
-        _recentDamage = 0;
+        // _recentDamage = 0;
       }
     }
 
@@ -744,22 +724,6 @@ class EnemyCharacter extends PositionComponent
         _releaseChargedShot();
       }
     }
-  }
-
-  void _startDash() {
-    if (_dashCooldown > 0 || playerToTrack == null) return;
-
-    // Lógica defensiva para el jugador null
-    Vector2 targetPos = playerToTrack!.position;
-    final predictedPos = _getPredictedPlayerPosition();
-    if (predictedPos != null) {
-      targetPos = predictedPos; // Usar posición predicha si está disponible
-    }
-
-    movementType = EnemyMovementType.charging;
-    _dashDuration = config.dashDuration;
-    _dashDirection = (targetPos - position).normalized();
-    _dashCooldown = config.dashCooldown;
   }
 
   void _releaseChargedShot() {
@@ -784,14 +748,14 @@ class EnemyCharacter extends PositionComponent
 
     final toTarget = targetPos - position;
     var baseDirection = toTarget.normalized();
-    
+
     // Aplicar imprecisión basada en aimAccuracy
     // aimAccuracy = 1.0 → sin error (aim perfecto)
     // aimAccuracy = 0.0 → error máximo
     final inaccuracy = 1.0 - config.aimAccuracy;
     final maxError = 0.3; // Máximo error en radianes (~17 grados)
     final errorAngle = (_random.nextDouble() - 0.5) * 2 * maxError * inaccuracy;
-    
+
     // Rotar la dirección por el ángulo de error
     final cos = math.cos(errorAngle);
     final sin = math.sin(errorAngle);
@@ -814,8 +778,10 @@ class EnemyCharacter extends PositionComponent
         for (int i = -1; i <= 1; i++) {
           final angle = i * config.spreadAngle;
           final direction = Vector2(
-            baseDirection.x * math.cos(angle) - baseDirection.y * math.sin(angle),
-            baseDirection.x * math.sin(angle) + baseDirection.y * math.cos(angle),
+            baseDirection.x * math.cos(angle) -
+                baseDirection.y * math.sin(angle),
+            baseDirection.x * math.sin(angle) +
+                baseDirection.y * math.cos(angle),
           );
           _fireBullet(direction);
         }

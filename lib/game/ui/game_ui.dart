@@ -7,7 +7,7 @@ import '../../narrative/screens/menu_screen.dart';
 import '../models/player_role.dart';
 import '../../combat/weapon_system.dart';
 
-import 'package:flame/game.dart'; // Vector2
+// Vector2
 import 'dynamic_joystick_overlay.dart';
 
 // ─────────────────────────────────────────────────────────────────────
@@ -98,7 +98,9 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
   // ─────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Material(
+      type: MaterialType.transparency,
+      child: Stack(
       children: [
         // ── 1. JOYSTICK DINÁMICO ────────────────────────────────────
         DynamicJoystickOverlay(
@@ -132,9 +134,9 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                     ? const EdgeInsets.all(12)
                     : const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: _brown900.withOpacity(0.85),
+                  color: _brown900.withValues(alpha: 0.85),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: _brown400.withOpacity(0.5), width: 1),
+                  border: Border.all(color: _brown400.withValues(alpha: 0.5), width: 1),
                 ),
                 child: _isConfigOpen
                     ? OverflowBox(
@@ -169,9 +171,9 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                 constraints: const BoxConstraints(maxWidth: 220),
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                 decoration: BoxDecoration(
-                  color: _brown900.withOpacity(0.7),
+                  color: _brown900.withValues(alpha: 0.7),
                   border: Border(
-                    left: BorderSide(color: _greenDim.withOpacity(0.8), width: 2),
+                    left: BorderSide(color: _greenDim.withValues(alpha: 0.8), width: 2),
                   ),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(5),
@@ -197,7 +199,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                       valueListenable: widget.game.locationNotifier,
                       builder: (_, v, __) => Text(v,
                           style: TextStyle(
-                              color: _amber.withOpacity(0.8),
+                              color: _amber.withValues(alpha: 0.8),
                               fontSize: 10,
                               fontFamily: 'monospace')),
                     ),
@@ -206,7 +208,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                       valueListenable: widget.game.objectiveNotifier,
                       builder: (_, v, __) => Text('▸ $v',
                           style: TextStyle(
-                              color: _white60.withOpacity(0.7),
+                              color: _white60.withValues(alpha: 0.7),
                               fontSize: 10,
                               fontFamily: 'monospace')),
                     ),
@@ -232,13 +234,13 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                   width: 20,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: _brown900.withOpacity(0.75),
+                    color: _brown900.withValues(alpha: 0.75),
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(5),
                       bottomLeft: Radius.circular(5),
                     ),
                     border: Border(
-                      left: BorderSide(color: _greenDim.withOpacity(0.5), width: 1),
+                      left: BorderSide(color: _greenDim.withValues(alpha: 0.5), width: 1),
                     ),
                   ),
                   child: const Icon(Icons.chevron_left, color: _greenDim, size: 14),
@@ -263,9 +265,9 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                   decoration: BoxDecoration(
-                    color: _brown900.withOpacity(0.5),
+                    color: _brown900.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: _brown400.withOpacity(0.3)),
+                    border: Border.all(color: _brown400.withValues(alpha: 0.3)),
                   ),
                   child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,7 +287,8 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
             ),
           ),
       ],
-    );
+    ),  // Stack
+    );  // Material
   }
 
   // ── HUD: SALUD + VIDAS + MEL ────────────────────────────────────────
@@ -293,9 +296,9 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: _brown900.withOpacity(0.75),
+        color: _brown900.withValues(alpha: 0.75),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: _brown400.withOpacity(0.4), width: 1),
+        border: Border.all(color: _brown400.withValues(alpha: 0.4), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -417,8 +420,8 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     final isDan = game.player.playerRole == PlayerRole.dan;
 
     return Positioned(
-      bottom: 20,
-      right: 20,
+      bottom: 24,
+      right: 24,
       child: SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -445,7 +448,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                 // Botón de curación de Mel (dinámico según cooldown)
                 _buildMelHealButton(game, isDan),
                 const SizedBox(width: 8),
-                // [Dan] Recarga R (solo con pistola)  |  [Mel] Dash ››
+                // [Dan] Recarga R (solo con pistola)  |  [Mel] Dash >>
                 isDan
                     ? ValueListenableBuilder<bool>(
                         valueListenable: game.isRangedWeaponNotifier,
@@ -463,7 +466,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                         },
                       )
                     : _actionBtn(
-                        label: '››',
+                        label: '>>',
                         color: const Color(0xFF0A1A2A),
                         onTap: () => game.player.tryDash(),
                       ),
@@ -495,6 +498,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
             final label = isDan ? 'MEL\n♥' : 'CURAR\n♥';
 
             return GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTapDown: (_) => game.mel.activateHeal(),
               child: Stack(
                 alignment: Alignment.center,
@@ -518,17 +522,17 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                     height: 44,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: btnColor.withOpacity(ready ? 0.75 : 0.45),
+                      color: btnColor.withValues(alpha: ready ? 0.75 : 0.45),
                       border: Border.all(
                         color: ready
-                            ? _greenDim.withOpacity(0.8)
-                            : _white60.withOpacity(0.15),
+                            ? _greenDim.withValues(alpha: 0.8)
+                            : _white60.withValues(alpha: 0.15),
                         width: 1.5,
                       ),
                       boxShadow: ready
                           ? [
                               BoxShadow(
-                                color: _greenDim.withOpacity(0.35),
+                                color: _greenDim.withValues(alpha: 0.35),
                                 blurRadius: 8,
                                 spreadRadius: 1,
                               ),
@@ -540,7 +544,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                         label,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: ready ? _white60 : _white60.withOpacity(0.4),
+                          color: ready ? _white60 : _white60.withValues(alpha: 0.4),
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'monospace',
@@ -565,17 +569,18 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     double size = 52,
   }) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTapDown: (_) => onTap(),
       child: Container(
         width: size,
         height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: color.withOpacity(0.55),
-          border: Border.all(color: _white60.withOpacity(0.25), width: 1.5),
+          color: color.withValues(alpha: 0.55),
+          border: Border.all(color: _white60.withValues(alpha: 0.25), width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.4),
+              color: Colors.black.withValues(alpha: 0.4),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -621,14 +626,14 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: _brown400.withOpacity(0.5))),
+                    border: Border.all(color: _brown400.withValues(alpha: 0.5))),
                 child: const Icon(Icons.close, color: _white60, size: 14),
               ),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        Divider(color: _brown400.withOpacity(0.4), height: 1),
+        Divider(color: _brown400.withValues(alpha: 0.4), height: 1),
         const SizedBox(height: 16),
         _configSlider('MÚSICA', _volume, (v) {
           setState(() {
@@ -648,7 +653,7 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
           child: ElevatedButton(
             onPressed: _confirmExit,
             style: ElevatedButton.styleFrom(
-              backgroundColor: _redDim.withOpacity(0.3),
+              backgroundColor: _redDim.withValues(alpha: 0.3),
               foregroundColor: const Color(0xFFE07070),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(6),
@@ -702,9 +707,9 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
           width: 360,
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
-            color: _brown900.withOpacity(0.95),
+            color: _brown900.withValues(alpha: 0.95),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: _brown400.withOpacity(0.5)),
+            border: Border.all(color: _brown400.withValues(alpha: 0.5)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -753,3 +758,4 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     );
   }
 }
+

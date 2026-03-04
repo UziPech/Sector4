@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../expediente_game.dart';
@@ -133,7 +132,7 @@ class ExplosiveWave extends PositionComponent with HasGameReference<ExpedienteKo
     }
     
     // Debug visual (opcional)
-    debugPrint('💥 Onda Explosiva golpeó a ${target.runtimeType}');
+    debugPrint('ðŸ’¥ Onda Explosiva golpeó a ${target.runtimeType}');
   }
   
   @override
@@ -145,7 +144,7 @@ class ExplosiveWave extends PositionComponent with HasGameReference<ExpedienteKo
     
     // Círculo de onda
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.5 * opacity)
+      ..color = Colors.white.withValues(alpha: 0.5 * opacity)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 10 * (1 - progress)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
@@ -154,9 +153,10 @@ class ExplosiveWave extends PositionComponent with HasGameReference<ExpedienteKo
     
     // Relleno tenue
     final fillPaint = Paint()
-      ..color = Colors.red.withOpacity(0.2 * opacity)
+      ..color = Colors.red.withValues(alpha: 0.2 * opacity)
       ..style = PaintingStyle.fill;
       
     canvas.drawCircle(Offset.zero, _currentRadius, fillPaint);
   }
 }
+

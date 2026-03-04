@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 /// Efecto visual especial para resurrección de Kijin
 /// Usa colores rosa/púrpura en vez de verde
 class KijinResurrectionEffect extends PositionComponent {
-  double _lifetime = 1.5; // Más largo que normal
+  final double _lifetime = 1.5; // Más largo que normal
   double _timer = 0.0;
   
   KijinResurrectionEffect({required Vector2 position})
@@ -38,7 +38,7 @@ class KijinResurrectionEffect extends PositionComponent {
         ..color = (i % 2 == 0 
             ? const Color(0xFFFF1493) // Deep pink
             : const Color(0xFF9370DB)) // Medium purple
-            .withOpacity(opacity * 0.7)
+            .withValues(alpha: opacity * 0.7)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3;
       
@@ -51,7 +51,7 @@ class KijinResurrectionEffect extends PositionComponent {
     
     // Partículas ascendentes (rosa)
     final particlePaint = Paint()
-      ..color = const Color(0xFFFF69B4).withOpacity(opacity * 0.9)
+      ..color = const Color(0xFFFF69B4).withValues(alpha: opacity * 0.9)
       ..style = PaintingStyle.fill;
     
     for (int i = 0; i < 12; i++) {
@@ -69,7 +69,7 @@ class KijinResurrectionEffect extends PositionComponent {
     
     // Aura interior brillante
     final auraPaint = Paint()
-      ..color = Colors.white.withOpacity(opacity * 0.5)
+      ..color = Colors.white.withValues(alpha: opacity * 0.5)
       ..style = PaintingStyle.fill;
     
     canvas.drawCircle(
@@ -84,13 +84,13 @@ class KijinResurrectionEffect extends PositionComponent {
         text: TextSpan(
           text: 'REDIMIDA',
           style: TextStyle(
-            color: const Color(0xFFFF69B4).withOpacity(opacity),
+            color: const Color(0xFFFF69B4).withValues(alpha: opacity),
             fontSize: 18,
             fontWeight: FontWeight.bold,
             fontFamily: 'monospace',
             shadows: [
               Shadow(
-                color: Colors.white.withOpacity(opacity * 0.5),
+                color: Colors.white.withValues(alpha: opacity * 0.5),
                 blurRadius: 10,
               ),
             ],
@@ -113,3 +113,4 @@ class KijinResurrectionEffect extends PositionComponent {
   @override
   int get priority => 100;
 }
+
