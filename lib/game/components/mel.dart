@@ -65,8 +65,8 @@ class MelCharacter extends PositionComponent
       final frameHeight = melImage.height / rows;
       final textureSize = Vector2(frameWidth, frameHeight);
 
-      // Fila 1 (Índice 0): Izquierda
-      final leftAnim = SpriteAnimation.fromFrameData(
+      // Fila 1 (Índice 0): Derecha
+      final eastAnim = SpriteAnimation.fromFrameData(
         melImage,
         SpriteAnimationData.sequenced(
           amount: 4,
@@ -77,8 +77,8 @@ class MelCharacter extends PositionComponent
         ),
       );
 
-      // Fila 2 (Índice 1): Derecha
-      final rightAnim = SpriteAnimation.fromFrameData(
+      // Fila 2 (Índice 1): Izquierda
+      final westAnim = SpriteAnimation.fromFrameData(
         melImage,
         SpriteAnimationData.sequenced(
           amount: 4,
@@ -89,29 +89,64 @@ class MelCharacter extends PositionComponent
         ),
       );
 
-      // Fila 3 e Índice 2 (Izquierda Alternativo) puede usarse como idle/caminar si es necesario,
-      // Por ahora usamos la Fila 1 y 2 para el movimiento de IA.
+      // Fila 3 (Índice 2): Norte (Hacia arriba, dibuja izquierda)
+      final northAnim = SpriteAnimation.fromFrameData(
+        melImage,
+        SpriteAnimationData.sequenced(
+          amount: 4,
+          stepTime: 0.15,
+          textureSize: textureSize,
+          amountPerRow: 4,
+          texturePosition: Vector2(0, frameHeight * 2),
+        ),
+      );
+
+      // Fila 4 (Índice 3): Sur (Hacia abajo, dibuja derecha)
+      final southAnim = SpriteAnimation.fromFrameData(
+        melImage,
+        SpriteAnimationData.sequenced(
+          amount: 4,
+          stepTime: 0.15,
+          textureSize: textureSize,
+          amountPerRow: 4,
+          texturePosition: Vector2(0, frameHeight * 3),
+        ),
+      );
 
       // Animaciones Idle (Primer frame de cada fila respectiva)
-      final idleLeftAnim = SpriteAnimation.spriteList(
-        [leftAnim.frames[0].sprite],
+      final idleWestAnim = SpriteAnimation.spriteList(
+        [westAnim.frames[0].sprite],
         stepTime: 1.0,
         loop: false,
       );
-      final idleRightAnim = SpriteAnimation.spriteList(
-        [rightAnim.frames[0].sprite],
+      final idleEastAnim = SpriteAnimation.spriteList(
+        [eastAnim.frames[0].sprite],
+        stepTime: 1.0,
+        loop: false,
+      );
+      final idleNorthAnim = SpriteAnimation.spriteList(
+        [northAnim.frames[0].sprite],
+        stepTime: 1.0,
+        loop: false,
+      );
+      final idleSouthAnim = SpriteAnimation.spriteList(
+        [southAnim.frames[0].sprite],
         stepTime: 1.0,
         loop: false,
       );
 
       _melSprite = SpriteAnimationGroupComponent<String>(
         animations: {
-          'left': leftAnim,
-          'right': rightAnim,
-          'idle_left': idleLeftAnim,
-          'idle_right': idleRightAnim,
+          'west': westAnim,
+          'east': eastAnim,
+          'north': northAnim,
+          'south': southAnim,
+          'idle_west': idleWestAnim,
+          'idle_east': idleEastAnim,
+          'idle_north': idleNorthAnim,
+          'idle_south': idleSouthAnim,
         },
-        current: 'idle_right', // Default
+        current: 'idle_east', // Default
         anchor: Anchor.center,
         size: Vector2(80, 80), // Tamaño visual adaptado (como Dan)
         position: Vector2(16, 16), // Centrado en hitbox 32x32
@@ -153,18 +188,29 @@ class MelCharacter extends PositionComponent
       final newPos = position + direction * _speed * dt;
       position = _constrainToWorldBounds(newPos); // Aplicar límites
 
-      // Actualizar animación basado en dirección en X
-      if (direction.x > 0) {
-        _setDirection('right');
+      // Actualizar animación basado en dirección en X y Y
+      if (direction.y < -0.5) {
+        _setDirection('north');
+      } else if (direction.y > 0.5) {
+        _setDirection('south');
+      } else if (direction.x > 0) {
+        _setDirection('east');
       } else if (direction.x < 0) {
-        _setDirection('left');
+        _setDirection('west');
       }
     } else {
       // Si ya está cerca, pasar a idle basado en la última dirección
-      if (_currentDirection == 'right' || _currentDirection == 'idle_right') {
-        _setDirection('idle_right');
+      if (_currentDirection.startsWith('north') ||
+          _currentDirection == 'north') {
+        _setDirection('idle_north');
+      } else if (_currentDirection.startsWith('south') ||
+          _currentDirection == 'south') {
+        _setDirection('idle_south');
+      } else if (_currentDirection.startsWith('east') ||
+          _currentDirection == 'east') {
+        _setDirection('idle_east');
       } else {
-        _setDirection('idle_left');
+        _setDirection('idle_west');
       }
     }
   }
