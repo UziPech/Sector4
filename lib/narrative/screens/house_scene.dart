@@ -209,8 +209,7 @@ class _HouseSceneState extends State<HouseScene>
             ),
             DialogueData(
               speakerName: 'Dan',
-              text:
-                  'Me retiré. No, seamos honestos. Fui forzado a retirarme.',
+              text: 'Me retiré. No, seamos honestos. Fui forzado a retirarme.',
               type: DialogueType.internal,
             ),
             DialogueData(
@@ -239,8 +238,7 @@ class _HouseSceneState extends State<HouseScene>
             ),
             DialogueData(
               speakerName: 'Dan',
-              text:
-                  'Era mi última línea de defensa contra la Caída total.',
+              text: 'Era mi última línea de defensa contra la Caída total.',
               type: DialogueType.internal,
             ),
             DialogueData(
@@ -287,8 +285,7 @@ class _HouseSceneState extends State<HouseScene>
             ),
             DialogueData(
               speakerName: 'Dan',
-              text:
-                  'Así que la dejé ir. Actué en contra de mi propio interés.',
+              text: 'Así que la dejé ir. Actué en contra de mi propio interés.',
               type: DialogueType.internal,
             ),
             DialogueData(
@@ -472,9 +469,11 @@ class _HouseSceneState extends State<HouseScene>
         // Ajuste visual: La pared tiene 60px de alto. El límite debe estar cerca de eso.
         double wallLimitY = towerHeight + 55;
 
-        // Verificar si hay una puerta en esta sección para permitir el paso
+        // Verificar si hay una puerta FUNCIONAL en esta sección para permitir el paso
         bool isNearDoor = false;
         for (final door in room.doors) {
+          // Ignorar puertas decorativas (sin destino)
+          if (door.targetRoomId.isEmpty) continue;
           // Si la puerta está en la pared norte (o cerca de la pared central)
           if (door.position.dy < towerHeight + 50) {
             // Si estamos alineados horizontalmente con la puerta
@@ -647,6 +646,8 @@ class _HouseSceneState extends State<HouseScene>
 
     // Prioridad: Puertas
     for (final door in room.doors) {
+      // Ignorar puertas decorativas (sin destino definido)
+      if (door.targetRoomId.isEmpty) continue;
       if (door.isPlayerInRange(_playerPosition, _playerSize)) {
         _transitionToRoom(
           door.targetRoomId,
@@ -1786,6 +1787,8 @@ class _HouseSceneState extends State<HouseScene>
 
     // Check doors
     for (final door in room.doors) {
+      // Ignorar puertas decorativas (sin destino definido)
+      if (door.targetRoomId.isEmpty) continue;
       if (door.isPlayerInRange(_playerPosition, _playerSize)) {
         canInteractNow = true;
         break;
@@ -2123,8 +2126,12 @@ class _HouseSceneState extends State<HouseScene>
 
                     // Radios adaptativos globales
                     final renderedW = worldW * scale;
-                    final innerR = FlashlightOverlay.globalInnerRadius(renderedW);
-                    final outerR = FlashlightOverlay.globalOuterRadius(renderedW);
+                    final innerR = FlashlightOverlay.globalInnerRadius(
+                      renderedW,
+                    );
+                    final outerR = FlashlightOverlay.globalOuterRadius(
+                      renderedW,
+                    );
 
                     return FlashlightOverlay(
                       center: screenCenter,
