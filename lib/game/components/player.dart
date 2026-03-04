@@ -156,60 +156,104 @@ class PlayerCharacter extends PositionComponent
   Future<void> _loadDanAnimations() async {
     try {
       // OPTIMIZED: Use Flame's image cache instead of manual rootBundle loading
+      final danImage = await game.images.load('sprites/caminar_dan.png');
       final northImage = await game.images.load('sprites/dan_walk_north.png');
-      final southImage = await game.images.load('sprites/dan_walk_south.png');
 
-      // Configurar animaciones (Grilla 3x3 = 9 frames)
+      // Configurar animaciones (Grilla 3x3 para spritesheet)
       const cols = 3;
       const rows = 3;
-      final frameWidth = northImage.width / cols;
-      final frameHeight = northImage.height / rows;
+      final frameWidth = danImage.width / cols;
+      final frameHeight = danImage.height / rows;
       final textureSize = Vector2(frameWidth, frameHeight);
 
-      // Animación Norte (Caminata)
-      final northAnim = SpriteAnimation.fromFrameData(
-        northImage,
-        SpriteAnimationData.sequenced(
-          amount: 9, // 9 frames totales (3 filas x 3 columnas)
-          stepTime: 0.15, // Velocidad original
-          textureSize: textureSize,
-          amountPerRow: 3, // Baja a la siguiente fila cada 3 frames
-        ),
-      );
+      // Para dan_walk_north asumimos 3 frames en una fila horizontal
+      final northFrameWidth = northImage.width / 3;
+      final northFrameHeight = northImage.height / 1;
+      final northTextureSize = Vector2(northFrameWidth, northFrameHeight);
 
-      // Animación Sur (Caminata)
-      final southAnim = SpriteAnimation.fromFrameData(
-        southImage,
+      // Fila 1: Caminar Derecha (Índice 0)
+      final eastAnim = SpriteAnimation.fromFrameData(
+        danImage,
         SpriteAnimationData.sequenced(
-          amount: 9,
+          amount: 3,
           stepTime: 0.15,
           textureSize: textureSize,
           amountPerRow: 3,
+          texturePosition: Vector2(0, 0),
         ),
       );
 
-      // Animación Idle Norte (Usamos el primer frame de la animación norte)
+      // Fila 2: Caminar Izquierda (Índice 1)
+      final westAnim = SpriteAnimation.fromFrameData(
+        danImage,
+        SpriteAnimationData.sequenced(
+          amount: 3,
+          stepTime: 0.15,
+          textureSize: textureSize,
+          amountPerRow: 3,
+          texturePosition: Vector2(0, frameHeight * 1),
+        ),
+      );
+
+      // Fila 3: Caminar Derecha Alternativo (Índice 2) - Se usará para abajo (sur)
+      final auxEastAnim = SpriteAnimation.fromFrameData(
+        danImage,
+        SpriteAnimationData.sequenced(
+          amount: 3,
+          stepTime: 0.15,
+          textureSize: textureSize,
+          amountPerRow: 3,
+          texturePosition: Vector2(0, frameHeight * 2),
+        ),
+      );
+
+      // Animación Norte (dan_walk_north.png)
+      final northAnim = SpriteAnimation.fromFrameData(
+        northImage,
+        SpriteAnimationData.sequenced(
+          amount: 3,
+          stepTime: 0.15,
+          textureSize: northTextureSize,
+          amountPerRow: 3,
+          texturePosition: Vector2(0, 0),
+        ),
+      );
+
+      // Animaciones Idle (Primer frame de cada fila respectiva)
+      final idleEastAnim = SpriteAnimation.spriteList(
+        [eastAnim.frames[0].sprite],
+        stepTime: 1.0,
+        loop: false,
+      );
+      final idleWestAnim = SpriteAnimation.spriteList(
+        [westAnim.frames[0].sprite],
+        stepTime: 1.0,
+        loop: false,
+      );
+      final idleAuxEastAnim = SpriteAnimation.spriteList(
+        [auxEastAnim.frames[0].sprite],
+        stepTime: 1.0,
+        loop: false,
+      );
       final idleNorthAnim = SpriteAnimation.spriteList(
         [northAnim.frames[0].sprite],
         stepTime: 1.0,
         loop: false,
       );
 
-      // Animación Idle Sur (Usamos el primer frame de la animación sur)
-      final idleSouthAnim = SpriteAnimation.spriteList(
-        [southAnim.frames[0].sprite],
-        stepTime: 1.0,
-        loop: false,
-      );
-
       _danSprite = SpriteAnimationGroupComponent<String>(
         animations: {
-          'north': northAnim,
-          'south': southAnim,
+          'south':
+              auxEastAnim, // Seguimos usando la derecha alternativa para el sur
+          'west': westAnim, // Izquierda real (Fila 2)
+          'east': eastAnim, // Derecha principal (Fila 1)
+          'north': northAnim, // Animación real hacia el norte (espalda)
+          'idle_south': idleAuxEastAnim,
+          'idle_west': idleWestAnim,
+          'idle_east': idleEastAnim,
           'idle_north': idleNorthAnim,
-          'idle_south': idleSouthAnim,
         },
-        current: 'idle_south',
+        current: 'idle_east',
         anchor: Anchor.center,
         // El tamaño visual es 80x80 como en el capítulo 1
         size: Vector2(80, 80),
@@ -287,25 +331,46 @@ class PlayerCharacter extends PositionComponent
 
   void _updateDanAnimation() {
     if (_velocity.length > 0) {
-      // Movimiento
       if (_velocity.y < -0.1) {
         _danSprite!.current = 'north';
       } else if (_velocity.y > 0.1) {
         _danSprite!.current = 'south';
-      } else {
-        // Movimiento horizontal: mantener dirección vertical previa o usar sur
-        final current = _danSprite!.current;
-        if (current == 'north' || current == 'idle_north') {
-          _danSprite!.current = 'north';
-        } else {
-          _danSprite!.current = 'south';
+      } else if (_velocity.x < -0.1) {
+        if (_danSprite!.current != 'west') {
+          print(
+            'DEBUG: Movimiento Izquierda detectado (velocity: \${_velocity.x}). Cambiando a "west" (Fila 2).',
+          );
         }
+        _danSprite!.current = 'west';
+      } else if (_velocity.x > 0.1) {
+        if (_danSprite!.current != 'east') {
+          print(
+            'DEBUG: Movimiento Derecha detectado (velocity: \${_velocity.x}). Cambiando a "east" (Fila 1).',
+          );
+        }
+        _danSprite!.current = 'east';
+      }
+
+      // Quitar el flipeo por si acaso hubiera quedado pegado de antes
+      if (_danSprite!.isFlippedHorizontally) {
+        print('DEBUG: Quitando isFlippedHorizontally de _danSprite');
+        _danSprite!.flipHorizontallyAroundCenter();
+      }
+      if (scale.x < 0) {
+        print(
+          'DEBUG: El componente contenedor estaba flipeado, restaurando scale.x',
+        );
+        scale.x = 1.0;
       }
     } else {
       // Idle
       final current = _danSprite!.current;
       if (current == 'north' || current == 'idle_north') {
         _danSprite!.current = 'idle_north';
+      } else if (current == 'west' || current == 'idle_west') {
+        _danSprite!.current = 'idle_west';
+      } else if (current == 'east' || current == 'idle_east') {
+        _danSprite!.current = 'idle_east';
       } else {
         _danSprite!.current = 'idle_south';
       }
@@ -839,5 +904,3 @@ class _ResurrectionEffect extends PositionComponent {
   @override
   int get priority => 100;
 }
-
-

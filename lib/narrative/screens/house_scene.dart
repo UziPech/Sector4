@@ -60,12 +60,11 @@ class _HouseSceneState extends State<HouseScene>
   late FocusNode _focusNode;
   Timer? _movementTimer;
 
-  // Animación de sprite
   AnimatedSprite? _danSprite;
   AnimatedSprite? _danSpriteNorth;
-  AnimatedSprite? _danSpriteSouth;
   AnimatedSprite? _doorSprite;
   String _currentDirection = 'SOUTH';
+  int _currentFrameOffset = 6; // Default to row 3 (South)
   int _currentFrame = 0;
   double _animationTimer = 0.0;
   static const double _frameRate = 0.15;
@@ -107,11 +106,13 @@ class _HouseSceneState extends State<HouseScene>
 
   Future<void> _loadDanSprite() async {
     try {
+      final spriteMain = await AnimatedSprite.load(
+        'assets/sprites/caminar_dan.png',
+        columns: 3,
+        rows: 3,
+      );
       final spriteNorth = await AnimatedSprite.load(
         'assets/sprites/dan_walk_north.png',
-      );
-      final spriteSouth = await AnimatedSprite.load(
-        'assets/sprites/dan_walk_south.png',
       );
       final doorSprite = await AnimatedSprite.load(
         'assets/images/doors_sprite_sheet.png',
@@ -121,9 +122,8 @@ class _HouseSceneState extends State<HouseScene>
 
       if (mounted) {
         setState(() {
+          _danSprite = spriteMain;
           _danSpriteNorth = spriteNorth;
-          _danSpriteSouth = spriteSouth;
-          _danSprite = spriteSouth;
           _doorSprite = doorSprite;
         });
       }
@@ -209,8 +209,7 @@ class _HouseSceneState extends State<HouseScene>
             ),
             DialogueData(
               speakerName: 'Dan',
-              text:
-                  'Me retiré. No, seamos honestos. Fui forzado a retirarme.',
+              text: 'Me retiré. No, seamos honestos. Fui forzado a retirarme.',
               type: DialogueType.internal,
             ),
             DialogueData(
@@ -239,8 +238,7 @@ class _HouseSceneState extends State<HouseScene>
             ),
             DialogueData(
               speakerName: 'Dan',
-              text:
-                  'Era mi última línea de defensa contra la Caída total.',
+              text: 'Era mi última línea de defensa contra la Caída total.',
               type: DialogueType.internal,
             ),
             DialogueData(
@@ -287,8 +285,7 @@ class _HouseSceneState extends State<HouseScene>
             ),
             DialogueData(
               speakerName: 'Dan',
-              text:
-                  'Así que la dejé ir. Actué en contra de mi propio interés.',
+              text: 'Así que la dejé ir. Actué en contra de mi propio interés.',
               type: DialogueType.internal,
             ),
             DialogueData(
@@ -365,25 +362,37 @@ class _HouseSceneState extends State<HouseScene>
         setState(() {
           _playerPosition = newPos;
 
+          // Update direction and frame offset
           if (velocity.y < -0.1) {
             _currentDirection = 'NORTH';
-            _danSprite = _danSpriteNorth;
+            _currentFrameOffset = 0; // Utiliza índice 0 para dan_walk_north
           } else if (velocity.y > 0.1) {
             _currentDirection = 'SOUTH';
-            _danSprite = _danSpriteSouth;
+            _currentFrameOffset = 6; // Fila 3 de caminar_dan
+          } else if (velocity.x < -0.1) {
+            _currentDirection = 'WEST';
+            _currentFrameOffset = 3; // Fila 2
+          } else if (velocity.x > 0.1) {
+            _currentDirection = 'EAST';
+            _currentFrameOffset = 0; // Fila 1
           }
 
           _animationTimer += 0.016;
           if (_animationTimer >= _frameRate) {
             _animationTimer = 0.0;
-            _currentFrame = (_currentFrame + 1) % 9;
+            // Solo animar entre 0 y 2 y sumarle el offset respectivo de la fila
+            int nextAnimFrame = ((_currentFrame - _currentFrameOffset + 1) % 3);
+            if (nextAnimFrame < 0) nextAnimFrame = 0;
+            _currentFrame = _currentFrameOffset + nextAnimFrame;
           }
         });
       }
     } else {
-      if (_currentFrame != 0) {
+      // Idle frame for current direction
+      int idleFrame = _currentFrameOffset;
+      if (_currentFrame != idleFrame) {
         setState(() {
-          _currentFrame = 0;
+          _currentFrame = idleFrame;
         });
       }
     }
@@ -2065,14 +2074,23 @@ class _HouseSceneState extends State<HouseScene>
                           Positioned(
                             left: _playerPosition.x - _playerSize / 2,
                             top: _playerPosition.y - _playerSize / 2,
-                            child: _danSprite != null
-                                ? AnimatedSpriteWidget(
-                                    sprite: _danSprite!,
+                            child: Builder(
+                              builder: (context) {
+                                // Seleccionar sprite
+                                AnimatedSprite? spriteToUse =
+                                    _currentDirection == 'NORTH'
+                                    ? _danSpriteNorth
+                                    : _danSprite;
+
+                                if (spriteToUse != null) {
+                                  return AnimatedSpriteWidget(
+                                    sprite: spriteToUse,
                                     direction: _currentDirection,
                                     frameIndex: _currentFrame,
                                     size: _playerSize,
-                                  )
-                                : SizedBox(
+                                  );
+                                } else {
+                                  return SizedBox(
                                     width: _playerSize,
                                     height: _playerSize,
                                     child: Container(
@@ -2090,7 +2108,10 @@ class _HouseSceneState extends State<HouseScene>
                                         size: 30,
                                       ),
                                     ),
-                                  ),
+                                  );
+                                }
+                              },
+                            ),
                           ),
                         ],
                       ),
@@ -2123,8 +2144,12 @@ class _HouseSceneState extends State<HouseScene>
 
                     // Radios adaptativos globales
                     final renderedW = worldW * scale;
-                    final innerR = FlashlightOverlay.globalInnerRadius(renderedW);
-                    final outerR = FlashlightOverlay.globalOuterRadius(renderedW);
+                    final innerR = FlashlightOverlay.globalInnerRadius(
+                      renderedW,
+                    );
+                    final outerR = FlashlightOverlay.globalOuterRadius(
+                      renderedW,
+                    );
 
                     return FlashlightOverlay(
                       center: screenCenter,

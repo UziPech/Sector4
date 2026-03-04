@@ -64,8 +64,9 @@ class _BunkerSceneState extends State<BunkerScene>
   Timer? _updateTimer;
 
   // Animación de sprite
+  AnimatedSprite? _danSprite;
   AnimatedSprite? _danSpriteNorth;
-  AnimatedSprite? _danSpriteSouth;
+  int _currentFrameOffset = 6; // Default to South (Row 3)
   ui.Image? _treeSprite; // Sprite sheet para los árboles
   ui.Image? _wallHorizontal;
   ui.Image? _wallVertical;
@@ -117,17 +118,19 @@ class _BunkerSceneState extends State<BunkerScene>
 
   Future<void> _loadDanSprites() async {
     try {
+      final spriteMain = await AnimatedSprite.load(
+        'assets/sprites/caminar_dan.png',
+        columns: 3,
+        rows: 3,
+      );
       final spriteNorth = await AnimatedSprite.load(
         'assets/sprites/dan_walk_north.png',
-      );
-      final spriteSouth = await AnimatedSprite.load(
-        'assets/sprites/dan_walk_south.png',
       );
 
       if (mounted) {
         setState(() {
+          _danSprite = spriteMain;
           _danSpriteNorth = spriteNorth;
-          _danSpriteSouth = spriteSouth;
         });
       }
     } catch (e) {
@@ -206,8 +209,7 @@ class _BunkerSceneState extends State<BunkerScene>
             ),
             DialogueData(
               speakerName: 'Dan',
-              text:
-                  'Hace años que no venía por aquí. Todo está abandonado.',
+              text: 'Hace años que no venía por aquí. Todo está abandonado.',
               type: DialogueType.internal,
             ),
             DialogueData(
@@ -380,18 +382,31 @@ class _BunkerSceneState extends State<BunkerScene>
           velocity.y,
         );
 
+        if (velocity.y < -0.1) {
+          _currentFrameOffset = 0; // Fila superior para dan_walk_north
+        } else if (velocity.y > 0.1) {
+          _currentFrameOffset = 6; // Fila 3
+        } else if (velocity.x < -0.1) {
+          _currentFrameOffset = 3; // Fila 2
+        } else if (velocity.x > 0.1) {
+          _currentFrameOffset = 0; // Fila 1
+        }
+
         // Animar frames
         _animationTimer += 0.016; // ~16ms por frame
         if (_animationTimer >= _frameRate) {
           _animationTimer = 0;
-          _currentFrame = (_currentFrame + 1) % 3; // Ciclar entre 3 frames
+          int nextAnimFrame = ((_currentFrame - _currentFrameOffset + 1) % 3);
+          if (nextAnimFrame < 0) nextAnimFrame = 0;
+          _currentFrame = _currentFrameOffset + nextAnimFrame;
         }
       });
     } else {
-      // Si no se mueve, resetear a frame 0 (idle)
-      if (_currentFrame != 0) {
+      // Si no se mueve, resetear a frame idle
+      int idleFrame = _currentFrameOffset;
+      if (_currentFrame != idleFrame) {
         setState(() {
-          _currentFrame = 0;
+          _currentFrame = idleFrame;
         });
       }
     }
@@ -733,17 +748,10 @@ class _BunkerSceneState extends State<BunkerScene>
         top: _playerPosition.y - _playerSize / 2,
         child: Builder(
           builder: (context) {
-            // Seleccionar sprite basado en dirección
-            AnimatedSprite? spriteToUse;
-
-            if (_currentDirection.contains('NORTH')) {
-              spriteToUse = _danSpriteNorth;
-            } else {
-              spriteToUse = _danSpriteSouth;
-            }
-
-            // Fallback si alguno es null
-            spriteToUse ??= _danSpriteSouth ?? _danSpriteNorth;
+            // Seleccionar sprite
+            AnimatedSprite? spriteToUse = _currentDirection.contains('NORTH')
+                ? _danSpriteNorth
+                : _danSprite;
 
             if (spriteToUse != null) {
               return AnimatedSpriteWidget(
@@ -1070,12 +1078,20 @@ class _BunkerSceneState extends State<BunkerScene>
 
                     // Radios adaptativos globales
                     // Usamos el ancho de pantalla o el ancho renderizado según el modo
-                    final referenceW = room.cameraMode == CameraMode.follow 
-                        ? screenW 
-                        : room.roomSize.width * (screenW / room.roomSize.width < screenH / room.roomSize.height ? screenW / room.roomSize.width : screenH / room.roomSize.height);
+                    final referenceW = room.cameraMode == CameraMode.follow
+                        ? screenW
+                        : room.roomSize.width *
+                              (screenW / room.roomSize.width <
+                                      screenH / room.roomSize.height
+                                  ? screenW / room.roomSize.width
+                                  : screenH / room.roomSize.height);
 
-                    final innerR = FlashlightOverlay.globalInnerRadius(referenceW);
-                    final outerR = FlashlightOverlay.globalOuterRadius(referenceW);
+                    final innerR = FlashlightOverlay.globalInnerRadius(
+                      referenceW,
+                    );
+                    final outerR = FlashlightOverlay.globalOuterRadius(
+                      referenceW,
+                    );
 
                     return FlashlightOverlay(
                       center: screenCenter,
