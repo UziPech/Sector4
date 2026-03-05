@@ -168,9 +168,9 @@ class PlayerCharacter extends PositionComponent
       final frameHeight = danImage.height / rows;
       final textureSize = Vector2(frameWidth, frameHeight);
 
-      // Para dan_walk_north asumimos 3 frames en una fila horizontal
+      // Para dan_walk_north (Grilla 3x3)
       final northFrameWidth = northImage.width / 3;
-      final northFrameHeight = northImage.height / 1;
+      final northFrameHeight = northImage.height / 3;
       final northTextureSize = Vector2(northFrameWidth, northFrameHeight);
 
       // Fila 1: Caminar Derecha (Índice 0)
