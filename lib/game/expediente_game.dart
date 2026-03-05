@@ -107,6 +107,7 @@ class ExpedienteKorinGame extends FlameGame
     mel = MelCharacter(
       position: Vector2.zero(), // Se ajustará
       player: player,
+      isDanCompanion: player.role == PlayerRole.mel,
     );
     await world.add(mel);
 

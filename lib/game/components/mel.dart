@@ -22,6 +22,9 @@ class MelCharacter extends PositionComponent
   // Referencia al jugador
   final PlayerCharacter player;
 
+  // Si es true, el companion visual es Dan (jugador eligió Mel)
+  final bool isDanCompanion;
+
   // Habilidades
   bool _canHeal = true;
   final double _healCooldown = 15.0; // 15 segundos
@@ -35,7 +38,7 @@ class MelCharacter extends PositionComponent
   // Animaciones de sprites
   SpriteAnimationGroupComponent<String>? _melSprite;
 
-  MelCharacter({required Vector2 position, required this.player})
+  MelCharacter({required Vector2 position, required this.player, this.isDanCompanion = false})
     : super(position: position);
 
   // Getters
@@ -51,7 +54,91 @@ class MelCharacter extends PositionComponent
     // Agregar hitbox
     add(RectangleHitbox()..collisionType = CollisionType.passive);
 
-    await _loadMelAnimations();
+    if (!isDanCompanion) {
+      await _loadMelAnimations();
+    } else {
+      await _loadDanCompanionAnimations();
+    }
+  }
+
+  /// Carga los sprites de Dan para usarlos como companion (cuando el jugador es Mel)
+  /// Replica la misma lógica de grilla 3x3 de PlayerCharacter._loadDanAnimations()
+  Future<void> _loadDanCompanionAnimations() async {
+    try {
+      final customImages = Images(prefix: 'assets/');
+      final danImage = await customImages.load('sprites/caminar_dan.png');
+      final northImage = await customImages.load('sprites/dan_walk_north.png');
+
+      // Grilla 3x3 igual que en PlayerCharacter
+      const cols = 3;
+      const rows = 3;
+      final frameWidth = danImage.width / cols;
+      final frameHeight = danImage.height / rows;
+      final textureSize = Vector2(frameWidth, frameHeight);
+
+      final northFrameWidth = northImage.width / 3;
+      final northFrameHeight = northImage.height / 3;
+      final northTextureSize = Vector2(northFrameWidth, northFrameHeight);
+
+      // Fila 1: Este (derecha)
+      final eastAnim = SpriteAnimation.fromFrameData(
+        danImage,
+        SpriteAnimationData.sequenced(
+          amount: 3, stepTime: 0.15, textureSize: textureSize,
+          amountPerRow: 3, texturePosition: Vector2(0, 0),
+        ),
+      );
+      // Fila 2: Oeste (izquierda)
+      final westAnim = SpriteAnimation.fromFrameData(
+        danImage,
+        SpriteAnimationData.sequenced(
+          amount: 3, stepTime: 0.15, textureSize: textureSize,
+          amountPerRow: 3, texturePosition: Vector2(0, frameHeight),
+        ),
+      );
+      // Fila 3: Sur (se reusa la fila alternativa de derecha)
+      final southAnim = SpriteAnimation.fromFrameData(
+        danImage,
+        SpriteAnimationData.sequenced(
+          amount: 3, stepTime: 0.15, textureSize: textureSize,
+          amountPerRow: 3, texturePosition: Vector2(0, frameHeight * 2),
+        ),
+      );
+      // Norte: sprite separado
+      final northAnim = SpriteAnimation.fromFrameData(
+        northImage,
+        SpriteAnimationData.sequenced(
+          amount: 3, stepTime: 0.15, textureSize: northTextureSize,
+          amountPerRow: 3, texturePosition: Vector2(0, 0),
+        ),
+      );
+
+      // Idles
+      final idleEastAnim = SpriteAnimation.spriteList([eastAnim.frames[0].sprite], stepTime: 1.0, loop: false);
+      final idleWestAnim = SpriteAnimation.spriteList([westAnim.frames[0].sprite], stepTime: 1.0, loop: false);
+      final idleSouthAnim = SpriteAnimation.spriteList([southAnim.frames[0].sprite], stepTime: 1.0, loop: false);
+      final idleNorthAnim = SpriteAnimation.spriteList([northAnim.frames[0].sprite], stepTime: 1.0, loop: false);
+
+      _melSprite = SpriteAnimationGroupComponent<String>(
+        animations: {
+          'east': eastAnim,
+          'west': westAnim,
+          'south': southAnim,
+          'north': northAnim,
+          'idle_east': idleEastAnim,
+          'idle_west': idleWestAnim,
+          'idle_south': idleSouthAnim,
+          'idle_north': idleNorthAnim,
+        },
+        current: 'idle_east',
+        anchor: Anchor.center,
+        size: Vector2(80, 80),
+        position: Vector2(16, 16),
+      );
+      add(_melSprite!);
+    } catch (e) {
+      debugPrint('Error cargando sprites de Dan (companion): $e');
+    }
   }
 
   Future<void> _loadMelAnimations() async {

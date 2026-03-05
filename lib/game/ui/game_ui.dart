@@ -318,8 +318,9 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('DAN',
-                      style: TextStyle(
+                  Text(
+                      widget.game.player.role == PlayerRole.mel ? 'MEL' : 'DAN',
+                      style: const TextStyle(
                           color: _white60,
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
@@ -345,7 +346,9 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                        ready ? 'MEL — LISTO (E)' : 'MEL — RECARGANDO ${(progress * 100).toInt()}%',
+                        ready
+                            ? '${widget.game.player.role == PlayerRole.mel ? "DAN" : "MEL"} — LISTO (E)'
+                            : '${widget.game.player.role == PlayerRole.mel ? "DAN" : "MEL"} — RECARGANDO ${(progress * 100).toInt()}%',
                         style: TextStyle(
                             color: ready ? _greenDim : _amber,
                             fontSize: 9,
