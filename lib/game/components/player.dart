@@ -41,7 +41,7 @@ class PlayerCharacter extends PositionComponent
   bool _isDead = false;
 
   // Sprite Component for Dan
-  SpriteAnimationGroupComponent<String>? _danSprite;
+  SpriteAnimationGroupComponent<String>? _characterSprite;
 
   // Movimiento
   final Vector2 _velocity = Vector2.zero();
@@ -148,9 +148,11 @@ class PlayerCharacter extends PositionComponent
       weaponInventory.equipWeapon(0);
     }
 
-    // Cargar sprites para Dan
+    // Cargar sprites según el rol
     if (role == PlayerRole.dan) {
       await _loadDanAnimations();
+    } else if (role == PlayerRole.mel) {
+      await _loadMelAnimations();
     }
   }
 
@@ -243,7 +245,7 @@ class PlayerCharacter extends PositionComponent
         loop: false,
       );
 
-      _danSprite = SpriteAnimationGroupComponent<String>(
+      _characterSprite = SpriteAnimationGroupComponent<String>(
         animations: {
           'south':
               auxEastAnim, // Seguimos usando la derecha alternativa para el sur
@@ -263,9 +265,84 @@ class PlayerCharacter extends PositionComponent
         position: Vector2(16, 16),
       );
 
-      add(_danSprite!);
+      add(_characterSprite!);
     } catch (e) {
       debugPrint('Error cargando sprites de Dan: $e');
+    }
+  }
+
+  /// Carga los sprites de Mel como jugador principal.
+  /// Reutiliza el mismo spritesheet 4x4 (Mel_caminar.png) del companion.
+  Future<void> _loadMelAnimations() async {
+    try {
+      final customImages = Images(prefix: 'assets/');
+      final melImage = await customImages.load('sprites/Mel_caminar.png');
+
+      // Grilla 4x4
+      const cols = 4;
+      const rows = 4;
+      final frameWidth = melImage.width / cols;
+      final frameHeight = melImage.height / rows;
+      final textureSize = Vector2(frameWidth, frameHeight);
+
+      // Fila 1: Derecha (este)
+      final eastAnim = SpriteAnimation.fromFrameData(
+        melImage,
+        SpriteAnimationData.sequenced(
+          amount: 4, stepTime: 0.15, textureSize: textureSize,
+          amountPerRow: 4, texturePosition: Vector2(0, 0),
+        ),
+      );
+      // Fila 2: Izquierda (oeste)
+      final westAnim = SpriteAnimation.fromFrameData(
+        melImage,
+        SpriteAnimationData.sequenced(
+          amount: 4, stepTime: 0.15, textureSize: textureSize,
+          amountPerRow: 4, texturePosition: Vector2(0, frameHeight),
+        ),
+      );
+      // Fila 3: Norte (arriba)
+      final northAnim = SpriteAnimation.fromFrameData(
+        melImage,
+        SpriteAnimationData.sequenced(
+          amount: 4, stepTime: 0.15, textureSize: textureSize,
+          amountPerRow: 4, texturePosition: Vector2(0, frameHeight * 2),
+        ),
+      );
+      // Fila 4: Sur (abajo)
+      final southAnim = SpriteAnimation.fromFrameData(
+        melImage,
+        SpriteAnimationData.sequenced(
+          amount: 4, stepTime: 0.15, textureSize: textureSize,
+          amountPerRow: 4, texturePosition: Vector2(0, frameHeight * 3),
+        ),
+      );
+
+      // Idles (primer frame de cada dirección)
+      final idleEastAnim  = SpriteAnimation.spriteList([eastAnim.frames[0].sprite],  stepTime: 1.0, loop: false);
+      final idleWestAnim  = SpriteAnimation.spriteList([westAnim.frames[0].sprite],  stepTime: 1.0, loop: false);
+      final idleNorthAnim = SpriteAnimation.spriteList([northAnim.frames[0].sprite], stepTime: 1.0, loop: false);
+      final idleSouthAnim = SpriteAnimation.spriteList([southAnim.frames[0].sprite], stepTime: 1.0, loop: false);
+
+      _characterSprite = SpriteAnimationGroupComponent<String>(
+        animations: {
+          'east':       eastAnim,
+          'west':       westAnim,
+          'north':      northAnim,
+          'south':      southAnim,
+          'idle_east':  idleEastAnim,
+          'idle_west':  idleWestAnim,
+          'idle_north': idleNorthAnim,
+          'idle_south': idleSouthAnim,
+        },
+        current: 'idle_east',
+        anchor: Anchor.center,
+        size: Vector2(80, 80),
+        position: Vector2(16, 16),
+      );
+      add(_characterSprite!);
+    } catch (e) {
+      debugPrint('Error cargando sprites de Mel (jugador): $e');
     }
   }
 
@@ -325,56 +402,52 @@ class PlayerCharacter extends PositionComponent
     // Movimiento normal
     _updateMovement(dt);
 
-    // Actualizar animación de Dan
-    if (_danSprite != null) {
-      _updateDanAnimation();
+    // Actualizar animación del personaje activo
+    if (_characterSprite != null) {
+      _updateCharacterAnimation();
     }
   }
 
-  void _updateDanAnimation() {
+  void _updateCharacterAnimation() {
     if (_velocity.length > 0) {
       if (_velocity.y < -0.1) {
-        _danSprite!.current = 'north';
+        _characterSprite!.current = 'north';
       } else if (_velocity.y > 0.1) {
-        _danSprite!.current = 'south';
+        _characterSprite!.current = 'south';
       } else if (_velocity.x < -0.1) {
-        if (_danSprite!.current != 'west') {
+        if (_characterSprite!.current != 'west') {
           print(
             'DEBUG: Movimiento Izquierda detectado (velocity: \${_velocity.x}). Cambiando a "west" (Fila 2).',
           );
         }
-        _danSprite!.current = 'west';
+        _characterSprite!.current = 'west';
       } else if (_velocity.x > 0.1) {
-        if (_danSprite!.current != 'east') {
+        if (_characterSprite!.current != 'east') {
           print(
             'DEBUG: Movimiento Derecha detectado (velocity: \${_velocity.x}). Cambiando a "east" (Fila 1).',
           );
         }
-        _danSprite!.current = 'east';
+        _characterSprite!.current = 'east';
       }
 
       // Quitar el flipeo por si acaso hubiera quedado pegado de antes
-      if (_danSprite!.isFlippedHorizontally) {
-        print('DEBUG: Quitando isFlippedHorizontally de _danSprite');
-        _danSprite!.flipHorizontallyAroundCenter();
+      if (_characterSprite!.isFlippedHorizontally) {
+        _characterSprite!.flipHorizontallyAroundCenter();
       }
       if (scale.x < 0) {
-        print(
-          'DEBUG: El componente contenedor estaba flipeado, restaurando scale.x',
-        );
         scale.x = 1.0;
       }
     } else {
       // Idle
-      final current = _danSprite!.current;
+      final current = _characterSprite!.current;
       if (current == 'north' || current == 'idle_north') {
-        _danSprite!.current = 'idle_north';
+        _characterSprite!.current = 'idle_north';
       } else if (current == 'west' || current == 'idle_west') {
-        _danSprite!.current = 'idle_west';
+        _characterSprite!.current = 'idle_west';
       } else if (current == 'east' || current == 'idle_east') {
-        _danSprite!.current = 'idle_east';
+        _characterSprite!.current = 'idle_east';
       } else {
-        _danSprite!.current = 'idle_south';
+        _characterSprite!.current = 'idle_south';
       }
     }
   }
@@ -806,7 +879,7 @@ class PlayerCharacter extends PositionComponent
     }
 
     // Dibujar círculo del jugador (color según rol) - SOLO SI NO HAY SPRITE
-    if (_danSprite == null) {
+    if (_characterSprite == null) {
       final paint = role == PlayerRole.dan ? _paintDan : _paintMel;
       canvas.drawCircle((size / 2).toOffset(), _size / 2, paint);
     }
