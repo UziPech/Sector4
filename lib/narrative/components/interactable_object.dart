@@ -52,7 +52,10 @@ class InteractableObject extends StatelessWidget {
     final isFurniture = data.type == InteractableType.furniture || data.type == InteractableType.photo;
     final isDecoration = data.type == InteractableType.decoration;
     final showBorder = (!isFurniture && !isDecoration) || isInRange;
-    
+
+    // Muebles sin sprite son completamente invisibles (solo zona de detección)
+    final isInvisibleTrigger = isFurniture && data.spritePath == null;
+
     return Positioned(
       left: data.position.x,
       top: data.position.y,
@@ -61,13 +64,15 @@ class InteractableObject extends StatelessWidget {
         child: Container(
           width: data.size.x,
           height: data.size.y,
-          decoration: BoxDecoration(
-            color: showBorder ? _getColorForType() : Colors.transparent,
-            border: showBorder ? Border.all(
-              color: isInRange ? Colors.yellow : Colors.white.withValues(alpha: 0.3),
-              width: isInRange ? 3 : 1,
-            ) : null,
-          ),
+          decoration: isInvisibleTrigger
+              ? null // Sin decoración — completamente transparente
+              : BoxDecoration(
+                  color: showBorder ? _getColorForType() : Colors.transparent,
+                  border: showBorder ? Border.all(
+                    color: isInRange ? Colors.yellow : Colors.white.withValues(alpha: 0.3),
+                    width: isInRange ? 3 : 1,
+                  ) : null,
+                ),
           child: Stack(
             children: [
               // Sprite o icono del objeto
@@ -96,10 +101,11 @@ class InteractableObject extends StatelessWidget {
                           },
                         ),
                 )
-              else
+              else if (!isInvisibleTrigger)
+                // Solo mostrar placeholder si NO es un trigger invisible
                 _buildCharacterPlaceholder(),
-              // Indicador de interacción
-              if (isInRange && !DialogueOverlay.isActive)
+              // Indicador de interacción (solo si tiene sprite propio — triggers invisibles usan el botón global)
+              if (isInRange && !DialogueOverlay.isActive && !isInvisibleTrigger)
                 Positioned(
                   top: -30,
                   left: 0,

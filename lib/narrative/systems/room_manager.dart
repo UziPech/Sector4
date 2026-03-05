@@ -54,6 +54,51 @@ class RoomManager {
           size: const Vector2(200, 100),
           spritePath: 'assets/images/sofa.png',
         ),
+
+        // Puerta de Sarah - Zona central norte (sin sprite propio, activa monólogo interno)
+        InteractableData(
+          id: 'wife_door',
+          name: 'Habitación de Sarah',
+          type: InteractableType.furniture,
+          position: const Vector2(304, 120),
+          size: const Vector2(90, 40),
+          isOneTime: false,
+          dialogue: DialogueSequence(
+            id: 'wife_door_dialogue',
+            dialogues: const [
+              DialogueData(
+                speakerName: 'Dan',
+                text: '...',
+                type: DialogueType.internal,
+              ),
+              DialogueData(
+                speakerName: 'Dan',
+                text: 'Esta puerta... cuántas veces la abrí sin pensar.',
+                type: DialogueType.internal,
+              ),
+              DialogueData(
+                speakerName: 'Dan',
+                text: 'Sarah...',
+                type: DialogueType.internal,
+              ),
+              DialogueData(
+                speakerName: 'Dan',
+                text: 'Siempre dejaba la luz encendida. Decía que le daba miedo la oscuridad.',
+                type: DialogueType.internal,
+              ),
+              DialogueData(
+                speakerName: 'Dan',
+                text: 'Ahora la oscuridad es lo único que queda.',
+                type: DialogueType.internal,
+              ),
+              DialogueData(
+                speakerName: 'Dan',
+                text: 'No puedo entrar ahí. Todavía no.',
+                type: DialogueType.internal,
+              ),
+            ],
+          ),
+        ),
       ],
       doors: [
         const DoorData(
