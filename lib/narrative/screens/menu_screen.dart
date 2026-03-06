@@ -25,9 +25,18 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
   final List<Raindrop> _raindrops = [];
   final Random _random = Random();
 
-  // Controladores para el efecto Glitch del texto
+  // Controladores para el efecto Glitch del texto y Traducciones
   Timer? _glitchTimer;
   bool _isTitleGlitching = false;
+  int _currentTitleIndex = 0;
+  
+  final List<List<String>> _titleTranslations = const [
+    ['EXPEDIENTE', 'KŌRIN'], // Español / Rōmaji
+    ['機密降臨', '檔案'], // Chino/Kanji (Archivos de descenso clasificados)
+    ['코린', '기밀 기록'],  // Coreano (Kōrin Registros Clasificados)
+    ['コーリン', '調書'], // Japonés (Kōrin Protocolo)
+    ['光輪', '事件'], // Japonés (Incidente Kōrin/Halo)
+  ];
 
   @override
   void initState() {
@@ -72,15 +81,38 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
   }
 
   void _scheduleGlitch() {
-    _glitchTimer = Timer(Duration(milliseconds: 3000 + _random.nextInt(3000)), () {
+    _glitchTimer = Timer(Duration(milliseconds: 1500 + _random.nextInt(2500)), () {
       if (mounted) {
-        setState(() => _isTitleGlitching = true);
+        setState(() {
+          _isTitleGlitching = true;
+          if (_random.nextDouble() < 0.4) {
+            _currentTitleIndex = (_currentTitleIndex + 1) % _titleTranslations.length;
+          }
+        });
         
-        // Duración del glitch (corto, como estática)
-        Future.delayed(const Duration(milliseconds: 200), () {
+        int glitchDuration = 100 + _random.nextInt(300);
+        
+        Future.delayed(Duration(milliseconds: glitchDuration), () {
           if (mounted) {
-            setState(() => _isTitleGlitching = false);
-            _scheduleGlitch(); // Programar el siguiente
+            setState(() {
+              _isTitleGlitching = false;
+              if (_currentTitleIndex != 0 && _random.nextDouble() < 0.6) {
+                Future.delayed(const Duration(milliseconds: 300), () {
+                  if (mounted) {
+                    setState(() => _isTitleGlitching = true);
+                    Future.delayed(const Duration(milliseconds: 150), () {
+                      if (mounted) {
+                        setState(() {
+                          _currentTitleIndex = 0;
+                          _isTitleGlitching = false;
+                        });
+                      }
+                    });
+                  }
+                });
+              }
+            });
+            _scheduleGlitch();
           }
         });
       }
@@ -190,13 +222,13 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               VHSGlitchTitle(
-                                text: 'EXPEDIENTE', 
+                                text: _titleTranslations[_currentTitleIndex % _titleTranslations.length][0], 
                                 fontSize: 64, 
                                 isGlitching: _isTitleGlitching,
                               ),
                               const SizedBox(width: 24),
                               VHSGlitchTitle(
-                                text: 'KŌRIN',
+                                text: _titleTranslations[_currentTitleIndex % _titleTranslations.length][1],
                                 fontSize: 64, 
                                 isGlitching: _isTitleGlitching,
                               ),
@@ -525,70 +557,72 @@ class VHSGlitchTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final Random random = Random();
     
+    final textStyle = GoogleFonts.specialElite(
+      fontSize: fontSize,
+      fontWeight: FontWeight.bold,
+      letterSpacing: 8,
+      height: 1.1,
+    );
+    
     // Si no hay glitch, mostrar texto normal blanco
     if (!isGlitching) {
       return Text(
         text,
-        style: GoogleFonts.specialElite(
-          color: Colors.white, // Blanco solicitado
-          fontSize: fontSize,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 8,
-          height: 1.1,
+        style: textStyle.copyWith(
+          color: Colors.white,
           shadows: [
             Shadow(
               color: Colors.black.withValues(alpha: 0.8),
               offset: const Offset(2, 2),
               blurRadius: 4,
             ),
+            // Resplandor ligero constante
+            Shadow(
+              color: Colors.red.withValues(alpha: 0.3),
+              offset: const Offset(0, 0),
+              blurRadius: 10,
+            ),
           ],
         ),
       );
     }
 
-    // Efecto Glitch: Aberración cromática (Rojo/Azul desfasados)
+    // Efecto Glitch: Aberración cromática drástica, rotación y desplazamiento
+    double xOffset = 4.0 + random.nextDouble() * 6.0; // Desplazamiento X fuerte (4 a 10px)
+    double yOffset = -2.0 + random.nextDouble() * 4.0; // Desplazamiento Y (-2 a 2px)
+    
     return Stack(
       children: [
-        // Capa Roja (Desfasada a la izquierda)
+        // Capa Verde (Fondo adicional VHS/Glitch)
         Transform.translate(
-          offset: const Offset(-3, 0),
+          offset: Offset(-xOffset * 1.5, yOffset * 0.5),
           child: Text(
             text,
-            style: GoogleFonts.specialElite(
-              color: Colors.red.withValues(alpha: 0.8),
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 8,
-              height: 1.1,
-            ),
+            style: textStyle.copyWith(color: Colors.greenAccent.withValues(alpha: 0.4)),
           ),
         ),
-        // Capa Azul (Desfasada a la derecha)
+        // Capa Roja (Desfasada a la izquierda/arriba)
         Transform.translate(
-          offset: const Offset(3, 0),
+          offset: Offset(-xOffset, yOffset),
           child: Text(
             text,
-            style: GoogleFonts.specialElite(
-              color: Colors.blue.withValues(alpha: 0.8),
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 8,
-              height: 1.1,
-            ),
+            style: textStyle.copyWith(color: Colors.red.withValues(alpha: 0.9)),
           ),
         ),
-        // Capa Blanca (Centro, con leve temblor vertical)
+        // Capa Azul (Desfasada a la derecha/abajo)
         Transform.translate(
-          offset: Offset(0, random.nextDouble() * 2 - 1),
+          offset: Offset(xOffset, -yOffset),
           child: Text(
             text,
-            style: GoogleFonts.specialElite(
-              color: Colors.white,
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 8,
-              height: 1.1,
-            ),
+            style: textStyle.copyWith(color: Colors.cyan.withValues(alpha: 0.9)),
+          ),
+        ),
+        // Capa Blanca principal (Centro, con temblor fuerte)
+        Transform.translate(
+          offset: Offset(random.nextDouble() * 8.0 - 4.0, random.nextDouble() * 8.0 - 4.0),
+          child: Text(
+            text,
+            style: textStyle.copyWith(color: Colors.white),
           ),
         ),
       ],
