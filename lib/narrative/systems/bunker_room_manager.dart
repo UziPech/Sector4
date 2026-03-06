@@ -308,8 +308,7 @@ class BunkerRoomManager {
             dialogues: const [
               DialogueData(
                 speakerName: 'Dan',
-                text:
-                    'Cuchillo del Diente Caótico y mi pistola estándar. Hora de trabajar.',
+                text: 'Cuchillo táctico \'Diente Caótico\' y mi arma reglamentaria. Es hora de despertar al perro de caza.',
                 type: DialogueType.internal,
               ),
               DialogueData(
@@ -370,14 +369,7 @@ class BunkerRoomManager {
             dialogues: const [
               DialogueData(
                 speakerName: 'Dan',
-                text:
-                    'Reportes sobre Resonantes. Entidades que se alimentan de emociones...',
-                type: DialogueType.internal,
-              ),
-              DialogueData(
-                speakerName: 'Dan',
-                text:
-                    'Necesitan un "ancla" física. Un objeto obsesivo que los mantiene en este plano.',
+                text: 'Expedientes de Resonantes... Parásitos que se anclan a los peores recuerdos de la humanidad. Tendremos que cortar esas anclas.',
                 type: DialogueType.internal,
               ),
             ],
@@ -441,96 +433,58 @@ class BunkerRoomManager {
               ),
               DialogueData(
                 speakerName: 'Mel',
-                text:
-                    'Lo sé. El ex-investigador que voló doce horas para convertirse en un padre desesperado.',
+                text: 'Lo sé. El ex-investigador clínico que cruzó el mundo para convertirse en un padre desesperado.',
                 avatarPath: 'assets/avatars/dialogue_icons/mel_dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Mel',
-                text: 'Un perfil que el Sector 4 ama.',
+                text: 'El perfil exacto que viene a morir aquí.',
                 avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Dan',
-                text:
-                    'Marcus dijo que eres Soporte Vital. ¿Qué significa en campo?',
+                text: 'Marcus te asignó conmigo. Dijo que cubrirías mi espalda, que serías mi soporte en el campo.',
                 avatarPath: 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Mel',
-                text: 'Significa que soy el ancla.',
+                text: 'No soy un escudo, Dan. Soy tu ancla a este lado del velo.',
                 avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Mel',
-                text:
-                    'Aquí no cazamos básicos de Sector 2, los que atacan por puro instinto.',
-                avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
-              ),
-              DialogueData(
-                speakerName: 'Mel',
-                text:
-                    'Aquí enfrentamos Amenazas de Sector 4. Kijin. Cazadores tácticos.',
-                avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
-              ),
-              DialogueData(
-                speakerName: 'Mel',
-                text:
-                    'Piensan. Priorizan objetivos. Flanquean. Se alimentan de la ira.',
+                text: 'No nos enfrentamos a bestias que cazan por instinto. Son Kijin. Analizan. Esperan. Beben de tu ira y saben exactamente qué recuerdo utilizar para romperte.',
                 avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Dan',
-                text: 'Lo sé. Marcus me lo explicó.',
+                text: 'He leído los expedientes. Conozco los riesgos.',
                 avatarPath: 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Mel',
-                text: 'No todo.',
+                text: 'Los expedientes no respiran. Cuando la desesperación carcoma tu mente y tu pulso ceda, yo tendré que devolverte a la luz.',
                 avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Mel',
-                text:
-                    'Si te superan, si la desesperación te rompe, no solo detengo sangrados.',
-                avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
-              ),
-              DialogueData(
-                speakerName: 'Mel',
-                text:
-                    'Te afirmo a la vida. Te devuelvo al foco cuando el cuerpo cede.',
+                text: 'Pero mi luz no es infinita. Toma tiempo hilar la conexión de nuevo.',
                 avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Dan',
-                text: 'Recuperación. Lo entiendo.',
+                text: '¿Me estás diciendo que si pido tu ayuda a ciegas...?',
                 avatarPath: 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Mel',
-                text: 'Es más que eso. Y no es infinito.',
-                avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
-              ),
-              DialogueData(
-                speakerName: 'Dan',
-                text: '¿Recurso?',
-                avatarPath: 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
-              ),
-              DialogueData(
-                speakerName: 'Mel',
-                text:
-                    'Tengo una ventana de recarga. Si me fuerzas sin cabeza, me pedirás cuando aún no esté lista.',
+                text: 'Si te lanzas al matadero por impulso o egoísmo y tu alma se apaga antes de que yo pueda extender la mano...',
                 avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Mel',
-                text: 'Y entonces mueres.',
+                text: 'Te quedarás en la oscuridad. Ahora solo somos tú, tu caída, y yo.',
                 avatarPath: 'assets/avatars/dialogue_icons/Mel_Dialogue.png',
-              ),
-              DialogueData(
-                speakerName: 'Dan',
-                text: 'Gestión de recursos. Sinergia. Entendido.',
-                avatarPath: 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
               ),
             ],
           ),
@@ -607,24 +561,27 @@ class BunkerRoomManager {
               ),
               DialogueData(
                 speakerName: 'Dan',
-                text: 'Te copio. Estoy en el centro de comando.',
+                text: 'Fuerte y claro. Estoy en el centro de mando.',
                 avatarPath: 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Marcus',
-                text:
-                    'Emma está en el Sector 4. Actividad Resonante confirmada.',
+                text: 'Confirmamos la anomalía cerca de la facultad donde estudiaba Emma.',
                 avatarPath: 'assets/avatars/dialogue_icons/Marcus_Dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Marcus',
-                text:
-                    'Recuerda: los Resonantes son invulnerables hasta que destruyas su objeto obsesivo.',
+                text: 'Escucha con atención: los ecos que enfrentarás atan su ser a este mundo a través de objetos corruptos. Reliquias de su sufrimiento.',
+                avatarPath: 'assets/avatars/dialogue_icons/Marcus_Dialogue.png',
+              ),
+              DialogueData(
+                speakerName: 'Marcus',
+                text: 'Mientras esos objetos sigan intactos en el entorno, ellos no morirán. Destruye la fuente, rompe el eco.',
                 avatarPath: 'assets/avatars/dialogue_icons/Marcus_Dialogue.png',
               ),
               DialogueData(
                 speakerName: 'Dan',
-                text: 'Entendido. Voy para allá.',
+                text: 'Buscar y destruir el origen. Entendido.',
                 avatarPath: 'assets/avatars/dialogue_icons/Dan_Dialogue.png',
               ),
             ],

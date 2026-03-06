@@ -73,27 +73,22 @@ class RoomManager {
               ),
               DialogueData(
                 speakerName: 'Dan',
-                text: 'Esta puerta... cuántas veces la abrí sin pensar.',
+                text: 'El pomo sigue frío. Como si nadie lo hubiera tocado en años.',
                 type: DialogueType.internal,
               ),
               DialogueData(
                 speakerName: 'Dan',
-                text: 'Sarah...',
+                text: 'Sarah... siempre dejabas la luz encendida. Decías que el silencio traía a los fantasmas.',
                 type: DialogueType.internal,
               ),
               DialogueData(
                 speakerName: 'Dan',
-                text: 'Siempre dejaba la luz encendida. Decía que le daba miedo la oscuridad.',
+                text: 'Te equivocabas. Los fantasmas ya estaban aquí.',
                 type: DialogueType.internal,
               ),
               DialogueData(
                 speakerName: 'Dan',
-                text: 'Ahora la oscuridad es lo único que queda.',
-                type: DialogueType.internal,
-              ),
-              DialogueData(
-                speakerName: 'Dan',
-                text: 'No puedo entrar ahí. Todavía no.',
+                text: 'Aún no puedo entrar. Si lo hago, tendré que aceptar que ya no estás.',
                 type: DialogueType.internal,
               ),
             ],
@@ -156,10 +151,15 @@ class RoomManager {
           // spritePath: 'assets/sprites/objects/desk.png',
           dialogue: DialogueSequence(
             id: 'emma_desk_dialogue',
-            dialogues: [
-              const DialogueData(
+            dialogues: const [
+              DialogueData(
                 speakerName: 'Dan',
-                text: 'Su escritorio. Tan ordenado, tan meticuloso.',
+                text: 'Incluso en el caos, Emma siempre mantenía el orden. Notas codificadas, libros apilados.',
+                type: DialogueType.internal,
+              ),
+              DialogueData(
+                speakerName: 'Dan',
+                text: 'El único ancla a la cordura que me queda en este mundo.',
                 type: DialogueType.internal,
               ),
             ],
@@ -220,10 +220,20 @@ class RoomManager {
           // spritePath: 'assets/sprites/objects/photos.png',
           dialogue: DialogueSequence(
             id: 'emma_photos_dialogue',
-            dialogues: [
-              const DialogueData(
+            dialogues: const [
+              DialogueData(
                 speakerName: 'Dan',
-                text: 'Recuerdos de tiempos mejores...',
+                text: 'Es extraño ver esta foto. Éramos una familia.',
+                type: DialogueType.internal,
+              ),
+              DialogueData(
+                speakerName: 'Dan',
+                text: 'Ahora la casa está demasiado silenciosa.',
+                type: DialogueType.internal,
+              ),
+              DialogueData(
+                speakerName: 'Dan',
+                text: '...Y el teléfono de su apartamento en Kioto ha dejado de sonar.',
                 type: DialogueType.internal,
               ),
             ],
@@ -266,20 +276,50 @@ class RoomManager {
           size: const Vector2(60, 60),
           dialogue: DialogueSequence(
             id: 'phone_dialogue',
-            dialogues: [
-              const DialogueData(
+            dialogues: const [
+              DialogueData(
                 speakerName: 'System',
-                text: '*Ring Ring*',
+                text: '*El teléfono suena. Un tono insistente.*',
                 type: DialogueType.system,
               ),
-              const DialogueData(
+              DialogueData(
                 speakerName: 'Dan',
-                text: '¿Hola?',
+                text: '... ¿Sí?',
                 avatarPath: 'assets/avatars/dialogue_icons/dan_dialogue.png',
               ),
-              const DialogueData(
+              DialogueData(
                 speakerName: 'Marcus',
-                text: 'Dan. Soy Marcus.',
+                text: 'Dan. Ha pasado un tiempo. Sé que no es el mejor momento y que el silencio pesa más que nunca...',
+                avatarPath: 'assets/avatars/dialogue_icons/marcus_dialogue.png',
+              ),
+              DialogueData(
+                speakerName: 'Dan',
+                text: '¿Marcus? ¿Qué quieres? Te dije que estaba fuera.',
+                avatarPath: 'assets/avatars/dialogue_icons/dan_dialogue.png',
+              ),
+              DialogueData(
+                speakerName: 'Marcus',
+                text: 'Emma ya no responde, Dan. Y no es solo ella.',
+                avatarPath: 'assets/avatars/dialogue_icons/marcus_dialogue.png',
+              ),
+              DialogueData(
+                speakerName: 'Dan',
+                text: '...',
+                avatarPath: 'assets/avatars/dialogue_icons/dan_dialogue.png',
+              ),
+              DialogueData(
+                speakerName: 'Marcus',
+                text: 'La universidad de Kioto es una tumba abierta. Las entidades... no son lo que solíamos ver. Nacen de los ecos de la violencia. La desesperación está tomando forma física.',
+                avatarPath: 'assets/avatars/dialogue_icons/marcus_dialogue.png',
+              ),
+              DialogueData(
+                speakerName: 'Marcus',
+                text: 'Llevamos días perdiendo terreno. Necesitamos a alguien que no tenga nada más que perder, alguien del Asalto de Élite.',
+                avatarPath: 'assets/avatars/dialogue_icons/marcus_dialogue.png',
+              ),
+              DialogueData(
+                speakerName: 'Marcus',
+                text: 'Entra ahí, quema lo que tengas que quemar, pero sácala.',
                 avatarPath: 'assets/avatars/dialogue_icons/marcus_dialogue.png',
               ),
             ],

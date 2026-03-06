@@ -214,7 +214,7 @@ class _BunkerSceneState extends State<BunkerScene>
             ),
             DialogueData(
               speakerName: 'Dan',
-              text: 'Mel me está esperando. Necesito llegar a la entrada.',
+              text: 'Marcus mencionó un ancla... Sea lo que sea, necesito encontrar esa entrada.',
               type: DialogueType.internal,
             ),
           ],
