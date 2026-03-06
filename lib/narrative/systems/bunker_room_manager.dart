@@ -93,43 +93,7 @@ class BunkerRoomManager {
       backgroundColor: const Color(0xFF4A5A4A), // Verde grisáceo
       playerSpawnPosition: const Vector2(350, 350),
       roomSize: const Size(700, 500),
-      interactables: [
-        InteractableData(
-          id: 'bunker_entrance',
-          name: 'Entrada del Búnker',
-          position: const Vector2(350, 100),
-          size: const Vector2(100, 80),
-          type: InteractableType.door,
-          spritePath: 'assets/images/objects/bunker_door.png',
-          dialogue: DialogueSequence(
-            id: 'entrance_dialogue',
-            dialogues: const [
-              DialogueData(
-                speakerName: 'Dan',
-                text: 'El búnker. Hace años que no venía aquí.',
-                type: DialogueType.internal,
-              ),
-            ],
-          ),
-        ),
-        InteractableData(
-          id: 'bunker_sign',
-          name: 'Señalización',
-          position: const Vector2(200, 150),
-          size: const Vector2(60, 60),
-          type: InteractableType.object,
-          dialogue: DialogueSequence(
-            id: 'sign_dialogue',
-            dialogues: const [
-              DialogueData(
-                speakerName: 'Sistema',
-                text: 'BÚNKER CLASIFICADO - ACCESO RESTRINGIDO',
-                type: DialogueType.system,
-              ),
-            ],
-          ),
-        ),
-      ],
+      interactables: [],
       doors: [
         const DoorData(
           id: 'door_to_vestibule',

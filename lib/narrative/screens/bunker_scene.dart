@@ -267,10 +267,40 @@ class _BunkerSceneState extends State<BunkerScene>
     // Prioridad: Puertas
     for (final door in room.doors) {
       if (door.isPlayerInRange(_playerPosition, _playerSize)) {
-        _transitionToRoom(
-          door.targetRoomId,
-          spawnPosition: door.targetSpawnPosition,
-        );
+        if (door.id == 'door_to_vestibule') {
+          setState(() {
+            _isDialogueActive = true;
+          });
+          DialogueOverlay.show(
+            context,
+            DialogueSequence(
+              id: 'entrance_dialogue',
+              dialogues: const [
+                DialogueData(
+                  speakerName: 'Dan',
+                  text: 'El búnker. Hace años que no venía aquí.',
+                  type: DialogueType.internal,
+                ),
+              ],
+            ),
+            onComplete: () {
+              if (mounted) {
+                setState(() {
+                  _isDialogueActive = false;
+                });
+              }
+              _transitionToRoom(
+                door.targetRoomId,
+                spawnPosition: door.targetSpawnPosition,
+              );
+            },
+          );
+        } else {
+          _transitionToRoom(
+            door.targetRoomId,
+            spawnPosition: door.targetSpawnPosition,
+          );
+        }
         return;
       }
     }

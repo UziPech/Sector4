@@ -333,7 +333,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                 ),
               ),
             ),
-          ),
+        ),
         ],
       ),
     );
