@@ -45,75 +45,79 @@ class MissionNotification extends PositionComponent with HasGameReference<Expedi
 
     final screenSize = game.size;
     final centerX = screenSize.x / 2;
-    final centerY = screenSize.y * 0.2; // Top 20%
+    final centerY = screenSize.y * 0.15; // Un poco más arriba
 
-    // Background Strip
+    // Dimensiones de la caja de diálogo
+    const double boxWidth = 500.0;
+    const double boxHeight = 100.0;
+    final rect = Rect.fromCenter(
+      center: Offset(centerX, centerY),
+      width: boxWidth,
+      height: boxHeight,
+    );
+
+    // Fondo Café Oscuro
     final bgPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.6 * alpha)
+      ..color = const Color(0xFF1E140C).withValues(alpha: 0.95 * alpha) // Café muy oscuro
       ..style = PaintingStyle.fill;
     
-    // Draw a strip across the screen
-    canvas.drawRect(
-      Rect.fromLTWH(0, centerY - 40, screenSize.x, 80),
-      bgPaint,
-    );
-    
-    // Borders
+    // Borde Óxido/Bronce
     final borderPaint = Paint()
-      ..color = Colors.red.withValues(alpha: 0.8 * alpha)
+      ..color = const Color(0xFF8B5A2B).withValues(alpha: 0.9 * alpha) // Color óxido/latón
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-      
-    canvas.drawLine(
-      Offset(0, centerY - 40),
-      Offset(screenSize.x, centerY - 40),
-      borderPaint
-    );
-    
-    canvas.drawLine(
-      Offset(0, centerY + 40),
-      Offset(screenSize.x, centerY + 40),
-      borderPaint
-    );
+      ..strokeWidth = 3;
 
-    // Title
+    // Dibujar la caja con bordes ligeramente redondeados o rectos (estilo viejo)
+    final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(4)); // Borde sutil
+    canvas.drawRRect(rrect, bgPaint);
+    canvas.drawRRect(rrect, borderPaint);
+
+    // Borde interno sutil para profundidad
+    final innerBorderPaint = Paint()
+      ..color = const Color(0xFFCDBA96).withValues(alpha: 0.2 * alpha) // Pergamino transparente
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    final innerRect = rect.deflate(4);
+    final innerRRect = RRect.fromRectAndRadius(innerRect, const Radius.circular(2));
+    canvas.drawRRect(innerRRect, innerBorderPaint);
+
+
+    // Título Principal
     final titlePainter = TextPainter(
       text: TextSpan(
         text: _title,
         style: TextStyle(
-          color: Colors.redAccent.withValues(alpha: alpha),
-          fontSize: 32,
+          color: const Color(0xFFE8D3A2).withValues(alpha: alpha), // Pergamino pálido
+          fontSize: 28,
           fontWeight: FontWeight.bold,
           fontFamily: 'monospace',
-          letterSpacing: 4.0,
+          letterSpacing: 2.0,
           shadows: [
-            Shadow(color: Colors.black, offset: Offset(2, 2), blurRadius: 4),
-            Shadow(color: Colors.red, offset: Offset(0, 0), blurRadius: 10),
+            Shadow(color: Colors.black.withValues(alpha: alpha), offset: const Offset(2, 2), blurRadius: 2), // Sombra dura clásica
           ],
         ),
       ),
       textDirection: TextDirection.ltr,
     );
-    titlePainter.layout();
+    titlePainter.layout(maxWidth: boxWidth - 30);
     titlePainter.paint(
       canvas, 
-      Offset(centerX - titlePainter.width / 2, centerY - 30)
+      Offset(centerX - titlePainter.width / 2, centerY - 25)
     );
 
-    // Subtitle
+    // Subtítulo
     final subPainter = TextPainter(
       text: TextSpan(
         text: _subtitle,
         style: TextStyle(
-          color: Colors.white.withValues(alpha: alpha),
-          fontSize: 16,
-          fontStyle: FontStyle.italic,
+          color: const Color(0xFFC0A080).withValues(alpha: alpha), // Café claro
+          fontSize: 14,
           fontFamily: 'monospace',
         ),
       ),
       textDirection: TextDirection.ltr,
     );
-    subPainter.layout();
+    subPainter.layout(maxWidth: boxWidth - 30);
     subPainter.paint(
       canvas, 
       Offset(centerX - subPainter.width / 2, centerY + 10)

@@ -81,7 +81,7 @@ class BunkerBossLevel extends Component
 
     // 5.5. Mensaje de advertencia de zona peligrosa
     game.notificationSystem.show(
-      '⚠️ ZONA PELIGROSA ⚠️',
+      'ZONA PELIGROSA',
       'ENTIDAD HOSTIL DETECTADA - NIVEL DE AMENAZA: CRÍTICO',
     );
 
