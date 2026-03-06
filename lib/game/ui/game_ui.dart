@@ -9,6 +9,7 @@ import '../../combat/weapon_system.dart';
 
 // Vector2
 import 'dynamic_joystick_overlay.dart';
+import 'settings_overlay.dart';
 
 // ─────────────────────────────────────────────────────────────────────
 // Paleta de colores oscuros / café (horror UX)
@@ -119,38 +120,16 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
           top: 12,
           right: 12,
           child: SafeArea(
-            child: GestureDetector(
-              onTap: () => setState(() {
-                _isConfigOpen = !_isConfigOpen;
-                _isConfigOpen
-                    ? widget.game.pauseEngine()
-                    : widget.game.resumeEngine();
-              }),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                width: _isConfigOpen ? 260 : 44,
-                height: _isConfigOpen ? 320 : 44,
-                padding: _isConfigOpen
-                    ? const EdgeInsets.all(12)
-                    : const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: _brown900.withValues(alpha: 0.85),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: _brown400.withValues(alpha: 0.5), width: 1),
-                ),
-                child: _isConfigOpen
-                    ? OverflowBox(
-                        minWidth: 236,
-                        maxWidth: 236,
-                        minHeight: 296,
-                        maxHeight: 296,
-                        child: Material(
-                          type: MaterialType.transparency,
-                          child: _buildConfigPanel(),
-                        ),
-                      )
-                    : const Icon(Icons.settings, color: _white60, size: 24),
-              ),
+            child: SettingsOverlay(
+              isOpen: _isConfigOpen,
+              onToggle: () {
+                setState(() {
+                  _isConfigOpen = !_isConfigOpen;
+                  _isConfigOpen
+                      ? widget.game.pauseEngine()
+                      : widget.game.resumeEngine();
+                });
+              },
             ),
           ),
         ),
@@ -604,161 +583,5 @@ class _GameUIState extends State<GameUI> with SingleTickerProviderStateMixin {
     );
   }
 
-  // ── PANEL DE CONFIGURACIÓN ──────────────────────────────────────────
-  Widget _buildConfigPanel() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('SISTEMA',
-                style: TextStyle(
-                    color: _amber,
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'monospace',
-                    letterSpacing: 1.4)),
-            GestureDetector(
-              onTap: () => setState(() {
-                _isConfigOpen = false;
-                widget.game.resumeEngine();
-              }),
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: _brown400.withValues(alpha: 0.5))),
-                child: const Icon(Icons.close, color: _white60, size: 14),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Divider(color: _brown400.withValues(alpha: 0.4), height: 1),
-        const SizedBox(height: 16),
-        _configSlider('MÚSICA', _volume, (v) {
-          setState(() {
-            _volume = v;
-            AudioManager().musicVolume = v;
-            FlameAudio.bgm.audioPlayer.setVolume(v);
-          });
-        }),
-        const SizedBox(height: 12),
-        _configSlider('EFECTOS', AudioManager().sfxVolume, (v) {
-          setState(() => AudioManager().sfxVolume = v);
-        }),
-        const Spacer(),
-        SizedBox(
-          width: double.infinity,
-          height: 40,
-          child: ElevatedButton(
-            onPressed: _confirmExit,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _redDim.withValues(alpha: 0.3),
-              foregroundColor: const Color(0xFFE07070),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(6),
-                side: const BorderSide(color: _redDim),
-              ),
-              elevation: 0,
-            ),
-            child: const Text('SALIR AL MENÚ',
-                style: TextStyle(
-                    fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'monospace')),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _configSlider(String label, double value, ValueChanged<double> onChanged) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label,
-            style: const TextStyle(
-                color: _white60, fontSize: 11, fontFamily: 'monospace')),
-        const SizedBox(height: 4),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            activeTrackColor: _amber,
-            inactiveTrackColor: _brown700,
-            thumbColor: _amber,
-            trackHeight: 3,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-            overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
-          ),
-          child: SizedBox(
-            height: 28,
-            child: Slider(value: value, onChanged: onChanged),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _confirmExit() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.all(20),
-        child: Container(
-          width: 360,
-          padding: const EdgeInsets.all(28),
-          decoration: BoxDecoration(
-            color: _brown900.withValues(alpha: 0.95),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: _brown400.withValues(alpha: 0.5)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('¿ABORTAR MISIÓN?',
-                  style: TextStyle(
-                      color: Color(0xFFE07070),
-                      fontSize: 16,
-                      fontFamily: 'monospace',
-                      fontWeight: FontWeight.bold)),
-              const SizedBox(height: 12),
-              const Text('El progreso no guardado se perderá.',
-                  style: TextStyle(
-                      color: _white60, fontSize: 12, fontFamily: 'monospace'),
-                  textAlign: TextAlign.center),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: const Text('CANCELAR',
-                        style: TextStyle(color: _white60, fontSize: 11)),
-                  ),
-                  const SizedBox(width: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (_) => const MenuScreen()));
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _redDim,
-                      foregroundColor: Colors.white,
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    ),
-                    child: const Text('CONFIRMAR', style: TextStyle(fontSize: 11)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
 
