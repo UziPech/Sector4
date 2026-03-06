@@ -1,0 +1,4 @@
+assets/sprites/stalker/stalker_walk_horizontal.png: 1408 x 768
+assets/sprites/stalker/stalker_walk_espaldas.png: 1408 x 768
+assets/sprites/stalker/stalker_walk_defrente.png: 2816 x 1536
+assets/sprites/stalker/stalker_parado.png: 1408 x 768

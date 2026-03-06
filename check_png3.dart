@@ -1,20 +1,24 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-void checkDims(String path) {
+void checkDims(String path, File out) {
   final file = File(path);
   if (!file.existsSync()) {
-    print('\$path not found');
+    out.writeAsStringSync('\$path not found\n', mode: FileMode.append);
     return;
   }
   final bytes = file.readAsBytesSync();
   if (bytes.length < 24) return;
   final width = ByteData.view(bytes.buffer).getUint32(16);
   final height = ByteData.view(bytes.buffer).getUint32(20);
-  print('\$path: \$width x \$height');
+  out.writeAsStringSync('$path: $width x $height\n', mode: FileMode.append);
 }
 
 void main() {
-  checkDims('assets/sprites/dan_walk_north.png');
-  checkDims('assets/sprites/dan_walk_south.png');
+  final out = File('out.txt');
+  if (out.existsSync()) out.deleteSync();
+  checkDims('assets/sprites/stalker/stalker_walk_horizontal.png', out);
+  checkDims('assets/sprites/stalker/stalker_walk_espaldas.png', out);
+  checkDims('assets/sprites/stalker/stalker_walk_defrente.png', out);
+  checkDims('assets/sprites/stalker/stalker_parado.png', out);
 }
