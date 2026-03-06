@@ -587,33 +587,14 @@ class StalkerEnemy extends EnemyCharacter {
     _dashHitPlayer = false;
     _shakeOffset = Vector2.zero();
 
-    // VOLVER A SPRITE DE WALK según la dirección del charge
-    SpriteAnimationComponent? walkSprite;
-    if (_currentSprite == _spriteChargeUp) {
-      walkSprite = _spriteUp;
-    } else if (_currentSprite == _spriteChargeDown) {
-      walkSprite = _spriteDown;
-    } else if (_currentSprite == _spriteChargeRight) {
-      walkSprite = _spriteRight;
-    } else if (_currentSprite == _spriteChargeLeft) {
-      walkSprite = _spriteLeft;
-    }
-
-    // Cambiar sprite usando el método seguro
-    if (walkSprite != null) {
-      _switchToSprite(walkSprite);
-
-      // Efectos visuales durante el dash - preservar flip si es sprite left
+    // Mantener el sprite de charge durante el dash y su escala natural
+    if (_currentSprite != null) {
       if (_currentSprite == _spriteLeft ||
           _currentSprite == _spriteChargeLeft) {
-        _currentSprite!.scale = Vector2(
-          -1.2,
-          1.2,
-        ); // Más grande pero manteniendo flip
+        _currentSprite!.scale = Vector2(-1.0, 1.0); // flip horizontal
       } else {
-        _currentSprite!.scale = Vector2.all(1.2); // Más grande
+        _currentSprite!.scale = Vector2.all(1.0); // normal
       }
-      // print('ðŸ”„ Cambiado a sprite de walk para dash');
     }
 
     // Reactivar movimiento
@@ -630,16 +611,13 @@ class StalkerEnemy extends EnemyCharacter {
     _dashTargetPosition = null;
     _shakeOffset = Vector2.zero();
 
-    // Restaurar tamaño normal del sprite - preservar flip si es sprite left
+    // Restaurar tamaño normal del sprite
     if (_currentSprite != null) {
       if (_currentSprite == _spriteLeft ||
           _currentSprite == _spriteChargeLeft) {
-        _currentSprite!.scale = Vector2(
-          -1.0,
-          1.0,
-        ); // Tamaño normal pero manteniendo flip
+        _currentSprite!.scale = Vector2(-1.0, 1.0); // flip horizontal
       } else {
-        _currentSprite!.scale = Vector2.all(1.0);
+        _currentSprite!.scale = Vector2.all(1.0); // normal
       }
     }
 
