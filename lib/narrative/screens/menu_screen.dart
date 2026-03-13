@@ -7,6 +7,7 @@ import 'package:video_player/video_player.dart';
 import 'story_screen.dart';
 import 'login_screen.dart';
 import '../../game/audio_manager.dart';
+import '../../game/ui/controls_overlay.dart';
 
 /// Pantalla del menú principal con efectos visuales avanzados
 class MenuScreen extends StatefulWidget {
@@ -286,13 +287,13 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                             ),
                             const SizedBox(height: 20),
                             _MenuButton(
-                              text: 'OPCIONES',
+                              text: 'CONTROLES',
                               onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Opciones - Próximamente'),
-                                    duration: Duration(seconds: 1),
-                                  ),
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return const ControlsOverlay();
+                                  },
                                 );
                               },
                             ),
